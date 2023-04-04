@@ -1,0 +1,108 @@
+%!TEX root = main.tex
+\chapter[Evaluaci\'on]{Evaluaci\'on}
+\label{cap:evaluation}
+
+
+\begin{table}[!thb]
+\caption{Execution times (sec) of BEAPI under different configurations.}
+\tiny
+
+\begin{minipage}{.48\textwidth}
+\centering
+
+\begin{tabular}{ l r | r | r | r | r  }
+  \toprule
+  \multicolumn{6}{c}{\textbf{ROOPS}} \\
+  \midrule 
+  \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
+  \midrule
+  AVL
+  & 3& .02 & .04 & .34 & - \\ 
+  & 4& .03 & .07 & 102.16 & - \\ 
+  & 5& .05 & .11 & - & - \\ 
+  & 13& 46.71 & 657.17 & - & - \\ 
+  \midrule
+  NCL
+  & 3& .04 & 1.31 & 1.37 & 7.96 \\ 
+  & 4& .10 & 9.59 & 52.17 & - \\ 
+  & 5& .34 & 40.54 & - & - \\ 
+  & 8& 769.63 & - & - &  -\\ 
+  \midrule
+  BinTree
+  & 3& .02 & .04 & .23 & 33.84 \\ 
+  & 4& .05 & .08 & 85.32 & - \\ 
+  & 5& .11 & .16 & - & - \\ 
+  & 12& 966.41 & 2281.42 & - & - \\ 
+  \midrule
+  LList
+  & 3& .03 & .09 & .26 & - \\ 
+  & 4& .07 & .48 & 115.27 & - \\ 
+  & 5& .18 & 118.75 & - & - \\ 
+  & 8& 295.94 & - & - & - \\ 
+  \midrule
+  RBT
+  & 3& .04 & .04 & 39.11 & - \\ 
+  & 4& .11 & .09 & - & - \\ 
+  & 5& .22 & .14 & - & - \\ 
+  & 12& 81.03 & 2379.44 & - & - \\ 
+  \midrule
+  FibHeap
+  & 3& .04 & .09 & .94 & - \\ 
+  & 4& .13 & .20 &  & - \\ 
+  & 5& .70 & 1.13 &  & - \\ 
+  & 7& 129.01 & 243.36 & - & - \\ 
+  \midrule
+  BinHeap
+  & 3& .05 & .11 & 2.03 & 18.38 \\ 
+  & 4& .09 & .34 & - & - \\ 
+  & 5& .26 & .96 & - & - \\  
+  & 8& 96.94 & 220.18 & - & - \\ 
+  \bottomrule
+
+\end{tabular}
+    \end{minipage}%
+\begin{minipage}{.48\textwidth}
+\centering
+\begin{tabular}{ l r | r | r | r | r  }
+  \toprule
+  \multicolumn{6}{c}{\textbf{Real World}} \\
+  \midrule 
+  \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
+  \midrule
+  NCL
+  & 3 & .10 & .47 & -  & -  \\
+  & 4 & .41 & 3.48  &  - & -  \\
+  & 5 & 3.33  &  - &  - & -  \\
+  & 6 & 73.78 &  - &  - &  - \\
+  \midrule
+  TSet
+  & 3 & .03 & .07 & 56.82 & - \\
+  & 11  & 21.52 & 86.06 &  - & -  \\
+  & 12  & 69.98 & 276.85  &  - & -  \\
+  & 13  & 226.66  & 887.83  &  - & -  \\
+    \midrule
+  TMap
+  & 3 & .11 & .25 & - & - \\
+  & 4 & .75 & 2.36  &  - &  - \\
+  & 5 & 15.97 & 57.64 &  - & -  \\
+  & 6 & 839.87  & 2901.37 &  - &  - \\
+  \midrule
+  LList
+  & 3 & .02 & .13 & .64 & - \\
+  & 6 & .96 & 258.85  & -  &  - \\
+  & 7 & 12.98 &  - &  - &  - \\
+  & 8 & 286.21  & -  & -  & -  \\
+  \midrule
+  HMap
+  & 3 & .10 & 11.49 & - & - \\
+  & 4 & .55 & -  & -  & -  \\
+  & 5 & 5.33  & -  &  - &  - \\
+  & 6 & 119.87  &  - &  - &  - \\
+  \bottomrule
+
+\end{tabular}
+    \end{minipage}%
+
+\label{table:beapi}
+\end{table}
+

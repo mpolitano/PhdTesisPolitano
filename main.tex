@@ -1,0 +1,134 @@
+%\documentclass[10pt]{report} %twoside para impresion final 
+\documentclass[11pt,a4paper]{report} %a4paper,
+
+% Note: Make all your adjustments in here
+\input{classicthesis-config}
+
+\titleformat{\paragraph}[runin]
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}   {0pt}{3.25ex plus 1ex minus .2ex}{1em}
+\babelhyphenation[spanish]{Node-Caching-Linked-List}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\usepackage{listings}
+\lstset{ %this is the stype
+        captionpos=b,
+        mathescape=true,
+        texcl=false,
+        frame=tb,
+        language=Java,
+	numbers=left,
+  	aboveskip=0mm,
+  	belowskip=0mm,
+  	showstringspaces=false,
+  	columns=flexible,
+  	basicstyle={\scriptsize\ttfamily}, 
+%        numberstyle=\scriptsize,
+%        numberstyle=\tiny,
+%        basicstyle=\scriptsize, 
+%        keywordstyle=\color{black}\bfseries\em,
+        keywordstyle=\color{blue}\bfseries,
+        commentstyle=\color{dkgreen},
+	morekeywords={,input, output, return, datatype, function, in, if, then, else, foreach, while, begin, end, inputs, outputs, procedure, for, do, done, fi, break, not, local, continue, and,} %add the keywords you want, or load a language as Rubens explains in his comment above.
+        numbers=left,
+        xleftmargin=.05\textwidth
+      }
+
+
+\lstnewenvironment{algorithm1}[1][] %defines the algorithm listing environment
+{   
+    \lstset{ %this is the stype
+        mathescape=true,
+        texcl=false,
+        frame=tb,
+        language=Java,
+	numbers=left,
+  	aboveskip=0mm,
+  	belowskip=0mm,
+  	showstringspaces=false,
+  	columns=flexible,
+  	basicstyle={\scriptsize\ttfamily}, 
+%        numberstyle=\scriptsize,
+%        numberstyle=\tiny,
+%        basicstyle=\scriptsize, 
+%        keywordstyle=\color{black}\bfseries\em,
+        keywordstyle=\color{blue}\bfseries,
+        commentstyle=\color{dkgreen},
+	morekeywords={,input, output, return, datatype, function, in, if, then, else, foreach, while, begin, end, inputs, outputs, procedure, for, do, done, fi, break, not, local, continue, and,} %add the keywords you want, or load a language as Rubens explains in his comment above.
+        numbers=left,
+        xleftmargin=.05\textwidth
+      }
+}
+{}
+
+
+\usepackage[misc]{ifsym}
+
+\begin{document}
+\frenchspacing
+% \raggedbottomn
+
+% ********************************************************************
+% Frontmatter
+\pagenumbering{roman}
+\pagestyle{plain}
+%\include{titlepage}
+\include{titlepage-famaf}
+
+\cleardoublepage\null
+\include{resumen}
+\cleardoublepage%\null
+\include{agradecimientos}
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+\listoffigures
+%\cleardoublepage
+\listoftables
+\pagestyle{scrheadings}
+%\cleardoublepage
+% ********************************************************************
+% Mainmatter
+\lstset{basicstyle=\ttfamily,showstringspaces=false}
+\pagestyle{headings}
+\pagenumbering{arabic}
+%\part{?`Porqu\'e la Ingenier\'ia de los Requisitos de Software?} %\ctparttext{text}
+\cleardoublepage
+\include{introduccion}
+\cleardoublepage
+\include{be}
+\include{mutation}
+
+%\include{requisitos-software}
+
+%\part{Mutaci\'on de expresiones de navegaci\'on para testing}
+%\cleardoublepage\null
+\include{beapi}
+\include{motivation}
+\include{builders}
+\include{evaluacion}
+% \include{Builders Identification}
+\include{conclusiones}
+\include{trabajofuturo}
+
+%\part{Validaci\'on y Verificaci\'on de Requisitos de Software} %\ctparttext{text}
+%\cleardoublepage\null
+%\include{scr-analisis}
+
+%\part{Conclusiones}
+%\cleardoublepage
+%\include{conclusion}
+
+% ********************************************************************
+% Backmatter
+\cleardoublepage\null
+%\bibliographystyle{amsplain}
+\bibliographystyle{apalike}
+%\bibliographystyle{apacite}
+%\bibliographystyle{alpha}
+%\cleardoublepage\phantomsection
+\addcontentsline{toc}{chapter}{{\sc Bibliografía}}
+\bibliography{Bibliografia}
+%\appendix
+%\cleardoublepage
+%\part{Appendix}
+\end{document}

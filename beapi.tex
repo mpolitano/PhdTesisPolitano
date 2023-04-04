@@ -1,0 +1,151 @@
+\chapter[Generacion Exhaustiva acotada desde API de los programas (FASE 23)]{Generacion Exhaustiva acotada desde API de los programas (FASE 23)}
+\label{cap:beapi}
+
+En esta tesis, he desarrollado un nuevo enfoque para la generacion de BE, llamado \textsf{BEAPI}, que funciona realizando llamadas a las rutinas de API del SUT. Al igual que los enfoques de generación de pruebas basados en API [TODO ???], \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, a menudo llamadas secuencias de prueba [TODO ???], y las ejecuta para generar estructuras. Como es habitual en la generación de BE, el usuario debe proporcionar a \textsf{BEAPI} los alcances para la generación. A diferencia de los enfoques de caja negra BE, \textsf{BEAPI} no requiere una especificación formal de las propiedades de las estructuras. La generación de fuerza bruta intentaría generar todas las secuencias de prueba factibles a partir de rutinas hasta la longitud máxima y devolvería todas las estructuras generadas por las secuencias de prueba como resultado. Sin embargo, este es un problema intrínsecamente combinatorio, y este procedimiento agota los recursos computacionales antes de completar incluso para alcances muy pequeños. Proponemos varias técnicas de poda que son cruciales para la eficiencia de \textsf{BEAPI} y que le permiten escalar a alcances más grandes. Primero, \textsf{BEAPI} ejecuta secuencias de pruebas y descarta aquellas que producen excepciones que violan las reglas de uso de la API (por ejemplo, \emph{IllegalArgumentException} e \emph{IllegalStateException} en Java [TODO ???]). En segundo lugar, \textsf{BEAPI} implementa la coincidencia de estado TODO[???] para descartar secuencias de pruebas que producen estructuras ya creadas por secuencias de pruebas exploradas previamente. En tercer lugar, \textsf{BEAPI} emplea solo un subconjunto de las rutinas de la API para crear secuencias de pruebas: un conjunto de rutinas identificadas automáticamente como \emph{builders} [TODO ??]. Es decir, antes de la generación, \textsf{BEAPI} ejecuta un enfoque automatizado de identificación de constructores para encontrar un subconjunto más pequeño de la API que sea suficiente para construir un conjunto de estructuras BE. (TODO VER CAPITULO.)
+Además de no requerir especificaciones formales, otra ventaja de \textsf{BEAPI} con respecto a los enfoques de caja negra es que, para cada estructura generada, \textsf{BEAPI} produce una secuencia de pruebas para construir la estructura utilizando la API. Esto hace que la depuración sea más fácil, ya que es mucho más fácil para los programadores comprender una secuencia de pruebas que crea una estructura que los detalles de bajo nivel de la estructura [TODO ???].
+
+\section{scope}
+
+\begin{figure}[t!]
+\begin{lstlisting}[keywordstyle=\scriptsize\ttfamily]
+max.objects=3
+int.range=0:2
+# strings=str1,str2,str3
+# omit.fields=NodeCachingLinkedList.DEFAULT_MAXIMUM_CACHE_SIZE
+\end{lstlisting}
+\caption{\textsf{BEAPI}'s scope definition for \texttt{NCL} (max. nodes 3)}
+\label{fig:NCL-fin-BEAPI}
+\end{figure}
+
+La definición de los alcances en \textsf{Korat} implica proporcionar dominios de datos acotados para las clases y campos de NCL, ya que \textsf{Korat} explora el espacio de estado de los candidatos factibles de NCL y produce el conjunto de estructuras que satisfacen repOK como resultado. En cambio, \textsf{BEAPI} explora el espacio de búsqueda de secuencias de prueba (acotadas) que se pueden formar mediante llamadas a la API de \texttt{NCL}. Por lo tanto, tenemos que proporcionar dominios de datos para los tipos primitivos utilizados para realizar dichas llamadas y un límite en el tamaño máximo de las estructuras que queremos mantener de las generadas por esas llamadas de API. Un archivo de configuración de ejemplo que define los alcances de \textsf{BEAPI} para el estudio de caso de \texttt{NCL} se muestra en la Figura~\ref{fig:NCL-fin-BEAPI}. El parámetro \texttt{max.objects} especifica el número máximo de objetos diferentes (alcanzables desde la raíz) que se permite que una estructura tenga. Las secuencias de prueba que crean una estructura que contiene un número mayor de objetos diferentes (de cualquier clase) que \texttt{max.objects} se descartarán (y también la estructura corriente). En nuestro ejemplo, esto implica que \textsf{BEAPI} no creará NCL con más de 3 nodos. A continuación, hay que especificar los valores que \textsf{BEAPI} utilizará para invocar las rutinas de API que toman parámetros de tipo primitivo (por ejemplo, elementos para insertar en la lista, etc.). El parámetro \texttt{int.range} permite especificar un rango de enteros, que va desde 0 hasta 2 en la Figure~\ref{fig:NCL-fin-BEAPI}. También se pueden especificar dominios para otros tipos primitivos como flotantes, dobles y cadenas describiendo sus valores por extensión. Por ejemplo, la figura define \texttt{str1}, \texttt{str2} y \texttt{str3} como los valores factibles para los parámetros de tipo String. Además, podemos informar a \textsf{BEAPI} qué campos relevantes considerar para la canonización de la estructura o qué campos de las estructuras omitir (\texttt{omit.fields}). Esto permite al usuario controlar el proceso de coincidencia de estados. Por ejemplo, descomentando la línea 4, haria que \textsf{BEAPI} omitiera el tamaño máximo predeterminado de la caché en la coincidencia de estados, que en nuestro ejemplo es una constante inicializada en 20 en el constructor de la clase. En este caso, omitir el campo no cambia nada en términos de las diferentes estructuras generadas por \textsf{BEAPI}, pero en otros casos, omitir campos puede ser importante. La configuración de la Figura 2 es suficiente para que \textsf{BEAPI} genere NCL con un máximo de 3 nodos, que contienen enteros del 0 al 2 como valores, lo que nos permitió imitar las estructuras generadas por Korat para los mismos ámbitos (algunas líneas están comentadas porque no son necesarias para esto). Los archivos de configuración utilizados en nuestra sección experimental son similares al que se muestra aquí.
+
+
+
+
+\section{State Matching}
+
+En la generación de pruebas con \textsf{BEAPI} a menudo muchas secuencias de prueba producen la misma estructura, por ejemplo, insertar un elemento en una lista y luego eliminarlo. \textsf{BEAPI} asume que las ejecuciones de métodos son deterministas: cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. Observamos que, para cada estructura distinta s, solo necesitamos guardar la primera secuencia de prueba que genera \texttt{s} (y la estructura en sí). Todas las secuencias de prueba generadas posteriormente que también crean \texttt{s} pueden ser descartadas. Nótese que, como \textsf{BEAPI} trabaja extendiendo secuencias de prueba previamente generadas (ver seccion TODO ????), si guardamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, lo que resultaría en muchos cálculos innecesarios. Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera. Almacenamos todas las estructuras producidas hasta ahora por \textsf{BEAPI} en una forma canónica (ver más abajo). Después de ejecutar la última rutina \texttt{r(p$_1$,..,p$_k$)} de una nueva secuencia de prueba generada \texttt{T}, comprobamos si alguno de los parámetros de \texttt{r} tiene una estructura no vista antes (no almacenada). Si T no crea ninguna estructura nueva, se descarta. De lo contrario, \texttt{T} y las nuevas estructuras que genera son almacenadas por \textsf{BEAPI}.
+
+Representamos las estructuras asignadas en el montículo como grafos etiquetados. Después de la ejecución de un método, un parámetro $p$  (de tipo no primitivo) contiene una referencia al objeto raíz $r$ de un montículo con raíz (es decir,  $p=r$), definido a continuación.
+
+\begin{definition}
+    Sea $O$ un conjunto de Objectos y $P$ un set de valores primitivos (incluido $null$). Sea $F$ blos campos de todos los objectos en $O$. 
+    \begin{itemize}
+        \item A \emph{heap} es un grafp etiquetado $H = \langle O,E\rangle$ con $E = \{(o,f,v) | o \in O, f \in F, v \in O \cup P\}$.
+        \item Un \emph{heap con raíz} es un par $RH = \langle r, H\rangle$ donde
+            $r \in O$, $H = \langle O,E\rangle$ es un heap, y para cada $v' \in O \cup P$, $v'$ es alcanzable desde $r$ a través de campos en $F$.
+    \end{itemize}
+\end{definition}
+
+El caso especial $p=null$  se puede representar con un montículo con raíz con un nodo ficticio y un campo ficticio que apunta a null. En lenguajes como Java, cada objeto se identifica por la dirección de memoria donde se encuentra. Cambiar las direcciones de memoria donde se asignan los objetos no tiene efecto desde el punto de vista del programa, ya que el programador no tiene control sobre la representación de bajo nivel de la memoria (a diferencia de otros lenguajes como C). Los montículos obtenidos por permutaciones de las direcciones de memoria de sus objetos componentes se llaman \emph{heap isomorfos}. Evitamos la generación de \emph{heaps isomorfos} empleando una representación canónica para heaps [TODO ???]. Los heaps enraizados se pueden canonizar eficientemente mediante un enfoque llamado \emph{linearización} [TODO ???], que transforma un heap enraizado en una secuencia única de valores. 
+
+
+\begin{figure}[!th]
+\begin{lstlisting}
+int[] linearize(O root, Heap<O, E> heap, int scope, Regex omitFields) {
+  Map ids = new Map(); // maps nodes into their unique ids 
+  return lin(root, heap, scope, ids, omitFields); 
+}
+int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) { 
+  if (ids.containsKey(root))
+    return singletonSequence(ids.get(root)); 
+  if (ids.size() == scope) 
+    throw new ScopeExceededException();
+  int id = ids.size() + 1;
+  ids.put(root, id);
+  int[] seq = singletonSequence(id);
+  Edge[] fields = sortByField({ <root, f, o> in E }, omitFields); 
+  foreach (<root, f, o> in fields) {
+    if (isPrimitive(o)) 
+      seq.add(uniqueRepresentation(o));
+    else
+      seq.append(lin(o, heap, scope, ids, omitFields));
+  }
+  return seq; 
+}
+\end{lstlisting}
+\caption{Linearization algorithm}
+\label{alg:linearization}
+\end{figure}
+
+
+Se muestra en la Figura~\ref{alg:linearization} una versión personalizada para \textsf{BEAPI} del algoritmo de linearización de [TODO ???].El mismo fue modificado para informar cuando los objetos exceden los alcances y para admitir la omisión de campos de objeto. \texttt{linearize} invoca a \texttt{lin} y  comienza un recorrido en profundidad heap desde la raíz (línea 3). \texttt{linearize} asigna identificadores de objeto diferentes a cada objeto visitado. Cuando se visita un objeto por primera vez, se le asigna un nuevo identificador único (líneas 10-11) y se crea una secuencia de un solo elemento, seq, con el identificador de objeto para representar el objeto (línea 12). \texttt{ids} almacena el mapeo entre los objetos y los identificadores de objeto únicos. Luego, los campos del objeto, ordenados en un orden predefinido (por ejemplo, por nombre), se recorren y se construye la linearización de cada valor de campo y se agrega a la secuencia que representa el objeto, seq (líneas 13-19). Si un campo almacena un valor primitivo (línea 15), se agrega una secuencia de un solo elemento que representa el valor a seq (línea 16). Si el campo hace referencia a un objeto, se realiza una llamada recursiva a \texttt{lin}  para transformarlo en una secuencia, que se agregará a seq (línea 18). Al final del bucle, \texttt{seq}  contiene la representación canónica de todo el heap que comienza en la \texttt{raíz} , y se devuelve por \texttt{lin} (línea 20). Cuando se encuentra un objeto ya visitado por una llamada recursiva, es decir, que ya tiene un identificador asignado en  \texttt{ids}, el algoritmo devuelve la secuencia de un solo elemento con el identificador único del objeto (líneas 6-7). Si hay más de \texttt{scope} objetos alcanzables desde el heap enraizado, \texttt{linearize} devuelve una excepción para informar que se han superado los alcances (líneas 9-10). \texttt{linearize} también toma como parámetro una expresión regular \texttt{omitFields}, que coincide con los nombres de los campos que deben ser omitidos durante la canonicación (ver Sección~TODO REF). Para omitir tales campos, implementamos \texttt{sortByField} (línea 13) de tal manera que no devuelve las aristas correspondientes a los campos cuyos nombres coinciden con \texttt{omitFields}. Este comportamiento es particular de nuestro enfoque, ya que la excepción será empleada por BEAPI para descartar secuencias de prueba que creen objetos más grandes de lo permitido por los alcances. Nótese que la linearización permite la comparación eficiente de objetos (rooted heaps): dos objetos son iguales si y solo si sus secuencias correspondientes generadas por \texttt{linearize} son iguales.
+
+\section{Builders}
+Dado que las combinaciones factibles de métodos crecen exponencialmente con el número de métodos, es crucial reducir el número de métodos que \textsf{BEAPI} utiliza para producir secuencias de pruebas. Empleamos un enfoque automatizado de identificación de constructores \cite{Ponzio19} para encontrar un subconjunto de métodos de la API que sean suficientes para la generación de los conjuntos de estructuras exhaustivas acotadas. A tales rutinas las llamamos \emph{constructores}. 
+Para realizar esto mostraremos tres diferentes algoritmos. En cada seccion, contaremos sus debilidades y sus fortalezas.
+
+\subsection{Algoritmo Genetico}
+
+[TODO: Deberia contar un poco sobre que son, y que es JGAP]
+[(comprobamos que el conjunto de constructores calculado por HC coincidía con el conjunto de constructores que identificamos manualmente para cada estudio de caso).]
+
+\subsection{Hill Climbing}
+Consideramos un enfoque de TODO[escalada de colina] (HC). HC puede ser menos preciso, ya que puede incluir algunos métodos en el conjunto resultante de constructores que no son necesarios para producir un conjunto exhaustivo acotado de estructuras. Sin embargo, HC funciona muy bien y nos permite calcular conjuntos mínimos de constructores de manera consistente en nuestros experimentos . Nuestro objetivo aquí es evaluar el impacto del uso de constructores para BEG a partir de una API.
+Sea \texttt{API=}$m_1,m_2,\ldots,m_n$ el conjunto de métodos de la API. HC explora el espacio de búsqueda de todos los subconjuntos de métodos de \texttt{API}. HC requiere que el usuario proporcione un alcance \texttt{s} (de la misma manera que en \textsf{BEAPI}). El ajuste \texttt{f(sm)} de un conjunto dado \texttt{sm} de métodos es el número de estructuras distintas (después de la canonicidad) que \textsf{BEAPI} genera usando el conjunto, para el alcance dado \texttt{s}. También le damos prioridad en la aptitud a los conjuntos de métodos con tipos de parámetros más simples y menos (consulte \cite{Ponzio19} para obtener más detalles). Los sucesores \texttt{succs(sm)} para un candidato \texttt{sm} son los conjuntos \texttt{sm}$\cup {m_i}$, para cada $m_i \in $ \texttt{API}. HC comienza calculando la aptitud de todos los singleton ${c}$ de métodos constructores. El mejor de los singleton se establece como el candidato actual \texttt{curr}, y HC comienza un proceso iterativo típico de escalada de colina. En cada iteración, HC calcula \texttt{f(succ)} para cada $\texttt{succ} \in \texttt{succs(curr)}$. Sea \texttt{best} el sucesor con el valor de aptitud más alto. Observe que \texttt{best} tiene exactamente un método más que el mejor candidato de la iteración anterior, \texttt{curr}. Si \texttt{f(best) > f(curr)}, los métodos en \texttt{best} pueden ser utilizado para crear un conjunto más grande de estructuras que las presentes en \texttt{curr}. Por lo tanto, HC asigna \texttt{best} a \texttt{curr} y continúa con la siguiente iteración. De lo contrario, si \texttt{f(best) <= f(curr)}, entonces \texttt{curr} ya genera el conjunto más grande de estructuras posible (ningún método adicional podría aumentar el número de estructuras generadas desde \texttt{curr}). En este punto, \texttt{curr} se devuelve como el conjunto de constructores identificados.
+
+Tenga en cuenta que HC realiza muchas invocaciones a \textsf{BEAPI} para la identificación de constructores. La idea clave que hace que la identificación de constructores sea factible es que a menudo los constructores identificados para un alcance relativamente pequeño son el mismo conjunto de métodos necesarios para crear estructuras de cualquier tamaño. En otras palabras, una vez que el alcance para el cálculo de constructores es lo suficientemente grande, aumentar el alcance dará como resultado el mismo conjunto de constructores. Este resultado se asemeja a la hipótesis de la cota pequeña para la detección de errores \cite{Andoni02} (y transcoping \cite{Rosner13}). Después de que los constructores se identifican eficientemente utilizando un alcance pequeño, podemos ejecutar \textsf{BEAPI} con los constructores identificados utilizando un alcance más grande, por ejemplo, para generar objetos más grandes y ejercitar el SUT. 
+[TODO A EXPERIMENTAL]
+En la mayoría de nuestros estudios de caso, los constructores comprenden un constructor y un solo método para agregar elementos a la estructura. Sin embargo, nuestro enfoque automatizado de identificación de constructores mostró que, para los árboles rojo-negro, también se requería un método de eliminación (para alcances mayores que 3), ya que hay árboles con una configuración de equilibrio particular (coloración roja y negra para los nodos) que no se pueden construir simplemente agregando elementos al árbol. En contraste, los árboles AVL, que también están equilibrados, no requieren el método de eliminación como constructor, y el constructor de la clase y una rutina de adición son suficientes. Esto muestra que la identificación de constructores no es trivial de realizar manualmente, ya que requiere una exploración muy cuidadosa de una gran cantidad de combinaciones de estructuras y métodos. Otras estructuras que requieren más de dos constructores son las montículos binomiales y de Fibonacci.
+
+
+\subsection{Algoritmo BEAPI}
+
+\begin{figure}[t!]
+\begin{lstlisting}
+BEAPI(List methods, int scope, Map<Type, List<Seq>> primitives, Regex omitFields) {
+  Map<Type, List<Seq>> currSeqs = new Map();
+  currSeqs.addAll({ T->L | T->L in primitives });
+  Set canonicalStrs = new Set();
+  for (int it=0; true; it++) {
+    Map<Type, List<Seq>> newSeqs = new Map();
+    boolean newStrs = false;
+    for (m(T$_1$,$\ldots$,T$_n$):T$_r$: methods) {
+      Map<Type, List<Seq>> seqsT$_1$ = currSeqs.getSequencesForType(T$_1$);
+      $\ldots$ 
+      Map<Type, List<Seq>> seqsT$_n$ = currSeqs.getSequencesForType(T$_n$);
+      for ((s$_1$,$\ldots$,s$_n$): seqsT$_1\times\ldots\times$seqsT$_n$) {
+        Seq newSeq = createNewSeq(s$_1$,$\ldots$,s$_n$,m);
+        o$_1$,$\ldots$,o$_n$,o$_r$,failure,exception = execute(newSeq);
+        if (failure) throw new ExecutionFailedException(newSeq);
+        if (exception) continue;
+        c$_1$,$\ldots$,c$_n$,c$_r$,outOfScope = makeCanonical(o$_1$,$\ldots$,o$_n$,o$_r$,scope,omitFields);
+        if (outOfScope) continue;
+        if (isReferenceType(T$_1$) and !canonicalStrs.contains(c$_1$)) {
+          canonicalStrs.add(c$_1$);
+          newSeqs.addSeqForType(T$_1$, newSeq);
+          newStrs = true;
+        }
+        $\ldots$
+        if (isReferenceType(T$_r$) and !canonicalStrs.contains(c$_r$)) {
+          canonicalStrs.add(c$_r$);
+          newSeqs.addSeqForType(T$_r$, newSeq);
+          newStrs = true;
+        }
+      }
+    }
+    if (!newStrs) break;
+    currSeqs.addAll(newSeqs);
+  }
+  return currSeqs.getAllSeqsAsList();
+}
+\end{lstlisting}
+\caption{\textsf{BEAPI} algorithm}
+\label{alg:beapi}
+\end{figure}
+
+
+Se muestra un pseudocódigo de \textsf{BEAPI} en la Figura~\ref{alg:beapi}. \textsf{BEAPI} toma como entrada una lista de métodos de una API, \texttt{methods} (toda la API o constructores previamente identificados); el alcance para la generación, \texttt{scope}; una lista de secuencias de prueba para crear valores para cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de las opciones de configuración \texttt{int.range}, \texttt{strings}, etc., ver Fig.~\ref{fig:NCL-fin-BEAPI}); y una expresión regular que coincida con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. Observe que se pueden pasar métodos de más de una clase en \texttt{methods} si se desea generar objetos para varias clases en la misma ejecución de \textsf{BEAPI}, por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. El mapa \texttt{currSeqs} de \textsf{BEAPI} almacena, para cada tipo, la lista de secuencias de prueba que se sabe que generan estructuras del tipo. \texttt{currSeqs} comienza con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 2-3). En cada iteracion del ciclo principan (lineas 5-34),  \textsf{BEAPI} create nuevas sequencias para cada metodo disponible, \texttt{m} (line 8),
+explorando exhaustivamente todas las posibilidades de creación de secuencias de prueba utilizando \texttt{m} entradas generadas en iteraciones previas y almacenadas en \texttt{currSeqs} (líneas 9-30). Las nuevas secuencias de prueba que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 6); todas las secuencias generadas se agregan a \texttt{currSeqs} al final de la iteración (línea 33). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 32), el ciclo principal de \textsf{BEAPI} termina y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 35).
+
+Ahora discutamos los detalles del bucle \texttt{for} en las líneas 9-30. Primero, se recuperan todas las secuencias que se pueden utilizar para construir entradas para \texttt{m} en \texttt{seqsT$_1$},..., \texttt{seqsT$_n$}. \textsf{BEAPI} explora cada tupla \texttt{(s$_1$},..., \texttt{s$_n$)} de entradas factibles para \texttt{m}. Luego, ejecuta \texttt{createNewSeq} (línea 13), que construye una nueva secuencia de prueba \texttt{newSeq} realizando la composición secuencial de las secuencias de prueba \texttt{s$_1$},..., \texttt{s$_n$} y la rutina \texttt{m}, y reemplazando los parámetros formales de \texttt{m} por las variables que crean los objetos requeridos en \texttt{s$_1$},..., \texttt{s$_n$}. Se ejecuta \texttt{newSeq} (línea 14) y o bien produce un fallo (\texttt{failure} se establece en verdadero), genera una excepción que representa un uso inválido de la API (\texttt{exception} se establece en verdadero), o su ejecución es exitosa y crea nuevos objetos \texttt{o$_1$,$\ldots$, o$_n$, o$_r$}. En caso de un fallo, se lanza una excepción y se presenta \texttt{newSeq} al usuario como testigo del fallo (línea 15). Si se lanza un tipo diferente de excepción, \textsf{BEAPI} asume que corresponde a un uso incorrecto de la API (ver más abajo), descarta la secuencia de prueba (línea 16) y continúa con la siguiente secuencia candidata. De lo contrario, la ejecución de \texttt{newSeq} construye nuevos objetos \texttt{o$_1$,$\ldots$, o$_n$, o$_r$} (o valores de tipos primitivos) que son canonizados por \texttt{makeCanonical} (línea 17). Al ejecutar \texttt{linearize} de la Figura~\ref{alg:linearization} en cada estructura, \texttt{makeCanonical} establece \texttt{outOfScope} en verdadero si alguna de las estructuras producidas por \texttt{newSeq} supera el alcance, y \textsf{BEAPI} descarta \texttt{newSeq} y continúa con la siguiente (línea 18). Esto asegura que \textsf{BEAPI} nunca crea objetos más grandes que el alcance dado. Si nada de lo anterior sucede, \texttt{makeCanonical} devuelve versiones canónicas de \texttt{o$_1$,$\ldots$,o$_n$,o$_r$} en las variables \texttt{c$_1$,$\ldots$,c$_n$,c$_r$}, respectivamente. Después, \textsf{BEAPI} realiza la coincidencia de estado comprobando que la estructura canónica \texttt{c$_1$} es de tipo de referencia y que no ha sido creada por ninguna secuencia de prueba anterior (línea 19). Note que \texttt{canonicalStrs} almacena todas las estructuras ya visitadas. Si \texttt{c$_1$} es una nueva estructura, se agrega a \texttt{canonicalStrs} (línea 27), y la secuencia que crea \texttt{c$_1$}, \texttt{newSeq}, se agrega al conjunto de secuencias de prueba que producen estructuras de tipo \texttt{T$_1$} (\texttt{newSeqs} en línea 27). Además, \texttt{newStrs} se establece en verdadero para indicar que al menos se ha creado un objeto nuevo en la iteración actual (línea 22). Este proceso se repite para los objetos canónicos \texttt{c$_2$,$\ldots$,c$_n$,c$_r$} (líneas 24-29).
+
+\textsf{BEAPI} distingue fallas de un mal uso de la API en función del tipo de la excepción (similarmente a las técnicas anteriores de generación de pruebas basadas en API \cite{Pacheco07}). Por ejemplo, \texttt{IllegalArgumentException} y \texttt{IllegalStateException} corresponden a mal uso de la API, y las excepciones restantes se consideran fallas por defecto. La implementación de \textsf{BEAPI} permite al usuario seleccionar las excepciones que corresponden a fallas y las que no, estableciendo los parámetros de configuración correspondientes. Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no pueden ejecutarse con entradas no válidas. Sostenemos que esta es una práctica común, llamada programación defensiva \cite{Liskov00}, que debería ser seguida por todos los programadores, ya que produce un código más robusto y mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de pruebas automatizadas). ambién argumentamos en la Sección~\ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que el de escribir \texttt{repOK}s precisos (y eficientes) para BEG, y que esto era cierto después de inspeccionar manualmente el código fuente de nuestros casos de estudio. Por otro lado, hay que tener en cuenta que \textsf{BEAPI} puede emplear especificaciones formales para revelar errores en la API, por ejemplo, ejecutando \texttt{repOK} y comprobando que devuelve verdadero en cada objeto generado del tipo correspondiente (como en Randoop \cite{Pacheco07}). Sin embargo, las especificaciones utilizadas para la detección de errores no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} de \texttt{NCL} subespecificado de la Sección~\ref{sec:motivating-example} es suficiente para la detección de errores) ni estar escritas de una manera particular (como se requiere en \textsf{Korat}). Otros tipos de especificaciones que son más débiles y más simples de escribir también pueden ser utilizados por \textsf{BEAPI} para revelar errores, como violaciones de contratos específicos del lenguaje (por ejemplo, \texttt{equals} es una relación de equivalencia en Java), propiedades metamórficas \cite{Chen19}, afirmaciones proporcionadas por el usuario (\texttt{assert}), etc.
+
+Otra ventaja de \textsf{BEAPI} es que, para cada objeto generado, produce una secuencia de pruebas que se pueden ejecutar para crear el objeto. Esto contrasta con los enfoques basados en especificaciones (que generan un conjunto de objetos a partir de \texttt{repOK}). Encontrar una secuencia de invocaciones a los métodos de API que creen una estructura específica es un problema difícil por sí solo, que puede ser bastante costoso computacionalmente \cite{Braione17}, o requerir un esfuerzo significativo para realizar manualmente. Así, a menudo los objetos generados por enfoques basados en especificaciones están "cableados" cuando se utilizan para probar un SUT (por ejemplo, mediante el uso de la reflexión de Java), lo que hace que las pruebas sean muy difíciles de entender y mantener, ya que dependen de los detalles de implementación de bajo nivel de las estructuras \cite{Braione17}.
+
+
+
+
+
+
