@@ -1,8 +1,15 @@
 %\documentclass[10pt]{report} %twoside para impresion final 
 \documentclass[11pt,a4paper]{report} %a4paper,
+\usepackage{array}
+\makeatletter
+\renewcommand*\@argarraycr{\let\@tempa\relax%
+  \ifnum0=`{\fi}\@argarraycr@}
+\makeatother
 
 % Note: Make all your adjustments in here
 \input{classicthesis-config}
+\usepackage{xcolor}
+\newcommand{\cacho}{\textcolor{red}}
 
 \titleformat{\paragraph}[runin]
 {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
@@ -16,19 +23,15 @@
         texcl=false,
         frame=tb,
         language=Java,
-	numbers=left,
-  	aboveskip=0mm,
-  	belowskip=0mm,
-  	showstringspaces=false,
-  	columns=flexible,
-  	basicstyle={\scriptsize\ttfamily}, 
-%        numberstyle=\scriptsize,
-%        numberstyle=\tiny,
-%        basicstyle=\scriptsize, 
-%        keywordstyle=\color{black}\bfseries\em,
+        numbers=left,
+      	aboveskip=0mm,
+      	belowskip=0mm,
+      	showstringspaces=false,
+      	columns=flexible,
+      	basicstyle={\scriptsize\ttfamily}, 
         keywordstyle=\color{blue}\bfseries,
         commentstyle=\color{dkgreen},
-	morekeywords={,input, output, return, datatype, function, in, if, then, else, foreach, while, begin, end, inputs, outputs, procedure, for, do, done, fi, break, not, local, continue, and,} %add the keywords you want, or load a language as Rubens explains in his comment above.
+        morekeywords={,input, output, return, datatype, function, in, if, then, else, foreach, while, begin, end, inputs, outputs, procedure, for, do, done, fi, break, not, local, continue, and,} %add the keywords you want, or load a language as Rubens explains in his comment above.
         numbers=left,
         xleftmargin=.05\textwidth
       }
@@ -41,19 +44,19 @@
         texcl=false,
         frame=tb,
         language=Java,
-	numbers=left,
-  	aboveskip=0mm,
-  	belowskip=0mm,
-  	showstringspaces=false,
-  	columns=flexible,
-  	basicstyle={\scriptsize\ttfamily}, 
+      	numbers=left,
+      	aboveskip=0mm,
+      	belowskip=0mm,
+      	showstringspaces=false,
+      	columns=flexible,
+      	basicstyle={\scriptsize\ttfamily}, 
 %        numberstyle=\scriptsize,
 %        numberstyle=\tiny,
 %        basicstyle=\scriptsize, 
 %        keywordstyle=\color{black}\bfseries\em,
         keywordstyle=\color{blue}\bfseries,
         commentstyle=\color{dkgreen},
-	morekeywords={,input, output, return, datatype, function, in, if, then, else, foreach, while, begin, end, inputs, outputs, procedure, for, do, done, fi, break, not, local, continue, and,} %add the keywords you want, or load a language as Rubens explains in his comment above.
+        morekeywords={,input, output, return, datatype, function, in, if, then, else, foreach, while, begin, end, inputs, outputs, procedure, for, do, done, fi, break, not, local, continue, and,} %add the keywords you want, or load a language as Rubens explains in his comment above.
         numbers=left,
         xleftmargin=.05\textwidth
       }
@@ -62,6 +65,7 @@
 
 
 \usepackage[misc]{ifsym}
+\usepackage{tikz}
 
 \begin{document}
 \frenchspacing
@@ -91,32 +95,17 @@
 \lstset{basicstyle=\ttfamily,showstringspaces=false}
 \pagestyle{headings}
 \pagenumbering{arabic}
-%\part{?`Porqu\'e la Ingenier\'ia de los Requisitos de Software?} %\ctparttext{text}
 \cleardoublepage
 \include{introduccion}
 \cleardoublepage
 \include{be}
-\include{mutation}
 
-%\include{requisitos-software}
-
-%\part{Mutaci\'on de expresiones de navegaci\'on para testing}
-%\cleardoublepage\null
 \include{beapi}
-\include{motivation}
 \include{builders}
 \include{evaluacion}
 % \include{Builders Identification}
 \include{conclusiones}
 \include{trabajofuturo}
-
-%\part{Validaci\'on y Verificaci\'on de Requisitos de Software} %\ctparttext{text}
-%\cleardoublepage\null
-%\include{scr-analisis}
-
-%\part{Conclusiones}
-%\cleardoublepage
-%\include{conclusion}
 
 % ********************************************************************
 % Backmatter

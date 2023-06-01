@@ -1,11 +1,170 @@
 \chapter[Builders Identification]{Builders Identification}
 \label{cap:builders}
+\section{Motivacion}
+
+En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
+
+NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL (finito) deseado. Por lo tanto, los métodos de la Figura~\ref{fig:NCLbuilders} son un ejemplo de un conjunto suficiente de constructores. Hay que tener en cuenta que, después de utilizar el constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la caché no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de los análisis automatizados, nos gustaría considerar tantos escenarios variables (entradas) como sea posible, de ahí la motivación para construir conjuntos suficientes de constructores. Además, los constructores de la Figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir con las rutinas.
+
+Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes y mínimos. Por ejemplo, se pueden obtener constructores suficientes y mínimos reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
+
+
+
+\begin{figure}[thb]
+    \centering
+    \includegraphics[width=0.85\textwidth]{NCL-instances.png}
+    \caption{Three NodeCachingLinkedList instances with exactly two nodes}
+    \label{fig:ncl-instances}
+\end{figure}
+
+
+\begin{table}[t]
+\center
+{\scriptsize
+\begin{tabular}{|l|l|l|l|}
+\hline
+No. &Return type & Method name & Obs? \\
+\hline
+    0 && NCL() & no \\
+    1& & NCL(int) & no \\
+    2&& NCL(Collection) & no \\
+    3&boolean & add(Object) & no \\
+    4&void&add(int,Object) & no \\
+    5&boolean&addAll(Collection) & no\\
+    6&boolean&addAll(int,Collection) & no \\
+    7&boolean&addFirst(Object) & no \\
+    8&boolean&addLast(Object) & no\\
+    9&void&clear() & no\\
+    10&boolean&contains(Object) & yes \\
+    11&boolean&containsAll(Collection) & yes \\
+    12&boolean&equals(Object) & yes \\
+    13&Object&get(int) & yes\\
+    14&Object&getFirst() &yes \\
+    15&Object&getLast() & yes\\
+    16&int&indexOf(Object) &yes\\
+   
+\hline 
+\end{tabular}
+\begin{tabular}{|l|l|l|l|}
+\hline
+No. &Return type & Method name & Obs? \\
+\hline
+ 	17&boolean&isEmpty() & yes\\
+    18&Iterator&iterator() & no\\
+    19&int&lastIndexOf(Object) &yes \\
+    20&ListIterator&listIterator() &no \\
+    21&ListIterator&listIterator(int) & no\\
+    22&Object&remove(int) &no\\
+    23&boolean&remove(Object) & no \\
+    24&boolean&removeAll(Collection) & no \\
+    25&Object&removeFirst() &no\\
+    26&Object&removeLast() &no\\
+    27&boolean&retainAll(Collection) &no \\
+    28&Object&set(int,Object) &no\\
+    29&int&size() &yes\\
+    30&List&subList(int,int) & no \\
+    31&Object[]&toArray() & yes \\
+    32&Object[]&toArray(Object[]) &yes\\
+    33&String&toString() & yes \\
+\hline
+\end{tabular}
+}
+\caption{Apache's NodeCachingLinkedList API}
+\label{tab:ncl-api}
+\end{table} 
+
+\begin{lstlisting}[label=fig:NCLbuilders, caption=A sufficient set of builders for NCL, captionpos=b, frame=tb, float=t, basicstyle=\scriptsize]
+  (0)  NodeCachingLinkedList()
+  (7)  addFirst(Object)
+  (25) removeFirst()
+\end{lstlisting}
+
+\begin{lstlisting}[label=fig:NCLadds, caption=Add variants that can be used to populate NCL's main list, captionpos=b, frame=tb, float=t, , basicstyle=\scriptsize]
+  (3) add(Object)
+  (4) add(int,Object)
+  (7) addFirst(Object)
+  (8) addLast(Object)
+\end{lstlisting}
+
+
+También observamos que cuanto más simples sean los parámetros de una rutina, más fácil será utilizarla para generar entradas en el contexto de un análisis de programas. Por ejemplo, entre las alternativas de rutinas de añadir para NCL (Fig.~\ref{fig:NCLadds}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para ella al generar entradas. Esto hace que las otras tres alternativas sean preferidas sobre ella. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
+
+Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos en los que operan, ni son útiles para crear objetos no primitivos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos. Nuestro enfoque intenta reconocerlos de antemano y descartarlos de la búsqueda para reducir significativamente el espacio de búsqueda.
+
+Para concluir esta sección, destacamos que, cuando se alimentó con toda la API de NCL, nuestro enfoque identificó automáticamente el conjunto suficiente y mínimo de constructores para NCL que se muestra en la Figura \ref{fig:NCLbuilders}.
 
 \section{Algortimos}
+Para encontrar un conjunto suficiente de constructores a partir de una API de programa, diseñamos un tres algoritmos de busqueda que se describen a continuación. El primero es una modificacion de los algoritmos geneticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es una algoritmo de busqueda de acuerdo a las clases de equivalecias. 
+Los algoritmos genéticos \cite{Goldberg:1989} son algoritmos de búsqueda no exhaustivos guiados. \cite{Michalewicz:1996}
+% basados en una estrategia de escalada de colinas \cite{Russell:2009}.
+El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con las características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente un número de individuos en la población, utilizando estos para evolución (construyendo nuevos individuos a partir de estos), y dejando algunos individuos fuera del conjunto completo (los "viejos" y los "nuevos"). La selección de individuos para la evolución de la población, así como la eliminación de individuos, están guiadas por una función de fitness, la cual tambien es utilizada para guiar la búsqueda. Esta función se aplica a los individuos, y su resultado es generalizable a la población también (por ejemplo, la fitness de la población se puede tomar como la fitness de su individuo "más apto"). Esta función captura las características deseadas en la búsqueda, y por lo tanto se puede utilizar como criterio de parada (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una aptitud por encima de cierto umbral). Finalmente, los individuos a menudo se llaman cromosomas, y se representan como vectores de genes que capturan sus características. Esta idea está fuertemente relacionada con cómo se construyen nuevos individuos: al representar a los candidatos como vectores de características independientes, se pueden construir nuevos candidatos combinando parte de las características de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de un individuo dado. Estas dos formas de evolución se llaman cross-over y mutación, respectivamente, y son el mecanismo tradicional para construir nuevos candidatos a partir de los existentes en los algoritmos genéticos. Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
+
+El segundo algoritmo, basado en una estrategia de Hill CLimbing\cite{TODO, qué citar sobre hill climbing}, es un algoritmo de búsqueda local que se mueve continuamente hacia arriba (incrementando) hasta alcanzar la mejor solución. Este algoritmo finaliza cuando se alcanza la cima. Este algoritmo es una algoritmo Greedy(Perezoso) [TODO explicar] porque selecciona un buen estado vecino sin pensar en dónde ir a continuación. Comienza con un estado no óptimo y lo mejora hasta alcanzar una condición. El objetivo de este algoritmo es mejorar estados existentes hasta alcanzar estados óptimos (estados que no pueden ser mejorados aún más). Se utiliza una función heurística para lograr estos estados.
+
+La estrategia de Hill Climbing es una técnica de búsqueda local que se utiliza comúnmente en la optimización de funciones. El algoritmo comienza en un punto arbitrario en el espacio de búsqueda y se mueve hacia un vecino mejor en cada iteración, hasta que se alcanza un máximo local. El rendimiento de la escalada de colinas depende fuertemente de la elección del vecino y de la función heurística utilizada para evaluar los vecinos.
+
+En general, el Hill Climbing es adecuada para problemas en los que se puede definir una función de evaluación localmente coherente y no es necesario explorar todo el espacio de búsqueda para encontrar una solución aceptable. Sin embargo, el algoritmo tiene dificultades para escapar de óptimos locales y puede quedarse atrapado en una solución subóptima. Por lo tanto, se utilizan variaciones del algoritmo, como Hill Climbing estocástico y la Hill Climbing con reinicio aleatorio, para superar estos problemas.
+Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
+
+
+\subsection{GA}
+
+Los algoritmos genéticos (AG) son una técnica de búsqueda y optimización que se inspiran en la evolución biológica. La idea fundamental es que una población de individuos (soluciones candidatas) evoluciona a lo largo del tiempo mediante la aplicación de operadores genéticos que producen nuevas soluciones a partir de soluciones existentes. El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente a varios individuos de la población, utilizando estos para la evolución (construyendo nuevos individuos a partir de ellos) y dejando fuera a algunos individuos del conjunto completo (los "antiguos" y los "nuevos")
+
+La selección de individuos para la evolución de la población, así como la eliminación de individuos, está guiada por una función de aptitud, la función heurística utilizada para guiar la búsqueda. Esta función se aplica a los individuos y su resultado es generalizable a la población también (por ejemplo, la aptitud de la población se puede tomar como la aptitud de su individuo "más apto"). 
+Esta función captura las características buscadas en la búsqueda y, por lo tanto, se puede utilizar como un criterio de detención (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una aptitud por encima de un umbral determinado).
+
+Los individuos a menudo se denominan cromosomas y se representan como vectores de genes que capturan sus características. Esta idea está fuertemente relacionada con cómo se construyen los nuevos individuos: al representar a los candidatos como vectores de características independientes, se pueden construir nuevos candidatos combinando parte de las características de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de un individuo dado. Los operadores genéticos que realizan estas combinaciones son las herramientas mediante las cuales se generan nuevas soluciones a partir de soluciones existentes. Los principales operadores son la selección, el cross-over y la mutación. La selección se encarga de elegir los cromosomas más aptos para reproducirse. El cruce o  cross-over combina los genes de dos cromosomas para producir uno o más descendientes. La mutación introduce cambios aleatorios en un cromosoma para explorar nuevas regiones del espacio de soluciones.
+
+El algoritmo genético comienza con una población inicial de cromosomas aleatorios. En cada iteración del algoritmo, se evalúa la fitness de cada cromosoma en la población, se seleccionan los cromosomas más aptos para reproducirse mediante la selección, se aplican operadores de cruce y mutación para generar descendencia, y se reemplazan los cromosomas menos aptos en la población por los descendientes. Este proceso se repite durante un número determinado de iteraciones o hasta que se cumpla un criterio de convergencia.
+
+El proceso de evolución de una población de cromosomas mediante operadores genéticos permite explorar ampliamente el espacio de soluciones en busca de soluciones óptimas. Además, los algoritmos genéticos son capaces de manejar problemas de alta dimensionalidad, no lineales y multimodales, que son difíciles de resolver con métodos de optimización tradicionales.
+
+
+En mi trabajo, hemos utilizado una libreria muy utilizada en Java para algoritmos geneticos. Esta libreria se llama Jenetics (TODO:???) es una biblioteca de algoritmos genéticos de código abierto escrita en Java. Es ampliamente utilizada en la industria y en la academia para resolver problemas complejos de optimización y búsqueda.
+
+%Pongo ejemplo de codigo???%
+
+\emph{Jenetics} está diseñada para ser altamente personalizable y flexible, lo que permite a los usuarios definir sus propios problemas de optimización y personalizar los parámetros del algoritmo genético para obtener los mejores resultados posibles. La biblioteca proporciona una amplia gama de características, como diversos operadores genéticos, selección de población, variaciones de la población, y mucho más.
+Una de las características más útiles de \emph{Jenetics} es su capacidad para trabajar con cualquier tipo de datos, incluyendo tipos de datos personalizados y clases. Esto hace que sea muy útil para resolver problemas en una amplia variedad de campos.
+
+Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. 
+
+En el contexto de nuestro problema, las soluciones candidatas representan conjuntos de métodos de la API del módulo que se está analizando. Luego, utilizamos vectores de valores booleanos como representación del cromosoma. Sea $n$ el número de métodos en la API; los cromosomas en nuestro algoritmo serán vectores de tamaño $n$. Para cualquier vector, la posición $i$ es verdadera si y solo si el cromosoma contiene el $i$-ésimo método de la API. Por ejemplo, hay 34 métodos en la API de NCL (Tabla \ref{tab:ncl-api}) y los enumeramos del 0 al 33. El conjunto suficiente de constructores en la Figura \ref{fig:NCLbuilders} se caracteriza por el vector con las posiciones 0, 7 y 25 establecidas como verdaderas, y las demás posiciones establecidas como falsas. Puede ver un ejemplo de esta represantacion aqui abajo:
+
+\[
+\begin{array}{|*{8}{c|}}
+\hline
+0 & 1 & \ldots  & 7 & \ldots  & 25  & \ldots  & 33 \\
+\hline
+1 & 0 & \ldots  & 1 & \ldots  & 1  & \ldots  & 0 \\
+\hline
+\end{array}
+\]
+
+
+
 \subsection{Hill Climbing}
-\subsection{Algoritmo Genetico}
+
+El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de colina. TODO??? , es un algoritmo de búsqueda local que se utiliza para optimizar una función de evaluación con respecto a una solución vecina. El objetivo del algoritmo es encontrar la solución óptima para un problema determinado, que se puede representar como un espacio de búsqueda con una función de evaluación asociada.
+
+El algoritmo Hill Climbing comienza en una solución aleatoria y luego examina las soluciones vecinas para determinar si alguna de ellas es mejor que la solución actual. Si se encuentra una solución mejor, el algoritmo se mueve a esa solución y repite el proceso. Si no se encuentra una solución mejor, el algoritmo se detiene y devuelve la solución actual como la mejor solución.
+
+El algoritmo Hill Climbing se puede utilizar para resolver una amplia variedad de problemas de optimización, como el problema del viajero, el problema de la mochila, etc. En cada uno de estos problemas, el objetivo es encontrar la solución óptima que minimice o maximice la función de evaluación.
+
+El algoritmo Hill Climbing se puede implementar de diferentes maneras, dependiendo de la naturaleza del problema y de las restricciones del mismo. Una de las variantes más comunes es la búsqueda por ascenso de colina estocástico, que permite que el algoritmo acepte soluciones peores en algunos casos para evitar quedar atrapado en óptimos locales.
+
+En el algoritmo Hill Climbing, los estados se representan como vectores de características, que se pueden modificar mediante operadores de mutación y operadores de cruce. El proceso de mutación implica cambiar una o más características de un estado aleatoriamente, mientras que el proceso de cruce implica combinar dos o más estados para generar un nuevo estado. Estos operadores se utilizan para generar nuevos estados y explorar el espacio de búsqueda de manera más efectiva.
+
+En mi busqueda de algoritmo Hill Climbing es una técnica de búsqueda local que se utiliza para optimizar una función de evaluación en un espacio de búsqueda. El algoritmo se basa en la exploración de soluciones vecinas para encontrar la solución óptima. Se puede implementar de diferentes maneras y se utiliza en una amplia variedad de problemas de optimización.
+
+
+Para mi trabajo doctoral, he modificado el algoritmo genetico para poder utilizar una fitness acorde al problema de encontrar subconjuntos optimos para la generacion de builders.
+Esto lo hemos realizado en base.
+
 \subsection{Clases de equivalencia}
 
 \section{Fitness}
-\subsection{Randoom}
-\subsection{Generacion Exhaustiva}
+\subsection{BE}
+
+\subsection{Random + Coverage}
