@@ -2,6 +2,7 @@
 \label{cap:builders}
 \section{Motivacion}
 
+\cacho{Change te order maybe. Explain in detalle en un solo lado}
 En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
 
 NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL (finito) deseado. Por lo tanto, los métodos de la Figura~\ref{fig:NCLbuilders} son un ejemplo de un conjunto suficiente de constructores. Hay que tener en cuenta que, después de utilizar el constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la caché no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de los análisis automatizados, nos gustaría considerar tantos escenarios variables (entradas) como sea posible, de ahí la motivación para construir conjuntos suficientes de constructores. Además, los constructores de la Figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir con las rutinas.
@@ -108,7 +109,7 @@ Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
 
 
 \subsection{GA}
-
+\label{alg:approachGA}
 Los algoritmos genéticos (AG) son una técnica de búsqueda y optimización que se inspiran en la evolución biológica. La idea fundamental es que una población de individuos (soluciones candidatas) evoluciona a lo largo del tiempo mediante la aplicación de operadores genéticos que producen nuevas soluciones a partir de soluciones existentes. El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente a varios individuos de la población, utilizando estos para la evolución (construyendo nuevos individuos a partir de ellos) y dejando fuera a algunos individuos del conjunto completo (los "antiguos" y los "nuevos")
 
 La selección de individuos para la evolución de la población, así como la eliminación de individuos, está guiada por una función de aptitud, la función heurística utilizada para guiar la búsqueda. Esta función se aplica a los individuos y su resultado es generalizable a la población también (por ejemplo, la aptitud de la población se puede tomar como la aptitud de su individuo "más apto"). 
@@ -145,7 +146,7 @@ En el contexto de nuestro problema, las soluciones candidatas representan conjun
 
 
 \subsection{Hill Climbing}
-
+\label{alg:approachHC}
 El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de colina. TODO??? , es un algoritmo de búsqueda local que se utiliza para optimizar una función de evaluación con respecto a una solución vecina. El objetivo del algoritmo es encontrar la solución óptima para un problema determinado, que se puede representar como un espacio de búsqueda con una función de evaluación asociada.
 
 El algoritmo Hill Climbing comienza en una solución aleatoria y luego examina las soluciones vecinas para determinar si alguna de ellas es mejor que la solución actual. Si se encuentra una solución mejor, el algoritmo se mueve a esa solución y repite el proceso. Si no se encuentra una solución mejor, el algoritmo se detiene y devuelve la solución actual como la mejor solución.
@@ -163,7 +164,7 @@ Para mi trabajo doctoral, he modificado el algoritmo genetico para poder utiliza
 Esto lo hemos realizado en base.
 
 \subsection{Clases de equivalencia}
-
+\label{alg:approachCE}
 \section{Fitness}
 \subsection{BE}
 

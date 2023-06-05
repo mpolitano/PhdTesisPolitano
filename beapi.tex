@@ -14,7 +14,8 @@ Para motivar las dificultades de escribir especificaciones formales para la gene
 \begin{lstlisting}
 public boolean repOK() {
   if (this.header == null) return false;
-  //  Missing constraint: the value of the sentinel node must be null  
+  //  Missing constraint: the value of the sentinel node
+  // must be null  
   // if (this.header.value != null) return false;
   if (this.header.next == null) return false;
   if (this.header.previous == null) return false;
@@ -39,7 +40,8 @@ public boolean repOK() {
   while (m != null) {
       acyclicSize++;
       if (m.previous != null) return false;
-      // Missing constraint: the value of cache nodes must be null
+      // Missing constraint: the value of cache nodes
+      // must be null
       // if (m.value != null) return false;
       m = m.next;
       if (!visited.add(m)) return false;
@@ -71,8 +73,32 @@ En tercer lugar, \textsf{BEAPI} utiliza un subconjunto de las rutinas de la API 
 
 La principal ventaja de \textsf{BEAPI} es que requiere un esfuerzo mínimo de especificación para realizar la generación exhaustiva acotada (BEG). Si los métodos de la API utilizados en la generación son correctos, todas las estructuras generadas serán válidas para su construcción. El programador solo necesita asegurarse de que los métodos de la API lancen excepciones cuando se violen las reglas de uso, siguiendo un estilo de programación defensivo \cite{Liskov00}. En la mayoría de los casos, esto implica verificar condiciones muy simples en las entradas. Por ejemplo, en el ejemplo mencionado, el método para agregar un elemento a un \texttt{NCL} lanza una \texttt{IllegalArgumentException} cuando se llama con un elemento \texttt{null}, mientras que la implementación del método se encarga de cumplir con las demás propiedades del \texttt{NCL}.
 
-
-
+\cacho{TODO: no se si agregar arbolitos para explicarlos}
+\\
+\\
+\begin{tikzpicture}
+    [level 1/.style={sibling distance=27mm},
+   level 2/.style={sibling distance=25mm},
+   every node/.style={rectangle,draw,fill=white,minimum size=10mm,align=center,font=\tiny},
+   edge from parent/.style={draw}]
+   
+  % Raíz
+  \node {n = new NCL()}
+    % Hijos
+    child {node {n = new NCL() \\
+                n.add(int)}
+      child {node {n = new NCL() \\
+                    n.method()}}
+      child {node {n = new NCL() \\
+                    n.anotherMethod()}}
+    }
+   child {node {n = new NCL() \\
+                n.addFirst()}}
+   child {node {n = new NCL() \\
+                n.remove()}}
+    child {node {...}}
+    % child {node {Método N}};
+\end{tikzpicture}
 
 
 
@@ -83,8 +109,8 @@ La principal ventaja de \textsf{BEAPI} es que requiere un esfuerzo mínimo de es
 \begin{lstlisting}[keywordstyle=\scriptsize\ttfamily]
 max.objects=3
 int.range=0:2
-# strings=str1,str2,str3
-# omit.fields=NodeCachingLinkedList.DEFAULT_MAXIMUM_CACHE_SIZE
+strings=str1,str2,str3
+omit.fields=NCL.DEFAULT_MAXIMUM_CACHE_SIZE
 \end{lstlisting}
 \caption{\textsf{BEAPI}'s scope definition for \texttt{NCL} (max. nodes 3)}
 \label{fig:NCL-fin-BEAPI}
@@ -111,13 +137,18 @@ Representamos las estructuras asignadas en el montículo como grafos etiquetados
 El caso especial $p=null$  se puede representar con un montículo con raíz con un nodo ficticio y un campo ficticio que apunta a null. En lenguajes como Java, cada objeto se identifica por la dirección de memoria donde se encuentra. Cambiar las direcciones de memoria donde se asignan los objetos no tiene efecto desde el punto de vista del programa, ya que el programador no tiene control sobre la representación de bajo nivel de la memoria (a diferencia de otros lenguajes como C). Los montículos obtenidos por permutaciones de las direcciones de memoria de sus objetos componentes se llaman \emph{heap isomorfos}. Evitamos la generación de \emph{heaps isomorfos} empleando una representación canónica para heaps [TODO ???]. Los heaps enraizados se pueden canonizar eficientemente mediante un enfoque llamado \emph{linearización} [TODO ???], que transforma un heap enraizado en una secuencia única de valores. 
 
 
+[TODO CHANGE algortimo]
+\bigbreak
+
 \begin{figure}[!th]
 \begin{lstlisting}
-int[] linearize(O root, Heap<O, E> heap, int scope, Regex omitFields) {
+int[] linearize(O root, Heap<O, E> heap, int scope, 
+Regex omitFields) {
   Map ids = new Map(); // maps nodes into their unique ids 
   return lin(root, heap, scope, ids, omitFields); 
 }
-int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) { 
+int[] lin(O root, Heap<O, E> heap, int scope, Map ids, 
+Regex omitFields) { 
   if (ids.containsKey(root))
     return singletonSequence(ids.get(root)); 
   if (ids.size() == scope) 
@@ -125,7 +156,8 @@ int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) {
   int id = ids.size() + 1;
   ids.put(root, id);
   int[] seq = singletonSequence(id);
-  Edge[] fields = sortByField({ <root, f, o> in E }, omitFields); 
+  Edge[] fields = 
+            sortByField({ <root, f, o> in E }, omitFields); 
   foreach (<root, f, o> in fields) {
     if (isPrimitive(o)) 
       seq.add(uniqueRepresentation(o));
@@ -140,55 +172,68 @@ int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) {
 \end{figure}
 
 
-Se muestra en la Figura~\ref{alg:linearization} una versión personalizada para \textsf{BEAPI} del algoritmo de linearización de [TODO ???].El mismo fue modificado para informar cuando los objetos exceden los alcances y para admitir la omisión de campos de objeto. \texttt{linearize} invoca a \texttt{lin} y  comienza un recorrido en profundidad heap desde la raíz (línea 3). \texttt{linearize} asigna identificadores de objeto diferentes a cada objeto visitado. Cuando se visita un objeto por primera vez, se le asigna un nuevo identificador único (líneas 10-11) y se crea una secuencia de un solo elemento, seq, con el identificador de objeto para representar el objeto (línea 12). \texttt{ids} almacena el mapeo entre los objetos y los identificadores de objeto únicos. Luego, los campos del objeto, ordenados en un orden predefinido (por ejemplo, por nombre), se recorren y se construye la linearización de cada valor de campo y se agrega a la secuencia que representa el objeto, seq (líneas 13-19). Si un campo almacena un valor primitivo (línea 15), se agrega una secuencia de un solo elemento que representa el valor a seq (línea 16). Si el campo hace referencia a un objeto, se realiza una llamada recursiva a \texttt{lin}  para transformarlo en una secuencia, que se agregará a seq (línea 18). Al final del bucle, \texttt{seq}  contiene la representación canónica de todo el heap que comienza en la \texttt{raíz} , y se devuelve por \texttt{lin} (línea 20). Cuando se encuentra un objeto ya visitado por una llamada recursiva, es decir, que ya tiene un identificador asignado en  \texttt{ids}, el algoritmo devuelve la secuencia de un solo elemento con el identificador único del objeto (líneas 6-7). Si hay más de \texttt{scope} objetos alcanzables desde el heap enraizado, \texttt{linearize} devuelve una excepción para informar que se han superado los alcances (líneas 9-10). \texttt{linearize} también toma como parámetro una expresión regular \texttt{omitFields}, que coincide con los nombres de los campos que deben ser omitidos durante la canonicación (ver Sección~TODO REF). Para omitir tales campos, implementamos \texttt{sortByField} (línea 13) de tal manera que no devuelve las aristas correspondientes a los campos cuyos nombres coinciden con \texttt{omitFields}. Este comportamiento es particular de nuestro enfoque, ya que la excepción será empleada por BEAPI para descartar secuencias de prueba que creen objetos más grandes de lo permitido por los alcances. Nótese que la linearización permite la comparación eficiente de objetos (rooted heaps): dos objetos son iguales si y solo si sus secuencias correspondientes generadas por \texttt{linearize} son iguales.
+Se muestra en la Figura~\ref{alg:linearization} una versión personalizada para \textsf{BEAPI} del algoritmo de linearización de [TODO ???].El mismo fue modificado para informar cuando los objetos exceden los alcances y para admitir la omisión de campos de objeto. \texttt{linearize} invoca a \texttt{lin} y  comienza un recorrido en profundidad heap desde la raíz (línea 3). \texttt{linearize} asigna identificadores de objeto diferentes a cada objeto visitado. Cuando se visita un objeto por primera vez, se le asigna un nuevo identificador único (líneas 10-11) y se crea una secuencia de un solo elemento, seq, con el identificador de objeto para representar el objeto (línea 12). \texttt{ids} almacena el mapeo entre los objetos y los identificadores de objeto únicos. Luego, los campos del objeto, ordenados en un orden predefinido (por ejemplo, por nombre), se recorren y se construye la linearización de cada valor de campo y se agrega a la secuencia que representa el objeto, seq (líneas 13-19). Si un campo almacena un valor primitivo (línea 15), se agrega una secuencia de un solo elemento que representa el valor a seq (línea 16). Si el campo hace referencia a un objeto, se realiza una llamada recursiva a \texttt{lin}  para transformarlo en una secuencia, que se agregará a seq (línea 18). Al final del bucle, \texttt{seq}  contiene la representación canónica de todo el heap que comienza en la \texttt{raíz} , y se devuelve por \texttt{lin} (línea 20). Cuando se encuentra un objeto ya visitado por una llamada recursiva, es decir, que ya tiene un identificador asignado en  \texttt{ids}, el algoritmo devuelve la secuencia de un solo elemento con el identificador único del objeto (líneas 6-7). Si hay más de \texttt{scope} objetos alcanzables desde el heap enraizado, \texttt{linearize} devuelve una excepción para informar que se han superado los alcances (líneas 9-10). \texttt{linearize} también toma como parámetro una expresión regular \texttt{omitFields}, que coincide con los nombres de los campos que deben ser omitidos durante la canonicación (ver Sección~TODO REF). Para omitir tales campos, implementamos \texttt{sortByField} (línea 13) de tal manera que no devuelve las aristas correspondientes a los campos cuyos nombres coinciden con \texttt{omitFields}. Este comportamiento es particular de nuestro enfoque, ya que la excepción será empleada por BEAPI para descartar secuencias de prueba que creen objetos más grandes de lo permitido por los alcances. Nótese que la linearización permite la comparación eficiente de objetos: dos objetos son iguales si y solo si sus secuencias correspondientes generadas por \texttt{linearize} son iguales.
 
 
 \section{Uso de Builders en BEAPI}
 \label{sec:builders}
 
 
-\section{Descripcion de la tecnica}
+\section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
 
-A continuación se muestra un pseudocódigo de \textsf{BEAPI} en la Figura \ref{alg:beapi}. \textsf{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods} (la API completa o constructores previamente identificados); el alcance para la generación, \texttt{scope}; una lista de secuencias de prueba para crear valores de cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}; y una expresión regular que coincide con los campos que se deben omitir en la canonicación de las estructuras, \texttt{omitFields}. Observa que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI} , por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. El mapa \texttt{currSeqs} de \textsf{BEAPI}  almacena, para cada tipo, la lista de secuencias de prueba que se sabe que generan estructuras del tipo correspondiente. \texttt{currSeqs} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 2-3). En cada iteración del bucle principal (líneas 5-34), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 8), explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{currSeqs} (líneas 9-30). Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa newSeqs (inicializado vacío en la línea 6); todas las secuencias generadas se agregan a currSeqs al final de la iteración (línea 33). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 32), el bucle principal de \textsf{BEAPI}  termina y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 35).
+A continuación se muestra un pseudocódigo de \textsf{BEAPI} en la Figura \ref{alg:beapi}. \textsf{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods} (la API completa o los métodos \emph{builders} previamente identificados); el alcance de objetos para la generación, \texttt{scope}; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); y una expresión regular que coincide con los campos que se deben omitir en la canonicación de las estructuras, \texttt{omitFields}. Observa que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI}, por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. La estructura de datos de tipo mapa, \texttt{currSeqs} de \textsf{BEAPI}  almacena, para cada tipo, la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. \texttt{currSeqs} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 2-3). En cada iteración del bucle principal (líneas 5-34), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 8), explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{currSeqs} (líneas 9-30). Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 6); todas las secuencias generadas se agregan a currSeqs al final de la iteración (línea 33). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 32), el bucle principal de \textsf{BEAPI}  termina y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 35).
+
 
 \begin{figure}[t!]
+\cacho{[TODO CHANGE]}
+
 \begin{lstlisting}[language=Java]
-public BEAPI(List methods, int scope, Map<Type, List<Seq>> primitives, Regex omitFields) {
-Map<Type, List<Seq>> currSeqs = new Map();
-currSeqs.addAll({ T->L | T->L in primitives });
-Set canonicalStrs = new Set();
-for (int it=0; true; it++) {
-  Map<Type, List<Seq>> newSeqs = new Map();
-  boolean newStrs = false;
-  for (m(T1,...,Tn):Tr: methods) {
-    Map<Type, List<Seq>> seqsT1 = currSeqs.getSequencesForType(T1);
-    ...
-    Map<Type, List<Seq>> seqsTn = currSeqs.getSequencesForType(Tn);
-    for ((s1,...,sn): seqsT1 x ... x seqsTn) {
-      Seq newSeq = createNewSeq(s1,...,sn,m);
-      o1,...,on,or,failure,exception = execute(newSeq);
-      if (failure) throw new ExecutionFailedException(newSeq);
-      if (exception) continue;
-      c1,...,cn,cr,outOfScope = makeCanonical(o1,...,on,or,scope,omitFields);
-      if (outOfScope) continue;
-      if (isReferenceType(T1) and !canonicalStrs.contains(c1)) {
-        canonicalStrs.add(c1);
-        newSeqs.addSeqForType(T1, newSeq);
-        newStrs = true;
+public BEAPI(List methods, int scope, Map<Type, 
+    List<Seq>> primitives, Regex omitFields) {
+    Map<Type, List<Seq>> currSeqs = new Map();
+    currSeqs.addAll({ T->L | T->L in primitives });
+    Set canonicalStrs = new Set();
+    for (int it=0; true; it++) {
+      Map<Type, List<Seq>> newSeqs = new Map();
+      boolean newStrs = false;
+      for (m(T1,...,Tn):Tr: methods) {
+        Map<Type, List<Seq>> seqsT1 = 
+            currSeqs.getSequencesForType(T1);
+        ...
+        Map<Type, List<Seq>> seqsTn = 
+            currSeqs.getSequencesForType(Tn);
+        for ((s1,...,sn): seqsT1 x ... x seqsTn) {
+          Seq newSeq = createNewSeq(s1,...,sn,m);
+          o1,...,on,or,failure,exception = execute(newSeq);
+          if (failure) 
+            throw new ExecutionFailedException(newSeq);
+          if (exception) 
+            continue;
+          c1,...,cn,cr,outOfScope = 
+            makeCanonical(o1,...,on,or,scope,omitFields);
+          if (outOfScope) 
+            continue;
+          if (isReferenceType(T1) and 
+            !canonicalStrs.contains(c1)) {
+                canonicalStrs.add(c1);
+                newSeqs.addSeqForType(T1, newSeq);
+                newStrs = true;
+          }
+          ...
+          if (isReferenceType(Tr) and 
+            !canonicalStrs.contains(cr)) {
+                canonicalStrs.add(cr);
+                newSeqs.addSeqForType(Tr, newSeq);
+                newStrs = true;
+          }
+        }
       }
-      ...
-      if (isReferenceType(Tr) and !canonicalStrs.contains(cr)) {
-        canonicalStrs.add(cr);
-        newSeqs.addSeqForType(Tr, newSeq);
-        newStrs = true;
-      }
+      if (!newStrs) 
+        break;
+      currSeqs.addAll(newSeqs);
     }
-  }
-  if (!newStrs) break;
-  currSeqs.addAll(newSeqs);
-}
-return currSeqs.getAllSeqsAsList();
+    return currSeqs.getAllSeqsAsList();
 }
 \end{lstlisting}
 \caption{\textsf{BEAPI} algorithm}

@@ -2,17 +2,518 @@
 \chapter[Evaluaci\'on]{Evaluaci\'on}
 \label{cap:evaluation}
 
-\section{Paper 2023+Randoop vs ALl techniques}
+En los capítulos \ref{cap:beapi} y \ref{cap:builders} presentamos varios enfoques para mejorar la generación exhaustiva acotada:
+
+\begin{itemize}
+\item Identificación de métodos \emph{builders} para construir todos los objetos disponibles hasta una cota en una API. En este sentido, presentamos los siguientes algoritmos para encontrar estos métodos:
+\begin{itemize}
+\item Algoritmo Genético.
+\item Algoritmo Greedy.
+\item Algoritmo basado en clases de equivalencia.
+\end{itemize}
+\item Generación exhaustiva acotada a partir de métodos de la API.
+\end{itemize}
+
+En este capítulo, realizamos una evaluación experimental de estas técnicas con el objetivo de analizar la eficiencia y efectividad de las suites producidas en comparación con la generación exhaustiva acotada. En otras palabras, las siguientes preguntas de investigación guían esta experimentación:
+
+\cacho{TODO: pensar mejor las RQ}
+\begin{itemize}
+\item \emph{RQ1}: ¿Qué tan efectivos son los algoritmos (Algoritmo Genético, Greedy, clases de equivalencia) para identificar conjuntos de métodos \emph{builders} y cuánto tiempo computacional requiere cada enfoque?
+\item \emph{RQ2}: ¿Puede realizarse eficientemente la generación exhaustiva utilizando métodos de la API (BEAPI)?
+\item\emph{RQ3}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEG a partir de la API?
+\item\emph{RQ4}: ¿Puede BEAPI ayudar a encontrar discrepancias entre las especificaciones repOK y la capacidad de generación de objetos de la API?
+\item\emph{RQ5}: ¿Qué tan efectivas son las suites de prueba reducidas en comparación con la generación exhaustiva acotada?
+\end{itemize}
+
+\section{Algoritmos de Identificacion de metodos builders}
+
+En esta sección, evaluamos experimentalmente nuestros enfoque para determinar que metodos son \emph{builders} a partir de una API. La evaluación se basa en un conjunto de implementaciones de estructuras de datos, que incluyen: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap", \verb"RedBlackTree" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomado de \cite{Loncaric:2018}, que consiste en un almacenamiento de variables que monitorea cuándo se hizo por última vez una suposición sobre el valor de una variable y si hay oyentes que están observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas del paquete \verb"java.util" como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList".
+
+% Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de cuatro núcleos a 3.4GHz, con 8GB de RAM, ejecutando GNU/Linux.
+
+La primera evaluación consiste en ejecutar nuestros enfoques (Algoritmo \ref{alg:approachGA}, Algoritmo \ref{alg:approachHC}, Algoritmo \ref{alg:approachCE}) en las API de los módulos completos de las clases mencionadas anteriormente, para calcular conjuntos de métodos \emph{builders} para cada caso de estudio. El objetivo es evaluar qué tan buenos son los \emph{builders} identificados y el tiempo que cada enfoque tarda en calcularlos. Para cada caso de estudio, ejecutamos nuestro enfoque 5 veces. Los resultados se muestran en la Tabla \ref{tab:results-compute-bld}, que incluye el número de rutinas en la API completa (\#API), una muestra de los \emph{builders} identificados (algunos métodos pueden intercambiarse en diferentes ejecuciones, por ejemplo, \texttt{addFirst} y \texttt{addLast} en NCL) y el tiempo promedio de ejecución (en segundos) de las 5 ejecuciones. Inspeccionamos manualmente los resultados y encontramos que los conjuntos de métodos \emph{builders} identificados automáticamente fueron en todos los casos suficientes (todos los objetos factibles para la estructura se pueden construir utilizando los \emph{builders}) y mínimos (no contienen métodos superfluos).
+
+Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing} es más efectivo que el \textit{Genetic Algorithm} para calcular los métodos \emph{builders} en todos los casos de estudio considerados. El enfoque de \textit{Hill Climbing} es razonablemente eficiente, tardando aproximadamente 5 minutos en el peor de los casos, mientras que el \textit{Genetic Algorithm} tarda 10 minutos en el peor de los casos. Esto se debe a que los algoritmos de Hill Climbing comienzan desde abajo hacia arriba (con menos métodos hacia más métodos), a diferencia de los algoritmos genéticos que generan sus sucesores mediante cruces o mutaciones. Debido a esto, el primer algoritmo tiene ventaja para encontrar los métodos mínimos en tiempos mejores. Es importante aclarar que puede haber casos de estudio no considerados en este trabajo donde el algoritmo genético se comporte mejor que el algoritmo de Hill Climbing. Esto ocurriría si la clase bajo prueba tiene pocos métodos, lo que hace que nuestro algoritmo evolutivo converja más rápido que el algoritmo de Hill Climbing (como TreeMap de BinTree en \cite{Visser:2006}). Es importante destacar que ambos enfoques encontraron el mismo conjunto de métodos \emph{builders}.
 
 
-\section{Algoritmos builders}
+\begin{table}[t!]
+\centering
+
+{\small
+\begin{tabular}{l l ccc}
+\hline
+&Sample Builders &\multicolumn{2}{c}{Time} \\
+&   & GA & Greedy & Sets \\
+\hline
+\multirow{2}{*}{\textbf{NCL}} 
+ & NCLinkedList(int)& &\\
+ & addFirst(Object) &   & \\
+ {\scriptsize \#API: 34}& removeFirst() &435 &290  \\
+\hline
+
+\multirow{2}{*}{\textbf{UFind}} 
+ & UnionFind()& &\\
+ & addElement(int) &  &  \\
+ {\scriptsize \#API: 9}& union(int,int) &  63&79\\
+\hline
+
+\multirow{2}{*}{\textbf{FHeap}} 
+ & FibonacciHeap()& &\\
+ & insert(int) &  72 & 54 \\
+ {\scriptsize \#API: 7}& removeMin()&  &\\
+\hline
+
+\multirow{1}{*}{\textbf{RBT}} 
+ &TreeMap() && \\
+ {\scriptsize \#API: 8}& put(int) &  3 & 3 \\
+ &remove(int) &   &  \\
+\hline
+
+\multirow{1}{*}{\textbf{BTree}} 
+ & BinTree()&& \\
+ {\scriptsize \#API: 7}&add(int) & 2 &2 \\
+\hline
+
+\multirow{1}{*}{\textbf{BHeap}} 
+ & BinomialHeap()& &\\
+ {\scriptsize \#API: 10}&insert(int) &44&31 \\
+ &decreaseKeyValue(int,int)& &  \\
+\hline
+
+\multirow{5}{*}{\textbf{Lits}} 
+ & Lits()& &\\
+ & getFromPool(int) & &\\
+ & satisfies(int) & 35   & 26 \\
+ {\scriptsize \#API: 26}& setLevel(int,int)&&\\
+ & setReason(int)& &\\
+\hline
+
+\multirow{3}{*}{\textbf{Sched.}} 
+ & Schedule()&& \\
+ & addProcess(int)&& \\
+{\scriptsize \#API: 10} & blockProcess() &58& 47  \\
+ & quantumExpire()&&  \\
+  & finishProcess()&&  \\
+
+\hline
+
+\multirow{1}{*}{\textbf{LinkedList}} 
+ & LinkedList()& &\\
+ {\scriptsize \#API: 67}&  addFirst(Object) &109   &41 \\
+ \hline
+
+\multirow{2}{*}{\textbf{TreeMap}} 
+ & TreeMap()& &\\
+ & put(Object,Object) & 633 & 321 \\
+{\scriptsize \#API: 61}&  remove(Object) & &\\
+\hline
+
+\multirow{2}{*}{\textbf{TreeSet}} 
+ & TreeSet()& &\\
+ & add(Object) &   & \\
+{\scriptsize \#API: 34}&  remove(Object) (int) & 36 & 16\\
+\hline
+
+\multirow{1}{*}{\textbf{HashSet}} 
+ & HashSet(int,float)& &\\
+ {\scriptsize \#API: 31}&  add(Object) & 37  &16 \\
+\hline
+
+\multirow{1}{*}{\textbf{HashMap}} 
+ & HashMap(int,float)& &\\
+{\scriptsize \#API: 45}& put(Object,Object) &  633 &110 \\
+\hline
+
+\end{tabular}%
+}
+
+\caption{Builders computation results}
+\label{tab:results-compute-bld}
+\end{table}
+
+\hspace{1cm}
+
+\begin{table}[t!]
+\centering
+\scriptsize
+\begin{tabular}{ c l c c}
+\hline
+Class & Budget &
+\multicolumn{2}{c}{\textsf{No. of Objs}} \\
+&& \tiny{\textbf{Builders}} & \tiny{\textbf{AllMethods}} \\
+\hline
+\multirow{3}{*}{\textbf{NCL}} 
+&	60	&	6648	&	470	\\
+&	120	&	9436	&	612	\\
+&	180	&	11441	&	703	\\
+\hline
+\multirow{3}{*}{\textbf{UFind}} 
+&	60	&	1033	&	372	\\
+&	120	&	1342	&	483	\\
+&	180	&	1534	&	555	\\
+\hline
+\multirow{3}{*}{\textbf{FibHeap}}
+&	60	&	6541	&	1766	\\
+&	120	&	9270	&	2347	\\
+&	180	&	10923	&	2745	\\
+\hline
+\multirow{3}{*}{\textbf{RBT}}
+&	60	&	2634	&	515	\\
+&	120	&	3410	&	611	\\
+&	180	&	3938	&	676	\\
+\hline
+\multirow{3}{*}{\textbf{BTree}}
+&	60	&	2937	&	975	\\
+&	120	&	3820	&	1196	\\
+&	180	&	4367	&	1354	\\
+\hline
+\multirow{3}{*}{\textbf{BHeap}}
+&	60	&	6455	&	971	\\
+&	120	&	8665	&	1230	\\
+&	180	&	10093	&	1401	\\
+\hline
+\multirow{3}{*}{\textbf{Lits}}
+&	60	&	3968	&	3174	\\
+&	120	&	5109	&	4142	\\
+&	180	&	5848	&	4783	\\
+\hline
+\multirow{3}{*}{\textbf{Schedule}}
+&	60	&	2176	&	2901	\\
+&	120	&	2756	&	2901	\\
+&	180	&	3140	&	3437	\\
+\hline
+\multirow{3}{*}{\textbf{LinkedList}} 
+&	60	&	8121	&	790	\\
+&	120	&	11503	&	1095	\\
+&	180	&	13905	&	1323	\\
+\hline
+\multirow{3}{*}{\textbf{TreeMap}} 
+&	60	&	2750	&	748	\\
+&	120	&	3754	&	953	\\
+&	180	&	4496	&	1107	\\
+\hline\multirow{3}{*}{\textbf{TreeSet}}
+&	60	&	1129	&	291	\\
+&	120	&	1527	&	343	\\
+&	180	&	1816	&	381	\\
+\hline
+\multirow{3}{*}{\textbf{HashSet}}
+&	60	&	8208	&	1498	\\
+&	120	&	11467	&	2008	\\
+&	180	&	13548	&	2366	\\
+\hline
+\multirow{3}{*}{\textbf{HashMap}}
+&	60	&	9581	&	2103	\\
+&	120	&	13044	&	3173	\\
+&	180	&	15514	&	3784	\\
+\hline
+
+\end{tabular}%
+
+\caption{Assessment of using the identified builders (BLD) vs the whole API (API) in test case generation}
+\label{tab:results-obj}
+\end{table}
+
+En la segunda parte de la evaluación, analizamos qué tan útiles son los builders identificados en el contexto de un análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos objetos pueden utilizarse, por ejemplo, como entradas en test parametrizados. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y compararlos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos builders (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego comparamos el número de objetos diferentes (No. de Objs.) y el tamaño del objeto más grande (Max Obj. Size) generados por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Establecimos tres budget diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que la API. En todos los casos, BLD también genera objetos significativamente más grandes que la API. A la luz de estos resultados, queda claro que la identificación automatizada de builders es beneficiosa para la generación automatizada de estructuras para clases con estado.
+
+Además, comparamos las suites de pruebas generadas con Randoop midiendo la cobertura de ramas y líneas de código. Al igual que en el experimento anterior, la suite de pruebas utilizada para la comparación se generó a partir de los métodos builders (BLD) en comparación con el uso de todos los métodos disponibles de la API con un Randoop predeterminado. Establecimos cinco presupuestos diferentes para la generación de pruebas: 60, 120, 180, 300 y 600 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-coverage}.
+
+Cabe destacar que la tabla \ref{tab:results-coverage} muestra que, para los casos que manipulan estructuras de datos complejas (por ejemplo, java.util.TreeMap), las pruebas generadas solo con los métodos BLD obtienen una mejor cobertura tanto en ramas como en líneas de código.
+
+\section{Builders en la generación de entrada en verificacion}
+
+En los últimos experimentos sobre la identificación de \emph{builders}, utilicé Java PathFinder \cite{Visser:2005} (JPF) para realizar pruebas de generación de entradas de software para estructuras de datos de java.util. JPF es un verificador de modelos de estado explícito para programas escritos en Java. Para realizar la verificación, las técnicas de verificacion de modelos de software se basan en la definición de controladores de métodos: combinaciones de métodos que permiten construir las entradas con las que se ejecutará el programa. Intuitivamente, es deseable seleccionar el menor conjunto de métodos posible, cuyas combinaciones permitan construir todas las estructuras acotadas para el módulo (para analizar el software con todas las entradas posibles). La dificultad de escribir controladores de pruebas es un obstáculo importante para el uso de un verificador de modelos. Esta selección de métodos, que generalmente se realiza manualmente, no es una tarea fácil: requiere un análisis exhaustivo de las rutinas disponibles en el módulo y una comprensión profunda de su semántica.
+Es posible construir un método no determinista (harness de test) que genere todas las secuencias de llamadas a métodos de la API hasta un tamaño especificado por el usuario (scope). JPF se utiliza para enumerar todas estas secuencias. JPF almacena todos los estados explorados y retrocede cuando visita un estado previamente explorado.
+
+JPF admite anotaciones de programa que se agregan a los programas a través de llamadas a métodos de una clase especial Verify.
+Utilizamos los siguientes métodos de la biblioteca JPF \verb"Verify":
+\\
+\begin{itemize}
+\item El método \verb"Verify.getInt(int lo, int hi)" devuelve un valor entre \verb"lo" y \verb"hi", inclusive. Crea un punto de elección no determinista: JPF necesita explorar las ejecuciones para todos los valores en el rango.
+\item \verb"random(int n)" devuelve valores de 0 a \verb"n", de manera no determinista.
+\end{itemize}
+
+Si se desea verificar que el método \emph{put}  de TreeMap cumple con el repOK (predicado imperativo que verifica las invariantes de clase) de la estructura de datos, es necesario escribir algo como:
+\\
+\\
+\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:label},language=Java,captionpos=b]
+public static void main(String[] args) {
+   int scope = 3;
+   TreeMap t = generateStructure(scope);
+   t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+   assert t.repOK();
+}
+\end{lstlisting}
+
+Para realizar el análisis de esta propiedad, es necesario proporcionar a JPF los mecanismos para generar todo el árbol de entrada (\textit{generateStructure}). 
+En el siguiente ejemplo, mostramos un controlador de prueba construido con todos los métodos de la estructura de datos \textit{TreeMap}:
+\\
+\\
+\begin{lstlisting}[caption={Controlador con todos los métodos},label={lst:driverAPI},language=Java,captionpos=b]
+private static TreeMap generateStructure(int scope) {
+   int maxLength = Verify.getInt(0, scope);
+   TreeMap t = new TreeMap();
+   for (int i = 1; i <= maxLength; i++) {
+      switch (Verify.random(n_methods)) {
+         case 0:
+            t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+            break;
+         case 1:
+            t.remove(Verify.getInt(0,scope));
+            break;						
+         case 2:
+            t.clear();
+            break;
+         case 3:
+            t.containsValue(Verify.getInt(0,scope));
+            break;
+         ...
+         case 11: 
+            t.putAll(l);
+            break;
+      }
+   }
+   return t;
+}
+\end{lstlisting}
+
+El método controlador anterior, en primer lugar, selecciona el número de métodos a ejecutar, \textit{maxLength}, un número entre 0 y \textit{scope}. (Linea 2). Cada iteración del ciclo (Linea 4 a 23) corresponde a la ejecución de un solo método, seleccionado de manera no determinista entre todos los disponibles. En el caso de que el usuario no conozca el conjunto de métodos builders (y no quiera hacer el complicado trabajo de seleccionarlos manualmente), la solución más segura para evitar descartar métodos importantes es utilizar todos los métodos disponibles en el módulo, como se muestra en el método controlador descrito anteriormente. En el cuerpo del bucle, a cada método se le asigna un número entero entre 0 y \textit{n\_methods}. Se elige de manera no determinista el método a ejecutar en el ciclo actual. Por ejemplo, si \textit{n\_methods}=1, se ejecuta el método \textit{remove}. Es fácil ver que el número de ejecuciones posibles que se deben explorar por JPF crece exponencialmente con el número de métodos disponibles.
+
+%(for every method that is executed in one iteration, there are \textit{n_methods} possible methods to execute in the next iteration).
+
+Para evitar este crecimiento exponencial en este experimento, se propone utilizar únicamente los constructores detectados por nuestro enfoque explicado en la sección \ref{sec:builders}.
+\\
+\\
+\begin{lstlisting}[caption={Controlador con métodos constructores},label={lst:driverBLD},language=Java,captionpos=b]
+private static TreeMap generateStructure(int scope) {
+   int maxLength = Verify.getInt(0,scope);
+   TreeMap t = new TreeMap();
+   for (int i = 1; i <= maxLength; i++) {
+      switch (Verify.random(11)) {
+         case 0:
+            t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+            break;
+         case 1:
+            t.remove(Verify.getInt(0,scope));
+            break;						
+      }
+   }
+   return t;
+}
+\end{lstlisting}
+
+Como se muestra en el controlador anterior, solo 2 métodos componen un conjunto mínimo y suficiente para construir controladores para TreeMap de \textit{java.util}. Utilizando solo esos métodos, generamos exactamente los mismos objetos TreeMap que antes (porque los constructores son suficientes y mínimos), y por lo tanto JPF explora las mismas ejecuciones de propiedades con ambos controladores.
+
+Los resultados de la tabla \ref{tab:results-jpf} muestran que la construcción del controlador a partir de nuestro enfoque presentado permite aumentar la eficiencia y escalabilidad a estructuras más grandes en el análisis utilizando JPF. Esto se debe a la reducción de los métodos utilizados en los controladores (evitando métodos superfluos) y manteniendo la capacidad de construir todos los objetos acotados posibles (debido a la suficiencia de los métodos elegidos) en menos tiempo.
+
+
+
+
+\table{}
+\scriptsize
+\begin{tabular}{ c| l| c c c c c}
+\hline
+Class & Method & Scope &
+\multicolumn{2}{c}{\textsf{Builders}} &
+\multicolumn{2}{c}{\textsf{AllMethods}} \\
+&&&
+\tiny{\textbf{states}} & \tiny{\textbf{time (S)}} &
+\tiny{\textbf{states}} & \tiny{\textbf{time (S)} }\\
+\hline
+\multirow{14}{*}{LL} 
+& add
+  & 1 & 11  & 0 & 42  & 0 \\
+& & 2 & 58  & 0 & 715 & 0 \\
+& & 3 & 453 & 0 & 11064 & 2 \\
+& & 4 & 4881  & 1 & 153247  & 14  \\
+& & 5 & 67183 & 13  & 2291803 & 171 \\
+& & 6 & 1120932 & 221 & 39759491  & 2771  \\
+& & 7 & 21913097  & 4588  &TO  & \\
+
+\cline{2-7}
+ &remove 
+  & 1 & 11  & 0 & 42  & 0 \\
+& & 2 & 58  & 0 & 715 & 0 \\
+& & 3 & 453 & 0 & 11064 & 2\\
+& & 4 & 4881  & 1 & 153247  & 14\\
+& & 5 & 67183 & 11  & 2291803 & 168\\
+& & 6 & 1120932 & 188 & 39759491  & 2713\\
+& & 7 & 21913097  & 3998  & TO \\ 
+
+\hline
+\multirow{10}{*}{TM} 
+% Check
+& put
+  & 1 & 45  & 0 & 112 & 0 \\
+& & 2 & 991 & 0 & 2821  & 0 \\
+& & 3 & 16071 & 2 & 71678 & 8 \\
+& & 4 & 552807  & 75  & 1757976 & 204 \\
+& & 5 & 20601447  & 3007  & TO& \\
+\cline{2-7}
+
+& remove
+  & 1 & 25  & 0 & 61  & 0 \\
+& & 2 & 406 & 0 & 1345  & 0 \\
+& & 3 & 8359  & 1 & 33845 & 3 \\
+& & 4 & 182732  & 19  & 768564  & 66  \\
+& & 5 & 7176075 & 713 & 24775111  & 2341  \\
+
+
+
+%  && 5 &  & MO & - & - &MO  &  &-  & -  \\
+
+
+\hline
+\multirow{19}{*}{TS} 
+&put
+  & 1 & 11  & 0 & 48  & 0 \\
+& & 2 & 49  & 0 & 595 & 0 \\
+& & 3 & 197 & 0 & 5275  & 1 \\
+& & 4 & 806 & 0 & 36427 & 4 \\
+& & 5 & 3115  & 0 & 204877  & 19  \\
+& & 6 & 12062 & 1 & 1024038 & 90  \\
+& & 7 & 47241 & 5 & 4966224 & 452 \\
+& & 8 & 501666  & 45  & 23976826  & 2094  \\
+& & 9 & 2047285 & 183 &TO  &  \\
+
+
+\cline{2-7}
+
+& remove
+  & 1 & 17  & 0 & 48  & 0 \\
+& & 2 & 88  & 0 & 595 & 0 \\
+& & 3 & 423 & 0 & 5275  & 1 \\
+& & 4 & 1842  & 0 & 36427 & 4 \\
+& & 5 & 7455  & 1 & 204877  & 19  \\
+& & 6 & 30197 & 3 & 1024038 & 88  \\
+& & 7 & 122717  & 10  & 4966224 & 431 \\
+& & 8 & 501666  & 43  & 23976826  & 2088  \\
+& & 9 & 2047285 & 181 & TO    \\
+& & 10  & 8182166 & 719 &    TO  \\
+& & 11  & 31473779  & 2738  &  TO     \\
+
+\hline
+
+\multirow{11}{*}{HM} 
+& put
+ & 1 & 21& 0& 100 & 0 \\
+& & 2 & 136& 0& 235 & 0 \\
+& & 3 & 2945& 0& 59494 & 9 \\
+& & 4 & 64626& 11&  1808536& 299 \\
+& & 5 & 1512217& 267& TO&  \\
+
+ \cline{2-7}
+
+& remove
+ & 1 &25 & 0& 56 & 0 \\
+& & 2 &325 & 0& 1144 &  0\\
+& & 3 & 5479& 1& 23966 & 3 \\
+& & 4 & 105607& 10& 627361 &  78\\
+& & 5 & 2289075& 213& 22547086 &3011  \\
+& & 6 & 55335111 & 5017&TO &  \\
+
+\hline
+
+\multirow{14}{*}{HS} 
+& put
+  & 1 & 11  & 0 & 30  & 0 \\
+& & 2 & 40  & 0 & 248 & 0 \\
+& & 3 & 149 & 0 & 1405  & 0 \\
+& & 4 & 531 & 0 & 6259  & 1 \\
+& & 5 & 1765  & 0 & 24107 & 3 \\
+& & 6 & 5496  & 0 & 84617 & 8 \\
+& & 7 & 16217 & 2 & 278241  & 24  \\
+
+
+\cline{2-7}
+
+& remove
+  & 1 & 11  & 0 & 30  & 0 \\
+& & 2 & 40  & 0 & 248 & 0 \\
+& & 3 & 149 & 0 & 1405  & 0 \\
+& & 4 & 531 & 0 & 6259  & 1 \\
+& & 5 & 1765  & 0 & 24107 & 3 \\
+& & 6 & 5496  & 0 & 84617 & 8 \\
+& & 7 & 16217 & 1 & 278241  & 24  \\
+
+\hline
+
+\end{tabular}%
+\caption{States generated with a model checker (JPF) using dirver methods with all API  methods vs. or only using methods Builders.}
+\label{tab:results-jpf}
+ 
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
 
 \begin{table}[!thb]
-\caption{Execution times (sec) of BEAPI under different configurations.}
-\tiny
+\scriptsize
 
-\begin{minipage}{.48\textwidth}
 \centering
+\begin{tabular}{ l r | r | r | r | r  }
+  \toprule
+  \multicolumn{6}{c}{\textbf{Real World}} \\
+  \midrule 
+  \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
+  \midrule
+  NCL
+  & 3 & .10 & .47 & -  & -  \\
+  & 4 & .41 & 3.48  &  - & -  \\
+  & 5 & 3.33  &  - &  - & -  \\
+  & 6 & 73.78 &  - &  - &  - \\
+  \midrule
+  TSet
+  & 3 & .03 & .07 & 56.82 & - \\
+  & 11  & 21.52 & 86.06 &  - & -  \\
+  & 12  & 69.98 & 276.85  &  - & -  \\
+  & 13  & 226.66  & 887.83  &  - & -  \\
+    \midrule
+  TMap
+  & 3 & .11 & .25 & - & - \\
+  & 4 & .75 & 2.36  &  - &  - \\
+  & 5 & 15.97 & 57.64 &  - & -  \\
+  & 6 & 839.87  & 2901.37 &  - &  - \\
+  \midrule
+  LList
+  & 3 & .02 & .13 & .64 & - \\
+  & 6 & .96 & 258.85  & -  &  - \\
+  & 7 & 12.98 &  - &  - &  - \\
+  & 8 & 286.21  & -  & -  & -  \\
+  \midrule
+  HMap
+  & 3 & .10 & 11.49 & - & - \\
+  & 4 & .55 & -  & -  & -  \\
+  & 5 & 5.33  & -  &  - &  - \\
+  & 6 & 119.87  &  - &  - &  - \\
+  \bottomrule
+
+\end{tabular}
+
+\label{table:beapi}
+
+\end{table}
+
+
+
+
+
+
+\\
+\\
+\section{BEAPI}
+\begin{table}[!thb]
+\scriptsize
+\centering
+\caption{Execution times (sec) of BEAPI under different configurations.}
 
 \begin{tabular}{ l r | r | r | r | r  }
   \toprule
@@ -62,10 +563,12 @@
   & 5& .26 & .96 & - & - \\  
   & 8& 96.94 & 220.18 & - & - \\ 
   \bottomrule
-
 \end{tabular}
-    \end{minipage}%
-\begin{minipage}{.48\textwidth}
+\end{table}
+
+\begin{table}[!thb]
+\scriptsize
+
 \centering
 \begin{tabular}{ l r | r | r | r | r  }
   \toprule
@@ -105,8 +608,9 @@
   \bottomrule
 
 \end{tabular}
-    \end{minipage}%
 
 \label{table:beapi}
+
 \end{table}
+
 
