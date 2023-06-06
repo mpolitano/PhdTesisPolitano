@@ -1,5 +1,5 @@
 %\documentclass[10pt]{report} %twoside para impresion final 
-\documentclass[11pt,a4paper]{report} %a4paper,
+\documentclass[11pt,a4paper,openany]{book} %a4paper,
 \usepackage{array}
 \makeatletter
 \renewcommand*\@argarraycr{\let\@tempa\relax%
@@ -70,22 +70,25 @@
 \usepackage[misc]{ifsym}
 \usepackage{tikz}
 
+
+
+%%%%  Contenido  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-\frenchspacing
+\pagestyle{empty}
 % \raggedbottomn
+%% Portada
+% \input{./portada.tex}
+
 
 % ********************************************************************
 % Frontmatter
-\pagenumbering{roman}
-\pagestyle{plain}
 %\include{titlepage}
 \include{titlepage-famaf}
 
-\cleardoublepage\null
 \include{resumen}
-\cleardoublepage%\null
-\include{agradecimientos}
-\cleardoublepage
+\pagenumbering{roman}
+\pagestyle{plain}
+% \include{agradecimientos}
 \tableofcontents
 \cleardoublepage
 \listoffigures
@@ -97,14 +100,12 @@
 % Mainmatter
 \lstset{basicstyle=\ttfamily,showstringspaces=false}
 \pagestyle{headings}
-\pagenumbering{arabic}
 \cleardoublepage
 \include{introduccion}
 \cleardoublepage
-\include{be}
-
-\include{beapi}
+\include{preliminaries}
 \include{builders}
+\include{beapi}
 \include{evaluacion}
 % \include{Builders Identification}
 \include{conclusiones}

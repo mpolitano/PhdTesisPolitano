@@ -1,17 +1,23 @@
 \chapter[Builders Identification]{Builders Identification}
 \label{cap:builders}
+
+El análisis de software es una tarea crucial en el campo de la Ingeniería de Software, ya sea para generar tests para el software bajo test (SUT)  o para realizar verificación de modelos de software. Estos enfoques requieren que los programadores identifiquen manualmente un subconjunto de los métodos de un módulo con el fin de dirigir el análisis. En general, al analizar un módulo, los programadores seleccionan un subconjunto de sus métodos que serán considerados como constructores de objetos (\emph{builders}) para definir lo que se conoce como un controlador o "driver", que se utilizará para construir objetos automáticamente para el análisis, combinándolos de manera no determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo y su API, ya que la exhaustividad relativa del análisis (omitir métodos importantes puede evitar sistemáticamente la generación de diferentes objetos) y su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera exponencial a medida que aumenta el número de métodos) se ven afectados por la selección.
+
+En esta tesis, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API de un módulo, basados en un algoritmo evolutivo y un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de branch del SUT. Además, los algoritmos tienen en cuenta otras características de estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
+
+% Para evaluar experimentalmente nuestra propuesta, hemos realizado una evaluación en un conjunto de clases con estado de referencia, que representan casos de uso típicos. Los resultados muestran que nuestro enfoque puede identificar automáticamente conjuntos de constructores de objetos que son suficientes (se pueden utilizar para crear cualquier instancia del módulo) y mínimos (no contienen métodos superfluos), en un tiempo razonable.
+
+% En resumen, en este trabajo abordamos el desafío de seleccionar automáticamente un conjunto óptimo de constructores de objetos a partir de la API de un módulo, con el objetivo de mejorar tanto la exhaustividad como la eficiencia del análisis de software. Nuestros resultados experimentales demuestran la viabilidad y efectividad de nuestra propuesta, lo que abre nuevas perspectivas para la automatización de la selección de constructores de objetos en el análisis de software.
+
+
 \section{Motivacion}
 
 \cacho{Change te order maybe. Explain in detalle en un solo lado}
-En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
+\cacho{Los listing lo pongo como listing, como figure o como que para hacer referencia}
 
-NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL (finito) deseado. Por lo tanto, los métodos de la Figura~\ref{fig:NCLbuilders} son un ejemplo de un conjunto suficiente de constructores. Hay que tener en cuenta que, después de utilizar el constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la caché no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de los análisis automatizados, nos gustaría considerar tantos escenarios variables (entradas) como sea posible, de ahí la motivación para construir conjuntos suficientes de constructores. Además, los constructores de la Figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir con las rutinas.
-
-Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes y mínimos. Por ejemplo, se pueden obtener constructores suficientes y mínimos reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
-
-
-
-\begin{figure}[thb]
+En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
+Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{NCL-instances.png}
     \caption{Three NodeCachingLinkedList instances with exactly two nodes}
@@ -19,7 +25,7 @@ Hay que tener en cuenta que puede haber muchos conjuntos de constructores sufici
 \end{figure}
 
 
-\begin{table}[t]
+\begin{table}[H]
 \center
 {\scriptsize
 \begin{tabular}{|l|l|l|l|}
@@ -43,14 +49,7 @@ No. &Return type & Method name & Obs? \\
     14&Object&getFirst() &yes \\
     15&Object&getLast() & yes\\
     16&int&indexOf(Object) &yes\\
-   
-\hline 
-\end{tabular}
-\begin{tabular}{|l|l|l|l|}
-\hline
-No. &Return type & Method name & Obs? \\
-\hline
- 	17&boolean&isEmpty() & yes\\
+    17&boolean&isEmpty() & yes\\
     18&Iterator&iterator() & no\\
     19&int&lastIndexOf(Object) &yes \\
     20&ListIterator&listIterator() &no \\
@@ -74,13 +73,21 @@ No. &Return type & Method name & Obs? \\
 \label{tab:ncl-api}
 \end{table} 
 
-\begin{lstlisting}[label=fig:NCLbuilders, caption=A sufficient set of builders for NCL, captionpos=b, frame=tb, float=t, basicstyle=\scriptsize]
+
+NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL (finito) deseado. Por lo tanto, los siguientes métodos:
+\\
+\begin{lstlisting}[label=fig:NCLbuilders, caption=Conjunto de metodos sufiente para NCL]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (25) removeFirst()
 \end{lstlisting}
 
-\begin{lstlisting}[label=fig:NCLadds, caption=Add variants that can be used to populate NCL's main list, captionpos=b, frame=tb, float=t, , basicstyle=\scriptsize]
+
+ son un ejemplo de un conjunto suficiente de constructores. Hay que tener en cuenta que, después de utilizar el constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la caché no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de los análisis automatizados, nos gustaría considerar tantos escenarios variables (entradas) como sea posible, de ahí la motivación para construir conjuntos suficientes de constructores. Además, los constructores del Listing~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir.
+
+Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes y mínimos. Por ejemplo, se pueden obtener constructores suficientes y mínimos reemplazando el método \texttt{addFirst} en la Listing~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Listing~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
+\\
+\begin{lstlisting}[label=fig:NCLadds, caption=Variantes del método 'Add' que puedo ser utilizado para rellanar la lista principal en NCL, captionpos=b, frame=tb , basicstyle=\scriptsize]
   (3) add(Object)
   (4) add(int,Object)
   (7) addFirst(Object)
@@ -88,38 +95,32 @@ No. &Return type & Method name & Obs? \\
 \end{lstlisting}
 
 
-También observamos que cuanto más simples sean los parámetros de una rutina, más fácil será utilizarla para generar entradas en el contexto de un análisis de programas. Por ejemplo, entre las alternativas de rutinas de añadir para NCL (Fig.~\ref{fig:NCLadds}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para ella al generar entradas. Esto hace que las otras tres alternativas sean preferidas sobre ella. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
+También observamos que cuanto más simples sean los parámetros de una rutina, más fácil será utilizarla para generar entradas en el contexto de un análisis de programas. Por ejemplo, entre las alternativas de rutinas de añadir para NCL (Listing.~\ref{fig:NCLadds}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para ella al generar entradas. Esto hace que las otras tres alternativas sean preferidas sobre ella. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
 
 Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos en los que operan, ni son útiles para crear objetos no primitivos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos. Nuestro enfoque intenta reconocerlos de antemano y descartarlos de la búsqueda para reducir significativamente el espacio de búsqueda.
 
-Para concluir esta sección, destacamos que, cuando se alimentó con toda la API de NCL, nuestro enfoque identificó automáticamente el conjunto suficiente y mínimo de constructores para NCL que se muestra en la Figura \ref{fig:NCLbuilders}.
+Para concluir esta sección, destacamos que, cuando se alimentó con toda la API de NCL, nuestro enfoque identificó automáticamente el conjunto suficiente y mínimo de constructores para NCL que se muestra en la Listing \ref{fig:NCLbuilders}.
 
 \section{Algortimos}
-Para encontrar un conjunto suficiente de constructores a partir de una API de programa, diseñamos un tres algoritmos de busqueda que se describen a continuación. El primero es una modificacion de los algoritmos geneticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es una algoritmo de busqueda de acuerdo a las clases de equivalecias. 
+Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos
 Los algoritmos genéticos \cite{Goldberg:1989} son algoritmos de búsqueda no exhaustivos guiados. \cite{Michalewicz:1996}
 % basados en una estrategia de escalada de colinas \cite{Russell:2009}.
-El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con las características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente un número de individuos en la población, utilizando estos para evolución (construyendo nuevos individuos a partir de estos), y dejando algunos individuos fuera del conjunto completo (los "viejos" y los "nuevos"). La selección de individuos para la evolución de la población, así como la eliminación de individuos, están guiadas por una función de fitness, la cual tambien es utilizada para guiar la búsqueda. Esta función se aplica a los individuos, y su resultado es generalizable a la población también (por ejemplo, la fitness de la población se puede tomar como la fitness de su individuo "más apto"). Esta función captura las características deseadas en la búsqueda, y por lo tanto se puede utilizar como criterio de parada (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una aptitud por encima de cierto umbral). Finalmente, los individuos a menudo se llaman cromosomas, y se representan como vectores de genes que capturan sus características. Esta idea está fuertemente relacionada con cómo se construyen nuevos individuos: al representar a los candidatos como vectores de características independientes, se pueden construir nuevos candidatos combinando parte de las características de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de un individuo dado. Estas dos formas de evolución se llaman cross-over y mutación, respectivamente, y son el mecanismo tradicional para construir nuevos candidatos a partir de los existentes en los algoritmos genéticos. Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
+Durante esta sección explicaré en detalle cada algoritmo.
 
-El segundo algoritmo, basado en una estrategia de Hill CLimbing\cite{TODO, qué citar sobre hill climbing}, es un algoritmo de búsqueda local que se mueve continuamente hacia arriba (incrementando) hasta alcanzar la mejor solución. Este algoritmo finaliza cuando se alcanza la cima. Este algoritmo es una algoritmo Greedy(Perezoso) [TODO explicar] porque selecciona un buen estado vecino sin pensar en dónde ir a continuación. Comienza con un estado no óptimo y lo mejora hasta alcanzar una condición. El objetivo de este algoritmo es mejorar estados existentes hasta alcanzar estados óptimos (estados que no pueden ser mejorados aún más). Se utiliza una función heurística para lograr estos estados.
+\cacho{Hago una introduccion de los algoritmos? }
+% El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con las características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente un número de individuos en la población, utilizando estos para evolución (construyendo nuevos individuos a partir de estos), y dejando algunos individuos fuera del conjunto completo (los "viejos" y los "nuevos"). La selección de individuos para la evolución de la población, así como la eliminación de individuos, están guiadas por una función de fitness, la cual tambien es utilizada para guiar la búsqueda. Esta función se aplica a los individuos, y su resultado es generalizable a la población también (por ejemplo, la fitness de la población se puede tomar como la fitness de su individuo "más apto"). Esta función captura las características deseadas en la búsqueda, y por lo tanto se puede utilizar como criterio de parada (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una aptitud por encima de cierto umbral). Finalmente, los individuos a menudo se llaman cromosomas, y se representan como vectores de genes que capturan sus características. Esta idea está fuertemente relacionada con cómo se construyen nuevos individuos: al representar a los candidatos como vectores de características independientes, se pueden construir nuevos candidatos combinando parte de las características de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de un individuo dado. Estas dos formas de evolución se llaman cross-over y mutación, respectivamente, y son el mecanismo tradicional para construir nuevos candidatos a partir de los existentes en los algoritmos genéticos. Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
 
-La estrategia de Hill Climbing es una técnica de búsqueda local que se utiliza comúnmente en la optimización de funciones. El algoritmo comienza en un punto arbitrario en el espacio de búsqueda y se mueve hacia un vecino mejor en cada iteración, hasta que se alcanza un máximo local. El rendimiento de la escalada de colinas depende fuertemente de la elección del vecino y de la función heurística utilizada para evaluar los vecinos.
+% El segundo algoritmo, basado en una estrategia de Hill CLimbing\cite{TODO, qué citar sobre hill climbing}, es un algoritmo de búsqueda local que se mueve continuamente hacia arriba (incrementando) hasta alcanzar la mejor solución. Este algoritmo finaliza cuando se alcanza la cima. Este algoritmo es una algoritmo Greedy(Perezoso) [TODO explicar] porque selecciona un buen estado vecino sin pensar en dónde ir a continuación. Comienza con un estado no óptimo y lo mejora hasta alcanzar una condición. El objetivo de este algoritmo es mejorar estados existentes hasta alcanzar estados óptimos (estados que no pueden ser mejorados aún más). Se utiliza una función heurística para lograr estos estados.
 
-En general, el Hill Climbing es adecuada para problemas en los que se puede definir una función de evaluación localmente coherente y no es necesario explorar todo el espacio de búsqueda para encontrar una solución aceptable. Sin embargo, el algoritmo tiene dificultades para escapar de óptimos locales y puede quedarse atrapado en una solución subóptima. Por lo tanto, se utilizan variaciones del algoritmo, como Hill Climbing estocástico y la Hill Climbing con reinicio aleatorio, para superar estos problemas.
-Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
+% La estrategia de Hill Climbing es una técnica de búsqueda local que se utiliza comúnmente en la optimización de funciones. El algoritmo comienza en un punto arbitrario en el espacio de búsqueda y se mueve hacia un vecino mejor en cada iteración, hasta que se alcanza un máximo local. El rendimiento de la escalada de colinas depende fuertemente de la elección del vecino y de la función heurística utilizada para evaluar los vecinos.
+
+% En general, el Hill Climbing es adecuada para problemas en los que se puede definir una función de evaluación localmente coherente y no es necesario explorar todo el espacio de búsqueda para encontrar una solución aceptable. Sin embargo, el algoritmo tiene dificultades para escapar de óptimos locales y puede quedarse atrapado en una solución subóptima. Por lo tanto, se utilizan variaciones del algoritmo, como Hill Climbing estocástico y la Hill Climbing con reinicio aleatorio, para superar estos problemas.
+% Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
 
 
-\subsection{GA}
+\subsection{Algoritmo Genético}
 \label{alg:approachGA}
-Los algoritmos genéticos (AG) son una técnica de búsqueda y optimización que se inspiran en la evolución biológica. La idea fundamental es que una población de individuos (soluciones candidatas) evoluciona a lo largo del tiempo mediante la aplicación de operadores genéticos que producen nuevas soluciones a partir de soluciones existentes. El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente a varios individuos de la población, utilizando estos para la evolución (construyendo nuevos individuos a partir de ellos) y dejando fuera a algunos individuos del conjunto completo (los "antiguos" y los "nuevos")
-
-La selección de individuos para la evolución de la población, así como la eliminación de individuos, está guiada por una función de aptitud, la función heurística utilizada para guiar la búsqueda. Esta función se aplica a los individuos y su resultado es generalizable a la población también (por ejemplo, la aptitud de la población se puede tomar como la aptitud de su individuo "más apto"). 
-Esta función captura las características buscadas en la búsqueda y, por lo tanto, se puede utilizar como un criterio de detención (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una aptitud por encima de un umbral determinado).
-
-Los individuos a menudo se denominan cromosomas y se representan como vectores de genes que capturan sus características. Esta idea está fuertemente relacionada con cómo se construyen los nuevos individuos: al representar a los candidatos como vectores de características independientes, se pueden construir nuevos candidatos combinando parte de las características de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de un individuo dado. Los operadores genéticos que realizan estas combinaciones son las herramientas mediante las cuales se generan nuevas soluciones a partir de soluciones existentes. Los principales operadores son la selección, el cross-over y la mutación. La selección se encarga de elegir los cromosomas más aptos para reproducirse. El cruce o  cross-over combina los genes de dos cromosomas para producir uno o más descendientes. La mutación introduce cambios aleatorios en un cromosoma para explorar nuevas regiones del espacio de soluciones.
-
-El algoritmo genético comienza con una población inicial de cromosomas aleatorios. En cada iteración del algoritmo, se evalúa la fitness de cada cromosoma en la población, se seleccionan los cromosomas más aptos para reproducirse mediante la selección, se aplican operadores de cruce y mutación para generar descendencia, y se reemplazan los cromosomas menos aptos en la población por los descendientes. Este proceso se repite durante un número determinado de iteraciones o hasta que se cumpla un criterio de convergencia.
-
-El proceso de evolución de una población de cromosomas mediante operadores genéticos permite explorar ampliamente el espacio de soluciones en busca de soluciones óptimas. Además, los algoritmos genéticos son capaces de manejar problemas de alta dimensionalidad, no lineales y multimodales, que son difíciles de resolver con métodos de optimización tradicionales.
+L
 
 
 En mi trabajo, hemos utilizado una libreria muy utilizada en Java para algoritmos geneticos. Esta libreria se llama Jenetics (TODO:???) es una biblioteca de algoritmos genéticos de código abierto escrita en Java. Es ampliamente utilizada en la industria y en la academia para resolver problemas complejos de optimización y búsqueda.

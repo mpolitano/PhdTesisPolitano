@@ -19,10 +19,11 @@ En este capítulo, realizamos una evaluación experimental de estas técnicas co
 \cacho{TODO: pensar mejor las RQ}
 \begin{itemize}
 \item \emph{RQ1}: ¿Qué tan efectivos son los algoritmos (Algoritmo Genético, Greedy, clases de equivalencia) para identificar conjuntos de métodos \emph{builders} y cuánto tiempo computacional requiere cada enfoque?
-\item \emph{RQ2}: ¿Puede realizarse eficientemente la generación exhaustiva utilizando métodos de la API (BEAPI)?
-\item\emph{RQ3}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEG a partir de la API?
-\item\emph{RQ4}: ¿Puede BEAPI ayudar a encontrar discrepancias entre las especificaciones repOK y la capacidad de generación de objetos de la API?
-\item\emph{RQ5}: ¿Qué tan efectivas son las suites de prueba reducidas en comparación con la generación exhaustiva acotada?
+\item \emph{RQ2}: ¿Cuál es el impacto de utilizar métodos Builders identificados en comparación con el uso de todos los métodos de la API en la generación de estados mediante un verificador de modelos?
+\item \emph{RQ3}: ¿Puede realizarse eficientemente la generación exhaustiva utilizando métodos de la API (BEAPI)?
+\item\emph{RQ4}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEG a partir de la API?
+\item\emph{RQ5}: ¿Puede BEAPI ayudar a encontrar discrepancias entre las especificaciones repOK y la capacidad de generación de objetos de la API?
+\item\emph{RQ6}: ¿Qué tan efectivas son las suites de prueba reducidas en comparación con la generación exhaustiva acotada?
 \end{itemize}
 
 \section{Algoritmos de Identificacion de metodos builders}
@@ -133,91 +134,7 @@ Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing}
 
 \hspace{1cm}
 
-\begin{table}[t!]
-\centering
-\scriptsize
-\begin{tabular}{ c l c c}
-\hline
-Class & Budget &
-\multicolumn{2}{c}{\textsf{No. of Objs}} \\
-&& \tiny{\textbf{Builders}} & \tiny{\textbf{AllMethods}} \\
-\hline
-\multirow{3}{*}{\textbf{NCL}} 
-&	60	&	6648	&	470	\\
-&	120	&	9436	&	612	\\
-&	180	&	11441	&	703	\\
-\hline
-\multirow{3}{*}{\textbf{UFind}} 
-&	60	&	1033	&	372	\\
-&	120	&	1342	&	483	\\
-&	180	&	1534	&	555	\\
-\hline
-\multirow{3}{*}{\textbf{FibHeap}}
-&	60	&	6541	&	1766	\\
-&	120	&	9270	&	2347	\\
-&	180	&	10923	&	2745	\\
-\hline
-\multirow{3}{*}{\textbf{RBT}}
-&	60	&	2634	&	515	\\
-&	120	&	3410	&	611	\\
-&	180	&	3938	&	676	\\
-\hline
-\multirow{3}{*}{\textbf{BTree}}
-&	60	&	2937	&	975	\\
-&	120	&	3820	&	1196	\\
-&	180	&	4367	&	1354	\\
-\hline
-\multirow{3}{*}{\textbf{BHeap}}
-&	60	&	6455	&	971	\\
-&	120	&	8665	&	1230	\\
-&	180	&	10093	&	1401	\\
-\hline
-\multirow{3}{*}{\textbf{Lits}}
-&	60	&	3968	&	3174	\\
-&	120	&	5109	&	4142	\\
-&	180	&	5848	&	4783	\\
-\hline
-\multirow{3}{*}{\textbf{Schedule}}
-&	60	&	2176	&	2901	\\
-&	120	&	2756	&	2901	\\
-&	180	&	3140	&	3437	\\
-\hline
-\multirow{3}{*}{\textbf{LinkedList}} 
-&	60	&	8121	&	790	\\
-&	120	&	11503	&	1095	\\
-&	180	&	13905	&	1323	\\
-\hline
-\multirow{3}{*}{\textbf{TreeMap}} 
-&	60	&	2750	&	748	\\
-&	120	&	3754	&	953	\\
-&	180	&	4496	&	1107	\\
-\hline\multirow{3}{*}{\textbf{TreeSet}}
-&	60	&	1129	&	291	\\
-&	120	&	1527	&	343	\\
-&	180	&	1816	&	381	\\
-\hline
-\multirow{3}{*}{\textbf{HashSet}}
-&	60	&	8208	&	1498	\\
-&	120	&	11467	&	2008	\\
-&	180	&	13548	&	2366	\\
-\hline
-\multirow{3}{*}{\textbf{HashMap}}
-&	60	&	9581	&	2103	\\
-&	120	&	13044	&	3173	\\
-&	180	&	15514	&	3784	\\
-\hline
 
-\end{tabular}%
-
-\caption{Assessment of using the identified builders (BLD) vs the whole API (API) in test case generation}
-\label{tab:results-obj}
-\end{table}
-
-En la segunda parte de la evaluación, analizamos qué tan útiles son los builders identificados en el contexto de un análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos objetos pueden utilizarse, por ejemplo, como entradas en test parametrizados. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y compararlos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos builders (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego comparamos el número de objetos diferentes (No. de Objs.) y el tamaño del objeto más grande (Max Obj. Size) generados por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Establecimos tres budget diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que la API. En todos los casos, BLD también genera objetos significativamente más grandes que la API. A la luz de estos resultados, queda claro que la identificación automatizada de builders es beneficiosa para la generación automatizada de estructuras para clases con estado.
-
-Además, comparamos las suites de pruebas generadas con Randoop midiendo la cobertura de ramas y líneas de código. Al igual que en el experimento anterior, la suite de pruebas utilizada para la comparación se generó a partir de los métodos builders (BLD) en comparación con el uso de todos los métodos disponibles de la API con un Randoop predeterminado. Establecimos cinco presupuestos diferentes para la generación de pruebas: 60, 120, 180, 300 y 600 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-coverage}.
-
-Cabe destacar que la tabla \ref{tab:results-coverage} muestra que, para los casos que manipulan estructuras de datos complejas (por ejemplo, java.util.TreeMap), las pruebas generadas solo con los métodos BLD obtienen una mejor cobertura tanto en ramas como en líneas de código.
 
 \section{Builders en la generación de entrada en verificacion}
 
@@ -303,12 +220,12 @@ private static TreeMap generateStructure(int scope) {
 
 Como se muestra en el controlador anterior, solo 2 métodos componen un conjunto mínimo y suficiente para construir controladores para TreeMap de \textit{java.util}. Utilizando solo esos métodos, generamos exactamente los mismos objetos TreeMap que antes (porque los constructores son suficientes y mínimos), y por lo tanto JPF explora las mismas ejecuciones de propiedades con ambos controladores.
 
-Los resultados de la tabla \ref{tab:results-jpf} muestran que la construcción del controlador a partir de nuestro enfoque presentado permite aumentar la eficiencia y escalabilidad a estructuras más grandes en el análisis utilizando JPF. Esto se debe a la reducción de los métodos utilizados en los controladores (evitando métodos superfluos) y manteniendo la capacidad de construir todos los objetos acotados posibles (debido a la suficiencia de los métodos elegidos) en menos tiempo.
+Los resultados de la tabla \ref{tab:results1-jpf} y \ref{tab:results2-jpf} muestran que la construcción del controlador a partir de nuestro enfoque presentado permite aumentar la eficiencia y escalabilidad a estructuras más grandes en el análisis utilizando JPF. Esto se debe a la reducción de los métodos utilizados en los controladores (evitando métodos superfluos) y manteniendo la capacidad de construir todos los objetos acotados posibles (debido a la suficiencia de los métodos elegidos) en menos tiempo.
 
 
 
 
-\table{}
+\begin{table}
 \scriptsize
 \begin{tabular}{ c| l| c c c c c}
 \hline
@@ -319,7 +236,7 @@ Class & Method & Scope &
 \tiny{\textbf{states}} & \tiny{\textbf{time (S)}} &
 \tiny{\textbf{states}} & \tiny{\textbf{time (S)} }\\
 \hline
-\multirow{14}{*}{LL} 
+\multirow{14}{*}{LinkedList} 
 & add
   & 1 & 11  & 0 & 42  & 0 \\
 & & 2 & 58  & 0 & 715 & 0 \\
@@ -340,7 +257,7 @@ Class & Method & Scope &
 & & 7 & 21913097  & 3998  & TO \\ 
 
 \hline
-\multirow{10}{*}{TM} 
+\multirow{10}{*}{TreeMap} 
 % Check
 & put
   & 1 & 45  & 0 & 112 & 0 \\
@@ -363,7 +280,7 @@ Class & Method & Scope &
 
 
 \hline
-\multirow{19}{*}{TS} 
+\multirow{19}{*}{TreeSet} 
 &put
   & 1 & 11  & 0 & 48  & 0 \\
 & & 2 & 49  & 0 & 595 & 0 \\
@@ -374,10 +291,39 @@ Class & Method & Scope &
 & & 7 & 47241 & 5 & 4966224 & 452 \\
 & & 8 & 501666  & 45  & 23976826  & 2094  \\
 & & 9 & 2047285 & 183 &TO  &  \\
-
-
 \cline{2-7}
 
+& remove
+  & 1 & 17  & 0 & 48  & 0 \\
+& & 2 & 88  & 0 & 595 & 0 \\
+& & 3 & 423 & 0 & 5275  & 1 \\
+& & 4 & 1842  & 0 & 36427 & 4 \\
+& & 5 & 7455  & 1 & 204877  & 19  \\
+& & 6 & 30197 & 3 & 1024038 & 88  \\
+& & 7 & 122717  & 10  & 4966224 & 431 \\
+& & 8 & 501666  & 43  & 23976826  & 2088  \\
+& & 9 & 2047285 & 181 & TO    \\
+& & 10  & 8182166 & 719 &    TO  \\
+& & 11  & 31473779  & 2738  &  TO     \\
+\hline
+
+\end{tabular}%
+\caption{Estados generados JPF utilizando el método driver con todos los métodos de la API vs. solo utilizando los métodos builders.}
+\label{tab:results1-jpf}
+ \end{table}
+
+\begin{table}[!thb]
+\scriptsize
+\begin{tabular}{ c| l| c c c c c}
+\hline
+Class & Method & Scope &
+\multicolumn{2}{c}{\textsf{Builders}} &
+\multicolumn{2}{c}{\textsf{AllMethods}} \\
+&&&
+\tiny{\textbf{states}} & \tiny{\textbf{time (S)}} &
+\tiny{\textbf{states}} & \tiny{\textbf{time (S)} }\\
+\hline
+\multirow{14}{*}{LinkedList} 
 & remove
   & 1 & 17  & 0 & 48  & 0 \\
 & & 2 & 88  & 0 & 595 & 0 \\
@@ -438,8 +384,8 @@ Class & Method & Scope &
 \hline
 
 \end{tabular}%
-\caption{States generated with a model checker (JPF) using dirver methods with all API  methods vs. or only using methods Builders.}
-\label{tab:results-jpf}
+\caption{Estados generados JPF utilizando el método driver con todos los métodos de la API vs. solo utilizando los métodos builders.}
+\label{tab:result2s-jpf}
  
 \end{table}
 
@@ -508,12 +454,20 @@ Class & Method & Scope &
 
 
 \\
-\\
+
 \section{BEAPI}
+
+
+En la segunda parte de la evaluación, analizamos qué tan útiles son los builders identificados en el contexto de un análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos objetos pueden utilizarse, por ejemplo, como entradas en test parametrizados. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y compararlos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos builders (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego comparamos el número de objetos diferentes (No. de Objs.) y el tamaño del objeto más grande (Max Obj. Size) generados por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Establecimos tres budget diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que la API. En todos los casos, BLD también genera objetos significativamente más grandes que la API. A la luz de estos resultados, queda claro que la identificación automatizada de builders es beneficiosa para la generación automatizada de estructuras para clases con estado.
+
+Además, comparamos las suites de pruebas generadas con Randoop midiendo la cobertura de ramas y líneas de código. Al igual que en el experimento anterior, la suite de pruebas utilizada para la comparación se generó a partir de los métodos builders (BLD) en comparación con el uso de todos los métodos disponibles de la API con un Randoop predeterminado. Establecimos cinco presupuestos diferentes para la generación de pruebas: 60, 120, 180, 300 y 600 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-coverage}.
+
+Cabe destacar que la tabla \ref{tab:results-coverage} muestra que, para los casos que manipulan estructuras de datos complejas (por ejemplo, java.util.TreeMap), las pruebas generadas solo con los métodos BLD obtienen una mejor cobertura tanto en ramas como en líneas de código
+.
 \begin{table}[!thb]
 \scriptsize
 \centering
-\caption{Execution times (sec) of BEAPI under different configurations.}
+\caption{Tiempo de ejecución de BEAPI con diferentes configuración.}
 
 \begin{tabular}{ l r | r | r | r | r  }
   \toprule
@@ -614,3 +568,86 @@ Class & Method & Scope &
 \end{table}
 
 
+
+
+
+
+\begin{table}[t!]
+\centering
+\scriptsize
+\begin{tabular}{ c l c c}
+\hline
+Class & Budget &
+\multicolumn{2}{c}{\textsf{No. of Objs}} \\
+&& \tiny{\textbf{Builders}} & \tiny{\textbf{AllMethods}} \\
+\hline
+\multirow{3}{*}{\textbf{NCL}} 
+&	60	&	6648	&	470	\\
+&	120	&	9436	&	612	\\
+&	180	&	11441	&	703	\\
+\hline
+\multirow{3}{*}{\textbf{UFind}} 
+&	60	&	1033	&	372	\\
+&	120	&	1342	&	483	\\
+&	180	&	1534	&	555	\\
+\hline
+\multirow{3}{*}{\textbf{FibHeap}}
+&	60	&	6541	&	1766	\\
+&	120	&	9270	&	2347	\\
+&	180	&	10923	&	2745	\\
+\hline
+\multirow{3}{*}{\textbf{RBT}}
+&	60	&	2634	&	515	\\
+&	120	&	3410	&	611	\\
+&	180	&	3938	&	676	\\
+\hline
+\multirow{3}{*}{\textbf{BTree}}
+&	60	&	2937	&	975	\\
+&	120	&	3820	&	1196	\\
+&	180	&	4367	&	1354	\\
+\hline
+\multirow{3}{*}{\textbf{BHeap}}
+&	60	&	6455	&	971	\\
+&	120	&	8665	&	1230	\\
+&	180	&	10093	&	1401	\\
+\hline
+\multirow{3}{*}{\textbf{Lits}}
+&	60	&	3968	&	3174	\\
+&	120	&	5109	&	4142	\\
+&	180	&	5848	&	4783	\\
+\hline
+\multirow{3}{*}{\textbf{Schedule}}
+&	60	&	2176	&	2901	\\
+&	120	&	2756	&	2901	\\
+&	180	&	3140	&	3437	\\
+\hline
+\multirow{3}{*}{\textbf{LinkedList}} 
+&	60	&	8121	&	790	\\
+&	120	&	11503	&	1095	\\
+&	180	&	13905	&	1323	\\
+\hline
+\multirow{3}{*}{\textbf{TreeMap}} 
+&	60	&	2750	&	748	\\
+&	120	&	3754	&	953	\\
+&	180	&	4496	&	1107	\\
+\hline\multirow{3}{*}{\textbf{TreeSet}}
+&	60	&	1129	&	291	\\
+&	120	&	1527	&	343	\\
+&	180	&	1816	&	381	\\
+\hline
+\multirow{3}{*}{\textbf{HashSet}}
+&	60	&	8208	&	1498	\\
+&	120	&	11467	&	2008	\\
+&	180	&	13548	&	2366	\\
+\hline
+\multirow{3}{*}{\textbf{HashMap}}
+&	60	&	9581	&	2103	\\
+&	120	&	13044	&	3173	\\
+&	180	&	15514	&	3784	\\
+\hline
+
+\end{tabular}%
+
+\caption{Evaluación del uso de los builders identificados (BLD) frente a toda la API (API) en la generación de casos de test.}
+\label{tab:results-obj}
+\end{table}
