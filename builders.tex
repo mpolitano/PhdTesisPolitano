@@ -15,16 +15,6 @@ En esta tesis, proponemos tres enfoques para seleccionar automáticamente un con
 \cacho{Change te order maybe. Explain in detalle en un solo lado}
 \cacho{Los listing lo pongo como listing, como figure o como que para hacer referencia}
 
-En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
-Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{NCL-instances.png}
-    \caption{Three NodeCachingLinkedList instances with exactly two nodes}
-    \label{fig:ncl-instances}
-\end{figure}
-
-
 \begin{table}[H]
 \center
 {\scriptsize
@@ -72,11 +62,21 @@ No. &Return type & Method name & Obs? \\
 \caption{Apache's NodeCachingLinkedList API}
 \label{tab:ncl-api}
 \end{table} 
+En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
+Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
+\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{NCL-instances.png}
+    \caption{Three NodeCachingLinkedList instances with exactly two nodes}
+    \label{fig:ncl-instances}
+\end{figure}
 
 
 NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL (finito) deseado. Por lo tanto, los siguientes métodos:
 \\
-\begin{lstlisting}[label=fig:NCLbuilders, caption=Conjunto de metodos sufiente para NCL]
+\begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de metodos sufiente para NCL]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (25) removeFirst()
@@ -87,7 +87,7 @@ NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. S
 
 Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes y mínimos. Por ejemplo, se pueden obtener constructores suficientes y mínimos reemplazando el método \texttt{addFirst} en la Listing~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Listing~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
 \\
-\begin{lstlisting}[label=fig:NCLadds, caption=Variantes del método 'Add' que puedo ser utilizado para rellanar la lista principal en NCL, captionpos=b, frame=tb , basicstyle=\scriptsize]
+\begin{lstlisting}[numbers=none,label=fig:NCLadds, caption=Variantes del método 'Add' que puedo ser utilizado para rellanar la lista principal en NCL, captionpos=b, frame=tb , basicstyle=\scriptsize]
   (3) add(Object)
   (4) add(int,Object)
   (7) addFirst(Object)

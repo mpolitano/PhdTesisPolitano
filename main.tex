@@ -1,5 +1,5 @@
 %\documentclass[10pt]{report} %twoside para impresion final 
-\documentclass[11pt,a4paper,openany]{book} %a4paper,
+\documentclass[11pt,a4paper,openany]{report} %a4paper,
 \usepackage{array}
 \makeatletter
 \renewcommand*\@argarraycr{\let\@tempa\relax%
@@ -13,10 +13,53 @@
 \usepackage{tikz}
 \usepackage{multirow}
 \usepackage{underscore}
+\usepackage[spanish]{babel}
+\usepackage{titletoc}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage{lineno}     % Line numbers with e.g. the linenumbers environment
+\usepackage{sectsty}    % \allsectionsfont{}, \chapterfont{}, \sectionfont{}
 
-\titleformat{\paragraph}[runin]
-{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
-\titlespacing*{\paragraph}   {0pt}{3.25ex plus 1ex minus .2ex}{1em}
+
+\usepackage{titletoc}
+\usepackage{tocloft}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % Agrega puntos para las secciones
+
+\titlecontents{chapter}
+  [0em]
+  {\vspace{1em}\bfseries}
+  {\thecontentslabel.\enspace}
+  {}
+  {\hfill\contentspage} % Mueve el número de página a la derecha
+
+\titlecontents{section}
+  [2em]
+  {}
+  {\thecontentslabel.\enspace}
+  {}
+  {\titlerule*[0.75em]{.}\contentspage} % Agrega líneas de puntos para las secciones
+
+\titlecontents{subsection}
+  [4.5em]
+  {}
+  {\thecontentslabel.\enspace}
+  {}
+  {\titlerule*[0.75em]{.}\contentspage} % Agrega líneas de puntos para las subsecciones
+
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{50pt}{40pt}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}} % Línea de puntos para secciones
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}} % Línea de puntos para subsecciones
+
+% Eliminar encabezados
+% Configuración del estilo de página
+\pagestyle{fancy}
+\fancyhf{} % Limpiar encabezados y pies de página
+\fancyfoot[C]{\thepage} % Número de página centrado en el pie de página
+\renewcommand{\headrulewidth}{0pt} % Eliminar línea del encabezado
 \babelhyphenation[spanish]{Node-Caching-Linked-List}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \usepackage{listings}
@@ -74,33 +117,39 @@
 
 %%%%  Contenido  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-\pagestyle{empty}
+
 % \raggedbottomn
-%% Portada
-% \input{./portada.tex}
+
 
 
 % ********************************************************************
 % Frontmatter
 %\include{titlepage}
 \include{titlepage-famaf}
-
-% \include{resumen}
+\chapter*{}
+\pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
+\begin{flushright}
+\textit{}
+\end{flushright}
+\include{resumen}
 % \pagenumbering{roman}
 % \pagestyle{plain}
-% \include{agradecimientos}
-\tableofcontents
+\include{agradecimientos}
+\tableofcontents % indice de contenidos
+
 \cleardoublepage
-\listoffigures
+% \listoffigures
 %\cleardoublepage
-\listoftables
-\pagestyle{scrheadings}
+% \listoftables
+% \pagestyle{scrheadings}
 %\cleardoublepage
 % ********************************************************************
 % Mainmatter
 \lstset{basicstyle=\ttfamily,showstringspaces=false}
-\pagestyle{headings}
+% \pagestyle{headings}
 \cleardoublepage
+\pagenumbering{arabic} % para empezar la numeración con números
+
 \include{introduccion}
 \cleardoublepage
 \include{preliminaries}
@@ -109,18 +158,20 @@
 \include{evaluacion}
 \include{Builders Identification}
 \include{conclusiones}
-\include{trabajofuturo}
+% \include{trabajofuturo}
 
 % ********************************************************************
 % Backmatter
 \cleardoublepage\null
-%\bibliographystyle{amsplain}
-\bibliographystyle{apalike}
-%\bibliographystyle{apacite}
+\bibliographystyle{acm} % estilo de la bibliografía.
+% \bibliographystyle{apalike}
+% \bibliographystyle{apacite}
+% \bibliographystyle{unsrtnat} % Estilo de bibliografía
+
 %\bibliographystyle{alpha}
 %\cleardoublepage\phantomsection
-\addcontentsline{toc}{chapter}{{\sc Bibliografía}}
 \bibliography{Bibliografia}
+
 %\appendix
 %\cleardoublepage
 %\part{Appendix}
