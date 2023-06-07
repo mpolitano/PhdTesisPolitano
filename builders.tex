@@ -1,9 +1,9 @@
-\chapter[Builders Identification]{Builders Identification}
+\chapter[Identificación de métodos builders]{Enfoques para la identificación de Métodos Builders}
 \label{cap:builders}
 
 El análisis de software es una tarea crucial en el campo de la Ingeniería de Software, ya sea para generar tests para el software bajo test (SUT)  o para realizar verificación de modelos de software. Estos enfoques requieren que los programadores identifiquen manualmente un subconjunto de los métodos de un módulo con el fin de dirigir el análisis. En general, al analizar un módulo, los programadores seleccionan un subconjunto de sus métodos que serán considerados como constructores de objetos (\emph{builders}) para definir lo que se conoce como un controlador o "driver", que se utilizará para construir objetos automáticamente para el análisis, combinándolos de manera no determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo y su API, ya que la exhaustividad relativa del análisis (omitir métodos importantes puede evitar sistemáticamente la generación de diferentes objetos) y su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera exponencial a medida que aumenta el número de métodos) se ven afectados por la selección.
 
-En esta tesis, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API de un módulo, basados en un algoritmo evolutivo y un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de branch del SUT. Además, los algoritmos tienen en cuenta otras características de estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
+En este capitulo, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API de un módulo, basados en un algoritmo evolutivo y un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características de estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
 
 % Para evaluar experimentalmente nuestra propuesta, hemos realizado una evaluación en un conjunto de clases con estado de referencia, que representan casos de uso típicos. Los resultados muestran que nuestro enfoque puede identificar automáticamente conjuntos de constructores de objetos que son suficientes (se pueden utilizar para crear cualquier instancia del módulo) y mínimos (no contienen métodos superfluos), en un tiempo razonable.
 
@@ -82,10 +82,9 @@ NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. S
   (25) removeFirst()
 \end{lstlisting}
 
-
  son un ejemplo de un conjunto suficiente de constructores. Hay que tener en cuenta que, después de utilizar el constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la caché no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de los análisis automatizados, nos gustaría considerar tantos escenarios variables (entradas) como sea posible, de ahí la motivación para construir conjuntos suficientes de constructores. Además, los constructores del Listing~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir.
 
-Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes y mínimos. Por ejemplo, se pueden obtener constructores suficientes y mínimos reemplazando el método \texttt{addFirst} en la Listing~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Listing~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
+Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes. Por ejemplo, se pueden obtener constructores suficientes reemplazando el método \texttt{addFirst} en la Listing~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Listing~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLadds, caption=Variantes del método 'Add' que puedo ser utilizado para rellanar la lista principal en NCL, captionpos=b, frame=tb , basicstyle=\scriptsize]
   (3) add(Object)
@@ -95,19 +94,52 @@ Hay que tener en cuenta que puede haber muchos conjuntos de constructores sufici
 \end{lstlisting}
 
 
+Además, es importante remarcar la importancia de obtener subconjuntos que sean mínimos, lo que significa que no contengan métodos adicionales. Esto es crucial para utilizar la combinación de estos métodos en la construcción de objetos. Cuantos más métodos tenga el subconjunto de builders, más costosa será la combinación de los mismos para generar objetos.
+
+Los siguientes subconjuntos son suficientes pero no son mínimos para NCL:
+\\
+
+\begin{lstlisting}[numbers=none,label=fig:NCLadds, frame=tb , basicstyle=\scriptsize]
+  (0)  NodeCachingLinkedList()
+  (7)  addFirst(Object)
+  (3)  addF(Object)
+  (25) removeFirst()
+\end{lstlisting}
+
+\begin{lstlisting}[numbers=none,label=fig:NCLadds, caption= Conjuntos de metodos builders suficientes pero no mínimos, captionpos=b, frame=tb , basicstyle=\scriptsize]
+  (0)  NodeCachingLinkedList()
+  (7)  addFirst(Object)
+  (3)  remove(Object)
+  (25) removeFirst()
+\end{lstlisting}
+
 También observamos que cuanto más simples sean los parámetros de una rutina, más fácil será utilizarla para generar entradas en el contexto de un análisis de programas. Por ejemplo, entre las alternativas de rutinas de añadir para NCL (Listing.~\ref{fig:NCLadds}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para ella al generar entradas. Esto hace que las otras tres alternativas sean preferidas sobre ella. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
 
 Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos en los que operan, ni son útiles para crear objetos no primitivos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos. Nuestro enfoque intenta reconocerlos de antemano y descartarlos de la búsqueda para reducir significativamente el espacio de búsqueda.
 
-Para concluir esta sección, destacamos que, cuando se alimentó con toda la API de NCL, nuestro enfoque identificó automáticamente el conjunto suficiente y mínimo de constructores para NCL que se muestra en la Listing \ref{fig:NCLbuilders}.
-
-\section{Algortimos}
-Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos
-Los algoritmos genéticos \cite{Goldberg:1989} son algoritmos de búsqueda no exhaustivos guiados. \cite{Michalewicz:1996}
-% basados en una estrategia de escalada de colinas \cite{Russell:2009}.
-Durante esta sección explicaré en detalle cada algoritmo.
+Todos estos problemas planteados en este capítulo fueron lo que nos motivó a desarrollar enfoques para obtener automáticamente métodos constructores de manera eficiente y mínima. Para lograrlo, utilizamos una variedad de técnicas y algoritmos que explicaremos en la próxima sección. 
 
 \cacho{Hago una introduccion de los algoritmos? }
+\\
+\cacho{Donde explico sobre INFER y en analisis estatico. Explicaria al principio, como una seccion aparte. Esto me cambia en la representacion de los cromosoma. Porque solo armamos el cromosoma luego de este filtro, para todos los algoritmos. }
+
+\section{Algoritmos}
+Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos
+
+Es importante destacar, que la parte fundamental de todos los algoritmos es la función de fitness (o función objetivo). Para hacer mas entendible para el lector, primero explicaremos estas funciones que hemos utilizado para evaluar todos nuestros algoritmos.
+
+\cacho{Cual seria la palabra acorde? no es fitness, esto solo es para GA}
+\subsection{Funciones de evaluación}.
+
+\subsection{Algoritmo Genético}
+\label{alg:approachGA}
+En este sección presentamos los detalles para la detección de los subconjuntos de métodos builders utilizando un algoritmo evolutivo. Para lograr realizar esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el subconjunto de métodos que sean mínimo y suficientes, que describiremos a continuación.
+
+
+% Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos
+% % basados en una estrategia de escalada de colinas \cite{Russell:2009}.
+% Durante esta sección explicaré en detalle cada algoritmo.
+
 % El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con las características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente un número de individuos en la población, utilizando estos para evolución (construyendo nuevos individuos a partir de estos), y dejando algunos individuos fuera del conjunto completo (los "viejos" y los "nuevos"). La selección de individuos para la evolución de la población, así como la eliminación de individuos, están guiadas por una función de fitness, la cual tambien es utilizada para guiar la búsqueda. Esta función se aplica a los individuos, y su resultado es generalizable a la población también (por ejemplo, la fitness de la población se puede tomar como la fitness de su individuo "más apto"). Esta función captura las características deseadas en la búsqueda, y por lo tanto se puede utilizar como criterio de parada (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una aptitud por encima de cierto umbral). Finalmente, los individuos a menudo se llaman cromosomas, y se representan como vectores de genes que capturan sus características. Esta idea está fuertemente relacionada con cómo se construyen nuevos individuos: al representar a los candidatos como vectores de características independientes, se pueden construir nuevos candidatos combinando parte de las características de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de un individuo dado. Estas dos formas de evolución se llaman cross-over y mutación, respectivamente, y son el mecanismo tradicional para construir nuevos candidatos a partir de los existentes en los algoritmos genéticos. Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
 
 % El segundo algoritmo, basado en una estrategia de Hill CLimbing\cite{TODO, qué citar sobre hill climbing}, es un algoritmo de búsqueda local que se mueve continuamente hacia arriba (incrementando) hasta alcanzar la mejor solución. Este algoritmo finaliza cuando se alcanza la cima. Este algoritmo es una algoritmo Greedy(Perezoso) [TODO explicar] porque selecciona un buen estado vecino sin pensar en dónde ir a continuación. Comienza con un estado no óptimo y lo mejora hasta alcanzar una condición. El objetivo de este algoritmo es mejorar estados existentes hasta alcanzar estados óptimos (estados que no pueden ser mejorados aún más). Se utiliza una función heurística para lograr estos estados.
@@ -118,31 +150,72 @@ Durante esta sección explicaré en detalle cada algoritmo.
 % Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
 
 
-\subsection{Algoritmo Genético}
-\label{alg:approachGA}
-L
+\subsubsection{Cromosomas}
+\label{ge:cromosomas}
+
+Los elementos de la población de nuestro algoritmo genético son subconjuntos de métodos de la API. Para representar esto, necesitamos codificarlos como \emph{cromosomas}. En nuestro caso, necesitamos alguna forma de representar los métodos de la clase como un vector. Por ejemplo, consideremos el ejemplo de NCL explicado en el capítulo anterior, que tiene 34 métodos (consultar Tabla \ref{tab:ncl-api}). Para representar nuestras posibles soluciones, crearemos un vector de genes booleanos, donde cada posición $i$ es verdadera si y solo si el cromosoma contiene el $i$-ésimo método de la API. Para hacer esto, enumeraremos los métodos de la API desde 0 hasta $n$, donde $n$ es el número total de métodos en la API. Cabe destacar que cada cromosoma tendrá la misma longitud, lo cual es común en los algoritmos genéticos.
+
+Para el ejemplo de NCL, que tiene 34 métodos (Tabla \ref{tab:ncl-api}), tendríamos la siguiente representación del cromosoma:
+
+\begin{center}
+$c = \begin{array}{ccccccc}
+[ g0 & g1 & g2 & \ldots & g34 ]
+\end{array}$
+\end{center}
+
+Aquí, cada gen (\emph{g}) es un valor booleano que indica la presencia o ausencia del método en ese cromosoma.
+
+Como ejemplo más concreto, consideremos la representación del cromosoma que representa el conjunto de métodos suficientes y mínimos para NCL, como se muestra en la Figura \ref{fig:NCLbuilders}:
+\begin{center}
+$c = \begin{array}{|*{8}{c|}}
+\hline
+0 & 1 & \ldots & 7 & \ldots & 25 & \ldots & 33 \\
+\hline
+1 & 0 & \ldots & 1 & \ldots & 1 & \ldots & 0 \\
+\hline
+\end{array}$
+\end{center}
+
+En este caso, las posiciones 0, 7 y 25 están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas.
 
 
-En mi trabajo, hemos utilizado una libreria muy utilizada en Java para algoritmos geneticos. Esta libreria se llama Jenetics (TODO:???) es una biblioteca de algoritmos genéticos de código abierto escrita en Java. Es ampliamente utilizada en la industria y en la academia para resolver problemas complejos de optimización y búsqueda.
+\subsubsection{Poblacion Inicial}
 
+El proceso comienza con un conjunto de individuos llamado Población. Recordemos que cada individuo es una solución al problema que deseas resolver.
+
+En nuestro algoritmo genético, la población inicial se crea generando aleatoriamente un conjunto de cromosomas, donde cada cromosoma representa una solución potencial al problema. Cada gen en el cromosoma se establece aleatoriamente como 1 o 0, lo que indica la presencia o ausencia del método que se codificó en esa posición. Además, todos nuestros cromosomas iniciales tienen un tamaño igual a la cantidad de métodos que tiene la API bajo test.
+
+Es importante destacar que el número de cromosomas en la población inicial desempeña un papel fundamental en el algoritmo genético, ya que proporciona la base para la evolución y mejora gradual de las soluciones a lo largo de las generaciones. En nuestro algoritmo, tenemos una población inicial de 100 individuos. A medida que el algoritmo avanza, se aplican operadores genéticos como la selección, el cruce y la mutación para crear nuevas soluciones a partir de la población actual. A continuación, se explican estos operadores en detalle.
+
+\subsubsection{Operadores Geneticos}
+
+A continuacion explicare los operadores genéticos principales utilizados en los algoritmos genéticos y particularmente lo operadores que utilizamos en nuestro algoritmo.. Cada uno desempeña un papel importante en la exploración y explotación del espacio de búsqueda y en la mejora de la calidad de las soluciones a lo largo de las generaciones.
+
+\paragraph{Cross-over (Cruce)}
+
+El cruzamiento (o \emph{cross-over} en ingles) es un operador genético que combina una parte de dos cromosomas $c1$ y $c2$ elegidos aleatoriamente para crear un nuevo cromosoma descendiente. Esa parte que toma de cada cromosoma padre depende de la configuracion con la que se lo setee. En nuestro algoritmo, utilizamos un ratio de 0.30. Ademas, utilizamos una variante del cruce de un solo punto en la que se eligen múltiples puntos de cruce dentro de los cromosomas de los padres (2 puntos en nuestro caso).Su objetivo principal es explorar y explotar la información genética existente en la población.
+El cruce de varios puntos permite una mayor variedad en los descendientes generados, ya que se intercambian segmentos más largos de genes entre los padres. Esto puede ayudar a explorar el espacio de búsqueda de soluciones de manera más efectiva y encontrar soluciones potencialmente mejores.
+
+\paragraph{Mutacion}
+
+La mutación es un operador fundamental en un algoritmo genético que introduce pequeños cambios aleatorios en los cromosomas para explorar nuevas soluciones y mantener la diversidad dentro de la población. Juega un papel crucial en la prevención de la convergencia prematura y garantiza que el algoritmo explore de manera efectiva el espacio de búsqueda. Existen varios operadores de mutación que se pueden utilizar en un algoritmo genético. Uno de los operadores de mutación más comúnmente utilizados es la Mutación por Inversión de Bits, que es adecuada para algoritmos genéticos codificados en binario como en el caso de nuestra codificación.
+En la Mutación por Inversión de Bits, se selecciona uno o más bits aleatorios en el cromosoma y se invierten. Si un bit está inicialmente establecido en 1, se cambia a 0, y viceversa. Esta alteración aleatoria introduce cambios sutiles en la información del cromosoma, creando potencialmente nuevas soluciones que no estaban presentes en la población original. El número de bits invertidos y sus posiciones se determinan típicamente mediante una baja probabilidad de mutación, en nuestro caso 0.04.
+
+
+\paragraph{Selección}
+La operación de selección es un componente clave en nuestro algoritmo genético, ya que determina qué individuos serán preservados en la siguiente generación. En nuestro enfoque, hemos desarrollado un operador de selección que se basa en el nivel de aptitud de cada individuo.
+
+Utilizamos un enfoque de selección tipo torneo (\emph{tournament}) con un tamaño de torneo de 4 en nuestro algoritmo. En este enfoque, se selecciona aleatoriamente un grupo de individuos de la población y se compite entre ellos. El individuo con el mejor valor de fitness en el torneo es seleccionado para formar parte de la próxima generación. Este proceso se repite hasta que se hayan seleccionado todos los individuos necesarios.
+
+Es importante destacar que el operador de selección basado en torneo tiene varias ventajas. No solo permite seleccionar a los individuos más aptos, sino que también introduce una presión de selección ajustable. Esto significa que los individuos más débiles tienen menos posibilidades de ser seleccionados en torneos más grandes, lo que ayuda a mejorar gradualmente la calidad de la población a lo largo de las generaciones.
+
+\cacho{Mas grande el tournament, menos diversidad pero converge mas rapido}
 %Pongo ejemplo de codigo???%
 
 \emph{Jenetics} está diseñada para ser altamente personalizable y flexible, lo que permite a los usuarios definir sus propios problemas de optimización y personalizar los parámetros del algoritmo genético para obtener los mejores resultados posibles. La biblioteca proporciona una amplia gama de características, como diversos operadores genéticos, selección de población, variaciones de la población, y mucho más.
 Una de las características más útiles de \emph{Jenetics} es su capacidad para trabajar con cualquier tipo de datos, incluyendo tipos de datos personalizados y clases. Esto hace que sea muy útil para resolver problemas en una amplia variedad de campos.
 
 Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. 
-
-En el contexto de nuestro problema, las soluciones candidatas representan conjuntos de métodos de la API del módulo que se está analizando. Luego, utilizamos vectores de valores booleanos como representación del cromosoma. Sea $n$ el número de métodos en la API; los cromosomas en nuestro algoritmo serán vectores de tamaño $n$. Para cualquier vector, la posición $i$ es verdadera si y solo si el cromosoma contiene el $i$-ésimo método de la API. Por ejemplo, hay 34 métodos en la API de NCL (Tabla \ref{tab:ncl-api}) y los enumeramos del 0 al 33. El conjunto suficiente de constructores en la Figura \ref{fig:NCLbuilders} se caracteriza por el vector con las posiciones 0, 7 y 25 establecidas como verdaderas, y las demás posiciones establecidas como falsas. Puede ver un ejemplo de esta represantacion aqui abajo:
-
-\[
-\begin{array}{|*{8}{c|}}
-\hline
-0 & 1 & \ldots  & 7 & \ldots  & 25  & \ldots  & 33 \\
-\hline
-1 & 0 & \ldots  & 1 & \ldots  & 1  & \ldots  & 0 \\
-\hline
-\end{array}
-\]
 
 
 
