@@ -121,32 +121,77 @@ Todos estos problemas planteados en este capítulo fueron lo que nos motivó a d
 
 \cacho{Hago una introduccion de los algoritmos? }
 \\
+
+
+\section{Función de Valoración}
+\label{sec:fitness}
+En un algoritmo genético, la función de valoración, también conocida como función de aptitud o función de fitness, es esencial para evaluar y medir la calidad de las soluciones individuales en una población \cite{goldberg1989genetic}. Esta función asigna un valor numérico a cada individuo en función de su grado de idoneidad para resolver el problema en cuestión. El objetivo principal de la función de valoración es proporcionar una medida cuantitativa de la calidad de cada solución candidata en relación con los criterios específicos del problema.
+
+La función de valoración se diseña de acuerdo con la naturaleza del problema y los objetivos específicos del algoritmo genético. Por ejemplo, si estamos resolviendo un problema de optimización en el que buscamos maximizar una función objetivo, la función de valoración puede asignar un valor más alto a las soluciones que se acercan más a la solución óptima. Por otro lado, si estamos resolviendo un problema de minimización, la función de valoración puede asignar un valor más alto a las soluciones que se alejan más de la solución óptima.
+
+En el caso de algoritmos greedy, la función de valoración juega un papel similar pero con un enfoque más local. En lugar de trabajar con una población de soluciones, los algoritmos greedy toman decisiones en cada paso basándose en una evaluación local de las opciones disponibles. La función de valoración en un algoritmo greedy se utiliza para seleccionar la mejor opción en cada iteración o paso del algoritmo, maximizando o minimizando la función de valoración según el objetivo del problema \cite{cormen2009introduction}.
+
+Por lo tanto, tanto en algoritmos genéticos como en algoritmos greedy, la función de valoración desempeña un papel crucial para evaluar y comparar soluciones candidatas en función de criterios específicos del problema. Proporciona una medida cuantitativa de la calidad de las soluciones y guía el proceso de selección y toma de decisiones en cada etapa del algoritmo. El diseño adecuado de la función de valoración es esencial para obtener resultados óptimos y eficientes en la resolución de problemas.
+
+Nuestra función de valoración tiene como objetivo principal maximizar la cantidad de objetos que puedo generar, ya sea utilizando nuestra versión modificada de Randoop (explicado en la sección de Preliminares \ref{sec:feedback-directed-test-gen} o un Generador exhaustivo (explicado en la sección de Preliminares \ref{sec:beapiIntro}. Este enfoque nos permite evaluar la capacidad de los candidatos para construir una variedad de objetos y proporciona una base para la selección y mejora de los mejores candidatos en nuestro algoritmo.
+
+La función de valoración en nuestra tesis se utiliza para evaluar la calidad de un candidato, el cual representa un conjunto de métodos $M$. Para ello, nuestra función devuelve un valor real que se construye de la siguiente manera:
+
+\[
+f(M) = \text{{\#Objetos}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
+\]
+
+La función de valoración se compone de tres componentes. En primer lugar, $\text{{\#Objetos}}(M)$ representa el número de objetos generados por el conjunto de métodos $M$. La coma en la fórmula indica que este valor es independiente de los otros componentes, y se le da prioridad a la cantidad de objetos creados con el subconjunto de métodos $M$.
+
+El segundo componente, $(\text{{\#MétodosAPI}} - \text{{\#M}})$, refleja la diferencia entre el número total de métodos disponibles en la API y el número de métodos en el conjunto $M$. Este término se utiliza para desempatar en caso de que otro subconjunto de métodos $M_1$ construya la misma cantidad de objetos que $M$.
+
+Finalmente, $\text{{PP}}(M)$ es un factor de ponderación que permite ajustar la importancia de tener menor complejidad y cantidad de parámetros en el conjunto de métodos $M$. Este valor es entre 1 y 0 es solo para ajustar en caso de que haya empate de cantidad de objetos y métodos.
+\cacho{Explicar el peso de los parametros}
+Esta función de valoración nos proporciona una medida cuantitativa de la calidad del candidato representado por el conjunto de métodos $M$. Los candidatos con valores de función de valoración más altos se consideran de mayor calidad y son preferidos en los algoritmos genéticos y en los algoritmos greedys que explicaremos en la seccion \ref{sec:algorithms}.
+
+
+\subsection{Fitness: Objetos de Randoop}
+
+En nuestra tesis, buscamos generar todos los posibles objetos que se pueden construir utilizando los métodos del cromosoma actual. Para lograr esto, desarrollamos una versión modificada de la herramienta Randoop, como se discutió brevemente en la Sección \ref{sec:feedback-directed-test-gen})
+
+En primer lugar, realizamos modificaciones en Randoop para darle prioridad a un subconjunto de métodos específicos, representados en la seccion anterior por conjunto $M$. Esto nos permite generar secuencias de pruebas que se centren en la ejecución de estos métodos en particular.
+
+En segundo lugar, ejecutamos las llamadas a los métodos de cada test generado por Randoop para crear objetos, y contabilizamos la cantidad de objetos que podemos construir. Es importante destacar que la cantidad de objetos no es necesariamente igual a la cantidad de pruebas generadas, ya que en una misma prueba pueden crearse varios objetos de la clase bajo test. Por lo tanto, contamos estos objetos para determinar cuántos objetos podemos crear con las secuencias de pruebas generadas por Randoop.
+
+
+\subsection{Fitness: Generador Exhaustivo}
+
+Dado un candidato que representa un conjunto de métodos $M$, nuestra función de valoración intenta calcular una aproximación del número de objetos acotados que se pueden construir utilizando combinaciones de métodos habilitados en el cromosoma. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
+
+Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$ que se pueden construir utilizando los métodos del cromosoma actual. En otras palabras, necesitamos un generador exhaustivo acotado para el conjunto de métodos $BE(M, k)$. El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$).
+
+Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en la Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
+
+En segundo lugar, descartamos las secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo) para evitar construir objetos más grandes de lo necesario. Para lograr esto, canonicamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$.
+
+En tercer lugar, ampliamos esta generación con coincidencia de estado. Esto se debe a que, en la generación de pruebas, a menudo hay muchas secuencias de pruebas que producen el mismo objeto. Por ejemplo, insertar en una colección y luego eliminar el mismo elemento resulta en muchos casos en exactamente la misma estructura antes de la inserción. Nuestro enfoque asume que las ejecuciones de rutinas son deterministas con respecto a sus entradas. Bajo esta suposición, se deduce que, para generar un conjunto exhaustivo acotado de estructuras, solo necesitamos guardar una secuencia de prueba para crear cada estructura diferente en el conjunto, y que todas las siguientes secuencias de prueba que generen la misma estructura se pueden descartar.
+
+Nuestra justificación para usar conjuntos acotados de objetos es similar a la \emph{hipótesis de la cota pequeña} \cite{Andoni:2003}.Si un conjunto de métodos no puede usarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes. Esta hipótesis se mantuvo durante nuestra evaluación empírica en todos nuestros casos de estudio.
+
+Para obtener más información sobre el algoritmo y más detalles sobre BEAPI, invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
+
+
 \cacho{Donde explico sobre INFER y en analisis estatico. Explicaria al principio, como una seccion aparte. Esto me cambia en la representacion de los cromosoma. Porque solo armamos el cromosoma luego de este filtro, para todos los algoritmos. }
 
+
 \section{Algoritmos}
-Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos
-
-Es importante destacar, que la parte fundamental de todos los algoritmos es la función de fitness (o función objetivo). Para hacer mas entendible para el lector, primero explicaremos estas funciones que hemos utilizado para evaluar todos nuestros algoritmos.
-
-\cacho{Cual seria la palabra acorde? no es fitness, esto solo es para GA}
-\subsection{Funciones de evaluación}.
+\label{sec:algorithms}
+Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es un algoritmo Greedy más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos respecto al valor de su función de valoración.
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
 En este sección presentamos los detalles para la detección de los subconjuntos de métodos builders utilizando un algoritmo evolutivo. Para lograr realizar esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el subconjunto de métodos que sean mínimo y suficientes, que describiremos a continuación.
 
 
-% Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es una variante de un algoritmo Hill Climbing clásico, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos
 % % basados en una estrategia de escalada de colinas \cite{Russell:2009}.
 % Durante esta sección explicaré en detalle cada algoritmo.
 
-% El espacio de búsqueda está compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y el objetivo de la búsqueda es encontrar un individuo con las características buscadas. A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos, llamado población, y la búsqueda avanza seleccionando iterativamente un número de individuos en la población, utilizando estos para evolución (construyendo nuevos individuos a partir de estos), y dejando algunos individuos fuera del conjunto completo (los "viejos" y los "nuevos"). La selección de individuos para la evolución de la población, así como la eliminación de individuos, están guiadas por una función de fitness, la cual tambien es utilizada para guiar la búsqueda. Esta función se aplica a los individuos, y su resultado es generalizable a la población también (por ejemplo, la fitness de la población se puede tomar como la fitness de su individuo "más apto"). Esta función captura las características deseadas en la búsqueda, y por lo tanto se puede utilizar como criterio de parada (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una aptitud por encima de cierto umbral). Finalmente, los individuos a menudo se llaman cromosomas, y se representan como vectores de genes que capturan sus características. Esta idea está fuertemente relacionada con cómo se construyen nuevos individuos: al representar a los candidatos como vectores de características independientes, se pueden construir nuevos candidatos combinando parte de las características de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de un individuo dado. Estas dos formas de evolución se llaman cross-over y mutación, respectivamente, y son el mecanismo tradicional para construir nuevos candidatos a partir de los existentes en los algoritmos genéticos. Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
 
-% El segundo algoritmo, basado en una estrategia de Hill CLimbing\cite{TODO, qué citar sobre hill climbing}, es un algoritmo de búsqueda local que se mueve continuamente hacia arriba (incrementando) hasta alcanzar la mejor solución. Este algoritmo finaliza cuando se alcanza la cima. Este algoritmo es una algoritmo Greedy(Perezoso) [TODO explicar] porque selecciona un buen estado vecino sin pensar en dónde ir a continuación. Comienza con un estado no óptimo y lo mejora hasta alcanzar una condición. El objetivo de este algoritmo es mejorar estados existentes hasta alcanzar estados óptimos (estados que no pueden ser mejorados aún más). Se utiliza una función heurística para lograr estos estados.
-
-% La estrategia de Hill Climbing es una técnica de búsqueda local que se utiliza comúnmente en la optimización de funciones. El algoritmo comienza en un punto arbitrario en el espacio de búsqueda y se mueve hacia un vecino mejor en cada iteración, hasta que se alcanza un máximo local. El rendimiento de la escalada de colinas depende fuertemente de la elección del vecino y de la función heurística utilizada para evaluar los vecinos.
-
-% En general, el Hill Climbing es adecuada para problemas en los que se puede definir una función de evaluación localmente coherente y no es necesario explorar todo el espacio de búsqueda para encontrar una solución aceptable. Sin embargo, el algoritmo tiene dificultades para escapar de óptimos locales y puede quedarse atrapado en una solución subóptima. Por lo tanto, se utilizan variaciones del algoritmo, como Hill Climbing estocástico y la Hill Climbing con reinicio aleatorio, para superar estos problemas.
 % Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
 
 
@@ -221,25 +266,195 @@ Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa 
 
 \subsection{Hill Climbing}
 \label{alg:approachHC}
-El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de colina. TODO??? , es un algoritmo de búsqueda local que se utiliza para optimizar una función de evaluación con respecto a una solución vecina. El objetivo del algoritmo es encontrar la solución óptima para un problema determinado, que se puede representar como un espacio de búsqueda con una función de evaluación asociada.
+El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de colina\cite{Russell:2009}, es un algoritmo de búsqueda local que se utiliza para optimizar una función de evaluación con respecto a una solución vecina. El objetivo del algoritmo es encontrar la solución óptima para un problema determinado, que se puede representar como un espacio de búsqueda con una función de evaluación asociada.
+Este algoritmo es una algoritmo Greedy(Perezoso) explicado en la seccion de preliminares, \ref{sec:greedyPrev}]. Este selecciona un buen estado vecino sin pensar en dónde ir a continuación. Comienza con un estado no óptimo y lo mejora hasta alcanzar una condición. El objetivo de este algoritmo es mejorar estados existentes hasta alcanzar estados óptimos (estados que no pueden ser mejorados aún más). Se utiliza una función heurística para lograr estos estados.
 
-El algoritmo Hill Climbing comienza en una solución aleatoria y luego examina las soluciones vecinas para determinar si alguna de ellas es mejor que la solución actual. Si se encuentra una solución mejor, el algoritmo se mueve a esa solución y repite el proceso. Si no se encuentra una solución mejor, el algoritmo se detiene y devuelve la solución actual como la mejor solución.
+Es importante remarcar que la representación del problema fue igual a la que utilizamos para representar cromosomas en el Algoritmo genético explicado en la sección anterior. Esto quiere decir que utilizamos vectores de 0 y 1 para representar una posible solución. 
 
-El algoritmo Hill Climbing se puede utilizar para resolver una amplia variedad de problemas de optimización, como el problema del viajero, el problema de la mochila, etc. En cada uno de estos problemas, el objetivo es encontrar la solución óptima que minimice o maximice la función de evaluación.
+A continuación mostraremos un pseudocódigo del algoritmo \emph{Hill Climbing} que hemos implementado:
 
-El algoritmo Hill Climbing se puede implementar de diferentes maneras, dependiendo de la naturaleza del problema y de las restricciones del mismo. Una de las variantes más comunes es la búsqueda por ascenso de colina estocástico, que permite que el algoritmo acepte soluciones peores en algunos casos para evitar quedar atrapado en óptimos locales.
+\begin{algorithm}[H]
+  \caption{Algoritmo de Hill Climbing}
+  \label{algo:hill_climbing}
+  \SetAlgoLined
+  \KwResult{Solución óptima $curr$}
+  $curr \gets c$\; 
+  
+  \While{existe un mejor candidato}{
+    $S \gets$ GenerarSucesores($curr$)\;
+    
+    $best \gets$ SeleccionarMejorVecino($S$)\;
+    
+    \If{$f(best) > f(curr)$}{
+      $curr \gets best$\;
+    }
+  }
+  \Return{$S^*$}\;
+\end{algorithm}
 
-En el algoritmo Hill Climbing, los estados se representan como vectores de características, que se pueden modificar mediante operadores de mutación y operadores de cruce. El proceso de mutación implica cambiar una o más características de un estado aleatoriamente, mientras que el proceso de cruce implica combinar dos o más estados para generar un nuevo estado. Estos operadores se utilizan para generar nuevos estados y explorar el espacio de búsqueda de manera más efectiva.
+Este algoritmo representa el esquema básico de Hill Climbing, comienza calculando la funcion de valoración de todos los singletones ${c}$ de métodos constructores.  El mejor de los singletones (mayor objectos puedo crear con ese constructor) se establece como el candidato actual $curr$, y Hill Climbing inicia un proceso de búsqueda típico e iterativo.
 
-En mi busqueda de algoritmo Hill Climbing es una técnica de búsqueda local que se utiliza para optimizar una función de evaluación en un espacio de búsqueda. El algoritmo se basa en la exploración de soluciones vecinas para encontrar la solución óptima. Se puede implementar de diferentes maneras y se utiliza en una amplia variedad de problemas de optimización.
+En cada iteración, \emph{Hill Climbing} calcula $f(succ)$ para cada succ $\in$ $GenerarSucesores(curr)$. El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API. Si nuestra API tiene $N$ métodos, nuestro conjunto de sucesores tendrá como máximo $N-1$ candidatos.
+Sea $best$ el sucesor con el valor de valoración más alto. Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$
 
+Si $f(best) > f(curr)$, los métodos en $best$ se pueden utilizar para crear un conjunto más grande de estructuras que los en $curr$. Por lo tanto, \emph{Hill Climbing} asigna $best$ a $cur$r y continúa con la siguiente iteración. En cambio, si $f(best) <= f(curr)$, $curr$ ya genera el conjunto más grande de estructuras posible (no se puede agregar ningún método que aumente el número de estructuras generadas a partir de $curr$). En este punto, $curr$ se devuelve como el conjunto de constructores identificados.
 
-Para mi trabajo doctoral, he modificado el algoritmo genetico para poder utilizar una fitness acorde al problema de encontrar subconjuntos optimos para la generacion de builders.
-Esto lo hemos realizado en base.
+Se puede observar que este algoritmo puede quedar atrapado en un máximo local y no generar alguna combinación específica que podría ser aún mejor. Aquí se puede ver que es un algoritmo greedy, ya que obtiene una solución rápida pero puede no ser eficiente en encontrar la mejor solución global.
+
 
 \subsection{Clases de equivalencia}
 \label{alg:approachCE}
-\section{Fitness}
-\subsection{BE}
+ Las clases de equivalencia son una técnica utilizada para agrupar conjuntos de datos de entrada en categorías o clases que tienen un comportamiento similar o producen resultados equivalentes. Esta técnica es ampliamente utilizada en el diseño y la realización de pruebas de software.
+ En términos generales, una clase de equivalencia representa  un conjunto de que se espera que produzcan resultados idénticos. La idea es que si un conjunto de la clase de equivalencia produce un resultado entonces todas las demás entradas de esa clase deberían producir el mismo resultado.
+ Al trabajar con clases de equivalencia, se selecciona una entrada representativa, llamada caso de prueba, de cada clase para ser evaluada. En lugar de probar todas las posibles entradas, se eligen casos de prueba que representen cada clase de equivalencia para minimizar la cantidad total de pruebas necesarias.
 
-\subsection{Random + Coverage}
+ Bajo esta introducción, hemos desarrollado un tercer algoritmo donde agrupamos en clases de equivalencia aquellos subconjuntos de métodos que tengan el mismo valor de valoración con alguna de las funciones explicadas en \ref{sec:fitness}.
+
+
+\begin{algorithm}[H]
+  \caption{Algoritmo basado en Clases de Equivalencia}
+  \label{algo:clases_equivalencia}
+  \SetAlgoLined
+  \KwResult{Conjunto de metodos builders $best$}
+  $curr \gets c$\; 
+  $equivalenceClasses \gets$ CrearClasesDeEquivalencia($curr$)\;
+  
+  \While{se ha creado una nueva clase de equivalencia}{
+    $newCandidates \gets$ CandidatosPorClase($equivalenceClasses$)\;
+    
+    \ForEach{$candidate$ en $newCandidates$}{
+      $successors \gets$ GenerarSucesores($candidate$)\;   
+      
+      \ForEach{$successor$ en $successors$}{
+        $key \gets$ f($successor$)\;
+        $equivalenceClasses[key]$.put($successor$)\;
+      }
+    }
+        % $best \gets$ SeleccionarMejorCandidato($candidates$)\;
+  }
+  
+  $result \gets$ obtenerMejor($best$)\;
+  \Return{$result$}\;
+\end{algorithm}
+
+En este algoritmo, se comienza obteniendo los conjuntos singletons, que son los métodos constructores individuales de la misma manera que el algoritmo de \ref{algo:hill_climbing}. A partir de estos singletons, se selecciona el mejor candidato inicial $curr$, que servirá como punto de partida. Luego, se crean las clases de equivalencia basadas en la función de valoración y agrupando los candidatos que tienen el mismo valor de valoración. En el algortimo las clases de equivlencias esta guardado en $equivalenceClasses$
+
+A continuación, se itera mientras se haya creado una nueva clase de equivalencia. En cada iteración, se generan nuevos candidatos por cada clase de equivalencia. Es decir, se selecciona un candidato de cada clase de equivalencia (El de menor métodos y menor parámetros) $CandidatosPorClase(equivalenceClasses)$ y se lo guarda en un cola ($newCandidates$) A continuación, se generan los sucesores para cada candidato elegido, $GenerarSucesores(candidate)$, utilizando el mismo enfoque que en el algoritmo de \emph{Hill Climbing}. Estos se guardan en $successors$ Es decir, si tenemos $N$ clases de equivalencias vamos a tener $N$ candidatos a los cuales le vamos a calcular sus sucesores.  Luego, por cada uno de estos sucesores en  se le calcula sun función de valoracion y de acuerdo a esta se lo guarda en la clase de equivalencia representada por el valor de valarocion.
+El algortimo itera hasta que no hayamos creado una nueva clase de equivalencia. Esto quiere decir que no hay cambios y hemos explorados todas las alternativas posibles. 
+Luego vamos a obtener el mejor conjunto de métodos builders, accediendo a la clase de equivalencia con mayor key y obteniendo el representante de ese conjunto que tenga menor métodos y parámetros. Esto lo realiza el método $obtenerMejor(equivalenceClasses)$
+
+\section{Evaluacion Experimental}
+En esta sección, evaluamos experimentalmente nuestros enfoques. Describiremos como es la eficiencia de cada algoritmo con las fitness
+presentada en la seccion \ref{sec:fitness}.
+La evaluación se basa en un conjunto de implementaciones de estructuras de datos que se utilizan como referencia, incluyendo: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomada de \cite{Loncaric:2018}, que consiste en un almacén de variables que controla cuándo se realizó la última suposición sobre el valor de una variable y si hay oyentes observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas de la paquete \verb"java.util" como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList". \cacho{TODO: ¿Cómo cito java-utils?)}
+    
+Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de 3.4 GHz con 8GB de RAM, utilizando GNU/Linux como sistema operativo.
+
+\subsection{Algoritmo Genetico}
+
+\subsubsection{Eficiencia}
+
+En este apartado mostraremos la eficiencia con la que el algoritmo genético es capaz de encontrar el subconjunto de métodos builders. Para cada caso de estudio, ejecutamos el algoritmo 10 veces, con 20 evoluciones (cantidad de veces que el algoritmo realizar la evolución de la población). La población inicial la generamos aleatoriamente. 
+A continacion analizaremos los resultados por cada fitness con el Algoritmo Genetico
+
+
+\paragraph{Randoop Objects}
+
+\paragraph{Bounded Exhaustive}
+El resultado de los casos de estudios se muestran en la Tabla \ref{tab:EficienciaGA} 
+\begin{table}[t!]
+\centering
+{\scriptsize
+\begin{tabular}{l l c}
+\hline
+&Sample Builders & Time \\
+\hline
+\multirow{2}{*}{\textbf{NCL}} 
+ & NCLinkedList(int) & \\
+ & addFirst(Object) &   \\
+ {\scriptsize \#API: 34} & removeFirst() & 435 \\
+\hline
+
+\multirow{2}{*}{\textbf{UFind}} 
+ & UnionFind() & \\
+ & addElement(int) &  \\
+ {\scriptsize \#API: 9} & union(int,int) & 63 \\
+\hline
+
+\multirow{2}{*}{\textbf{FHeap}} 
+ & FibonacciHeap() & \\
+ & insert(int) & 72 \\
+ {\scriptsize \#API: 7} & removeMin() &  \\
+\hline
+
+\multirow{1}{*}{\textbf{RBT}} 
+ & TreeMap() & \\
+ {\scriptsize \#API: 8} & put(int) & 3 \\
+ & remove(int) &   \\
+\hline
+
+\multirow{1}{*}{\textbf{BTree}} 
+ & BinTree() & \\
+ {\scriptsize \#API: 7} & add(int) & 2 \\
+\hline
+
+\multirow{1}{*}{\textbf{BHeap}} 
+ & BinomialHeap() & \\
+ {\scriptsize \#API: 10} & insert(int) & 44 \\
+ & decreaseKeyValue(int,int) &  \\
+\hline
+
+\multirow{5}{*}{\textbf{Lits}} 
+ & Lits() & \\
+ & getFromPool(int) & \\
+ & satisfies(int) & 35 \\
+ {\scriptsize \#API: 26} & setLevel(int,int) & \\
+ & setReason(int) & \\
+\hline
+
+\multirow{3}{*}{\textbf{Sched.}} 
+ & Schedule() & \\
+ & addProcess(int) & \\
+{\scriptsize \#API: 10} & blockProcess() & 58 \\
+ & quantumExpire() & \\
+  & finishProcess() & \\
+
+\hline
+
+\multirow{1}{*}{\textbf{LinkedList}} 
+ & LinkedList() & \\
+ {\scriptsize \#API: 67} & addFirst(Object) & 109 \\
+ \hline
+
+\multirow{2}{*}{\textbf{TreeMap}} 
+ & TreeMap() & \\
+ & put(Object,Object) & 633 \\
+{\scriptsize \#API: 61} & remove(Object) & \\
+\hline
+
+\multirow{2}{*}{\textbf{TreeSet}} 
+ & TreeSet() & \\
+ & add(Object) & \\
+{\scriptsize \#API: 34} & remove(Object) (int) & 36 \\
+\hline
+
+\multirow{1}{*}{\textbf{HashSet}} 
+ & HashSet(int,float) & \\
+ {\scriptsize \#API: 31} & add(Object) & 37 \\
+\hline
+
+\multirow{1}{*}{\textbf{HashMap}} 
+ & HashMap(int,float) & \\
+{\scriptsize \#API: 45} & put(Object,Object) & 633 \\
+\hline
+
+\end{tabular}%
+}
+\caption{Tabla de casos de estudio y tiempo de búsqueda}
+\label{tab:EficienciaGA}
+\end{table}
+
+
+
+
+
