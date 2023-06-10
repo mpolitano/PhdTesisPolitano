@@ -10,15 +10,15 @@
 % Varios estudios muestran que los enfoques BE son efectivos para revelar fallas en el software [TODO ???]. Además, la llamada hipótesis del cota pequeña [TODO ?], que establece que la mayoría de las fallas de software se pueden revelar ejecutando el SUT en "entradas pequeñas", sugiere que, si se utilizan ámbitos lo suficientemente grandes, los enfoques BE deberían ser capaces de revelar la mayoría (si no todas) las fallas en el SUT. El desafío que enfrentan los enfoques BE es cómo explorar eficientemente un gran espacio de búsqueda, que en el peor de los casos crece exponencialmente con respecto a los ámbitos. El espacio de búsqueda a menudo incluye un gran número de estructuras no válidas (que no satisfacen repOK) y estructuras isomórficas [TODO ??]. Por lo tanto, podar partes del espacio de búsqueda que involucran estructuras inválidas y redundantes es clave para hacer que los enfoques BE se escalen en la práctica [TODO ??]. Escribir especificaciones formales apropiadas para la generación de BE es una tarea desafiante y que consume mucho tiempo. Las especificaciones deben capturar precisamente el conjunto de restricciones previstas en las estructuras. Las especificaciones sobrerestringidas hacen que falte la generación de una parte de las estructuras válidas, lo que puede hacer que la etapa de prueba subsiguiente pierda la exploración de los comportamientos defectuosos del SUT. Las especificaciones subrestringidas pueden llevar a la generación de estructuras inválidas (es decir, estructuras que no cumplen con las restricciones previstas), lo que puede producir falsos negativos durante la prueba del SUT. Además, a veces el usuario tiene que tener en cuenta la forma en que opera el enfoque de generación y escribir las especificaciones de una manera muy específica, de manera que el enfoque pueda lograr un buen rendimiento [TODO ???]. Finalmente, tales especificaciones formales precisas rara vez están disponibles en el software, lo que dificulta la usabilidad de los enfoques BE de caja negra.
 
 \section{Feedback-directed test generation}\label{sec:feedback-directed-test-gen}
-Randoop es una herramienta de generación automática de pruebas que utiliza la técnica de generación aleatoria para explorar el espacio de entrada de un programa y generar casos de prueba automáticamente. Fue desarrollada por Pacheco y Ernst en la Universidad de Washington \cite{pacheco2007randoop}.
+Randoop es una herramienta de generación automática de pruebas que utiliza la técnica de generación aleatoria para explorar el espacio de entrada de un programa y generar casos de prueba automáticamente. Fue desarrollada por Pacheco y Ernst en la Universidad de Washington \cite{Pacheco:07}.
 
 La técnica de generación aleatoria empleada por Randoop consiste en generar de forma automática entradas aleatorias para el programa bajo prueba. Utiliza la reflexión en Java para analizar la estructura del programa y generar una serie de llamadas a métodos con valores de entrada aleatorios. Estas llamadas se combinan de manera inteligente para formar secuencias de instrucciones que representan escenarios de prueba.
 
-Randoop utiliza una estrategia de búsqueda guiada para guiar la generación aleatoria de pruebas. El objetivo de esta estrategia es maximizar la cobertura del programa bajo prueba. Para lograrlo, Randoop utiliza técnicas de generación de casos de prueba basadas en la cobertura de sentencias y la cobertura de ramas del programa \cite{pacheco2007randoop}.
+Randoop utiliza una estrategia de búsqueda guiada para guiar la generación aleatoria de pruebas. El objetivo de esta estrategia es maximizar la cobertura del programa bajo prueba. Para lograrlo, Randoop utiliza técnicas de generación de casos de prueba basadas en la cobertura de sentencias y la cobertura de ramas del programa \cite{Pacheco:07}.
 
 
 
-Randoop ha sido ampliamente utilizado en la industria y en la investigación académica para evaluar la calidad de programas, encontrar errores y mejorar la confiabilidad del software. Ha demostrado ser efectivo en la generación de casos de prueba y en la detección de errores en una variedad de dominios y aplicaciones \cite{pacheco2007randoop, pacheco2008feedback}.
+Randoop ha sido ampliamente utilizado en la industria y en la investigación académica para evaluar la calidad de programas, encontrar errores y mejorar la confiabilidad del software. Ha demostrado ser efectivo en la generación de casos de prueba y en la detección de errores en una variedad de dominios y aplicaciones \cite{Pacheco08, Pacheco07}.
 
 En resumen, Randoop es una herramienta de generación automática de pruebas basada en la técnica de generación aleatoria. Proporciona una forma eficiente y efectiva de generar casos de prueba que cubren diferentes partes de un programa y ayuda en la detección de errores y la mejora de la calidad del software.
 
@@ -32,7 +32,7 @@ Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \
 
 % Cabe destacar que esta modificación se realizó basándonos en la arquitectura y diseño modular de Randoop, lo que permitió una fácil extensión de sus funcionalidades sin afectar su funcionalidad principal.
 
-Además, en esta tesis se realizó una modificación de Randoop que consistió en incorporar una funcionalidad que permitiera al usuario especificar un porcentaje de prioridad para un subconjunto de métodos en la generación de pruebas. Al proporcionar un porcentaje de prioridad para un subconjunto de métodos, Randoop tendrá mayor probabilidad de generar casos de prueba que cubran esos métodos específicos de manera más exhaustiva. Y le hemos agregado la posibilidad de serializar los objetos (con secuencia de llamadas a métodos de los test podemos generar objetos) Esto nos permitió utilizarlo como una función de valoración explicadas en \section{sec:randoopObjects}.
+Además, en esta tesis se realizó una modificación de Randoop que consistió en incorporar una funcionalidad que permitiera al usuario especificar un porcentaje de prioridad para un subconjunto de métodos en la generación de pruebas. Al proporcionar un porcentaje de prioridad para un subconjunto de métodos, Randoop tendrá mayor probabilidad de generar casos de prueba que cubran esos métodos específicos de manera más exhaustiva. Y le hemos agregado la posibilidad de serializar los objetos (con secuencia de llamadas a métodos de los test podemos generar objetos) Esto nos permitió utilizarlo como una función de valoración explicada en \ref{sec:randoopObjects}.
 
 
 \section{Algoritmos Genéticos}
@@ -70,11 +70,11 @@ Inicializar población inicial $P$ de cromosomas aleatorios\;
 
 Evaluar la aptitud de cada cromosoma en $P$\;
 
-\While{Criterio de terminación no se cumple}{ \\
-    Seleccionar cromosomas padres de $P$ para la reproducción\;\\
-    Aplicar operador de cruce para generar descendencia\;\\
-    Aplicar operador de mutación a la descendencia\;\\
-    Evaluar la aptitud de los nuevos cromosomas\;\\
+\While{Criterio de terminación no se cumple}{ 
+    Seleccionar cromosomas padres de $P$ para la reproducción\;
+    Aplicar operador de cruce para generar descendencia\;
+    Aplicar operador de mutación a la descendencia\;
+    Evaluar la aptitud de los nuevos cromosomas\;
     % Reemplazar cromosomas menos aptos en $P$ por la descendencia\;
 }
 \caption{Algoritmo Genético}

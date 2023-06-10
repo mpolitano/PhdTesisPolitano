@@ -64,7 +64,7 @@ No. &Return type & Method name & Obs? \\
 \end{table} 
 En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
 Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
-\\
+
 
 \begin{figure}[H]
     \centering
@@ -359,7 +359,7 @@ A continacion analizaremos los resultados por cada fitness con el Algoritmo Gene
 
 
 \paragraph{Randoop Objects}
-
+\label{sec:randoopObjects}
 \paragraph{Bounded Exhaustive}
 El resultado de los casos de estudios se muestran en la Tabla \ref{tab:EficienciaGA} 
 \begin{table}[t!]

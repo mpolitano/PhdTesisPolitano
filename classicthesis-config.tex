@@ -16,12 +16,14 @@
 
 
 % General useful packages
-\usepackage[spanish, es-tabla, es-noquoting]{babel}
+% \usepackage[spanish, es-tabla, es-noquoting]{babel}
+\PassOptionsToPackage{spanish}{babel}
 \usepackage{amsmath,amsthm,amssymb,verbatim}
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{alltt}
+ \usepackage{float}
 \renewcommand{\ttdefault}{txtt}
 \usepackage{mathrsfs}
 \usepackage{stmaryrd}
@@ -66,6 +68,8 @@
     %urlcolor=Black, linkcolor=Black, citecolor=Black, %pagecolor=Black,%
 }
 
+\usepackage{multirow}
+
 
 % References
 \usepackage[spanish]{cleveref}
@@ -77,7 +81,7 @@
 \crefname{definition}{Definici\'on}{Definiciones}
 \crefname{theorem}{Teorema}{Teoremas}
 \crefname{lemma}{Lema}{Lemas}
-\crefname{algorithm}{Algoritmo}{Algoritmos}
+% \crefname{algorithm}{Algoritmo}{Algoritmos}
 %\renewcommand{\figureautorefname}{Figura}%
 %\renewcommand{\figureautorefname}{Figura}%
 %\renewcommand{\tableautorefname}{Tabla}%
@@ -126,7 +130,7 @@
 \newcommand{\GoalDef}[1]{\fbox{\parbox{\textwidth}{#1}}}
 
 %% Algoritmos
-\usepackage[chapter]{algorithm}
+% \usepackage[chapter]{algorithm}
 % \usepackage[noend]{algpseudocode}
 % New definitions
 % \algnewcommand\algorithmicswitch{\textbf{switch}}
