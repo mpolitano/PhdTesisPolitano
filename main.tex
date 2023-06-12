@@ -45,9 +45,12 @@
   {\titlerule*[0.75em]{.}\contentspage} % Agrega líneas de puntos para las subsecciones
 
 %Formato para chapter
-\titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{}{}
-\titlespacing*{\chapter}{0pt}{50pt}{40pt}
+
+% \titleformat{\chapter}[display]
+%   {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{}{}
+  \titleformat{\chapter}[hang]{\Huge\bfseries}{\chaptertitlename\ \thechapter.}{0.42em}{}
+
+\titlespacing{\chapter}{0pt}{0pt}{4pt}
 % Configuración del estilo de página
 % \fancypagestyle{mypagestyle}{
 %     \fancyhf{} % Limpiar encabezado y pie de página
