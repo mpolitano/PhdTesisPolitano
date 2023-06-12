@@ -1,0 +1,92 @@
+\begin{table}[t!]
+\centering
+{\scriptsize
+\begin{tabular}{l l ccc}
+\hline
+&Sample Builders &\multicolumn{3}{c}{Time} \\
+&   & GA& HC&SubSet \\\hline
+\multirow{2}{*}{\textbf{NCL}} 
+ & NCLinkedList(int) & \\
+ & addFirst(Object) &   \\
+ {\scriptsize \#API: 34} & removeFirst() & 435 && \\
+\hline
+
+\multirow{2}{*}{\textbf{UFind}} 
+ & UnionFind() & \\
+ & addElement(int) &  \\
+ {\scriptsize \#API: 9} & union(int,int) & 435 &&  \\
+\hline
+
+\multirow{2}{*}{\textbf{FHeap}} 
+ & FibonacciHeap() & \\
+ & insert(int) & 72 \\
+ {\scriptsize \#API: 7} & removeMin() & 435 &&  \\
+\hline
+
+\multirow{1}{*}{\textbf{RBT}} 
+ & TreeMap() & \\
+ {\scriptsize \#API: 8} & put(int) & 435 &&  \\
+ & remove(int) &   \\
+\hline
+
+\multirow{1}{*}{\textbf{BTree}} 
+ & BinTree() & \\
+ {\scriptsize \#API: 7} & add(int) & 435 &&  \\
+\hline
+
+\multirow{1}{*}{\textbf{BHeap}} 
+ & BinomialHeap() & \\
+ {\scriptsize \#API: 10} & insert(int) & 435 && \\
+ & decreaseKeyValue(int,int) &  \\
+\hline
+
+\multirow{5}{*}{\textbf{Lits}} 
+ & Lits() & \\
+ & getFromPool(int) & \\
+ & satisfies(int) & 435 &&  \\
+ {\scriptsize \#API: 26} & setLevel(int,int) & \\
+ & setReason(int) & \\
+\hline
+
+\multirow{3}{*}{\textbf{Sched.}} 
+ & Schedule() & \\
+ & addProcess(int) & \\
+{\scriptsize \#API: 10} & blockProcess() & 435 &&  \\
+ & quantumExpire() & \\
+  & finishProcess() & \\
+
+\hline
+
+\multirow{1}{*}{\textbf{LinkedList}} 
+ & LinkedList() & \\
+ {\scriptsize \#API: 67} & addFirst(Object) & 435 &&  \\
+ \hline
+
+\multirow{2}{*}{\textbf{TreeMap}} 
+ & TreeMap() & \\
+ & put(Object,Object) & 633 \\
+{\scriptsize \#API: 61} & remove(Object)& 435 &&  \\
+\hline
+
+\multirow{2}{*}{\textbf{TreeSet}} 
+ & TreeSet() & \\
+ & add(Object) & \\
+{\scriptsize \#API: 34} & remove(Object) (int) & 435 &&  \\
+\hline
+
+\multirow{1}{*}{\textbf{HashSet}} 
+ & HashSet(int,float) & \\
+ {\scriptsize \#API: 31} & add(Object) & 435 && \\
+\hline
+
+\multirow{1}{*}{\textbf{HashMap}} 
+ & HashMap(int,float) & \\
+{\scriptsize \#API: 45} & put(Object,Object) & 435 && \\
+\hline
+
+\end{tabular}%
+}
+\caption{Tabla de casos de estudio y tiempo de búsqueda}
+\label{tab:EficienciaGA}
+\end{table}
+

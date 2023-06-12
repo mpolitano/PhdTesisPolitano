@@ -298,8 +298,10 @@ En cada iteración, \emph{Hill Climbing} calcula $f(succ)$ para cada succ $\in$ 
 Sea $best$ el sucesor con el valor de valoración más alto. Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$
 
 Si $f(best) > f(curr)$, los métodos en $best$ se pueden utilizar para crear un conjunto más grande de estructuras que los en $curr$. Por lo tanto, \emph{Hill Climbing} asigna $best$ a $cur$r y continúa con la siguiente iteración. En cambio, si $f(best) <= f(curr)$, $curr$ ya genera el conjunto más grande de estructuras posible (no se puede agregar ningún método que aumente el número de estructuras generadas a partir de $curr$). En este punto, $curr$ se devuelve como el conjunto de constructores identificados.
+\cacho{
+En este algoritmo no se necesitan setear ningun parametros para guiar la busqueda a que sea mas efectiva}
 
-Se puede observar que este algoritmo puede quedar atrapado en un máximo local y no generar alguna combinación específica que podría ser aún mejor. Aquí se puede ver que es un algoritmo greedy, ya que obtiene una solución rápida pero puede no ser eficiente en encontrar la mejor solución global.
+Se puede observar que este algoritmo puede quedar atrapado en un máximo local y no generar alguna combinación específica que podría ser aún mejor. Aquí se puede ver que es un algoritmo greedy, ya que obtiene una solución rápida pero puede no ser eficiente en encontrar la mejor solución global. 
 
 
 \subsection{Clases de equivalencia}
@@ -350,111 +352,57 @@ La evaluación se basa en un conjunto de implementaciones de estructuras de dato
     
 Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de 3.4 GHz con 8GB de RAM, utilizando GNU/Linux como sistema operativo.
 
+
+
 \subsection{Algoritmo Genetico}
 
 \subsubsection{Eficiencia}
 
 En este apartado mostraremos la eficiencia con la que el algoritmo genético es capaz de encontrar el subconjunto de métodos builders. Para cada caso de estudio, ejecutamos el algoritmo 10 veces, con 20 evoluciones (cantidad de veces que el algoritmo realizar la evolución de la población). La población inicial la generamos aleatoriamente. 
-A continacion analizaremos los resultados por cada fitness con el Algoritmo Genetico
+A continacion analizaremos los resultados para todas las dos fitness con el Algoritmo Genetico
 
-
+\cacho{Buscar caso que no encuentre los minimos.}
 \paragraph{Randoop Objects}
-\label{sec:randoopObjects}
-\paragraph{Bounded Exhaustive}
+\label{sec:randoopObjectsExp}
+
+
+
+
+\paragraph{Bounded Exhuastive}
+\label{sec:BEExp}
+
+
 El resultado de los casos de estudios se muestran en la Tabla \ref{tab:EficienciaGA} 
-\begin{table}[t!]
-\centering
-{\scriptsize
-\begin{tabular}{l l c}
-\hline
-&Sample Builders & Time \\
-\hline
-\multirow{2}{*}{\textbf{NCL}} 
- & NCLinkedList(int) & \\
- & addFirst(Object) &   \\
- {\scriptsize \#API: 34} & removeFirst() & 435 \\
-\hline
-
-\multirow{2}{*}{\textbf{UFind}} 
- & UnionFind() & \\
- & addElement(int) &  \\
- {\scriptsize \#API: 9} & union(int,int) & 63 \\
-\hline
-
-\multirow{2}{*}{\textbf{FHeap}} 
- & FibonacciHeap() & \\
- & insert(int) & 72 \\
- {\scriptsize \#API: 7} & removeMin() &  \\
-\hline
-
-\multirow{1}{*}{\textbf{RBT}} 
- & TreeMap() & \\
- {\scriptsize \#API: 8} & put(int) & 3 \\
- & remove(int) &   \\
-\hline
-
-\multirow{1}{*}{\textbf{BTree}} 
- & BinTree() & \\
- {\scriptsize \#API: 7} & add(int) & 2 \\
-\hline
-
-\multirow{1}{*}{\textbf{BHeap}} 
- & BinomialHeap() & \\
- {\scriptsize \#API: 10} & insert(int) & 44 \\
- & decreaseKeyValue(int,int) &  \\
-\hline
-
-\multirow{5}{*}{\textbf{Lits}} 
- & Lits() & \\
- & getFromPool(int) & \\
- & satisfies(int) & 35 \\
- {\scriptsize \#API: 26} & setLevel(int,int) & \\
- & setReason(int) & \\
-\hline
-
-\multirow{3}{*}{\textbf{Sched.}} 
- & Schedule() & \\
- & addProcess(int) & \\
-{\scriptsize \#API: 10} & blockProcess() & 58 \\
- & quantumExpire() & \\
-  & finishProcess() & \\
-
-\hline
-
-\multirow{1}{*}{\textbf{LinkedList}} 
- & LinkedList() & \\
- {\scriptsize \#API: 67} & addFirst(Object) & 109 \\
- \hline
-
-\multirow{2}{*}{\textbf{TreeMap}} 
- & TreeMap() & \\
- & put(Object,Object) & 633 \\
-{\scriptsize \#API: 61} & remove(Object) & \\
-\hline
-
-\multirow{2}{*}{\textbf{TreeSet}} 
- & TreeSet() & \\
- & add(Object) & \\
-{\scriptsize \#API: 34} & remove(Object) (int) & 36 \\
-\hline
-
-\multirow{1}{*}{\textbf{HashSet}} 
- & HashSet(int,float) & \\
- {\scriptsize \#API: 31} & add(Object) & 37 \\
-\hline
-
-\multirow{1}{*}{\textbf{HashMap}} 
- & HashMap(int,float) & \\
-{\scriptsize \#API: 45} & put(Object,Object) & 633 \\
-\hline
-
-\end{tabular}%
-}
-\caption{Tabla de casos de estudio y tiempo de búsqueda}
-\label{tab:EficienciaGA}
-\end{table}
 
 
 
 
+\cacho{Explicar caso por caso}
 
+
+A continuacion, mostraremos las diferentes configuracion y explicaremos porque probamos nuestro casos de pruebas con los parametros que explicamos en el capitulo \ref{capi:beapi}
+
+\subsubsection{Parametros Algoritmo Genetico}
+
+Como vimos en el capitulo \ref{cap:beapi}, mas precisamente \cacho{RefGenetic} para nuestro algoritmo genetico necesitamos setear un \emph{rate} para los operadores geneticos. Para eso hemos probado en los casos de estudios con diferentes valores de cada operador. Nuestra comparacion se basa en medir la cantidad de tiempo que le lleva a cada Algortimo terminar la ejecucio, en la cantidad de candidatos que evalua la funcion de valoracion y cuan bueno es en eficacia para encontrar el minimo y suficiente subconjunto de metodos que pudimos observar en nuestro ground truth \cacho{Agregar seccion}. Ejecutamos el algoritmo 10 veces con el resto de los parametros que no esta en evaluacion con un valor promedio (Crossover=0.5, mutation 0.1, Tournanament 4).
+Tambien utilizamos 30 segundos para la fitness con randoop y scope 6 para BEAPI.
+
+En la tabla \ref{tab:CrossOverGA} se puede observar como se comporta el algoritmo cuando se utiliza diferente rate para el operador de CrossOver. 
+
+
+
+
+\input{tableEficiciaGA}
+
+\input{tables/tableMutation}
+
+\subsection{Algortimo Greedy}
+
+
+\subsection{Algortimo SubSet}
+
+
+\subsection{Fitness A}
+
+
+\subsection{Fitness B}
