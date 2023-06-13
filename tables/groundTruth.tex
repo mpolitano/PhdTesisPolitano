@@ -1,0 +1,92 @@
+\begin{table}[t!]
+\centering
+{\scriptsize
+\begin{tabular}{l l}
+\hline
+&Sample Builders  \\
+\hline
+\multirow{2}{*}{\textbf{NCL}} 
+ & NCLinkedList(int)  \\
+ & addFirst(Object)    \\
+ {\scriptsize \#API: 34} & removeFirst()  \\
+\hline
+
+\multirow{2}{*}{\textbf{UFind}} 
+ & UnionFind()  \\
+ & addElement(int)   \\
+ {\scriptsize \#API: 9} & union(int,int)   \\
+\hline
+
+\multirow{2}{*}{\textbf{FHeap}} 
+ & FibonacciHeap()  \\
+ & insert(int)  \\
+ {\scriptsize \#API: 7} & removeMin()  \\
+\hline
+
+\multirow{1}{*}{\textbf{RBT}} 
+ & TreeMap() \\
+ {\scriptsize \#API: 8} & put(int)  \\
+ & remove(int)   \\
+\hline
+
+\multirow{1}{*}{\textbf{BTree}} 
+ & BinTree()  \\
+ {\scriptsize \#API: 7} & add(int) \\
+\hline
+
+\multirow{1}{*}{\textbf{BHeap}} 
+ & BinomialHeap()  \\
+ {\scriptsize \#API: 10} & insert(int) \\
+ & decreaseKeyValue(int,int)   \\
+\hline
+
+\multirow{5}{*}{\textbf{Lits}} 
+ & Lits() \\
+ & getFromPool(int) \\
+ & satisfies(int)  \\
+ {\scriptsize \#API: 26} & setLevel(int,int)  \\
+ & setReason(int)\\
+\hline
+
+\multirow{3}{*}{\textbf{Sched.}} 
+ & Schedule() \\
+ & addProcess(int) \\
+{\scriptsize \#API: 10} & blockProcess() \\
+%  & quantumExpire() & \\
+%   & finishProcess() & \\
+
+\hline
+
+\multirow{1}{*}{\textbf{LinkedList}} 
+ & LinkedList() \\
+ {\scriptsize \#API: 67} & addFirst(Object)  \\
+ \hline
+
+\multirow{2}{*}{\textbf{TreeMap}} 
+ & TreeMap() \\
+ & put(Object,Object) \\
+{\scriptsize \#API: 61} & remove(Object) \\
+\hline
+
+\multirow{2}{*}{\textbf{TreeSet}} 
+ & TreeSet() \\
+ & add(Object) \\
+{\scriptsize \#API: 34} & remove(Object) (int) \\
+\hline
+
+\multirow{1}{*}{\textbf{HashSet}} 
+ & HashSet(int,float) \\
+ {\scriptsize \#API: 31} & add(Object) \\
+\hline
+
+\multirow{1}{*}{\textbf{HashMap}} 
+ & HashMap(int,float)  \\
+{\scriptsize \#API: 45} & put(Object,Object)  \\
+\hline
+
+\end{tabular}%
+}
+\caption{Ground truth y cantidad de métodos en la API}
+\label{tab:groundTruth}
+\end{table}
+

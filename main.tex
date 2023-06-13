@@ -48,7 +48,8 @@
 
 % \titleformat{\chapter}[display]
 %   {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{}{}
-  \titleformat{\chapter}[hang]{\Huge\bfseries}{\chaptertitlename\ \thechapter.}{0.42em}{}
+  \titleformat{\chapter}[display]{\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter.}{0.42em}{}
+\titleformat{\subsection}{\bfseries}{\thesubsection}{1em}{}
 
 \titlespacing{\chapter}{0pt}{0pt}{4pt}
 % Configuración del estilo de página
@@ -86,6 +87,7 @@
 % \usepackage{algorithmicx}
 % \usepackage{algorithm2e}
 % \usepackage{algorithmic}
+\usepackage{pgfplots}
 \usepackage[linesnumbered,ruled,vlined,spanish,onelanguage]{algorithm2e}
 
 \lstnewenvironment{algorithm1}[1][] %defines the algorithm listing environment
