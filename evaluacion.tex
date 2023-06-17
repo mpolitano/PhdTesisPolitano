@@ -2,6 +2,8 @@
 \chapter[Evaluaci\'on]{Evaluaci\'on}
 \label{cap:evaluation}
 
+
+
 En los capítulos \ref{cap:beapi} y \ref{cap:builders} presentamos varios enfoques para mejorar la generación exhaustiva acotada:
 
 \begin{itemize}
@@ -28,13 +30,242 @@ En este capítulo, realizamos una evaluación experimental de estas técnicas co
 
 \section{Algoritmos de Identificacion de metodos builders}
 
-En esta sección, evaluamos experimentalmente nuestros enfoque para determinar que metodos son \emph{builders} a partir de una API. La evaluación se basa en un conjunto de implementaciones de estructuras de datos, que incluyen: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap", \verb"RedBlackTree" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomado de \cite{Loncaric:2018}, que consiste en un almacenamiento de variables que monitorea cuándo se hizo por última vez una suposición sobre el valor de una variable y si hay oyentes que están observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas del paquete \verb"java.util" como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList".
+\section{Evaluación Experimental en identificación de métodos builders}
+En esta sección, evaluamos experimentalmente nuestros enfoques presentados en el capítulo \ref{cap:builders}. Describiremos como es la eficiencia de cada algoritmo con las funciones de valoración presentada en la seccion \ref{sec:fitness}.
+La evaluación se basa en un conjunto de implementaciones de estructuras de datos que se utilizan como referencia, incluyendo: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomada de \cite{Loncaric:2018}, que consiste en un almacén de variables que controla cuándo se realizó la última suposición sobre el valor de una variable y si hay oyentes observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas de la paquete \verb"java.util" como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList". \cacho{TODO: ¿Cómo cito java-utils?)}
 
-% Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de cuatro núcleos a 3.4GHz, con 8GB de RAM, ejecutando GNU/Linux.
+Para corroborar nuestros resultados, necesitamos conocer cuales son los metodos builders minimos y suficiente de cada caso de estudio. Para esto se creo un \emph{ground Truth} manualmente. Para esto hemos inspeccionado cada caso de manera manual. Esto llevo un largo trabajo para estudiar los casos de estudio mas complejo. El \emph{ground truth} de nuestros casos de estudios se pueden observar en la tabla \ref{tab:groundTruth}. Esta incluye el número de rutinas en la API completa (\#API), y el conjunt de los \emph{builders} identificados manualmente (algunos métodos pueden intercambiarse en diferentes ejecuciones, por ejemplo, \texttt{addFirst} y \texttt{addLast} en NCL)
+    
+Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de 3.4 GHz con 8GB de RAM, utilizando GNU/Linux como sistema operativo. 
 
-La primera evaluación consiste en ejecutar nuestros enfoques (Algoritmo \ref{alg:approachGA}, Algoritmo \ref{alg:approachHC}, Algoritmo \ref{alg:approachCE}) en las API de los módulos completos de las clases mencionadas anteriormente, para calcular conjuntos de métodos \emph{builders} para cada caso de estudio. El objetivo es evaluar qué tan buenos son los \emph{builders} identificados y el tiempo que cada enfoque tarda en calcularlos. Para cada caso de estudio, ejecutamos nuestro enfoque 5 veces. Los resultados se muestran en la Tabla \ref{tab:results-compute-bld}, que incluye el número de rutinas en la API completa (\#API), una muestra de los \emph{builders} identificados (algunos métodos pueden intercambiarse en diferentes ejecuciones, por ejemplo, \texttt{addFirst} y \texttt{addLast} en NCL) y el tiempo promedio de ejecución (en segundos) de las 5 ejecuciones. Inspeccionamos manualmente los resultados y encontramos que los conjuntos de métodos \emph{builders} identificados automáticamente fueron en todos los casos suficientes (todos los objetos factibles para la estructura se pueden construir utilizando los \emph{builders}) y mínimos (no contienen métodos superfluos).
+\input{tables/groundTruth}
 
-Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing} es más efectivo que el \textit{Genetic Algorithm} para calcular los métodos \emph{builders} en todos los casos de estudio considerados. El enfoque de \textit{Hill Climbing} es razonablemente eficiente, tardando aproximadamente 5 minutos en el peor de los casos, mientras que el \textit{Genetic Algorithm} tarda 10 minutos en el peor de los casos. Esto se debe a que los algoritmos de Hill Climbing comienzan desde abajo hacia arriba (con menos métodos hacia más métodos), a diferencia de los algoritmos genéticos que generan sus sucesores mediante cruces o mutaciones. Debido a esto, el primer algoritmo tiene ventaja para encontrar los métodos mínimos en tiempos mejores. Es importante aclarar que puede haber casos de estudio no considerados en este trabajo donde el algoritmo genético se comporte mejor que el algoritmo de Hill Climbing. Esto ocurriría si la clase bajo prueba tiene pocos métodos, lo que hace que nuestro algoritmo evolutivo converja más rápido que el algoritmo de Hill Climbing (como TreeMap de BinTree en \cite{Visser:2006}). Es importante destacar que ambos enfoques encontraron el mismo conjunto de métodos \emph{builders}.
+\subsection{Parámetros y evaluación}
+Como se discutió en el capítulo \ref{cap:beapi}, es necesario configurar ciertos parámetros para el funcionamiento de nuestros algoritmos y funciones de valoración. Los parámetros más importantes que afectan la eficiencia y efectividad de nuestro algoritmo genético son la tasa de mutación y de cruce, el tamaño de la población y el número de torneos en la selección. 
+
+Para nuestra función de evaluación de Randoop, es importante conocer el tiempo disponible para generar objetos. En cuanto a la función de valoración de Bounded Exhaustive, es crucial determinar el alcance de las estructuras generadas. Además, debemos omitir ciertos valores de los campos de nuestras clases que son irrelevantes para la generación de objetos. Estos campos son aquellos que cambian la representación del objeto pero no su estructura en sí. Un ejemplo común en varias clases de prueba es el campo \emph{ModCount}, que es un contador de modificaciones. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada.
+
+Para establecer estos valores en la experimentación, realizamos una tarea de prueba y error para determinar los valores que mejor se ajustan a nuestros algoritmos. Esto es comúnmente realizado en algoritmos genéticos para determinar los parámetros óptimos para un problema específico.
+
+Los mejores valores que hemos obtenido para nuestros problemas son los siguientes:
+\begin{itemize}
+    \item Algoritmo Genético:
+    \begin{itemize}
+        \item Tasa de cruce: 0.3
+        \item Tasa de mutación: 0.05
+        \item Selección: Torneo (4)
+        \item Tamaño de población: 100
+        \item Número de evoluciones: 20
+    \end{itemize}
+    \item Función de valoración, Cobertura de Randoop:
+    \begin{itemize}
+        \item Tiempo de ejecución de Randoop: 30 segundos
+    \end{itemize}
+\end{itemize}
+
+Para realizar la evaluación de la técnica de builders, cada resultado que se muestra en la siguiente sección corresponde a la ejecución del algoritmo 10 veces para cada función de valoración con los parámetros mencionados anteriormente. Luego de estas evaluaciones, se calcula el promedio de los datos obtenidos.
+
+
+\subsection{Eficiencia}
+
+
+
+% necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva y la técnica greedy, pudimos evaluar la eficiencia de ambos enfoques y determinar cuál es más rápido en términos de tiempo de ejecución.
+\subsection{Efectivdad}
+La efeciencia de nuestro algoritmos es la cantidad de segundos que le lleva a cada uno de nuestros algoritmos con cada funcion de valoracion para encontrar el subconjunto de metodos \emph{builders} sufientes. Para evaluar la eficiencia de nuestro algoritmo, llevamos a cabo experimentos utilizando conjuntos de datos de muestra y medimos el tiempo de promedio de las 10 ejecuciones necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva, la técnica greedy y la tecnica de clase de equivalencia, pudimos evaluar la eficiencia de ambas enfoques y que eficicia de acuerdo a la funcion de valoracion utilizadas y determinar cuál es más rápido. Estos resultados se pueden ver en \ref{tab:eficiencia}.
+
+\input{tables/compareAllBuilders}
+
+\subsection{Efectividad}
+
+La efectividad de nuestros algoritmos se basa en cuan lejos esta de encontrar el conjunto de metodos \emph{builders}  que sean minimos. Vale aclarar que nuestros algoritmos siempre encuentran al menos el subconjunto de metodos \emph{builders} que son suficientes. Pero cuanto mas minimo sea este subconjuntos mejores resultados vamos a obtener a la hora de utilizarlos, en por ejemplo, durante la generacion de inputs para testing.
+Para evaluar la efectividad de nuestro algoritmo, realizamos experimentos utilizando las estrucuturas de datos especificadas en \ref{tab:groundTruth}. Recuerde que el ground truth proporciona la solución óptima para comparar con los resultados obtenidos por los algoritmos. Hemos realizado 10 ejecuciones del algrotimos bajo la misma configuracion de parametros. Luego chequeamos cuantos metodos de mas tiene el subconjunto hallado con respecto a los metodos minimos para esa estructura de dato.
+La tabla de efectividad nos brinda información sobre qué tan cerca estuvieron los algoritmos de alcanzar la solución óptima en cada ejecución. Esto nos permite evaluar la precisión y la capacidad de los algoritmos para encontrar soluciones cercanas al objetivo deseado.
+
+
+Es importante destacar que estos resultados son el producto de la evaluación experimental y pueden variar según los conjuntos de datos utilizados y los parámetros de los algoritmos. Sin embargo, proporcionan una medida cuantitativa de la eficiencia y efectividad de nuestros enfoques.
+Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing} es más efectivo que el \textit{Algortimo Genetico} para calcular los métodos \emph{builders} en todos los casos de estudio considerados. El enfoque de \textit{Hill Climbing} es razonablemente eficiente, tardando aproximadamente 5 minutos en el peor de los casos, mientras que el \textit{Algortimo Genetico} tarda 10 minutos en el peor de los casos. Esto se debe a que los algoritmos de Hill Climbing comienzan desde abajo hacia arriba (con menos métodos hacia más métodos), a diferencia de los algoritmos genéticos que generan sus sucesores mediante cruces o mutaciones. Debido a esto, el primer algoritmo tiene ventaja para encontrar los métodos mínimos en tiempos mejores. Es importante aclarar que puede haber casos de estudio no considerados en este trabajo donde el algoritmo genético se comporte mejor que el algoritmo de Hill Climbing. Esto ocurriría si la clase bajo prueba tiene pocos métodos, lo que hace que nuestro algoritmo evolutivo converja más rápido que el algoritmo de Hill Climbing (como BinTree en \cite{Visser:2006}). 
+
+% Es importante destacar que ambos enfoques encontraron el mismo conjunto de métodos \emph{builders}.
+
+\cacho{Agregar tiempo de randoop que se corre}
+% En resumen, mediante esta evaluación experimental, hemos analizado la eficiencia de nuestros algoritmos, comparado diferentes enfoques y evaluado su efectividad en función de los objetivos de aptitud. Estos resultados nos permiten tomar decisiones informadas sobre la elección de la técnica más adecuada para nuestro problema y comprender el desempeño de nuestros algoritmos en situaciones reales.
+
+
+\input{tables/tableEfectividad}
+
+
+% Además de analizar la eficiencia, también investigamos la sensibilidad de algunos parámetros del GA. Ajustamos parámetros como el tamaño de la población, la tasa de mutación y el número de generaciones, y observamos cómo estos cambios afectaron el rendimiento del algoritmo y los resultados obtenidos. Esto nos permitió identificar las configuraciones óptimas de los parámetros y entender cómo influyen en el proceso de búsqueda.
+
+Adicionalmente, examinamos los usos de los builders generados por nuestra técnica. Analizamos las características y las funcionalidades de los builders aprendidos y evaluamos su utilidad en diferentes tareas. Estudiamos cómo los builders pueden ser aplicados en el análisis y la manipulación de datos, y evaluamos su efectividad en términos de rendimiento y calidad de los resultados obtenidos.
+
+
+\cacho{Buscar caso que no encuentre los minimos.}
+
+% \paragraph{Randoop Objects}
+% \label{sec:randoopObjectsExp}
+
+
+
+
+% \paragraph{Bounded Exhuastive}
+% \label{sec:BEExp}
+
+
+
+% \subsubsection{Variacion de acuerdo a los Parametros}
+
+% Ademas, examinamos la sensibilidad de los parámetros del Algoritmo Genético y exploramos los usos de los builders generados. Los resultados obtenidos proporcionaron información valiosa sobre el rendimiento y la utilidad de nuestra técnica en la generación de builders y su aplicación en diversas tareas.
+
+% Nuestra comparacion se basa en medir la cantidad de tiempo que le lleva a cada Algortimo terminar la ejecucio, en la cantidad de candidatos que evalua la funcion de valoracion y cuan bueno es en eficacia para encontrar el minimo y suficiente subconjunto de metodos que pudimos observar en nuestro ground truth \cacho{Agregar seccion}. Ejecutamos el algoritmo 10 veces con el resto de los parametros que no esta en evaluacion con un valor promedio (Crossover=0.5, mutation 0.1, Tournanament 4).
+% Tambien utilizamos 30 segundos para la fitness con randoop y scope 6 para BEAPI.
+
+% En la tabla \ref{tab:CrossOverGA} se puede observar como se comporta el algoritmo cuando se utiliza diferente rate para el operador de CrossOver. 
+
+
+
+
+
+% \input{tables/tableMutation}
+
+\subsection{Uso de Builders en verificación}
+
+En el ultimo experimento sobre la identificación de \emph{builders}, utilicé Java PathFinder \cite{Visser:2005} (JPF) para realizar pruebas de generación de entradas de software para estructuras de datos de \emph{java.util}. JPF \cacho{REF} es un verificador de modelos de estado explícito para programas escritos en Java. Para realizar la verificación, las técnicas de versificación de modelos de software se basan en la definición de controladores de métodos: combinaciones de métodos que permiten construir las entradas con las que se ejecutará el programa. Intuitivamente, es deseable seleccionar el menor conjunto de métodos posible, cuyas combinaciones permitan construir todas las estructuras acotadas para el módulo (para analizar el software con todas las entradas posibles). La dificultad de escribir controladores de pruebas es un obstáculo importante para el uso de un verificador de modelos. Esta selección de métodos, que generalmente se realiza manualmente, no es una tarea fácil: requiere un análisis exhaustivo de las rutinas disponibles en el módulo y una comprensión profunda de su semántica.
+Es posible construir un método no determinista (harness de test) que genere todas las secuencias de llamadas a métodos de la API hasta un tamaño especificado por el usuario (scope). JPF se utiliza para enumerar todas estas secuencias. JPF almacena todos los estados explorados y retrocede cuando visita un estado previamente explorado.
+
+JPF admite anotaciones de programa que se agregan a los programas a través de llamadas a métodos de una clase especial Verify.
+Utilizamos los siguientes métodos de la biblioteca JPF \verb"Verify":
+\\
+\begin{itemize}
+\item El método \verb"Verify.getInt(int lo, int hi)" devuelve un valor entre \verb"lo" y \verb"hi", inclusive. Crea un punto de elección no determinista: JPF necesita explorar las ejecuciones para todos los valores en el rango.
+\item \verb"random(int n)" devuelve valores de 0 a \verb"n", de manera no determinista.
+\end{itemize}
+
+Si se desea verificar que el método \emph{put}  de TreeMap cumple con el repOK (predicado imperativo que verifica las invariantes de clase) de la estructura de datos, es necesario escribir algo como: 
+\\
+
+\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:label},language=Java,captionpos=b]
+public static void main(String[] args) {
+   int scope = 3;
+   TreeMap t = generateStructure(scope);
+   t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+   assert t.repOK();
+}
+\end{lstlisting}
+
+Para realizar el análisis de esta propiedad, es necesario proporcionar a JPF los mecanismos para generar todo el árbol de entrada (\textit{generateStructure}). 
+En el siguiente ejemplo, mostramos un controlador de prueba construido con todos los métodos de la estructura de datos \textit{TreeMap}:
+\\
+\\
+\begin{lstlisting}[caption={Controlador con todos los métodos},label={lst:driverAPI},language=Java,captionpos=b]
+private static TreeMap generateStructure(int scope) {
+   int maxLength = Verify.getInt(0, scope);
+   TreeMap t = new TreeMap();
+   for (int i = 1; i <= maxLength; i++) {
+      switch (Verify.random(n_methods)) {
+         case 0:
+            t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+            break;
+         case 1:
+            t.remove(Verify.getInt(0,scope));
+            break;						
+         case 2:
+            t.clear();
+            break;
+         case 3:
+            t.containsValue(Verify.getInt(0,scope));
+            break;
+         ...
+         case 11: 
+            t.putAll(l);
+            break;
+      }
+   }
+   return t;
+}
+\end{lstlisting}
+
+El método controlador anterior, en primer lugar, selecciona el número de métodos a ejecutar, \textit{maxLength}, un número entre 0 y \textit{scope}. (Linea 2). Cada iteración del ciclo (Linea 4 a 23) corresponde a la ejecución de un solo método, seleccionado de manera no determinista entre todos los disponibles. En el caso de que el usuario no conozca el conjunto de métodos builders (y no quiera hacer el complicado trabajo de seleccionarlos manualmente), la solución más segura para evitar descartar métodos importantes es utilizar todos los métodos disponibles en el módulo, como se muestra en el método controlador descrito anteriormente. En el cuerpo del bucle, a cada método se le asigna un número entero entre 0 y \textit{n\_methods}. Se elige de manera no determinista el método a ejecutar en el ciclo actual. Por ejemplo, si \textit{n\_methods}=1, se ejecuta el método \textit{remove}. Es fácil ver que el número de ejecuciones posibles que se deben explorar por JPF crece exponencialmente con el número de métodos disponibles.
+
+%(for every method that is executed in one iteration, there are \textit{n_methods} possible methods to execute in the next iteration).
+
+Para evitar este crecimiento exponencial en este experimento, se propone utilizar únicamente los constructores detectados por nuestro enfoque explicado en la sección \ref{sec:builders}.
+\\
+\\
+\begin{lstlisting}[caption={Controlador con métodos constructores},label={lst:driverBLD},language=Java,captionpos=b]
+private static TreeMap generateStructure(int scope) {
+   int maxLength = Verify.getInt(0,scope);
+   TreeMap t = new TreeMap();
+   for (int i = 1; i <= maxLength; i++) {
+      switch (Verify.random(11)) {
+         case 0:
+            t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+            break;
+         case 1:
+            t.remove(Verify.getInt(0,scope));
+            break;						
+      }
+   }
+   return t;
+}
+\end{lstlisting}
+
+Como se muestra en el controlador anterior, solo 2 métodos componen un conjunto mínimo y suficiente para construir controladores para TreeMap de \textit{java.util}. Utilizando solo esos métodos, generamos exactamente los mismos objetos TreeMap que antes (porque los constructores son suficientes y mínimos), y por lo tanto JPF explora las mismas ejecuciones de propiedades con ambos controladores.
+
+Los resultados de la tabla \ref{tab:results1-jpf} y \ref{tab:results2-jpf} muestran que la construcción del controlador a partir de nuestro enfoque presentado permite aumentar la eficiencia y escalabilidad a estructuras más grandes en el análisis utilizando JPF. Esto se debe a la reducción de los métodos utilizados en los controladores (evitando métodos superfluos) y manteniendo la capacidad de construir todos los objetos acotados posibles (debido a la suficiencia de los métodos elegidos) en menos tiempo.
+
+
+
+
+\begin{table}[!thb]
+\scriptsize
+
+\centering
+\begin{tabular}{ l r | r | r | r | r  }
+  \toprule
+  \multicolumn{6}{c}{\textbf{Real World}} \\
+  \midrule 
+  \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
+  \midrule
+  NCL
+  & 3 & .10 & .47 & -  & -  \\
+  & 4 & .41 & 3.48  &  - & -  \\
+  & 5 & 3.33  &  - &  - & -  \\
+  & 6 & 73.78 &  - &  - &  - \\
+  \midrule
+  TSet
+  & 3 & .03 & .07 & 56.82 & - \\
+  & 11  & 21.52 & 86.06 &  - & -  \\
+  & 12  & 69.98 & 276.85  &  - & -  \\
+  & 13  & 226.66  & 887.83  &  - & -  \\
+    \midrule
+  TMap
+  & 3 & .11 & .25 & - & - \\
+  & 4 & .75 & 2.36  &  - &  - \\
+  & 5 & 15.97 & 57.64 &  - & -  \\
+  & 6 & 839.87  & 2901.37 &  - &  - \\
+  \midrule
+  LList
+  & 3 & .02 & .13 & .64 & - \\
+  & 6 & .96 & 258.85  & -  &  - \\
+  & 7 & 12.98 &  - &  - &  - \\
+  & 8 & 286.21  & -  & -  & -  \\
+  \midrule
+  HMap
+  & 3 & .10 & 11.49 & - & - \\
+  & 4 & .55 & -  & -  & -  \\
+  & 5 & 5.33  & -  &  - &  - \\
+  & 6 & 119.87  &  - &  - &  - \\
+  \bottomrule
+
+\end{tabular}
+
+\label{table:beapi}
+
+\end{table}
+
+\input{tables/tableVerificacionBuilders}
+
 
 
 \begin{table}[t!]
@@ -139,7 +370,7 @@ Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing}
 
 \section{BEAPI}
 
-
+\subsection{Uso de Builders en BEAPI}
 En la segunda parte de la evaluación, analizamos qué tan útiles son los builders identificados en el contexto de un análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos objetos pueden utilizarse, por ejemplo, como entradas en test parametrizados. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y compararlos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos builders (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego comparamos el número de objetos diferentes (No. de Objs.) y el tamaño del objeto más grande (Max Obj. Size) generados por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Establecimos tres budget diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que la API. En todos los casos, BLD también genera objetos significativamente más grandes que la API. A la luz de estos resultados, queda claro que la identificación automatizada de builders es beneficiosa para la generación automatizada de estructuras para clases con estado.
 
 Además, comparamos las suites de pruebas generadas con Randoop midiendo la cobertura de ramas y líneas de código. Al igual que en el experimento anterior, la suite de pruebas utilizada para la comparación se generó a partir de los métodos builders (BLD) en comparación con el uso de todos los métodos disponibles de la API con un Randoop predeterminado. Establecimos cinco presupuestos diferentes para la generación de pruebas: 60, 120, 180, 300 y 600 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-coverage}.
