@@ -4,7 +4,7 @@
 
 
 
-En los capítulos \ref{cap:beapi} y \ref{cap:builders} presentamos varios enfoques para mejorar la generación exhaustiva acotada:
+En los capítulos \ref{cap:builders} y \ref{cap:beapi} presentamos varios enfoques para mejorar la generación exhaustiva acotada:
 
 \begin{itemize}
 \item Identificación de métodos \emph{builders} para construir todos los objetos disponibles hasta una cota en una API. En este sentido, presentamos los siguientes algoritmos para encontrar estos métodos:
@@ -20,27 +20,30 @@ En este capítulo, realizamos una evaluación experimental de estas técnicas co
 
 \cacho{TODO: pensar mejor las RQ}
 \begin{itemize}
-\item \emph{RQ1}: ¿Qué tan efectivos son los algoritmos (Algoritmo Genético, Greedy, clases de equivalencia) para identificar conjuntos de métodos \emph{builders} y cuánto tiempo computacional requiere cada enfoque?
-\item \emph{RQ2}: ¿Cuál es el impacto de utilizar métodos Builders identificados en comparación con el uso de todos los métodos de la API en la generación de estados mediante un verificador de modelos?
-\item \emph{RQ3}: ¿Puede realizarse eficientemente la generación exhaustiva utilizando métodos de la API (BEAPI)?
+\item \emph{RQ1}: ¿Qué tan eficientes son los algoritmos (Algoritmo Genético, Greedy, Clases de Equivalencia) para identificar conjuntos de métodos suficientes? 
+\item \emph{RQ2}: ¿Qué tan efectivos son los algoritmos presntados para identificar conjuntos de métodos \emph{builders} suficientes de cada API?
+\emph{builders} y cuánto tiempo computacional requiere cada enfoque?
+\item \emph{RQ3}: ¿Cuál es el impacto de utilizar métodos Builders identificados en comparación con el uso de todos los métodos de la API en la generación de estados mediante un verificador de modelos?
+\item \emph{RQ4}: ¿Puede realizarse eficientemente la generación exhaustiva utilizando métodos de la API (BEAPI)?
 \item\emph{RQ4}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEG a partir de la API?
-\item\emph{RQ5}: ¿Puede BEAPI ayudar a encontrar discrepancias entre las especificaciones repOK y la capacidad de generación de objetos de la API?
-\item\emph{RQ6}: ¿Qué tan efectivas son las suites de prueba reducidas en comparación con la generación exhaustiva acotada?
+\item\emph{RQ6}: ¿Puede BEAPI ayudar a encontrar discrepancias entre las especificaciones repOK y la capacidad de generación de objetos de la API?
+\item\emph{RQ7}: ¿Qué tan efectivas son las suites de prueba reducidas en comparación con la generación exhaustiva acotada?
 \end{itemize}
 
-\section{Algoritmos de Identificacion de metodos builders}
+% \section{Algoritmos de Identificacion de metodos builders}
 
 \section{Evaluación Experimental en identificación de métodos builders}
-En esta sección, evaluamos experimentalmente nuestros enfoques presentados en el capítulo \ref{cap:builders}. Describiremos como es la eficiencia de cada algoritmo con las funciones de valoración presentada en la seccion \ref{sec:fitness}.
-La evaluación se basa en un conjunto de implementaciones de estructuras de datos que se utilizan como referencia, incluyendo: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomada de \cite{Loncaric:2018}, que consiste en un almacén de variables que controla cuándo se realizó la última suposición sobre el valor de una variable y si hay oyentes observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas de la paquete \verb"java.util" como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList". \cacho{TODO: ¿Cómo cito java-utils?)}
+En esta sección, evaluamos experimentalmente nuestros enfoques presentados en el capítulo \ref{cap:builders}. Describiremos como es la eficiencia y efectividad de cada algoritmo con las funciones de valoración presentada en la sección \ref{sec:fitness}. Además, mostraremos el uso de estos métodos identificados por nuestras técnicas durante el uso de una herramienta de verificación.
 
-Para corroborar nuestros resultados, necesitamos conocer cuales son los metodos builders minimos y suficiente de cada caso de estudio. Para esto se creo un \emph{ground Truth} manualmente. Para esto hemos inspeccionado cada caso de manera manual. Esto llevo un largo trabajo para estudiar los casos de estudio mas complejo. El \emph{ground truth} de nuestros casos de estudios se pueden observar en la tabla \ref{tab:groundTruth}. Esta incluye el número de rutinas en la API completa (\#API), y el conjunt de los \emph{builders} identificados manualmente (algunos métodos pueden intercambiarse en diferentes ejecuciones, por ejemplo, \texttt{addFirst} y \texttt{addLast} en NCL)
+La evaluación se basa en un conjunto de implementaciones de estructuras de datos que se utilizan como referencia, incluyendo: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomada de \cite{Loncaric:2018}, que consiste en un almacén de variables que controla cuándo se realizó la última suposición sobre el valor de una variable y si hay oyentes observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas del paquete \verb"java.util" como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList". \cacho{TODO: ¿Cómo cito java-utils?)}
+
+Para corroborar nuestros resultados, necesitamos conocer cuáles son los métodos builders mínimos y suficiente de cada caso de estudio. Para esto hemos creado un \emph{ground Truth} manualmente. Fue necesario inspeccionar cada caso de manera manual. Esto llevo un largo trabajo para estudiar los casos de estudio más complejo. El \emph{ground truth} de nuestros casos de estudios se pueden observar en la tabla \ref{tab:groundTruth}. Esta incluye el número de rutinas en la API completa (\#API), y el conjunto de los \emph{builders} identificados manualmente (algunos métodos pueden intercambiarse en diferentes ejecuciones, por ejemplo, \texttt{addFirst} y \texttt{addLast} en NCL)
     
 Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de 3.4 GHz con 8GB de RAM, utilizando GNU/Linux como sistema operativo. 
 
 \input{tables/groundTruth}
 
-\subsection{Parámetros y evaluación}
+\subsection{Parámetros y Evaluación}
 Como se discutió en el capítulo \ref{cap:beapi}, es necesario configurar ciertos parámetros para el funcionamiento de nuestros algoritmos y funciones de valoración. Los parámetros más importantes que afectan la eficiencia y efectividad de nuestro algoritmo genético son la tasa de mutación y de cruce, el tamaño de la población y el número de torneos en la selección. 
 
 Para nuestra función de evaluación de Randoop, es importante conocer el tiempo disponible para generar objetos. En cuanto a la función de valoración de Bounded Exhaustive, es crucial determinar el alcance de las estructuras generadas. Además, debemos omitir ciertos valores de los campos de nuestras clases que son irrelevantes para la generación de objetos. Estos campos son aquellos que cambian la representación del objeto pero no su estructura en sí. Un ejemplo común en varias clases de prueba es el campo \emph{ModCount}, que es un contador de modificaciones. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada.
@@ -60,10 +63,16 @@ Los mejores valores que hemos obtenido para nuestros problemas son los siguiente
     \item Función de valoración, Cobertura de Randoop:
     \begin{itemize}
         \item Tiempo de ejecución de Randoop: 30 segundos
+        
+    \end{itemize}
+     \item Función de valoración, Generador BE:
+    \begin{itemize}
+        \item Scope: 5
+        \item omisión de campos: modCount
     \end{itemize}
 \end{itemize}
 
-Para realizar la evaluación de la técnica de builders, cada resultado que se muestra en la siguiente sección corresponde a la ejecución del algoritmo 10 veces para cada función de valoración con los parámetros mencionados anteriormente. Luego de estas evaluaciones, se calcula el promedio de los datos obtenidos.
+Para realizar la evaluación de la técnica de identificacion de metodos \emph{builders}, cada resultado que se muestra en la siguiente sección corresponde a la ejecución del algoritmo 10 veces para cada función de valoración con los parámetros mencionados anteriormente. Luego de estas evaluaciones, se calcula el promedio de los datos obtenidos.
 
 
 \subsection{Eficiencia}
@@ -71,19 +80,21 @@ Para realizar la evaluación de la técnica de builders, cada resultado que se m
 
 
 % necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva y la técnica greedy, pudimos evaluar la eficiencia de ambos enfoques y determinar cuál es más rápido en términos de tiempo de ejecución.
-\subsection{Efectivdad}
-La efeciencia de nuestro algoritmos es la cantidad de segundos que le lleva a cada uno de nuestros algoritmos con cada funcion de valoracion para encontrar el subconjunto de metodos \emph{builders} sufientes. Para evaluar la eficiencia de nuestro algoritmo, llevamos a cabo experimentos utilizando conjuntos de datos de muestra y medimos el tiempo de promedio de las 10 ejecuciones necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva, la técnica greedy y la tecnica de clase de equivalencia, pudimos evaluar la eficiencia de ambas enfoques y que eficicia de acuerdo a la funcion de valoracion utilizadas y determinar cuál es más rápido. Estos resultados se pueden ver en \ref{tab:eficiencia}.
+\subsection{Eficiencia}
+La eficiencia de nuestros algoritmos es la cantidad de segundos que le lleva a cada uno de nuestros algoritmos con cada función de valoración para encontrar el subconjunto de métodos \emph{builders} suficientes. Para evaluar la eficiencia de nuestro algoritmo, llevamos a cabo experimentos utilizando conjuntos de datos de muestra y medimos el tiempo de promedio de las 10 ejecuciones necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva, la técnica greedy y la tecnica de clase de equivalencia, pudimos evaluar la eficiencia de ambas enfoques y eficacia de acuerdo a la función de valoración utilizada y determinar cuál es más rápido. Estos resultados se pueden ver en \ref{tab:eficiencia}.
 
 \input{tables/compareAllBuilders}
 
 \subsection{Efectividad}
 
-La efectividad de nuestros algoritmos se basa en cuan lejos esta de encontrar el conjunto de metodos \emph{builders}  que sean minimos. Vale aclarar que nuestros algoritmos siempre encuentran al menos el subconjunto de metodos \emph{builders} que son suficientes. Pero cuanto mas minimo sea este subconjuntos mejores resultados vamos a obtener a la hora de utilizarlos, en por ejemplo, durante la generacion de inputs para testing.
-Para evaluar la efectividad de nuestro algoritmo, realizamos experimentos utilizando las estrucuturas de datos especificadas en \ref{tab:groundTruth}. Recuerde que el ground truth proporciona la solución óptima para comparar con los resultados obtenidos por los algoritmos. Hemos realizado 10 ejecuciones del algrotimos bajo la misma configuracion de parametros. Luego chequeamos cuantos metodos de mas tiene el subconjunto hallado con respecto a los metodos minimos para esa estructura de dato.
+La efectividad de nuestros algoritmos se basa en qué tan cerca están de encontrar el conjunto mínimo de métodos \emph{builders}. Es importante destacar que nuestros algoritmos siempre encuentran al menos un subconjunto de métodos \emph{builders} que es suficiente. Sin embargo, cuanto más mínimo sea este subconjunto, mejores resultados obtendremos al utilizarlo, por ejemplo, durante la generación de inputs para testing.
+
+Para evaluar la efectividad de nuestro algoritmo, realizamos experimentos utilizando las estructuras de datos especificadas en la tabla \ref{tab:groundTruth}. Recordemos que el \emph{ground truth} proporciona la solución óptima con la cual podemos comparar los resultados obtenidos por los algoritmos. Hemos realizado 10 ejecuciones del algoritmo con la misma configuración de parámetros. Luego, verificamos cuántos métodos adicionales contiene el subconjunto hallado en comparación con los métodos mínimos para esa estructura de datos.
+
 La tabla de efectividad nos brinda información sobre qué tan cerca estuvieron los algoritmos de alcanzar la solución óptima en cada ejecución. Esto nos permite evaluar la precisión y la capacidad de los algoritmos para encontrar soluciones cercanas al objetivo deseado.
 
+Es importante destacar que estos resultados son producto de la evaluación experimental y pueden variar según los conjuntos de datos utilizados y los parámetros de los algoritmos. Sin embargo, proporcionan una medida cuantitativa de la eficiencia y efectividad de nuestros enfoques.
 
-Es importante destacar que estos resultados son el producto de la evaluación experimental y pueden variar según los conjuntos de datos utilizados y los parámetros de los algoritmos. Sin embargo, proporcionan una medida cuantitativa de la eficiencia y efectividad de nuestros enfoques.
 Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing} es más efectivo que el \textit{Algortimo Genetico} para calcular los métodos \emph{builders} en todos los casos de estudio considerados. El enfoque de \textit{Hill Climbing} es razonablemente eficiente, tardando aproximadamente 5 minutos en el peor de los casos, mientras que el \textit{Algortimo Genetico} tarda 10 minutos en el peor de los casos. Esto se debe a que los algoritmos de Hill Climbing comienzan desde abajo hacia arriba (con menos métodos hacia más métodos), a diferencia de los algoritmos genéticos que generan sus sucesores mediante cruces o mutaciones. Debido a esto, el primer algoritmo tiene ventaja para encontrar los métodos mínimos en tiempos mejores. Es importante aclarar que puede haber casos de estudio no considerados en este trabajo donde el algoritmo genético se comporte mejor que el algoritmo de Hill Climbing. Esto ocurriría si la clase bajo prueba tiene pocos métodos, lo que hace que nuestro algoritmo evolutivo converja más rápido que el algoritmo de Hill Climbing (como BinTree en \cite{Visser:2006}). 
 
 % Es importante destacar que ambos enfoques encontraron el mismo conjunto de métodos \emph{builders}.

@@ -132,10 +132,20 @@ La función de valoración se diseña de acuerdo con la naturaleza del problema 
 En el caso de algoritmos greedy, la función de valoración juega un papel similar pero con un enfoque más local. En lugar de trabajar con una población de soluciones, los algoritmos greedy toman decisiones en cada paso basándose en una evaluación local de las opciones disponibles. La función de valoración en un algoritmo greedy se utiliza para seleccionar la mejor opción en cada iteración o paso del algoritmo, maximizando o minimizando la función de valoración según el objetivo del problema \cite{cormen2009introduction}.
 
 Por lo tanto, tanto en algoritmos genéticos como en algoritmos greedy, la función de valoración desempeña un papel crucial para evaluar y comparar soluciones candidatas en función de criterios específicos del problema. Proporciona una medida cuantitativa de la calidad de las soluciones y guía el proceso de selección y toma de decisiones en cada etapa del algoritmo. El diseño adecuado de la función de valoración es esencial para obtener resultados óptimos y eficientes en la resolución de problemas.
+A continuacion, explicaremos cada funcion de valoracion implementada en nuestros algoritmos.
 
-Nuestra función de valoración tiene como objetivo principal maximizar la cantidad de objetos que puedo generar, ya sea utilizando nuestra versión modificada de Randoop (explicado en la sección de Preliminares \ref{sec:feedback-directed-test-gen} o un Generador exhaustivo (explicado en la sección de Preliminares \ref{sec:beapiIntro}. Este enfoque nos permite evaluar la capacidad de los candidatos para construir una variedad de objetos y proporciona una base para la selección y mejora de los mejores candidatos en nuestro algoritmo.
 
-La función de valoración en nuestra tesis se utiliza para evaluar la calidad de un candidato, el cual representa un conjunto de métodos $M$. Para ello, nuestra función devuelve un valor real que se construye de la siguiente manera:
+
+
+
+
+
+\subsection{Fitness: Generador Exhaustivo}
+
+Dado un candidato que representa un conjunto de métodos $M$, nuestra función de valoración intenta calcular una aproximación del número de objetos acotados que se pueden construir utilizando combinaciones de métodos habilitados en el cromosoma. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
+Nuestra función de valoración tiene como objetivo principal maximizar la cantidad de objetos que puedo generar utilizando un Generador exhaustivo (explicado en la sección de Preliminares \ref{sec:beapiIntro}. Este enfoque nos permite evaluar la capacidad de los candidatos para construir una variedad de objetos y proporciona una base para la selección y mejora de los mejores candidatos en nuestro algoritmo.
+
+Esta función de valoración en nuestra tesis se utiliza para evaluar la calidad de un candidato, el cual representa un conjunto de métodos $M$. Para ello, nuestra función devuelve un valor real que se construye de la siguiente manera:
 
 \[
 f(M) = \text{{\#Objetos}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
@@ -147,30 +157,7 @@ El segundo componente, $(\text{{\#MétodosAPI}} - \text{{\#M}})$, refleja la dif
 
 Finalmente, $\text{{PP}}(M)$ es un factor de ponderación que permite ajustar la importancia de tener menor complejidad y cantidad de parámetros en el conjunto de métodos $M$. Este valor es entre 1 y 0 es solo para ajustar en caso de que haya empate de cantidad de objetos y métodos.
 \cacho{Explicar el peso de los parametros}
-Esta función de valoración nos proporciona una medida cuantitativa de la calidad del candidato representado por el conjunto de métodos $M$. Los candidatos con valores de función de valoración más altos se consideran de mayor calidad y son preferidos en los algoritmos genéticos y en los algoritmos greedys que explicaremos en la seccion \ref{sec:algorithms}.
-
-
-\subsection{Fitness: Cobertura de ramas con Randoop}
-
-En nuestra tesis, hemos modificado la herramienta \emph{Randoop} explicada en la seccion \ref{sec:feedback-directed-test-gen}).
-
-En primer lugar, realizamos modificaciones en Randoop para darle prioridad a un subconjunto de métodos específicos, representados en la seccion anterior por el conjunto $M$. Esto nos permite generar secuencias de pruebas que se centren en la ejecución de estos métodos en particular. Esto es solo una prioridad que se le da, ya que queremos seguir generando con los otros metodos porque buscamos obtener buena cobertura de los metodos de la API a partir de un subconjunto de metodos a los cueles se la mas probabilida de ser elegidos. Pero se puede observar que si solo utilizamos estos metodos para construir secuencias, solo obtenderiamos buena cobertura de estos metodos pero esto no nos daria indicios de nada.
-
-
-
-
-
-buscamos generar todos los posibles objetos que se pueden construir utilizando los métodos del cromosoma actual. Para lograr esto, desarrollamos una versión modificada de la herramienta Randoop, como se discutió brevemente en la Sección \ref{sec:feedback-directed-test-gen})
-
-
-
-En segundo lugar, ejecutamos las llamadas a los métodos de cada test generado por Randoop para crear objetos, y contabilizamos la cantidad de objetos que podemos construir. Es importante destacar que la cantidad de objetos no es necesariamente igual a la cantidad de pruebas generadas, ya que en una misma prueba pueden crearse varios objetos de la clase bajo test. Por lo tanto, contamos estos objetos para determinar cuántos objetos podemos crear con las secuencias de pruebas generadas por Randoop.
-
-
-\subsection{Fitness: Generador Exhaustivo}
-
-Dado un candidato que representa un conjunto de métodos $M$, nuestra función de valoración intenta calcular una aproximación del número de objetos acotados que se pueden construir utilizando combinaciones de métodos habilitados en el cromosoma. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
-
+Esta función de valoración nos proporciona una medida cuantitativa de la calidad del candidato representado por el conjunto de métodos $M$. Los candidatos con valores de función de valoración más altos se consideran de mayor calidad y son preferidos en los algoritmos genéticos y en los algoritmos greedys que explicaremos en la sección \ref{sec:algorithms}.
 Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$ que se pueden construir utilizando los métodos del cromosoma actual. En otras palabras, necesitamos un generador exhaustivo acotado para el conjunto de métodos $BE(M, k)$. El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$).
 
 Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en la Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
@@ -184,16 +171,45 @@ Nuestra justificación para usar conjuntos acotados de objetos es similar a la \
 Para obtener más información sobre el algoritmo y más detalles sobre BEAPI, invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
 
 
-\cacho{Donde explico sobre INFER y en analisis estatico. Explicaria al principio, como una seccion aparte. Esto me cambia en la representacion de los cromosoma. Porque solo armamos el cromosoma luego de este filtro, para todos los algoritmos. }
+\subsection{Fitness: Cobertura de ramas con Randoop}
+
+En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen}.
+
+Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.
+
+La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, tal como se describe en la sección de preliminares \ref{sec:coverage}.
+
+La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se construye de la siguiente manera:
+
+\[
+f(M) = \text{{\#CoberturaRama}}(M) \, (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{Extensibilidad}}(M)
+\]
+
+La función de valoración consta de tres componentes principales. En primer lugar, $\text{{\#CoberturaRama}}(M)$ representa el número de ramas cubiertas por las suites de prueba generadas por Randoop utilizando el subconjunto de métodos $M$. Este componente refleja la cantidad de ramas cubiertas específicamente por este subconjunto priorizado de métodos.
+
+El segundo componente, $\text{{\#MétodosAPI}} - \text{{\#M}}$, tiene en cuenta la cantidad de métodos restantes en la API que no están presentes en el subconjunto $M$. Este componente incentiva a que el conjunto de métodos sea menor.
+
+Por último, penalizamos sobre los parámetros de cada método en el subconjunto como lo hacíamos en la sección anterior.
+
+En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconjunto de métodos durante la generación de secuencias de pruebas, y nuestra función de valoración se encarga de maximizar la cobertura de ramas de la API. Estas adaptaciones nos proporcionan una mejor comprensión de la calidad y efectividad de los subconjuntos de métodos generados.
 
 
 \section{Algoritmos}
+
+
 \label{sec:algorithms}
 Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es un algoritmo Greedy más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos respecto al valor de su función de valoración.
+Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API bajo prueba.
+Los métodos observadores son aquellos que no modifican el estado de un objeto al ejecutarse. En el ejemplo motivador presentado en la sección \ref{sec:motivation} y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos builders.
+Para realizar esta identificación de métodos observadores, utilizamos una herramienta de análisis estático llamada \emph{Infer}. Esta herramienta ha sido desarrollada por \emph{Facebook} y ofrece varias funcionalidades específicas. En el contexto de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué métodos son considerados puros u observadores.
+
+El análisis estático realizado con \emph{Infer} nos permite obtener una lista de métodos que son clasificados como observadores en la API bajo prueba. Esta información es utilizada como paso previo a la ejecución de nuestros algoritmos, para asegurarnos de que solo consideramos los métodos relevantes y adecuados para comenzar la búsqueda de los métodos \emph{builders}.
+
+En resumen, el análisis estático realizado con \emph{Infer} nos permite eliminar de la búsqueda los métodos observadores, aquellos que no modifican el estado de los objetos, garantizando así que nos enfocamos en los métodos más relevantes para nuestros métodos builders.
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
-En este sección presentamos los detalles para la detección de los subconjuntos de métodos builders utilizando un algoritmo evolutivo. Para lograr realizar esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el subconjunto de métodos que sean mínimo y suficientes, que describiremos a continuación.
+En esta sección presentamos los detalles para la detección de los subconjuntos de métodos builders utilizando un algoritmo evolutivo. Para lograr realizar esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el subconjunto de métodos que sean mínimo y suficientes, que describiremos a continuación.
 
 
 % % basados en una estrategia de escalada de colinas \cite{Russell:2009}.
@@ -211,8 +227,8 @@ Los elementos de la población de nuestro algoritmo genético son subconjuntos d
 Para el ejemplo de NCL, que tiene 34 métodos (Tabla \ref{tab:ncl-api}), tendríamos la siguiente representación del cromosoma:
 
 \begin{center}
-$c = \begin{array}{ccccccc}
-[ g0 & g1 & g2 & \ldots & g34 ]
+$c = \begin{array}{@{}cccccc@{}}
+\scriptsize g_0 & \scriptsize g_1 & \scriptsize g_2 & \ldots & \scriptsize g_{34}
 \end{array}$
 \end{center}
 
