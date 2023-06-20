@@ -2,47 +2,50 @@
 \centering
 \label{tab:t1}
 \scriptsize
-\begin{tabular}{|c c|ccc|ccc|ccc|}
+\begin{tabular}{|c c|cc|cc|cc|}
 \midrule
-\multicolumn{2}{|c|}{\multirow{3}{*}{\textbf{Cases}}} & \multicolumn{9}{c|}{\textbf{Time}} \\
-\cline{3-11}
-\multicolumn{2}{|c|}{} & \multicolumn{3}{c}{\textbf{GA}} & \multicolumn{3}{c}{\textbf{HC}} & \multicolumn{3}{c|}{\textbf{SubSet}} \\
-\multicolumn{2}{|c|}{} & \textbf{\tiny{BE}} & \textbf{\tiny{RO}} & \textbf{\tiny{SS}} & \textbf{\tiny{BE}} & \textbf{\tiny{RO}} & \textbf{\tiny{SS}} & \textbf{\tiny{BE}} & \textbf{\tiny{RO}} & \textbf{\tiny{SS}}\\
+\multicolumn{2}{|c|}{\multirow{3}{*}{\textbf{Cases}}} & \multicolumn{6}{c|}{\textbf{Eficiencia (segundos)}} \\
+\cline{3-8}
+\multicolumn{2}{|c|}{} & \multicolumn{2}{c}{\textbf{GA}} & \multicolumn{2}{c}{\textbf{HC}} & \multicolumn{2}{c|}{\textbf{SubSet}} \\
+\multicolumn{2}{|c|}{} & \textbf{\tiny{BE}} & \textbf{\tiny{RC}} & \textbf{\tiny{BE}} & \textbf{\tiny{RC}} & \textbf{\tiny{BE}} & \textbf{\tiny{RC}} \\
 \midrule
-\multicolumn{2}{|c|}{\textbf{NCL}} & 12  & 12  & 12 &  12 &12 &  12&   12& 12  &  12 \\
+\multicolumn{2}{|c|}{\textbf{NCL}} &   &   &  &  1251 & & 10370 \\
 \midrule
-\multicolumn{2}{|c|}{\textbf{UFInd}}&   &   &   &   &   &   &   &   &   \\
-\midrule
-
-\multicolumn{2}{|c|}{\textbf{FHeap}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{UFInd}}&   &   &   &   &   &      \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{BTree}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{FHeap}} &   &   &   &   &   &     \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{BHeap}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{BTree}} &   &  232 &   & 240   &   & 240   \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{Lits}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{BHeap}} &   &  1319 &   & 390  &   &  776   \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{Sched.}} &   &   &   &   &   &   &   &   &   \\
-
-\midrule
-\multicolumn{2}{|c|}{\textbf{LinkedList}} & 100  & 100  & 100  & 100  &100   &  100 &   100& 100  &100   \\
+\multicolumn{2}{|c|}{\textbf{Lits}} &   &   &   &   &   &    \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{TreeMap}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{Sched.}} &   & 2247  &   & 374  &   &1083    \\
+
+\midrule
+\multicolumn{2}{|c|}{\textbf{LinkedList}} &  &  2182 &   &  432 &  &  12698  \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{TreeSet}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{TreeMap}} &   &   &   &   &   &     \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{HashSet}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{TreeSet}} &   &   &   &   &   &    \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{HashMap}} &   &   &   &   &   &   &   &   &   \\
+\multicolumn{2}{|c|}{\textbf{HashSet}} &   &   &   &   &   &    \\
+\midrule
+
+\multicolumn{2}{|c|}{\textbf{HashMap}} &   &   &   &   &   &    \\
 \hline
 \end{tabular}
-\caption{Eficiencia para identificar los metodos builders}
+
+\caption{Tabla de casos de estudio y efectividad de encontra el subconjunto optimo}
+\label{tab:efectividad}
 \end{table}
+
