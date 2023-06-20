@@ -7,14 +7,14 @@
 \multicolumn{2}{|c|}{\multirow{3}{*}{\textbf{Cases}}} & \multicolumn{6}{c|}{\textbf{Eficiencia (segundos)}} \\
 \cline{3-8}
 \multicolumn{2}{|c|}{} & \multicolumn{2}{c}{\textbf{GA}} & \multicolumn{2}{c}{\textbf{HC}} & \multicolumn{2}{c|}{\textbf{SubSet}} \\
-\multicolumn{2}{|c|}{} & \textbf{\tiny{BE}} & \textbf{\tiny{RC}} & \textbf{\tiny{BE}} & \textbf{\tiny{RC}} & \textbf{\tiny{BE}} & \textbf{\tiny{RC}} \\
+\multicolumn{2}{|c|}{} & \textbf{\tiny{GE}} & \textbf{\tiny{RC}} & \textbf{\tiny{GE}} & \textbf{\tiny{RC}} & \textbf{\tiny{GE}} & \textbf{\tiny{RC}} \\
 \midrule
-\multicolumn{2}{|c|}{\textbf{NCL}} &   &   &  &  1251 & & 10370 \\
+\multicolumn{2}{|c|}{\textbf{NCL}} & 300  & 4389   & 32 &  1251 &85 & 10370 \\
 \midrule
 \multicolumn{2}{|c|}{\textbf{UFInd}}&   &   &   &   &   &      \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{FHeap}} &   &   &   &   &   &     \\
+\multicolumn{2}{|c|}{\textbf{FHeap}} &   & 462  &   &321   &   &  482   \\
 \midrule
 
 \multicolumn{2}{|c|}{\textbf{BTree}} &   &  232 &   & 240   &   & 240   \\
@@ -23,7 +23,7 @@
 \multicolumn{2}{|c|}{\textbf{BHeap}} &   &  1319 &   & 390  &   &  776   \\
 \midrule
 
-\multicolumn{2}{|c|}{\textbf{Lits}} &   &   &   &   &   &    \\
+\multicolumn{2}{|c|}{\textbf{Lits}} &   & 4572  &   &  \emph{764} &   & 5642   \\
 \midrule
 
 \multicolumn{2}{|c|}{\textbf{Sched.}} &   & 2247  &   & 374  &   &1083    \\
@@ -46,6 +46,6 @@
 \end{tabular}
 
 \caption{Tabla de casos de estudio y efectividad de encontra el subconjunto optimo}
-\label{tab:efectividad}
+\label{tab:eficiencia}
 \end{table}
 

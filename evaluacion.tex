@@ -46,7 +46,8 @@ Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de 3.4 GHz 
 \subsection{Parámetros y Evaluación}
 Como se discutió en el capítulo \ref{cap:beapi}, es necesario configurar ciertos parámetros para el funcionamiento de nuestros algoritmos y funciones de valoración. Los parámetros más importantes que afectan la eficiencia y efectividad de nuestro algoritmo genético son la tasa de mutación y de cruce, el tamaño de la población y el número de torneos en la selección. 
 
-Para nuestra función de evaluación de Randoop, es importante conocer el tiempo disponible para generar objetos. En cuanto a la función de valoración de Bounded Exhaustive, es crucial determinar el alcance de las estructuras generadas. Además, debemos omitir ciertos valores de los campos de nuestras clases que son irrelevantes para la generación de objetos. Estos campos son aquellos que cambian la representación del objeto pero no su estructura en sí. Un ejemplo común en varias clases de prueba es el campo \emph{ModCount}, que es un contador de modificaciones. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada.
+Para nuestra función de evaluación de Randoop, es importante conocer el tiempo disponible para generar objetos. Ademas, Randoop  necesita de una semilla. Esta semilla en Randoop se utiliza para controlar la generación de pruebas aleatorias y permite reproducir los mismos resultados en ejecuciones posteriores si utilizas la misma semilla. Esto puede ser útil para la reproducibilidad y comparación de resultados en el contexto de pruebas de software. Los resultados de Randoop, siempre tiene una aleatoriedad que, entre otras cosas, depende de esta semilla. En nuestros experimentos, cada vez que ejecutamos nuestra técnica, elegimos aleatoriamente una semilla para poder ver como se comporta. 
+En cuanto a la función de valoración de Bounded Exhaustive, es crucial determinar el alcance de las estructuras generadas. Además, debemos omitir ciertos valores de los campos de nuestras clases que son irrelevantes para la generación de objetos. Estos campos son aquellos que cambian la representación del objeto pero no su estructura en sí. Un ejemplo común en varias clases de prueba es el campo \emph{ModCount}, que es un contador de modificaciones. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada.
 
 Para establecer estos valores en la experimentación, realizamos una tarea de prueba y error para determinar los valores que mejor se ajustan a nuestros algoritmos. Esto es comúnmente realizado en algoritmos genéticos para determinar los parámetros óptimos para un problema específico.
 
@@ -54,7 +55,7 @@ Los mejores valores que hemos obtenido para nuestros problemas son los siguiente
 \begin{itemize}
     \item Algoritmo Genético:
     \begin{itemize}
-        \item Tasa de cruce: 0.3
+        \item Tasa de cruce: 0.4
         \item Tasa de mutación: 0.05
         \item Selección: Torneo (4)
         \item Tamaño de población: 100
@@ -63,7 +64,7 @@ Los mejores valores que hemos obtenido para nuestros problemas son los siguiente
     \item Función de valoración, Cobertura de Randoop:
     \begin{itemize}
         \item Tiempo de ejecución de Randoop: 30 segundos
-        
+        \item Seeds: 2 (aleatorias para cada ejecución)
     \end{itemize}
      \item Función de valoración, Generador BE:
     \begin{itemize}
@@ -75,27 +76,32 @@ Los mejores valores que hemos obtenido para nuestros problemas son los siguiente
 Para realizar la evaluación de la técnica de identificacion de metodos \emph{builders}, cada resultado que se muestra en la siguiente sección corresponde a la ejecución del algoritmo 10 veces para cada función de valoración con los parámetros mencionados anteriormente. Luego de estas evaluaciones, se calcula el promedio de los datos obtenidos.
 
 
-\subsection{Eficiencia}
-
-
 
 % necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva y la técnica greedy, pudimos evaluar la eficiencia de ambos enfoques y determinar cuál es más rápido en términos de tiempo de ejecución.
 \subsection{Eficiencia}
-La eficiencia de nuestros algoritmos es la cantidad de segundos que le lleva a cada uno de nuestros algoritmos con cada función de valoración para encontrar el subconjunto de métodos \emph{builders} suficientes. Para evaluar la eficiencia de nuestro algoritmo, llevamos a cabo experimentos utilizando conjuntos de datos de muestra y medimos el tiempo de promedio de las 10 ejecuciones necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva, la técnica greedy y la tecnica de clase de equivalencia, pudimos evaluar la eficiencia de ambas enfoques y eficacia de acuerdo a la función de valoración utilizada y determinar cuál es más rápido. Estos resultados se pueden ver en \ref{tab:eficiencia}.
+La eficiencia de nuestros algoritmos es la cantidad de segundos que le lleva a cada uno de nuestros algoritmos con cada función de valoración para encontrar el subconjunto de métodos \emph{builders} suficientes. Para evaluar la eficiencia de nuestro algoritmo, llevamos a cabo experimentos utilizando conjuntos de datos de muestra y medimos el tiempo de promedio de las 5 ejecuciones necesarias para obtener las soluciones. Comparamos los resultados obtenidos con la técnica evolutiva (\emph{GA}), la técnica greedy (\emph{HC}) y la técnica de clase de equivalencia (\emph{SubSet}) para evaluar la eficiencia de ambos enfoques en función de la función de valoración utilizada. Los resultados se presentan en la Tabla \ref{tab:eficiencia}.
 
-\input{tables/compareAllBuilders}
+
+Como se observa en la tabla, el algoritmo Hill Climbing (\emph{HC}) es más efectivo que el algoritmo genético (\emph{GA}) y el algoritmo de subconjuntos (\emph{SubSet}) para calcular los constructores de métodos en todos los casos de estudio considerados. El enfoque de Hill Climbing es razonablemente eficiente, tardando solo unos pocos minutos en el peor de los casos, mientras que el algoritmo genético puede tardar varios minutos en el peor de los casos. Esto se debe a que los algoritmos de Hill Climbing comienzan desde abajo hacia arriba, considerando menos métodos antes de considerar más métodos, a diferencia de los algoritmos genéticos, que generan sucesores mediante operadores de cruce y mutación. Esta estrategia favorece al algoritmo Hill Climbing para encontrar los métodos mínimos en tiempos más cortos. Cabe mencionar que en casos de estudio donde el algoritmo genético supera al Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más rápidamente que el algoritmo Hill Climbing.
+
+En cuanto a nuestro último algoritmo, el de subconjuntos, suele tener una menor eficiencia en casos donde la API bajo prueba tiene una gran cantidad de métodos, como se observa en el caso de \emph{LinkedList}. Esto se debe a que el algoritmo de subconjuntos debe realizar muchas combinaciones de métodos, y cuanto mayor sea la variedad de valores de la función de valoración, más lento será su proceso de convergencia.
+
+En relación a las funciones de valoración, observamos que la función de valoración basada en el generador exhaustivo (GE) logra finalizar la búsqueda de métodos \emph{builders} en menos tiempo en comparación con la función de valoración basada en la cobertura generada por la suite de pruebas modificada del Randoop (RC). Esto se aplica a todos los algoritmos implementados. La función de valoración GE converge antes en los algoritmos debido a que genera objetos hasta el alcance especificado (en este caso, 5 para todos los casos) y luego finaliza la ejecución del candidato actual para continuar con los siguientes. Esto permite una convergencia más rápida en comparación con la función de valoración basada en Randoop, que agota su presupuesto de tiempo para cada candidato ejecutado en el algoritmo. Es importante destacar que todos los algoritmos se ejecutan con 10 hilos simultáneamente, evaluando así 10 candidatos a la vez para cada algoritmo.
+
+En conclusión, en términos de eficiencia de nuestro algoritmo, para los casos estudiados en esta tesis, es conveniente utilizar el algoritmo Hill Climbing con una función de valoración que cuente los objetos generados por el generador exhaustivo (GE).
+
+\input{tables/eficienciaBuilders}
 
 \subsection{Efectividad}
 
 La efectividad de nuestros algoritmos se basa en qué tan cerca están de encontrar el conjunto mínimo de métodos \emph{builders}. Es importante destacar que nuestros algoritmos siempre encuentran al menos un subconjunto de métodos \emph{builders} que es suficiente. Sin embargo, cuanto más mínimo sea este subconjunto, mejores resultados obtendremos al utilizarlo, por ejemplo, durante la generación de inputs para testing.
 
-Para evaluar la efectividad de nuestro algoritmo, realizamos experimentos utilizando las estructuras de datos especificadas en la tabla \ref{tab:groundTruth}. Recordemos que el \emph{ground truth} proporciona la solución óptima con la cual podemos comparar los resultados obtenidos por los algoritmos. Hemos realizado 10 ejecuciones del algoritmo con la misma configuración de parámetros. Luego, verificamos cuántos métodos adicionales contiene el subconjunto hallado en comparación con los métodos mínimos para esa estructura de datos.
+Para evaluar la efectividad de nuestro algoritmo, realizamos experimentos utilizando las estructuras de datos especificadas en la tabla \ref{tab:groundTruth}. Recordemos que el \emph{ground truth} proporciona la solución óptima con la cual podemos comparar los resultados obtenidos por los algoritmos. Hemos realizado 5 ejecuciones del algoritmo con la misma configuración de parámetros. Luego, verificamos cuántos métodos adicionales contiene el subconjunto hallado en comparación con los métodos mínimos para esa estructura de datos.
 
-La tabla de efectividad nos brinda información sobre qué tan cerca estuvieron los algoritmos de alcanzar la solución óptima en cada ejecución. Esto nos permite evaluar la precisión y la capacidad de los algoritmos para encontrar soluciones cercanas al objetivo deseado.
+La tabla de efectividad (\ref{tab:efectividad}) nos brinda información sobre qué tan cerca estuvieron los algoritmos de alcanzar la solución óptima en cada ejecución. Esto nos permite evaluar la precisión y la capacidad de los algoritmos para encontrar soluciones cercanas al objetivo deseado.
 
 Es importante destacar que estos resultados son producto de la evaluación experimental y pueden variar según los conjuntos de datos utilizados y los parámetros de los algoritmos. Sin embargo, proporcionan una medida cuantitativa de la eficiencia y efectividad de nuestros enfoques.
 
-Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing} es más efectivo que el \textit{Algortimo Genetico} para calcular los métodos \emph{builders} en todos los casos de estudio considerados. El enfoque de \textit{Hill Climbing} es razonablemente eficiente, tardando aproximadamente 5 minutos en el peor de los casos, mientras que el \textit{Algortimo Genetico} tarda 10 minutos en el peor de los casos. Esto se debe a que los algoritmos de Hill Climbing comienzan desde abajo hacia arriba (con menos métodos hacia más métodos), a diferencia de los algoritmos genéticos que generan sus sucesores mediante cruces o mutaciones. Debido a esto, el primer algoritmo tiene ventaja para encontrar los métodos mínimos en tiempos mejores. Es importante aclarar que puede haber casos de estudio no considerados en este trabajo donde el algoritmo genético se comporte mejor que el algoritmo de Hill Climbing. Esto ocurriría si la clase bajo prueba tiene pocos métodos, lo que hace que nuestro algoritmo evolutivo converja más rápido que el algoritmo de Hill Climbing (como BinTree en \cite{Visser:2006}). 
 
 % Es importante destacar que ambos enfoques encontraron el mismo conjunto de métodos \emph{builders}.
 
@@ -103,7 +109,7 @@ Como muestran nuestros experimentos, nuestro algoritmo de \textit{Hill Climbing}
 % En resumen, mediante esta evaluación experimental, hemos analizado la eficiencia de nuestros algoritmos, comparado diferentes enfoques y evaluado su efectividad en función de los objetivos de aptitud. Estos resultados nos permiten tomar decisiones informadas sobre la elección de la técnica más adecuada para nuestro problema y comprender el desempeño de nuestros algoritmos en situaciones reales.
 
 
-\input{tables/tableEfectividad}
+\input{tables/eficaciaBuilders}
 
 
 % Además de analizar la eficiencia, también investigamos la sensibilidad de algunos parámetros del GA. Ajustamos parámetros como el tamaño de la población, la tasa de mutación y el número de generaciones, y observamos cómo estos cambios afectaron el rendimiento del algoritmo y los resultados obtenidos. Esto nos permitió identificar las configuraciones óptimas de los parámetros y entender cómo influyen en el proceso de búsqueda.
