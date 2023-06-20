@@ -98,14 +98,20 @@ La efectividad de nuestros algoritmos se basa en qué tan cerca están de encont
 
 Para evaluar la efectividad de nuestro algoritmo, realizamos experimentos utilizando las estructuras de datos especificadas en la tabla \ref{tab:groundTruth}. Recordemos que el \emph{ground truth} proporciona la solución óptima con la cual podemos comparar los resultados obtenidos por los algoritmos. Hemos realizado 5 ejecuciones del algoritmo con la misma configuración de parámetros. Luego, verificamos cuántos métodos adicionales contiene el subconjunto hallado en comparación con los métodos mínimos para esa estructura de datos.
 
-La tabla de efectividad (\ref{tab:efectividad}) nos brinda información sobre qué tan cerca estuvieron los algoritmos de alcanzar la solución óptima en cada ejecución. Esto nos permite evaluar la precisión y la capacidad de los algoritmos para encontrar soluciones cercanas al objetivo deseado.
+En el caso de NCL, el algoritmo GA encuentra un subconjunto de métodos \emph{builders} con 0 métodos adicionales en comparación con los métodos mínimos necesarios, lo cual indica que logra encontrar el conjunto mínimo. Por otro lado, el algoritmo HC encuentra un subconjunto con 1 método adicional, mientras que el algoritmo SubSet encuentra un subconjunto con 0.75 métodos adicionales en promedio. Estos resultados muestran que tanto HC como SubSet se acercan a encontrar el conjunto mínimo, pero no lo logran de manera exacta.
+
+En cuanto a UFInd, FHeap, BTree, BHeap y Lits (\cacho{Buscar caso que no encuentre los minimos.}), todos los algoritmos logran encontrar el conjunto mínimo de métodos \emph{builders}, ya que no se encuentran métodos adicionales en ninguno de los casos.
+
+Para las estructuras Sched y LinkedList, el algoritmo GA encuentra un subconjunto con 0.75 y 1.25 métodos adicionales, respectivamente, en comparación con los métodos mínimos. En el caso de HC, se encuentra 1 método adicional para Sched y no se encuentran métodos adicionales para LinkedList. Estos resultados indican que los algoritmos GA y HC se acercan a encontrar el conjunto mínimo para estas estructuras, pero aún hay margen de mejora.
+
+En resumen, los resultados muestran que nuestros algoritmos son efectivos en encontrar subconjuntos de métodos \emph{builders} que son suficientes para la generación de inputs en la mayoría de los casos. Sin embargo, hay variaciones en la efectividad dependiendo de la estructura de datos evaluada y el algoritmo utilizado.
+La tabla de efectividad (\ref{tab:efectividad}) nos permite evaluar la precisión y la capacidad de los algoritmos para encontrar soluciones cercanas al objetivo deseado.
 
 Es importante destacar que estos resultados son producto de la evaluación experimental y pueden variar según los conjuntos de datos utilizados y los parámetros de los algoritmos. Sin embargo, proporcionan una medida cuantitativa de la eficiencia y efectividad de nuestros enfoques.
 
 
 % Es importante destacar que ambos enfoques encontraron el mismo conjunto de métodos \emph{builders}.
 
-\cacho{Agregar tiempo de randoop que se corre}
 % En resumen, mediante esta evaluación experimental, hemos analizado la eficiencia de nuestros algoritmos, comparado diferentes enfoques y evaluado su efectividad en función de los objetivos de aptitud. Estos resultados nos permiten tomar decisiones informadas sobre la elección de la técnica más adecuada para nuestro problema y comprender el desempeño de nuestros algoritmos en situaciones reales.
 
 
@@ -117,7 +123,6 @@ Es importante destacar que estos resultados son producto de la evaluación exper
 Adicionalmente, examinamos los usos de los builders generados por nuestra técnica. Analizamos las características y las funcionalidades de los builders aprendidos y evaluamos su utilidad en diferentes tareas. Estudiamos cómo los builders pueden ser aplicados en el análisis y la manipulación de datos, y evaluamos su efectividad en términos de rendimiento y calidad de los resultados obtenidos.
 
 
-\cacho{Buscar caso que no encuentre los minimos.}
 
 % \paragraph{Randoop Objects}
 % \label{sec:randoopObjectsExp}
@@ -144,7 +149,10 @@ Adicionalmente, examinamos los usos de los builders generados por nuestra técni
 
 
 % \input{tables/tableMutation}
+\subsection{Uso de Builders como inputs de programas}
+En esta parte de la evaluación nos referimos a cuán útiles son los métodos \emph{builders} identificados en el contexto de un análisis de programa, en particular, la generación automatizada de casos de prueba. Estos objetos podrían utilizarse, por ejemplo, como entradas en pruebas unitarias parametrizadas. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y comparar objetos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos \emph{builders} (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego, comparamos el número de objetos diferentes (No. of Objs.) y el tamaño del objeto más grande (Max Obj. Size) creado por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Configuramos tres presupuestos diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que API. En todos los casos, BLD también genera objetos significativamente más grandes que API. A la luz de estos resultados, queda claro que la identificación automatizada de \emph{builders} vale la pena para la generación automatizada de estructuras para clases con estado.
 
+\input{tables/objectsBuilders}
 \subsection{Uso de Builders en verificación}
 
 En el ultimo experimento sobre la identificación de \emph{builders}, utilicé Java PathFinder \cite{Visser:2005} (JPF) para realizar pruebas de generación de entradas de software para estructuras de datos de \emph{java.util}. JPF \cacho{REF} es un verificador de modelos de estado explícito para programas escritos en Java. Para realizar la verificación, las técnicas de versificación de modelos de software se basan en la definición de controladores de métodos: combinaciones de métodos que permiten construir las entradas con las que se ejecutará el programa. Intuitivamente, es deseable seleccionar el menor conjunto de métodos posible, cuyas combinaciones permitan construir todas las estructuras acotadas para el módulo (para analizar el software con todas las entradas posibles). La dificultad de escribir controladores de pruebas es un obstáculo importante para el uso de un verificador de modelos. Esta selección de métodos, que generalmente se realiza manualmente, no es una tarea fácil: requiere un análisis exhaustivo de las rutinas disponibles en el módulo y una comprensión profunda de su semántica.
@@ -500,84 +508,3 @@ Cabe destacar que la tabla \ref{tab:results-coverage} muestra que, para los caso
 
 
 
-
-
-\begin{table}[t!]
-\centering
-\scriptsize
-\begin{tabular}{ c l c c}
-\hline
-Class & Budget &
-\multicolumn{2}{c}{\textsf{No. of Objs}} \\
-&& \tiny{\textbf{Builders}} & \tiny{\textbf{AllMethods}} \\
-\hline
-\multirow{3}{*}{\textbf{NCL}} 
-&	60	&	6648	&	470	\\
-&	120	&	9436	&	612	\\
-&	180	&	11441	&	703	\\
-\hline
-\multirow{3}{*}{\textbf{UFind}} 
-&	60	&	1033	&	372	\\
-&	120	&	1342	&	483	\\
-&	180	&	1534	&	555	\\
-\hline
-\multirow{3}{*}{\textbf{FibHeap}}
-&	60	&	6541	&	1766	\\
-&	120	&	9270	&	2347	\\
-&	180	&	10923	&	2745	\\
-\hline
-\multirow{3}{*}{\textbf{RBT}}
-&	60	&	2634	&	515	\\
-&	120	&	3410	&	611	\\
-&	180	&	3938	&	676	\\
-\hline
-\multirow{3}{*}{\textbf{BTree}}
-&	60	&	2937	&	975	\\
-&	120	&	3820	&	1196	\\
-&	180	&	4367	&	1354	\\
-\hline
-\multirow{3}{*}{\textbf{BHeap}}
-&	60	&	6455	&	971	\\
-&	120	&	8665	&	1230	\\
-&	180	&	10093	&	1401	\\
-\hline
-\multirow{3}{*}{\textbf{Lits}}
-&	60	&	3968	&	3174	\\
-&	120	&	5109	&	4142	\\
-&	180	&	5848	&	4783	\\
-\hline
-\multirow{3}{*}{\textbf{Schedule}}
-&	60	&	2176	&	2901	\\
-&	120	&	2756	&	2901	\\
-&	180	&	3140	&	3437	\\
-\hline
-\multirow{3}{*}{\textbf{LinkedList}} 
-&	60	&	8121	&	790	\\
-&	120	&	11503	&	1095	\\
-&	180	&	13905	&	1323	\\
-\hline
-\multirow{3}{*}{\textbf{TreeMap}} 
-&	60	&	2750	&	748	\\
-&	120	&	3754	&	953	\\
-&	180	&	4496	&	1107	\\
-\hline\multirow{3}{*}{\textbf{TreeSet}}
-&	60	&	1129	&	291	\\
-&	120	&	1527	&	343	\\
-&	180	&	1816	&	381	\\
-\hline
-\multirow{3}{*}{\textbf{HashSet}}
-&	60	&	8208	&	1498	\\
-&	120	&	11467	&	2008	\\
-&	180	&	13548	&	2366	\\
-\hline
-\multirow{3}{*}{\textbf{HashMap}}
-&	60	&	9581	&	2103	\\
-&	120	&	13044	&	3173	\\
-&	180	&	15514	&	3784	\\
-\hline
-
-\end{tabular}%
-
-\caption{Evaluación del uso de los builders identificados (BLD) frente a toda la API (API) en la generación de casos de test.}
-\label{tab:results-obj}
-\end{table}
