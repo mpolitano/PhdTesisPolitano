@@ -35,7 +35,7 @@ En este capítulo, realizamos una evaluación experimental de estas técnicas co
 \section{Evaluación Experimental en identificación de métodos builders}
 En esta sección, evaluamos experimentalmente nuestros enfoques presentados en el capítulo \ref{cap:builders}. Describiremos como es la eficiencia y efectividad de cada algoritmo con las funciones de valoración presentada en la sección \ref{sec:fitness}. Además, mostraremos el uso de estos métodos identificados por nuestras técnicas durante el uso de una herramienta de verificación.
 
-La evaluación se basa en un conjunto de implementaciones de estructuras de datos que se utilizan como referencia, incluyendo: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomada de \cite{Loncaric:2018}, que consiste en un almacén de variables que controla cuándo se realizó la última suposición sobre el valor de una variable y si hay oyentes observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas del paquete \verb"java.util" como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList". \cacho{TODO: ¿Cómo cito java-utils?)}
+La evaluación se basa en un conjunto de implementaciones de estructuras de datos que se utilizan como referencia, incluyendo: \verb"NCL" de Apache Collections \cite{apache}; \verb"BinaryTree", \verb"BinomialHeap", \verb"FibonacciHeap" tomados de \cite{Visser:2006}; \verb"UnionFind", una implementación de conjuntos disjuntos tomada de JGrapht \cite{jgrapht}. También evaluamos nuestra técnica en componentes de proyectos de software reales, como \verb"Lits" de la implementación de Sat4j \cite{sat4j}, tomada de \cite{Loncaric:2018}, que consiste en un almacén de variables que controla cuándo se realizó la última suposición sobre el valor de una variable y si hay oyentes observando el estado de esa variable; \verb"Scheduler", una implementación de un planificador de procesos tomada de \cite{sir}; y estructuras de datos conocidas del paquete \verb"java.util" \footnote{https://docs.oracle.com/javase/8/docs/api/java/util/package-summary.html} como: \verb"TreeMap", \verb"TreeSet", \verb"HashMap", \verb"HashSet" y \verb"LinkedList". 
 
 Para corroborar nuestros resultados, necesitamos conocer cuáles son los métodos builders mínimos y suficiente de cada caso de estudio. Para esto hemos creado un \emph{ground Truth} manualmente. Fue necesario inspeccionar cada caso de manera manual. Esto llevo un largo trabajo para estudiar los casos de estudio más complejo. El \emph{ground truth} de nuestros casos de estudios se pueden observar en la tabla \ref{tab:groundTruth}. Esta incluye el número de rutinas en la API completa (\#API), y el conjunto de los \emph{builders} identificados manualmente (algunos métodos pueden intercambiarse en diferentes ejecuciones, por ejemplo, \texttt{addFirst} y \texttt{addLast} en NCL)
     
@@ -149,13 +149,14 @@ Adicionalmente, examinamos los usos de los builders generados por nuestra técni
 
 
 % \input{tables/tableMutation}
-\subsection{Uso de Builders como inputs de programas}
+\subsection{Uso de Builders para generar inputs de programas}
 En esta parte de la evaluación nos referimos a cuán útiles son los métodos \emph{builders} identificados en el contexto de un análisis de programa, en particular, la generación automatizada de casos de prueba. Estos objetos podrían utilizarse, por ejemplo, como entradas en pruebas unitarias parametrizadas. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y comparar objetos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos \emph{builders} (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego, comparamos el número de objetos diferentes (No. of Objs.) y el tamaño del objeto más grande (Max Obj. Size) creado por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Configuramos tres presupuestos diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que API. En todos los casos, BLD también genera objetos significativamente más grandes que API. A la luz de estos resultados, queda claro que la identificación automatizada de \emph{builders} vale la pena para la generación automatizada de estructuras para clases con estado.
-
 \input{tables/objectsBuilders}
-\subsection{Uso de Builders en verificación}
 
-En el ultimo experimento sobre la identificación de \emph{builders}, utilicé Java PathFinder \cite{Visser:2005} (JPF) para realizar pruebas de generación de entradas de software para estructuras de datos de \emph{java.util}. JPF \cacho{REF} es un verificador de modelos de estado explícito para programas escritos en Java. Para realizar la verificación, las técnicas de versificación de modelos de software se basan en la definición de controladores de métodos: combinaciones de métodos que permiten construir las entradas con las que se ejecutará el programa. Intuitivamente, es deseable seleccionar el menor conjunto de métodos posible, cuyas combinaciones permitan construir todas las estructuras acotadas para el módulo (para analizar el software con todas las entradas posibles). La dificultad de escribir controladores de pruebas es un obstáculo importante para el uso de un verificador de modelos. Esta selección de métodos, que generalmente se realiza manualmente, no es una tarea fácil: requiere un análisis exhaustivo de las rutinas disponibles en el módulo y una comprensión profunda de su semántica.
+
+\subsection{Uso de Builders en Verificación}
+
+En el ultimo experimento sobre la identificación de \emph{builders}, utilicé Java PathFinder \cite{Visser:2005} (JPF) para realizar pruebas de generación de entradas de software para estructuras de datos de \emph{java.util}. JPF \footnote{https://github.com/javapathfinder/jpf-core}  es un verificador de modelos de estado explícito para programas escritos en Java. Para realizar la verificación, las técnicas de versificación de modelos de software se basan en la definición de controladores de métodos: combinaciones de métodos que permiten construir las entradas con las que se ejecutará el programa. Intuitivamente, es deseable seleccionar el menor conjunto de métodos posible, cuyas combinaciones permitan construir todas las estructuras acotadas para el módulo (para analizar el software con todas las entradas posibles). La dificultad de escribir controladores de pruebas es un obstáculo importante para el uso de un verificador de modelos. Esta selección de métodos, que generalmente se realiza manualmente, no es una tarea fácil: requiere un análisis exhaustivo de las rutinas disponibles en el módulo y una comprensión profunda de su semántica.
 Es posible construir un método no determinista (harness de test) que genere todas las secuencias de llamadas a métodos de la API hasta un tamaño especificado por el usuario (scope). JPF se utiliza para enumerar todas estas secuencias. JPF almacena todos los estados explorados y retrocede cuando visita un estado previamente explorado.
 
 JPF admite anotaciones de programa que se agregan a los programas a través de llamadas a métodos de una clase especial Verify.
@@ -237,10 +238,13 @@ private static TreeMap generateStructure(int scope) {
 
 Como se muestra en el controlador anterior, solo 2 métodos componen un conjunto mínimo y suficiente para construir controladores para TreeMap de \textit{java.util}. Utilizando solo esos métodos, generamos exactamente los mismos objetos TreeMap que antes (porque los constructores son suficientes y mínimos), y por lo tanto JPF explora las mismas ejecuciones de propiedades con ambos controladores.
 
-Los resultados de la tabla \ref{tab:results1-jpf} y \ref{tab:results2-jpf} muestran que la construcción del controlador a partir de nuestro enfoque presentado permite aumentar la eficiencia y escalabilidad a estructuras más grandes en el análisis utilizando JPF. Esto se debe a la reducción de los métodos utilizados en los controladores (evitando métodos superfluos) y manteniendo la capacidad de construir todos los objetos acotados posibles (debido a la suficiencia de los métodos elegidos) en menos tiempo.
+Los resultados de la tabla \ref{tab:results-jpf1} y \ref{tab:results-jpf2} muestran que la construcción del controlador a partir de nuestro enfoque presentado permite aumentar la eficiencia y escalabilidad a estructuras más grandes en el análisis utilizando JPF. Esto se debe a la reducción de los métodos utilizados en los controladores (evitando métodos superfluos) y manteniendo la capacidad de construir todos los objetos acotados posibles (debido a la suficiencia de los métodos elegidos) en menos tiempo.
+
+\input{tables/tableJPFBuilders}
+\input{tables/tableJPFBuilders1}
 
 
-
+\section{BEAPI}
 
 \begin{table}[!thb]
 \scriptsize
@@ -289,111 +293,16 @@ Los resultados de la tabla \ref{tab:results1-jpf} y \ref{tab:results2-jpf} muest
 
 \end{table}
 
-\input{tables/tableVerificacionBuilders}
 
 
 
-\begin{table}[t!]
-\centering
 
-{\small
-\begin{tabular}{l l ccc}
-\hline
-&Sample Builders &\multicolumn{2}{c}{Time} \\
-&   & GA & Greedy & Sets \\
-\hline
-\multirow{2}{*}{\textbf{NCL}} 
- & NCLinkedList(int)& &\\
- & addFirst(Object) &   & \\
- {\scriptsize \#API: 34}& removeFirst() &435 &290  \\
-\hline
-
-\multirow{2}{*}{\textbf{UFind}} 
- & UnionFind()& &\\
- & addElement(int) &  &  \\
- {\scriptsize \#API: 9}& union(int,int) &  63&79\\
-\hline
-
-\multirow{2}{*}{\textbf{FHeap}} 
- & FibonacciHeap()& &\\
- & insert(int) &  72 & 54 \\
- {\scriptsize \#API: 7}& removeMin()&  &\\
-\hline
-
-\multirow{1}{*}{\textbf{RBT}} 
- &TreeMap() && \\
- {\scriptsize \#API: 8}& put(int) &  3 & 3 \\
- &remove(int) &   &  \\
-\hline
-
-\multirow{1}{*}{\textbf{BTree}} 
- & BinTree()&& \\
- {\scriptsize \#API: 7}&add(int) & 2 &2 \\
-\hline
-
-\multirow{1}{*}{\textbf{BHeap}} 
- & BinomialHeap()& &\\
- {\scriptsize \#API: 10}&insert(int) &44&31 \\
- &decreaseKeyValue(int,int)& &  \\
-\hline
-
-\multirow{5}{*}{\textbf{Lits}} 
- & Lits()& &\\
- & getFromPool(int) & &\\
- & satisfies(int) & 35   & 26 \\
- {\scriptsize \#API: 26}& setLevel(int,int)&&\\
- & setReason(int)& &\\
-\hline
-
-\multirow{3}{*}{\textbf{Sched.}} 
- & Schedule()&& \\
- & addProcess(int)&& \\
-{\scriptsize \#API: 10} & blockProcess() &58& 47  \\
- & quantumExpire()&&  \\
-  & finishProcess()&&  \\
-
-\hline
-
-\multirow{1}{*}{\textbf{LinkedList}} 
- & LinkedList()& &\\
- {\scriptsize \#API: 67}&  addFirst(Object) &109   &41 \\
- \hline
-
-\multirow{2}{*}{\textbf{TreeMap}} 
- & TreeMap()& &\\
- & put(Object,Object) & 633 & 321 \\
-{\scriptsize \#API: 61}&  remove(Object) & &\\
-\hline
-
-\multirow{2}{*}{\textbf{TreeSet}} 
- & TreeSet()& &\\
- & add(Object) &   & \\
-{\scriptsize \#API: 34}&  remove(Object) (int) & 36 & 16\\
-\hline
-
-\multirow{1}{*}{\textbf{HashSet}} 
- & HashSet(int,float)& &\\
- {\scriptsize \#API: 31}&  add(Object) & 37  &16 \\
-\hline
-
-\multirow{1}{*}{\textbf{HashMap}} 
- & HashMap(int,float)& &\\
-{\scriptsize \#API: 45}& put(Object,Object) &  633 &110 \\
-\hline
-
-\end{tabular}%
-}
-
-\caption{Builders computation results}
-\label{tab:results-compute-bld}
-\end{table}
 
 \hspace{1cm}
 
 
 
 
-\section{BEAPI}
 
 \subsection{Uso de Builders en BEAPI}
 En la segunda parte de la evaluación, analizamos qué tan útiles son los builders identificados en el contexto de un análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos objetos pueden utilizarse, por ejemplo, como entradas en test parametrizados. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y compararlos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos builders (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego comparamos el número de objetos diferentes (No. de Objs.) y el tamaño del objeto más grande (Max Obj. Size) generados por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Establecimos tres budget diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que la API. En todos los casos, BLD también genera objetos significativamente más grandes que la API. A la luz de estos resultados, queda claro que la identificación automatizada de builders es beneficiosa para la generación automatizada de estructuras para clases con estado.

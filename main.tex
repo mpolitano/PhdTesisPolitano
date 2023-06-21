@@ -22,8 +22,10 @@
 
  % Add new own commands
 \newcommand{\cacho}{\textcolor{red}}
+\usepackage{colortbl}
 
-%Indice
+% Define el comando \cellcolorgray para aplicar sombreado a una celda
+\newcommand{\cellcolorgray}{\cellcolor{gray!25}}%Indice
 \renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % Agrega puntos para las secciones
 \titlecontents{chapter}
   [0em]
