@@ -246,58 +246,20 @@ Los resultados de la tabla \ref{tab:results-jpf1} y \ref{tab:results-jpf2} muest
 
 \section{BEAPI}
 
-\begin{table}[!thb]
-\scriptsize
+\subsection{Eficiencia}
 
-\centering
-\begin{tabular}{ l r | r | r | r | r  }
-  \toprule
-  \multicolumn{6}{c}{\textbf{Real World}} \\
-  \midrule 
-  \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
-  \midrule
-  NCL
-  & 3 & .10 & .47 & -  & -  \\
-  & 4 & .41 & 3.48  &  - & -  \\
-  & 5 & 3.33  &  - &  - & -  \\
-  & 6 & 73.78 &  - &  - &  - \\
-  \midrule
-  TSet
-  & 3 & .03 & .07 & 56.82 & - \\
-  & 11  & 21.52 & 86.06 &  - & -  \\
-  & 12  & 69.98 & 276.85  &  - & -  \\
-  & 13  & 226.66  & 887.83  &  - & -  \\
-    \midrule
-  TMap
-  & 3 & .11 & .25 & - & - \\
-  & 4 & .75 & 2.36  &  - &  - \\
-  & 5 & 15.97 & 57.64 &  - & -  \\
-  & 6 & 839.87  & 2901.37 &  - &  - \\
-  \midrule
-  LList
-  & 3 & .02 & .13 & .64 & - \\
-  & 6 & .96 & 258.85  & -  &  - \\
-  & 7 & 12.98 &  - &  - &  - \\
-  & 8 & 286.21  & -  & -  & -  \\
-  \midrule
-  HMap
-  & 3 & .10 & 11.49 & - & - \\
-  & 4 & .55 & -  & -  & -  \\
-  & 5 & 5.33  & -  &  - &  - \\
-  & 6 & 119.87  &  - &  - &  - \\
-  \bottomrule
+\input{tables/tableEficienciaBEAPI}
 
-\end{tabular}
-
-\label{table:beapi}
-
-\end{table}
+\subsection{Impacto de las Optimizaciones realizas en BEAPI}
 
 
+\input{tables/optimizaciones}
 
+\subsection{Uso de BEAPI para analizar especificaciones}
 
+\subsection{Comparativa de BEAPI con otras tecnicas de generacion de test}
 
-
+\input{tables/randoopvsBeapi}
 \hspace{1cm}
 
 
@@ -305,114 +267,66 @@ Los resultados de la tabla \ref{tab:results-jpf1} y \ref{tab:results-jpf2} muest
 
 
 \subsection{Uso de Builders en BEAPI}
-En la segunda parte de la evaluación, analizamos qué tan útiles son los builders identificados en el contexto de un análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos objetos pueden utilizarse, por ejemplo, como entradas en test parametrizados. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y compararlos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos builders (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego comparamos el número de objetos diferentes (No. de Objs.) y el tamaño del objeto más grande (Max Obj. Size) generados por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Establecimos tres budget diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que la API. En todos los casos, BLD también genera objetos significativamente más grandes que la API. A la luz de estos resultados, queda claro que la identificación automatizada de builders es beneficiosa para la generación automatizada de estructuras para clases con estado.
+% En la segunda parte de la evaluación, analizamos qué tan útiles son los builders identificados en el contexto de un análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos objetos pueden utilizarse, por ejemplo, como entradas en test parametrizados. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y compararlos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos builders (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego comparamos el número de objetos diferentes (No. de Objs.) y el tamaño del objeto más grande (Max Obj. Size) generados por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Establecimos tres budget diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que la API. En todos los casos, BLD también genera objetos significativamente más grandes que la API. A la luz de estos resultados, queda claro que la identificación automatizada de builders es beneficiosa para la generación automatizada de estructuras para clases con estado.
 
-Además, comparamos las suites de pruebas generadas con Randoop midiendo la cobertura de ramas y líneas de código. Al igual que en el experimento anterior, la suite de pruebas utilizada para la comparación se generó a partir de los métodos builders (BLD) en comparación con el uso de todos los métodos disponibles de la API con un Randoop predeterminado. Establecimos cinco presupuestos diferentes para la generación de pruebas: 60, 120, 180, 300 y 600 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-coverage}.
+% Además, comparamos las suites de pruebas generadas con Randoop midiendo la cobertura de ramas y líneas de código. Al igual que en el experimento anterior, la suite de pruebas utilizada para la comparación se generó a partir de los métodos builders (BLD) en comparación con el uso de todos los métodos disponibles de la API con un Randoop predeterminado. Establecimos cinco presupuestos diferentes para la generación de pruebas: 60, 120, 180, 300 y 600 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-coverage}.
 
-Cabe destacar que la tabla \ref{tab:results-coverage} muestra que, para los casos que manipulan estructuras de datos complejas (por ejemplo, java.util.TreeMap), las pruebas generadas solo con los métodos BLD obtienen una mejor cobertura tanto en ramas como en líneas de código
+% % Cabe destacar que la tabla \ref{tab:results-coverage} muestra que, para los casos que manipulan estructuras de datos complejas (por ejemplo, java.util.TreeMap), las pruebas generadas solo con los métodos BLD obtienen una mejor cobertura tanto en ramas como en líneas de código
 .
-\begin{table}[!thb]
-\scriptsize
-\centering
-\caption{Tiempo de ejecución de BEAPI con diferentes configuración.}
+% \begin{table}[!thb]
+% \scriptsize
+% \centering
+% \caption{Tiempo de ejecución de BEAPI con diferentes configuración.}
 
-\begin{tabular}{ l r | r | r | r | r  }
-  \toprule
-  \multicolumn{6}{c}{\textbf{ROOPS}} \\
-  \midrule 
-  \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
-  \midrule
-  AVL
-  & 3& .02 & .04 & .34 & - \\ 
-  & 4& .03 & .07 & 102.16 & - \\ 
-  & 5& .05 & .11 & - & - \\ 
-  & 13& 46.71 & 657.17 & - & - \\ 
-  \midrule
-  NCL
-  & 3& .04 & 1.31 & 1.37 & 7.96 \\ 
-  & 4& .10 & 9.59 & 52.17 & - \\ 
-  & 5& .34 & 40.54 & - & - \\ 
-  & 8& 769.63 & - & - &  -\\ 
-  \midrule
-  BinTree
-  & 3& .02 & .04 & .23 & 33.84 \\ 
-  & 4& .05 & .08 & 85.32 & - \\ 
-  & 5& .11 & .16 & - & - \\ 
-  & 12& 966.41 & 2281.42 & - & - \\ 
-  \midrule
-  LList
-  & 3& .03 & .09 & .26 & - \\ 
-  & 4& .07 & .48 & 115.27 & - \\ 
-  & 5& .18 & 118.75 & - & - \\ 
-  & 8& 295.94 & - & - & - \\ 
-  \midrule
-  RBT
-  & 3& .04 & .04 & 39.11 & - \\ 
-  & 4& .11 & .09 & - & - \\ 
-  & 5& .22 & .14 & - & - \\ 
-  & 12& 81.03 & 2379.44 & - & - \\ 
-  \midrule
-  FibHeap
-  & 3& .04 & .09 & .94 & - \\ 
-  & 4& .13 & .20 &  & - \\ 
-  & 5& .70 & 1.13 &  & - \\ 
-  & 7& 129.01 & 243.36 & - & - \\ 
-  \midrule
-  BinHeap
-  & 3& .05 & .11 & 2.03 & 18.38 \\ 
-  & 4& .09 & .34 & - & - \\ 
-  & 5& .26 & .96 & - & - \\  
-  & 8& 96.94 & 220.18 & - & - \\ 
-  \bottomrule
-\end{tabular}
-\end{table}
 
-\begin{table}[!thb]
-\scriptsize
+% \end{table}
 
-\centering
-\begin{tabular}{ l r | r | r | r | r  }
-  \toprule
-  \multicolumn{6}{c}{\textbf{Real World}} \\
-  \midrule 
-  \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
-  \midrule
-  NCL
-  & 3 & .10 & .47 & -  & -  \\
-  & 4 & .41 & 3.48  &  - & -  \\
-  & 5 & 3.33  &  - &  - & -  \\
-  & 6 & 73.78 &  - &  - &  - \\
-  \midrule
-  TSet
-  & 3 & .03 & .07 & 56.82 & - \\
-  & 11  & 21.52 & 86.06 &  - & -  \\
-  & 12  & 69.98 & 276.85  &  - & -  \\
-  & 13  & 226.66  & 887.83  &  - & -  \\
-    \midrule
-  TMap
-  & 3 & .11 & .25 & - & - \\
-  & 4 & .75 & 2.36  &  - &  - \\
-  & 5 & 15.97 & 57.64 &  - & -  \\
-  & 6 & 839.87  & 2901.37 &  - &  - \\
-  \midrule
-  LList
-  & 3 & .02 & .13 & .64 & - \\
-  & 6 & .96 & 258.85  & -  &  - \\
-  & 7 & 12.98 &  - &  - &  - \\
-  & 8 & 286.21  & -  & -  & -  \\
-  \midrule
-  HMap
-  & 3 & .10 & 11.49 & - & - \\
-  & 4 & .55 & -  & -  & -  \\
-  & 5 & 5.33  & -  &  - &  - \\
-  & 6 & 119.87  &  - &  - &  - \\
-  \bottomrule
+% \begin{table}[!thb]
+% \scriptsize
 
-\end{tabular}
+% \centering
+% \begin{tabular}{ l r | r | r | r | r  }
+%   \toprule
+%   \multicolumn{6}{c}{\textbf{Real World}} \\
+%   \midrule 
+%   \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
+%   \midrule
+%   NCL
+%   & 3 & .10 & .47 & -  & -  \\
+%   & 4 & .41 & 3.48  &  - & -  \\
+%   & 5 & 3.33  &  - &  - & -  \\
+%   & 6 & 73.78 &  - &  - &  - \\
+%   \midrule
+%   TSet
+%   & 3 & .03 & .07 & 56.82 & - \\
+%   & 11  & 21.52 & 86.06 &  - & -  \\
+%   & 12  & 69.98 & 276.85  &  - & -  \\
+%   & 13  & 226.66  & 887.83  &  - & -  \\
+%     \midrule
+%   TMap
+%   & 3 & .11 & .25 & - & - \\
+%   & 4 & .75 & 2.36  &  - &  - \\
+%   & 5 & 15.97 & 57.64 &  - & -  \\
+%   & 6 & 839.87  & 2901.37 &  - &  - \\
+%   \midrule
+%   LList
+%   & 3 & .02 & .13 & .64 & - \\
+%   & 6 & .96 & 258.85  & -  &  - \\
+%   & 7 & 12.98 &  - &  - &  - \\
+%   & 8 & 286.21  & -  & -  & -  \\
+%   \midrule
+%   HMap
+%   & 3 & .10 & 11.49 & - & - \\
+%   & 4 & .55 & -  & -  & -  \\
+%   & 5 & 5.33  & -  &  - &  - \\
+%   & 6 & 119.87  &  - &  - &  - \\
+%   \bottomrule
 
-\label{table:beapi}
+% \end{tabular}
 
-\end{table}
+% \label{table:beapi}
+
+% \end{table}
 
 
 

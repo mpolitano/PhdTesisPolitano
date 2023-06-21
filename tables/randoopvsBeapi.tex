@@ -1,0 +1,73 @@
+\begin{table}[H]
+\scriptsize
+\centering
+\label{tab:results-obj1}
+\begin{tabular}{ l c  r  |r | r | r|r  }
+  \toprule
+  \textbf{Caso} & \textbf{Scope/GenTime} & \textbf{Técnica} & \textbf{Valid}  & \textbf{Invalid} & \textbf{Test}&\textbf{T Time(S)}  \\
+  \midrule
+  HashSet		&	5	&	Randoop	&	-	&	- & 380&4	\\
+&		&	R-Serialize	&	3851	&	264 & 184852&4	\\
+&		&	R-builders	&	12812	&	9008 & 614980&20	\\
+&		&	BEAPI	&	32	&	- & 1540&2	\\
+\cline{2-7}
+		&	10 (5)	&	Randoop	&	-	&	-&800&4\\
+&		&	R-Serialize	&	7655	&	532 &367444&6	\\
+&		&	R-builders	&	23320	&	16482 &1119364&35	\\
+&		&	BEAPI	&	32	&	- &1540&2\\
+\cline{2-7}
+		&	20 (5)	&	Randoop	&	-&-&\\
+&		&	R-Serialize	&	23320	&	1015 &719044&8	\\
+&		&	R-builders	&	38047	&	26904 &1826260&55	\\
+&		&	BEAPI	&	32	&	- &1540&2\\
+\cline{2-7}
+		&	40 (5)	&	Randoop	&	78	&	8&3286&10\\
+&		&	R-Serialize	&	28965	&	2020 &1390324&12	\\
+&		&	R-builders	&	59016	&	41681 &2832772&85\\
+&		&	BEAPI	&	32	&	-&1540&2 \\
+\cline{2-7}
+		&	150 (5)	&	Randoop	&	78	&	89&12452&29\\
+&		&	R-Serialize	&	97236	&	7088 &4667332&35	\\
+&		&	R-builders	&	125992	&	89292 &6047620&179	\\
+&		&	BEAPI	&	32	&	- &1540&2\\\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\scriptsize
+\centering
+\label{tab:results-obj1}
+\begin{tabular}{ l c  r  |r | r  }
+  \toprule
+  \textbf{Caso} & \textbf{Scope/GenTime} & \textbf{Técnica} & \textbf{Branch}  & \textbf{Mutation} \\
+  \midrule
+  HashSet		&	5 (5)	&	Randoop	&	53	&	67\\
+&		&	R-Serialize	&	78	&	89 	\\
+&		&	R-builders	&	78	&	89 	\\
+&		&	BEAPI	&	78	&	89 \\
+\cline{2-5}
+		&	10 (5)	&	Randoop	&	67	&	89\\
+&		&	R-Serialize	&	78	&	89 	\\
+&		&	R-builders	&	78	&	89 	\\
+&		&	BEAPI	&	78	&	89 \\
+\cline{2-5}
+		&	20 (5)	&	Randoop	&	78	&	89\\
+&		&	R-Serialize	&	78	&	89 	\\
+&		&	R-builders	&	78	&	89 	\\
+&		&	BEAPI	&	78	&	89 \\
+\cline{2-5}
+		&	40 (5)	&	Randoop	&	78	&	89\\
+&		&	R-Serialize	&	78	&	89 	\\
+&		&	R-builders	&	78	&	89 	\\
+&		&	BEAPI	&	78	&	89 \\
+\cline{2-5}
+		&	150 (5)	&	Randoop	&	78	&	89\\
+&		&	R-Serialize	&	78	&	89 	\\
+&		&	R-builders	&	78	&	89 	\\
+&		&	BEAPI	&	78	&	89 \\
+%   HashMap		&	5	&	Randoop	&	-	&	- & 380	\\
+% &		&	Randoop-Serialize	&	-	&	- & -	\\
+% &		&	Randoop-builders	&	-	&	- & -	\\
+% &		&	BEAPI	&	-	&	- & -	\\
+\end{tabular}
+\end{table}
+
