@@ -3,7 +3,7 @@
 
 El análisis de software es una tarea crucial en el campo de la Ingeniería de Software, ya sea para generar tests para el software bajo test (SUT)  o para realizar verificación de modelos de software. Estos enfoques requieren que los programadores identifiquen manualmente un subconjunto de los métodos de un módulo con el fin de dirigir el análisis. En general, al analizar un módulo, los programadores seleccionan un subconjunto de sus métodos que serán considerados como constructores de objetos (\emph{builders}) para definir lo que se conoce como un controlador o "driver", que se utilizará para construir objetos automáticamente para el análisis, combinándolos de manera no determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo y su API, ya que la exhaustividad relativa del análisis (omitir métodos importantes puede evitar sistemáticamente la generación de diferentes objetos) y su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera exponencial a medida que aumenta el número de métodos) se ven afectados por la selección.
 
-En este capitulo, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API de un módulo, basados en un algoritmo evolutivo y un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características de estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
+En este capitulo, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API de un módulo, basados en un algoritmo evolutivo, un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características de estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
 
 % Para evaluar experimentalmente nuestra propuesta, hemos realizado una evaluación en un conjunto de clases con estado de referencia, que representan casos de uso típicos. Los resultados muestran que nuestro enfoque puede identificar automáticamente conjuntos de constructores de objetos que son suficientes (se pueden utilizar para crear cualquier instancia del módulo) y mínimos (no contienen métodos superfluos), en un tiempo razonable.
 
@@ -11,10 +11,7 @@ En este capitulo, proponemos tres enfoques para seleccionar automáticamente un 
 
 
 \section{Motivacion}
-
-\cacho{Change te order maybe. Explain in detalle en un solo lado}
-\cacho{Los listing lo pongo como listing, como figure o como que para hacer referencia}
-
+\label{sec:motivacion}
 \begin{table}[H]
 \center
 {\scriptsize
@@ -62,7 +59,7 @@ No. &Return type & Method name & Obs? \\
 \caption{Apache's NodeCachingLinkedList API}
 \label{tab:ncl-api}
 \end{table} 
-En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista doblemente enlazada circular principal que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
+En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista principal circular doblemente enlazada  que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
 Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
 
 
@@ -74,7 +71,7 @@ Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias
 \end{figure}
 
 
-NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL (finito) deseado. Por lo tanto, los siguientes métodos:
+NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL acotado con el scope deseado. Por lo tanto, los siguientes métodos:
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de metodos sufiente para NCL]
   (0)  NodeCachingLinkedList()
@@ -82,9 +79,9 @@ NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. S
   (25) removeFirst()
 \end{lstlisting}
 
- son un ejemplo de un conjunto suficiente de constructores. Hay que tener en cuenta que, después de utilizar el constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la caché no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de los análisis automatizados, nos gustaría considerar tantos escenarios variables (entradas) como sea posible, de ahí la motivación para construir conjuntos suficientes de constructores. Además, los constructores del Listing~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir.
+ son un ejemplo de un conjunto suficiente de constructores (\emph{builders}) de NCL. Hay que tener en cuenta que, después de utilizar el método constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la lista secundaria (lista caché) no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de las técnicas de análisis automáticas, nos gustaría considerar tantos escenarios (entradas) variables como sea posible, de ahí la motivación para construir estas con un un conjunto suficientes de métodos de la API. Además, los metodos \emph{builders} de la figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir bajo el scope deseado.
 
-Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes. Por ejemplo, se pueden obtener constructores suficientes reemplazando el método \texttt{addFirst} en la Listing~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Listing~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
+Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes. Por ejemplo, se pueden obtener constructores suficientes reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLadds, caption=Variantes del método 'Add' que puedo ser utilizado para rellanar la lista principal en NCL, captionpos=b, frame=tb , basicstyle=\scriptsize]
   (3) add(Object)
@@ -94,7 +91,7 @@ Hay que tener en cuenta que puede haber muchos conjuntos de constructores sufici
 \end{lstlisting}
 
 
-Además, es importante remarcar la importancia de obtener subconjuntos que sean mínimos, lo que significa que no contengan métodos adicionales. Esto es crucial para utilizar la combinación de estos métodos en la construcción de objetos. Cuantos más métodos tenga el subconjunto de builders, más costosa será la combinación de los mismos para generar objetos.
+Además, es importante remarcar la importancia de obtener subconjuntos que sean mínimos, lo que significa que no contengan métodos adicionales. Esto es crucial para utilizar la combinación de estos métodos en la construcción de objetos. Cuantos más métodos tenga el subconjunto de builders, más costosa será la combinación de los mismos para generar los objetos.
 
 Los siguientes subconjuntos son suficientes pero no son mínimos para NCL:
 \\
@@ -113,15 +110,11 @@ Los siguientes subconjuntos son suficientes pero no son mínimos para NCL:
   (25) removeFirst()
 \end{lstlisting}
 
-También observamos que cuanto más simples sean los parámetros de una rutina, más fácil será utilizarla para generar entradas en el contexto de un análisis de programas. Por ejemplo, entre las alternativas de rutinas de añadir para NCL (Listing.~\ref{fig:NCLadds}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para ella al generar entradas. Esto hace que las otras tres alternativas sean preferidas sobre ella. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
+También observamos que cuanto más simples sean los parámetros de una rutina, más fácil será utilizarla para generar entradas en el contexto de un análisis de programas. Por ejemplo, entre las alternativas de rutinas para añadir dato a la lista principal de NCL (Figura.~\ref{fig:NCLadds}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para brindale a esta rutina a la hora de generar entradas. Esto hace que las otras tres alternativas tengan mas preferencia sobre esta. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
 
 Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos en los que operan, ni son útiles para crear objetos no primitivos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos. Nuestro enfoque intenta reconocerlos de antemano y descartarlos de la búsqueda para reducir significativamente el espacio de búsqueda.
 
 Todos estos problemas planteados en este capítulo fueron lo que nos motivó a desarrollar enfoques para obtener automáticamente métodos constructores de manera eficiente y mínima. Para lograrlo, utilizamos una variedad de técnicas y algoritmos que explicaremos en la próxima sección. 
-
-\cacho{Hago una introduccion de los algoritmos? }
-\\
-
 
 \section{Función de Valoración}
 \label{sec:fitness}
@@ -148,7 +141,7 @@ Nuestra función de valoración tiene como objetivo principal maximizar la canti
 Esta función de valoración en nuestra tesis se utiliza para evaluar la calidad de un candidato, el cual representa un conjunto de métodos $M$. Para ello, nuestra función devuelve un valor real que se construye de la siguiente manera:
 
 \[
-f(M) = \text{{\#Objetos}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
+f(M) = \text{{\#Objectos}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
 \]
 
 La función de valoración se compone de tres componentes. En primer lugar, $\text{{\#Objetos}}(M)$ representa el número de objetos generados por el conjunto de métodos $M$. La coma en la fórmula indica que este valor es independiente de los otros componentes, y se le da prioridad a la cantidad de objetos creados con el subconjunto de métodos $M$.
@@ -182,7 +175,7 @@ La motivación detrás de esta modificación radica en que los subconjuntos de m
 La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se construye de la siguiente manera:
 
 \[
-f(M) = \text{{\#CoberturaRama}}(M) \, (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{Extensibilidad}}(M)
+f(M) = \text{{\#CoberturaRama}}(M) \, (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
 \]
 
 La función de valoración consta de tres componentes principales. En primer lugar, $\text{{\#CoberturaRama}}(M)$ representa el número de ramas cubiertas por las suites de prueba generadas por Randoop utilizando el subconjunto de métodos $M$. Este componente refleja la cantidad de ramas cubiertas específicamente por este subconjunto priorizado de métodos.
@@ -199,9 +192,10 @@ En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconj
 
 \label{sec:algorithms}
 Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es un algoritmo Greedy más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos respecto al valor de su función de valoración.
-Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API bajo prueba.
+Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
+
 Los métodos observadores son aquellos que no modifican el estado de un objeto al ejecutarse. En el ejemplo motivador presentado en la sección \ref{sec:motivation} y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos builders.
-Para realizar esta identificación de métodos observadores, utilizamos una herramienta de análisis estático llamada \emph{Infer}. Esta herramienta ha sido desarrollada por \emph{Facebook} y ofrece varias funcionalidades específicas. En el contexto de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué métodos son considerados puros u observadores.
+Para realizar esta identificación de métodos observadores, utilizamos una herramienta de análisis estático llamada \emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido desarrollada por \emph{Facebook} y ofrece varias funcionalidades específicas. En el contexto de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué métodos son considerados puros u observadores.
 
 El análisis estático realizado con \emph{Infer} nos permite obtener una lista de métodos que son clasificados como observadores en la API bajo prueba. Esta información es utilizada como paso previo a la ejecución de nuestros algoritmos, para asegurarnos de que solo consideramos los métodos relevantes y adecuados para comenzar la búsqueda de los métodos \emph{builders}.
 
@@ -258,17 +252,17 @@ Es importante destacar que el número de cromosomas en la población inicial des
 
 \subsubsection{Operadores Geneticos}
 
-A continuacion explicare los operadores genéticos principales utilizados en los algoritmos genéticos y particularmente lo operadores que utilizamos en nuestro algoritmo.. Cada uno desempeña un papel importante en la exploración y explotación del espacio de búsqueda y en la mejora de la calidad de las soluciones a lo largo de las generaciones.
+A continuación explicaremos los operadores genéticos principales utilizados en el algoritmo evolutivo. Cada uno desempeña un papel importante en la exploración y explotación del espacio de búsqueda y en la mejora de la calidad de las soluciones a lo largo de las generaciones.
 
 \paragraph{Cross-over (Cruce)}
 
-El cruzamiento (o \emph{cross-over} en ingles) es un operador genético que combina una parte de dos cromosomas $c1$ y $c2$ elegidos aleatoriamente para crear un nuevo cromosoma descendiente. Esa parte que toma de cada cromosoma padre depende de la configuracion con la que se lo setee. En nuestro algoritmo, utilizamos un ratio de 0.30. Ademas, utilizamos una variante del cruce de un solo punto en la que se eligen múltiples puntos de cruce dentro de los cromosomas de los padres (2 puntos en nuestro caso).Su objetivo principal es explorar y explotar la información genética existente en la población.
+El cruzamiento (o \emph{cross-over} en inglés) es un operador genético que combina una parte de dos cromosomas $c1$ y $c2$ elegidos aleatoriamente para crear un nuevo cromosoma descendiente. Esa parte que toma de cada cromosoma padre depende de la configuración con la que se lo setee. En nuestro algoritmo, utilizamos un ratio de 0.30. Además, un cruzamiento de dos puntos de cruce dentro de los cromosomas de los padres. Su objetivo principal es explorar y explotar la información genética existente en la población.
 El cruce de varios puntos permite una mayor variedad en los descendientes generados, ya que se intercambian segmentos más largos de genes entre los padres. Esto puede ayudar a explorar el espacio de búsqueda de soluciones de manera más efectiva y encontrar soluciones potencialmente mejores.
 
 \paragraph{Mutacion}
 
 La mutación es un operador fundamental en un algoritmo genético que introduce pequeños cambios aleatorios en los cromosomas para explorar nuevas soluciones y mantener la diversidad dentro de la población. Juega un papel crucial en la prevención de la convergencia prematura y garantiza que el algoritmo explore de manera efectiva el espacio de búsqueda. Existen varios operadores de mutación que se pueden utilizar en un algoritmo genético. Uno de los operadores de mutación más comúnmente utilizados es la Mutación por Inversión de Bits, que es adecuada para algoritmos genéticos codificados en binario como en el caso de nuestra codificación.
-En la Mutación por Inversión de Bits, se selecciona uno o más bits aleatorios en el cromosoma y se invierten. Si un bit está inicialmente establecido en 1, se cambia a 0, y viceversa. Esta alteración aleatoria introduce cambios sutiles en la información del cromosoma, creando potencialmente nuevas soluciones que no estaban presentes en la población original. El número de bits invertidos y sus posiciones se determinan típicamente mediante una baja probabilidad de mutación, en nuestro caso 0.04.
+En la Mutación por Inversión de Bits, se selecciona uno o más bits aleatorios en el cromosoma y se invierten. Si un bit está inicialmente establecido en 1, se cambia a 0, y viceversa. Esta alteración aleatoria introduce cambios sutiles en la información del cromosoma, creando potencialmente nuevas soluciones que no estaban presentes en la población original. El número de bits invertidos y sus posiciones se determinan típicamente mediante una baja probabilidad de mutación.
 
 
 \paragraph{Selección}
@@ -278,22 +272,19 @@ Utilizamos un enfoque de selección tipo torneo (\emph{tournament}) con un tama�
 
 Es importante destacar que el operador de selección basado en torneo tiene varias ventajas. No solo permite seleccionar a los individuos más aptos, sino que también introduce una presión de selección ajustable. Esto significa que los individuos más débiles tienen menos posibilidades de ser seleccionados en torneos más grandes, lo que ayuda a mejorar gradualmente la calidad de la población a lo largo de las generaciones.
 
-\cacho{Mas grande el tournament, menos diversidad pero converge mas rapido}
+\cacho{Algortimo? esta en preliminares, es standard para Genetico.}
 %Pongo ejemplo de codigo???%
-
-\emph{Jenetics} está diseñada para ser altamente personalizable y flexible, lo que permite a los usuarios definir sus propios problemas de optimización y personalizar los parámetros del algoritmo genético para obtener los mejores resultados posibles. La biblioteca proporciona una amplia gama de características, como diversos operadores genéticos, selección de población, variaciones de la población, y mucho más.
-Una de las características más útiles de \emph{Jenetics} es su capacidad para trabajar con cualquier tipo de datos, incluyendo tipos de datos personalizados y clases. Esto hace que sea muy útil para resolver problemas en una amplia variedad de campos.
-
-Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. 
 
 
 
 \subsection{Hill Climbing}
 \label{alg:approachHC}
-El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de colina\cite{Russell:2009}, es un algoritmo de búsqueda local que se utiliza para optimizar una función de evaluación con respecto a una solución vecina. El objetivo del algoritmo es encontrar la solución óptima para un problema determinado, que se puede representar como un espacio de búsqueda con una función de evaluación asociada.
-Este algoritmo es una algoritmo Greedy(Perezoso) explicado en la seccion de preliminares, \ref{sec:greedyPrev}]. Este selecciona un buen estado vecino sin pensar en dónde ir a continuación. Comienza con un estado no óptimo y lo mejora hasta alcanzar una condición. El objetivo de este algoritmo es mejorar estados existentes hasta alcanzar estados óptimos (estados que no pueden ser mejorados aún más). Se utiliza una función heurística para lograr estos estados.
+El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de colina\cite{Russell:2009}, es un algoritmo de búsqueda local que se utiliza para optimizar una función de valoracion. El objetivo del algoritmo es encontrar la solución óptima para un problema determinado.  Su enfoque se basa en realizar movimientos ascendentes, es decir, buscar soluciones que mejoren continuamente el valor objetivo o la función de evaluación.
+Este algoritmo es una algoritmo Greedy(Perezoso) explicado en la seccion de preliminares, (\ref{sec:greedyPrev}). Este selecciona un buen estado sucesor para el momento actual, sin pensar en dónde ir a continuación. 
+La idea principal detrás del algoritmo Hill Climbing es comenzar con una solución inicial y, en cada iteración, realizar un movimiento hacia una solución vecina que mejore el valor objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento.
+Es importante destacar que el algoritmo Hill Climbing puede quedar atrapado en óptimos locales, es decir, puede converger hacia soluciones que son mejores en comparación con sus vecinos inmediatos, pero no son óptimas en el contexto global
 
-Es importante remarcar que la representación del problema fue igual a la que utilizamos para representar cromosomas en el Algoritmo genético explicado en la sección anterior. Esto quiere decir que utilizamos vectores de 0 y 1 para representar una posible solución. 
+La representación que hemos utilizado del problema fue igual a la que utilizamos para representar cromosomas en el Algoritmo genético explicado en la sección anterior. Esto quiere decir que utilizamos vectores de 0 y 1 para representar una posible solución. 
 
 A continuación mostraremos un pseudocódigo del algoritmo \emph{Hill Climbing} que hemos implementado:
 
@@ -307,21 +298,21 @@ A continuación mostraremos un pseudocódigo del algoritmo \emph{Hill Climbing} 
   \While{existe un mejor candidato}{
     $S \gets$ GenerarSucesores($curr$)\;
     
-    $best \gets$ SeleccionarMejorVecino($S$)\;
+    $best \gets$ SeleccionarMejorSucesor($S$)\;
     
     \If{$f(best) > f(curr)$}{
       $curr \gets best$\;
     }
   }
-  \Return{$S^*$}\;
+  \Return{$best$}\;
 \end{algorithm}
 
-Este algoritmo representa el esquema básico de Hill Climbing, comienza calculando la funcion de valoración de todos los singletones ${c}$ de métodos constructores.  El mejor de los singletones (mayor objectos puedo crear con ese constructor) se establece como el candidato actual $curr$, y Hill Climbing inicia un proceso de búsqueda típico e iterativo.
+Este algoritmo representa el esquema básico de Hill Climbing, comienza calculando la funcion de valoración de todos los singletones ${c}$ de métodos constructores.  El mejor de los singletones (mayor objectos puedo crear con ese constructor) se establece como el candidato actual $curr$, y Hill Climbing inicia un proceso de búsqueda típico e iterativo (Línea 1).
 
-En cada iteración, \emph{Hill Climbing} calcula $f(succ)$ para cada succ $\in$ $GenerarSucesores(curr)$. El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API. Si nuestra API tiene $N$ métodos, nuestro conjunto de sucesores tendrá como máximo $N-1$ candidatos.
-Sea $best$ el sucesor con el valor de valoración más alto. Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$
+En cada iteración (Línea 2 a 8), \emph{Hill Climbing} calcula $f(succ)$ para cada succ $\in$ $GenerarSucesores(curr)$. El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API (Línea 3).
+Sea $best$ el sucesor con el valor de valoración más alto. Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$ (Línea 4).
 
-Si $f(best) > f(curr)$, los métodos en $best$ se pueden utilizar para crear un conjunto más grande de estructuras que los en $curr$. Por lo tanto, \emph{Hill Climbing} asigna $best$ a $cur$r y continúa con la siguiente iteración. En cambio, si $f(best) <= f(curr)$, $curr$ ya genera el conjunto más grande de estructuras posible (no se puede agregar ningún método que aumente el número de estructuras generadas a partir de $curr$). En este punto, $curr$ se devuelve como el conjunto de constructores identificados.
+Si $f(best) > f(curr)$, los métodos en $best$ se pueden utilizar para crear un conjunto más grande de estructuras que los en $curr$ (Línea 5 a 7). Por lo tanto, \emph{Hill Climbing} asigna $best$ a $cur$r y continúa con la siguiente iteración. En cambio, si $f(best) <= f(curr)$, $curr$ ya genera el conjunto más grande de estructuras posible (no se puede agregar ningún método que aumente el número de estructuras generadas a partir de $curr$). En este punto, $curr$ se devuelve como el conjunto de constructores identificados. (Linea 9) 
 \cacho{
 En este algoritmo no se necesitan setear ningun parametros para guiar la busqueda a que sea mas efectiva}
 
@@ -363,9 +354,9 @@ Se puede observar que este algoritmo puede quedar atrapado en un máximo local y
   \Return{$result$}\;
 \end{algorithm}
 
-En este algoritmo, se comienza obteniendo los conjuntos singletons, que son los métodos constructores individuales de la misma manera que el algoritmo de \ref{algo:hill_climbing}. A partir de estos singletons, se selecciona el mejor candidato inicial $curr$, que servirá como punto de partida. Luego, se crean las clases de equivalencia basadas en la función de valoración y agrupando los candidatos que tienen el mismo valor de valoración. En el algortimo las clases de equivlencias esta guardado en $equivalenceClasses$
+En este algoritmo, se comienza obteniendo los conjuntos singletons (Línea 1), que son los métodos constructores individuales de la misma manera que el algoritmo de \ref{algo:hill_climbing}. A partir de estos singletons, se selecciona el mejor candidato inicial $curr$, que servirá como punto de partida. Luego, se crean las clases de equivalencia basadas en la función de valoración y agrupando los candidatos que tienen el mismo valor de valoración. En el algortimo las clases de equivlencias estan guardadas en $equivalenceClasses$ (Línea 2).
 
-A continuación, se itera mientras se haya creado una nueva clase de equivalencia. En cada iteración, se generan nuevos candidatos por cada clase de equivalencia. Es decir, se selecciona un candidato de cada clase de equivalencia (El de menor métodos y menor parámetros) $CandidatosPorClase(equivalenceClasses)$ y se lo guarda en un cola ($newCandidates$) A continuación, se generan los sucesores para cada candidato elegido, $GenerarSucesores(candidate)$, utilizando el mismo enfoque que en el algoritmo de \emph{Hill Climbing}. Estos se guardan en $successors$ Es decir, si tenemos $N$ clases de equivalencias vamos a tener $N$ candidatos a los cuales le vamos a calcular sus sucesores.  Luego, por cada uno de estos sucesores en  se le calcula sun función de valoracion y de acuerdo a esta se lo guarda en la clase de equivalencia representada por el valor de valarocion.
-El algortimo itera hasta que no hayamos creado una nueva clase de equivalencia. Esto quiere decir que no hay cambios y hemos explorados todas las alternativas posibles. 
+A continuación, se itera (Línea 5 a 12) mientras se haya creado una nueva clase de equivalencia. En cada iteración, se generan nuevos candidatos por cada clase de equivalencia. Es decir, se selecciona un candidato de cada clase de equivalencia (el de menor métodos y menor parámetros) $CandidatosPorClase(equivalenceClasses)$ y se lo guarda en un cola ($newCandidates$) (Línea 5). A continuación, se generan los sucesores (línea 6) para cada candidato elegido, $GenerarSucesores(candidate)$, utilizando el mismo enfoque que en el algoritmo de \emph{Hill Climbing}. Estos se guardan en $successors$ Es decir, si tenemos $N$ clases de equivalencias vamos a tener $N$ candidatos a los cuales le vamos a calcular sus sucesores.  Luego, por cada uno de estos sucesores en  se le calcula su función de valoración y de acuerdo a esta se lo guarda en la clase de equivalencia representada por el valor de valoración.
+El algoritmo itera hasta que no hayamos creado una nueva clase de equivalencia. Esto quiere decir que no hay cambios y hemos explorado todas las alternativas posibles. 
 Luego vamos a obtener el mejor conjunto de métodos builders, accediendo a la clase de equivalencia con mayor key y obteniendo el representante de ese conjunto que tenga menor métodos y parámetros. Esto lo realiza el método $obtenerMejor(equivalenceClasses)$
 
