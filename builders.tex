@@ -1,9 +1,9 @@
 \chapter[Identificación de métodos builders]{Enfoques para la identificación de Métodos Builders}
 \label{cap:builders}
 
-El análisis de software es una tarea crucial en el campo de la Ingeniería de Software, ya sea para generar tests para el software bajo test (SUT)  o para realizar verificación de modelos de software. Estos enfoques requieren que los programadores identifiquen manualmente un subconjunto de los métodos de un módulo con el fin de dirigir el análisis. En general, al analizar un módulo, los programadores seleccionan un subconjunto de sus métodos que serán considerados como constructores de objetos (\emph{builders}) para definir lo que se conoce como un controlador o "driver", que se utilizará para construir objetos automáticamente para el análisis, combinándolos de manera no determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo y su API, ya que la exhaustividad relativa del análisis (omitir métodos importantes puede evitar sistemáticamente la generación de diferentes objetos) y su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera exponencial a medida que aumenta el número de métodos) se ven afectados por la selección.
+El análisis de software es una tarea crucial en el campo de la Ingeniería de Software, ya sea para generar tests para el software bajo test (SUT)  o para realizar verificación de modelos de software. Estos enfoques requieren que los programadores identifiquen manualmente un subconjunto de los métodos de un módulo con el fin de dirigir el análisis. En general, al analizar un módulo, los programadores seleccionan un subconjunto de sus métodos que serán considerados como constructores de objetos (\emph{builders}) para definir lo que se conoce como un controlador o "driver", que se utilizará para construir objetos automáticamente para el análisis, combinándolos de manera no determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo y su estructura, ya que la exhaustividad relativa del análisis (omitir métodos importantes puede evitar sistemáticamente la generación de diferentes objetos) y su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera exponencial a medida que aumenta el número de métodos) se ven afectados por la selección.
 
-En este capitulo, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API de un módulo, basados en un algoritmo evolutivo, un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características de estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
+En este capitulo, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API, basados en un algoritmo evolutivo, un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características sobre estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
 
 % Para evaluar experimentalmente nuestra propuesta, hemos realizado una evaluación en un conjunto de clases con estado de referencia, que representan casos de uso típicos. Los resultados muestran que nuestro enfoque puede identificar automáticamente conjuntos de constructores de objetos que son suficientes (se pueden utilizar para crear cualquier instancia del módulo) y mínimos (no contienen métodos superfluos), en un tiempo razonable.
 
@@ -116,90 +116,20 @@ Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores 
 
 Todos estos problemas planteados en este capítulo fueron lo que nos motivó a desarrollar enfoques para obtener automáticamente métodos constructores de manera eficiente y mínima. Para lograrlo, utilizamos una variedad de técnicas y algoritmos que explicaremos en la próxima sección. 
 
-\section{Función de Valoración}
-\label{sec:fitness}
-En un algoritmo genético, la función de valoración, también conocida como función de aptitud o función de fitness, es esencial para evaluar y medir la calidad de las soluciones individuales en una población \cite{goldberg1989genetic}. Esta función asigna un valor numérico a cada individuo en función de su grado de idoneidad para resolver el problema en cuestión. El objetivo principal de la función de valoración es proporcionar una medida cuantitativa de la calidad de cada solución candidata en relación con los criterios específicos del problema.
-
-La función de valoración se diseña de acuerdo con la naturaleza del problema y los objetivos específicos del algoritmo genético. Por ejemplo, si estamos resolviendo un problema de optimización en el que buscamos maximizar una función objetivo, la función de valoración puede asignar un valor más alto a las soluciones que se acercan más a la solución óptima. Por otro lado, si estamos resolviendo un problema de minimización, la función de valoración puede asignar un valor más alto a las soluciones que se alejan más de la solución óptima.
-
-En el caso de algoritmos greedy, la función de valoración juega un papel similar pero con un enfoque más local. En lugar de trabajar con una población de soluciones, los algoritmos greedy toman decisiones en cada paso basándose en una evaluación local de las opciones disponibles. La función de valoración en un algoritmo greedy se utiliza para seleccionar la mejor opción en cada iteración o paso del algoritmo, maximizando o minimizando la función de valoración según el objetivo del problema \cite{cormen2009introduction}.
-
-Por lo tanto, tanto en algoritmos genéticos como en algoritmos greedy, la función de valoración desempeña un papel crucial para evaluar y comparar soluciones candidatas en función de criterios específicos del problema. Proporciona una medida cuantitativa de la calidad de las soluciones y guía el proceso de selección y toma de decisiones en cada etapa del algoritmo. El diseño adecuado de la función de valoración es esencial para obtener resultados óptimos y eficientes en la resolución de problemas.
-A continuacion, explicaremos cada funcion de valoracion implementada en nuestros algoritmos.
-
-
-
-
-
-
-
-\subsection{Fitness: Generador Exhaustivo}
-
-Dado un candidato que representa un conjunto de métodos $M$, nuestra función de valoración intenta calcular una aproximación del número de objetos acotados que se pueden construir utilizando combinaciones de métodos habilitados en el cromosoma. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
-Nuestra función de valoración tiene como objetivo principal maximizar la cantidad de objetos que puedo generar utilizando un Generador exhaustivo (explicado en la sección de Preliminares \ref{sec:beapiIntro}. Este enfoque nos permite evaluar la capacidad de los candidatos para construir una variedad de objetos y proporciona una base para la selección y mejora de los mejores candidatos en nuestro algoritmo.
-
-Esta función de valoración en nuestra tesis se utiliza para evaluar la calidad de un candidato, el cual representa un conjunto de métodos $M$. Para ello, nuestra función devuelve un valor real que se construye de la siguiente manera:
-
-\[
-f(M) = \text{{\#Objectos}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
-\]
-
-La función de valoración se compone de tres componentes. En primer lugar, $\text{{\#Objetos}}(M)$ representa el número de objetos generados por el conjunto de métodos $M$. La coma en la fórmula indica que este valor es independiente de los otros componentes, y se le da prioridad a la cantidad de objetos creados con el subconjunto de métodos $M$.
-
-El segundo componente, $(\text{{\#MétodosAPI}} - \text{{\#M}})$, refleja la diferencia entre el número total de métodos disponibles en la API y el número de métodos en el conjunto $M$. Este término se utiliza para desempatar en caso de que otro subconjunto de métodos $M_1$ construya la misma cantidad de objetos que $M$.
-
-Finalmente, $\text{{PP}}(M)$ es un factor de ponderación que permite ajustar la importancia de tener menor complejidad y cantidad de parámetros en el conjunto de métodos $M$. Este valor es entre 1 y 0 es solo para ajustar en caso de que haya empate de cantidad de objetos y métodos.
-\cacho{Explicar el peso de los parametros}
-Esta función de valoración nos proporciona una medida cuantitativa de la calidad del candidato representado por el conjunto de métodos $M$. Los candidatos con valores de función de valoración más altos se consideran de mayor calidad y son preferidos en los algoritmos genéticos y en los algoritmos greedys que explicaremos en la sección \ref{sec:algorithms}.
-Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$ que se pueden construir utilizando los métodos del cromosoma actual. En otras palabras, necesitamos un generador exhaustivo acotado para el conjunto de métodos $BE(M, k)$. El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$).
-
-Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en la Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
-
-En segundo lugar, descartamos las secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo) para evitar construir objetos más grandes de lo necesario. Para lograr esto, canonicamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$.
-
-En tercer lugar, ampliamos esta generación con coincidencia de estado. Esto se debe a que, en la generación de pruebas, a menudo hay muchas secuencias de pruebas que producen el mismo objeto. Por ejemplo, insertar en una colección y luego eliminar el mismo elemento resulta en muchos casos en exactamente la misma estructura antes de la inserción. Nuestro enfoque asume que las ejecuciones de rutinas son deterministas con respecto a sus entradas. Bajo esta suposición, se deduce que, para generar un conjunto exhaustivo acotado de estructuras, solo necesitamos guardar una secuencia de prueba para crear cada estructura diferente en el conjunto, y que todas las siguientes secuencias de prueba que generen la misma estructura se pueden descartar.
-
-Nuestra justificación para usar conjuntos acotados de objetos es similar a la \emph{hipótesis de la cota pequeña} \cite{Andoni:2003}.Si un conjunto de métodos no puede usarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes. Esta hipótesis se mantuvo durante nuestra evaluación empírica en todos nuestros casos de estudio.
-
-Para obtener más información sobre el algoritmo y más detalles sobre BEAPI, invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
-
-
-\subsection{Fitness: Cobertura de ramas con Randoop}
-
-En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen}.
-
-Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.
-
-La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, tal como se describe en la sección de preliminares \ref{sec:coverage}.
-
-La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se construye de la siguiente manera:
-
-\[
-f(M) = \text{{\#CoberturaRama}}(M) \, (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
-\]
-
-La función de valoración consta de tres componentes principales. En primer lugar, $\text{{\#CoberturaRama}}(M)$ representa el número de ramas cubiertas por las suites de prueba generadas por Randoop utilizando el subconjunto de métodos $M$. Este componente refleja la cantidad de ramas cubiertas específicamente por este subconjunto priorizado de métodos.
-
-El segundo componente, $\text{{\#MétodosAPI}} - \text{{\#M}}$, tiene en cuenta la cantidad de métodos restantes en la API que no están presentes en el subconjunto $M$. Este componente incentiva a que el conjunto de métodos sea menor.
-
-Por último, penalizamos sobre los parámetros de cada método en el subconjunto como lo hacíamos en la sección anterior.
-
-En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconjunto de métodos durante la generación de secuencias de pruebas, y nuestra función de valoración se encarga de maximizar la cobertura de ramas de la API. Estas adaptaciones nos proporcionan una mejor comprensión de la calidad y efectividad de los subconjuntos de métodos generados.
-
 
 \section{Algoritmos}
 
 
 \label{sec:algorithms}
-Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es un algoritmo Greedy más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero es un algoritmo de búsqueda de acuerdo a las clases de equivalencias de los subconjuntos respecto al valor de su función de valoración.
-Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
+Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es un algoritmo \emph{Greedy} más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero es un algoritmo de búsqueda de acuerdo a las \emph{clases de equivalencias}  de los subconjuntos respecto al valor de su función de valoración.
+La función de evaluación, también conocida como función objetivo o función de fitness, desempeña un papel crucial en los algoritmos de búsqueda. Esta función asigna un valor numérico a cada solución candidata en función de su calidad o idoneidad para resolver el problema en cuestión. El propósito de la función de evaluación es proporcionar una medida cuantitativa de la calidad de cada solución en relación con los objetivos y restricciones del problema. Dependiendo del tipo de problema, la función de evaluación puede buscar maximizar o minimizar ciertas variables, satisfacer restricciones específicas o lograr un equilibrio entre múltiples criterios. Es fundamental diseñar una función de evaluación adecuada que capture las características esenciales del problema y que permita seleccionar y guiar de manera efectiva la búsqueda hacia soluciones de alta calidad. Una función de evaluación bien definida puede influir en la eficiencia y efectividad de los algoritmos de búsqueda, ya que determina qué soluciones son consideradas prometedoras y merecen ser exploradas en mayor detalle. Sobre las funciones de evaluacion que hemos implementado lo explicaremos en la seccion \ref{sec:fitness}
 
-Los métodos observadores son aquellos que no modifican el estado de un objeto al ejecutarse. En el ejemplo motivador presentado en la sección \ref{sec:motivation} y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos builders.
-Para realizar esta identificación de métodos observadores, utilizamos una herramienta de análisis estático llamada \emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido desarrollada por \emph{Facebook} y ofrece varias funcionalidades específicas. En el contexto de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué métodos son considerados puros u observadores.
+
+
+Los métodos observadores son aquellos que no modifican el estado de un objeto al ejecutarse. En el ejemplo motivador presentado en la sección \ref{sec:motivation} y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos builders. Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
+Para realizar esta identificación de métodos observadores, utilizamos una herramienta de análisis estático llamada \emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido desarrollada por \emph{Facebook} y ofrece varias funcionalidades específicas. En el contexto de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué métodos son considerados puros (observadores).
 
 El análisis estático realizado con \emph{Infer} nos permite obtener una lista de métodos que son clasificados como observadores en la API bajo prueba. Esta información es utilizada como paso previo a la ejecución de nuestros algoritmos, para asegurarnos de que solo consideramos los métodos relevantes y adecuados para comenzar la búsqueda de los métodos \emph{builders}.
-
-En resumen, el análisis estático realizado con \emph{Infer} nos permite eliminar de la búsqueda los métodos observadores, aquellos que no modifican el estado de los objetos, garantizando así que nos enfocamos en los métodos más relevantes para nuestros métodos builders.
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
@@ -272,9 +202,29 @@ Utilizamos un enfoque de selección tipo torneo (\emph{tournament}) con un tama�
 
 Es importante destacar que el operador de selección basado en torneo tiene varias ventajas. No solo permite seleccionar a los individuos más aptos, sino que también introduce una presión de selección ajustable. Esto significa que los individuos más débiles tienen menos posibilidades de ser seleccionados en torneos más grandes, lo que ayuda a mejorar gradualmente la calidad de la población a lo largo de las generaciones.
 
-\cacho{Algortimo? esta en preliminares, es standard para Genetico.}
-%Pongo ejemplo de codigo???%
 
+El siguiente es el algoritmo genético que utilizamos para nuestra búsqueda
+\cacho{Algortimo? esta en preliminares, es standard para Genetico. Pongo los valores que utilizamos en cada parametros aca? Lo tengo en evaluacion.}
+%Pongo ejemplo de codigo???%
+\begin{algorithm}[H]
+
+\SetAlgoLined
+\KwResult{Best solution}
+Inicializar población inicial $P$ de cromosomas aleatorios\;
+
+Evaluar la aptitud de cada cromosoma en $P$\;
+
+\While{Criterio de terminación no se cumple}{ 
+    Seleccionar cromosomas padres de $P$ para la reproducción\;
+    Aplicar operador de cruce para generar descendencia\;
+    Aplicar operador de mutación a la descendencia\;
+    Evaluar la aptitud de los nuevos cromosomas\;
+    % Reemplazar cromosomas menos aptos en $P$ por la descendencia\;
+}
+\caption{Algoritmo Genético}
+\end{algorithm}
+
+\cacho{Explicar algortimo}
 
 
 \subsection{Hill Climbing}
@@ -313,8 +263,9 @@ En cada iteración (Línea 2 a 8), \emph{Hill Climbing} calcula $f(succ)$ para c
 Sea $best$ el sucesor con el valor de valoración más alto. Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$ (Línea 4).
 
 Si $f(best) > f(curr)$, los métodos en $best$ se pueden utilizar para crear un conjunto más grande de estructuras que los en $curr$ (Línea 5 a 7). Por lo tanto, \emph{Hill Climbing} asigna $best$ a $cur$r y continúa con la siguiente iteración. En cambio, si $f(best) <= f(curr)$, $curr$ ya genera el conjunto más grande de estructuras posible (no se puede agregar ningún método que aumente el número de estructuras generadas a partir de $curr$). En este punto, $curr$ se devuelve como el conjunto de constructores identificados. (Linea 9) 
-\cacho{
-En este algoritmo no se necesitan setear ningun parametros para guiar la busqueda a que sea mas efectiva}
+
+% \cacho{
+% En este algoritmo no se necesitan setear ningun parametros para guiar la busqueda a que sea mas efectiva}
 
 Se puede observar que este algoritmo puede quedar atrapado en un máximo local y no generar alguna combinación específica que podría ser aún mejor. Aquí se puede ver que es un algoritmo greedy, ya que obtiene una solución rápida pero puede no ser eficiente en encontrar la mejor solución global. 
 
@@ -359,4 +310,82 @@ En este algoritmo, se comienza obteniendo los conjuntos singletons (Línea 1), q
 A continuación, se itera (Línea 5 a 12) mientras se haya creado una nueva clase de equivalencia. En cada iteración, se generan nuevos candidatos por cada clase de equivalencia. Es decir, se selecciona un candidato de cada clase de equivalencia (el de menor métodos y menor parámetros) $CandidatosPorClase(equivalenceClasses)$ y se lo guarda en un cola ($newCandidates$) (Línea 5). A continuación, se generan los sucesores (línea 6) para cada candidato elegido, $GenerarSucesores(candidate)$, utilizando el mismo enfoque que en el algoritmo de \emph{Hill Climbing}. Estos se guardan en $successors$ Es decir, si tenemos $N$ clases de equivalencias vamos a tener $N$ candidatos a los cuales le vamos a calcular sus sucesores.  Luego, por cada uno de estos sucesores en  se le calcula su función de valoración y de acuerdo a esta se lo guarda en la clase de equivalencia representada por el valor de valoración.
 El algoritmo itera hasta que no hayamos creado una nueva clase de equivalencia. Esto quiere decir que no hay cambios y hemos explorado todas las alternativas posibles. 
 Luego vamos a obtener el mejor conjunto de métodos builders, accediendo a la clase de equivalencia con mayor key y obteniendo el representante de ese conjunto que tenga menor métodos y parámetros. Esto lo realiza el método $obtenerMejor(equivalenceClasses)$
+
+
+
+\section{Función de Valoración}
+\label{sec:fitness}
+
+
+En la búsqueda de soluciones óptimas mediante algoritmos genéticos u otros algoritmos de búsqueda, la función de valoración \cite{goldberg1989genetic} desempeña un papel fundamental. Su diseño adecuado es crucial, ya que determina la dirección y el éxito del proceso de búsqueda.
+La función de valoración evalúa la calidad de cada solución candidata y la compara con otras soluciones en la población. Proporciona una medida objetiva de la idoneidad de cada individuo en relación con los objetivos y restricciones del problema. La calidad se expresa generalmente mediante un valor numérico, donde valores más altos indican soluciones más deseables. Por ejemplo, si estamos resolviendo un problema de optimización en el que buscamos maximizar una función objetivo, la función de valoración puede asignar un valor más alto a las soluciones que se acercan más a la solución óptima. Por otro lado, si estamos resolviendo un problema de minimización, la función de valoración puede asignar un valor más alto a las soluciones que se alejan más de la solución óptima.
+Definir una buena función de valoración implica considerar cuidadosamente los requisitos y características del problema en cuestión. Puede implicar ponderar diferentes objetivos, como maximizar o minimizar ciertas variables, satisfacer restricciones específicas o lograr un equilibrio entre múltiples criterios. 
+
+Una función de valoración efectiva debe ser capaz de discriminar entre soluciones prometedoras y soluciones subóptimas. Debe proporcionar una evaluación objetiva y precisa, permitiendo la selección de soluciones de alta calidad y la eliminación de soluciones menos deseables.
+Además, la función de valoración debe ser adecuada para el dominio y el tipo de problema abordado. Puede requerir conocimiento especializado y experiencia en el campo para definir correctamente las métricas y ponderaciones apropiadas. 
+
+Es importante tener en cuenta que la función de valoración puede evolucionar y adaptarse a lo largo del proceso de búsqueda. A medida que el algoritmo de busqueda avanza y produce nuevas generaciones de soluciones, la función de valoración puede ser ajustada y refinada para enfocarse en las características más relevantes y deseadas.
+
+
+Por lo tanto, en los algoritmos de búsqueda la función de valoración desempeña un papel crucial para evaluar y comparar soluciones candidatas en función de criterios específicos del problema. Proporciona una medida cuantitativa de la calidad de las soluciones y guía el proceso de selección y toma de decisiones en cada etapa del algoritmo. El diseño adecuado de la función de valoración es esencial para obtener resultados óptimos y eficientes en la resolución de problemas.
+A continuación, explicaremos cada función de valoración implementada en nuestros algoritmos.
+
+
+% En el caso de algoritmos greedy, la función de valoración juega un papel similar pero con un enfoque más local. En lugar de trabajar con una población de soluciones, los algoritmos greedy toman decisiones en cada paso basándose en una evaluación local de las opciones disponibles. La función de valoración en un algoritmo greedy se utiliza para seleccionar la mejor opción en cada iteración o paso del algoritmo, maximizando o minimizando la función de valoración según el objetivo del problema \cite{cormen2009introduction}.
+
+
+
+
+\subsection{Fitness: Generador Exhaustivo}
+
+Dado un candidato que representa un conjunto de métodos $M$, nuestra función de valoración intenta calcular una aproximación del número de objetos acotados que se pueden construir utilizando combinaciones de métodos habilitados en el cromosoma. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
+Nuestra función de valoración tiene como objetivo principal maximizar la cantidad de objetos que puedo generar utilizando el Generador exhaustivo que hemos desarrollado (explicado en el capítulo anterior,  \ref{cap:beapi}. Este enfoque nos permite evaluar la capacidad de los candidatos para construir una variedad de objetos y proporciona una base para la selección y mejora de los mejores candidatos en nuestro algoritmo.
+
+Esta función de valoración en esta tesis se utiliza para evaluar la calidad de un candidato, el cual representa un conjunto de métodos $M$. Para cada $M$ , nuestra función devuelve un valor real que se construye de la siguiente manera:
+
+\[
+f(M) = \text{{\#Objectos}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
+\]
+
+La función de valoración se compone de tres componentes. En primer lugar, $\text{{\#Objetos}}(M)$ representa el número de objetos generados por el conjunto de métodos $M$. La coma en la fórmula indica que este valor es independiente de los otros componentes, y se le da prioridad a la cantidad de objetos creados con el subconjunto de métodos $M$.
+
+El segundo componente, $(\text{{\#MétodosAPI}} - \text{{\#M}})$, refleja la diferencia entre el número total de métodos disponibles en la API y el número de métodos en el conjunto $M$. Este término se utiliza para desempatar en caso de que otro subconjunto de métodos $M_1$ construya la misma cantidad de objetos que $M$.
+
+Finalmente, $\text{{PP}}(M)$ es un factor de ponderación que permite ajustar la importancia de tener menor complejidad y cantidad de parámetros en el conjunto de métodos $M$. Este valor es entre 1 y 0 es solo para ajustar en caso de que haya empate de cantidad de objetos y métodos.
+\cacho{Explicar el peso de los parametros}
+Esta función de valoración nos proporciona una medida cuantitativa de la calidad del candidato representado por el conjunto de métodos $M$. Los candidatos con valores de función de valoración más altos se consideran de mayor calidad y son preferidos en los algoritmos genéticos y en los algoritmos greedys que explicaremos en la sección \ref{sec:algorithms}.
+Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$ que se pueden construir utilizando los métodos del cromosoma actual. En otras palabras, necesitamos un generador exhaustivo acotado para el conjunto de métodos $BE(M, k)$. El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$).
+
+Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en la Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
+
+En segundo lugar, descartamos las secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo) para evitar construir objetos más grandes de lo necesario. Para lograr esto, canonicamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$.
+
+En tercer lugar, ampliamos esta generación con coincidencia de estado. Esto se debe a que, en la generación de pruebas, a menudo hay muchas secuencias de pruebas que producen el mismo objeto. Por ejemplo, insertar en una colección y luego eliminar el mismo elemento resulta en muchos casos en exactamente la misma estructura antes de la inserción. Nuestro enfoque asume que las ejecuciones de rutinas son deterministas con respecto a sus entradas. Bajo esta suposición, se deduce que, para generar un conjunto exhaustivo acotado de estructuras, solo necesitamos guardar una secuencia de prueba para crear cada estructura diferente en el conjunto, y que todas las siguientes secuencias de prueba que generen la misma estructura se pueden descartar.
+
+Nuestra justificación para usar conjuntos acotados de objetos es similar a la \emph{hipótesis de la cota pequeña} \cite{Andoni:2003}.Si un conjunto de métodos no puede usarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes. Esta hipótesis se mantuvo durante nuestra evaluación empírica en todos nuestros casos de estudio.
+
+Para obtener más información sobre el algoritmo y más detalles sobre BEAPI, invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
+
+
+\subsection{Fitness: Cobertura de ramas con Randoop}
+
+En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen}.
+
+Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.
+
+La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, tal como se describe en la sección de preliminares \ref{sec:coverage}.
+
+La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se construye de la siguiente manera:
+
+\[
+f(M) = \text{{\#CoberturaRama}}(M) \, (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
+\]
+
+La función de valoración consta de tres componentes principales. En primer lugar, $\text{{\#CoberturaRama}}(M)$ representa el número de ramas cubiertas por las suites de prueba generadas por Randoop utilizando el subconjunto de métodos $M$. Este componente refleja la cantidad de ramas cubiertas específicamente por este subconjunto priorizado de métodos.
+
+El segundo componente, $\text{{\#MétodosAPI}} - \text{{\#M}}$, tiene en cuenta la cantidad de métodos restantes en la API que no están presentes en el subconjunto $M$. Este componente incentiva a que el conjunto de métodos sea menor.
+
+Por último, penalizamos sobre los parámetros de cada método en el subconjunto como lo hacíamos en la sección anterior.
+
+En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconjunto de métodos durante la generación de secuencias de pruebas, y nuestra función de valoración se encarga de maximizar la cobertura de ramas de la API. Estas adaptaciones nos proporcionan una mejor comprensión de la calidad y efectividad de los subconjuntos de métodos generados.
 
