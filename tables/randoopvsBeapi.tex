@@ -8,30 +8,32 @@
   \midrule
 5	&	Randoop	&	-	&	- & 380 & 4	& 53 & 67 \\
 & R-Serialize	& 3851 & 264 & 184852 & 4	& 82 &	89 	\\
-& R-builders	& 12812 & 9008 & 614980 & 20 &	82	& 89  \\
+& R-Builders		& 12812 & 9008 & 614980 & 20 &	82	& 89  \\
 &	BEAPI & 32 & - & 1540 & 2	& 82 & 89 \\
 \cline{2-8}
-5	&	Randoop	&	-	&	- & 380 & 4	& 67 & 67 \\
+10	&	Randoop	&	-	&	- & 380 & 4	& 67 & 67 \\
 & R-Serialize	& 7655 & 532 & 367444 & 6	& 82 &	89 	\\
-& R-builders	& 23320 & 16482 & 1119364 & 35 &	82	& 89  \\
+& R-Builders		& 23320 & 16482 & 1119364 & 35 &	82	& 89  \\
 &	BEAPI & 32 & - & 1540 & 2	& 82 & 89 \\
 \cline{2-8}
-5	&	Randoop	&	-	&	- & 380 & 4	& 73 & 85 \\
+20	&	Randoop	&	-	&	- & 380 & 4	& 73 & 85 \\
 & R-Serialize	& 14980 & 1015 & 719044 & 8	& 82 &	89 	\\
-& R-builders	& 38047 & 26904 & 1826260 & 55 &	82	& 89  \\
+& R-Builders		& 38047 & 26904 & 1826260 & 55 &	82	& 89  \\
 &	BEAPI & 32 & - & 1540 & 2	& 82 & 89 \\
 
 \cline{2-8}
-5	&	Randoop	&	-	&	- & 380 & 4	& 53 & 67 \\
+40	&	Randoop	&	-	&	- & 380 & 4	& 53 & 67 \\
 & R-Serialize	& 28965 & 2020 & 1390324 & 12		& 76 &	85 	\\
-& R-builders	& 59016 & 41681 & 2832772 & 85 	& 82 &	89 	  \\
+& R-Builders		& 59016 & 41681 & 2832772 & 85 	& 82 &	89 	  \\
 &	BEAPI & 32 & - & 1540 & 2	& 82 &	89 \\
 \cline{2-8}
-5	&	Randoop	&	-	&	- & 12452 & 29	& 81 & 89\\
+150	&	Randoop	&	-	&	- & 12452 & 29	& 81 & 89\\
 & R-Serialize	& 97236 & 7088 & 4667332 & 35	& 82 &	89 	\\
-& R-builders	& 125992 & 89292 & 6047620 & 179 & 82 &	89  \\
+& R-Builders		& 125992 & 89292 & 6047620 & 179 & 82 &	89  \\
 &	BEAPI & - & - & - & -	& 82 &	89 \\
+\midrule
 \end{tabular}
+\caption{Comparativa de diferentes tecnicas en HashSet}
 \end{table}
 
 
@@ -44,11 +46,142 @@
   \textbf{GTime} & \textbf{Tool} & \textbf{Valid}  & \textbf{Invalid} & \textbf{Test}&\textbf{T(Seg)} &\textbf{Ramas}  & \textbf{Mutacion} \\ 
   \midrule
 
-5	&	Randoop	&	-	&	- & - & -	& - & - \\
-& R-Serialize	& 3290 & 348 & 649448 & 95	& 118 &	9	\\			
-& R-builders	& 4222 & - & 856088 & - &	-	& -  \\				
-&	BEAPI & - & - & - & -	& - & - \\		
-
-
+5	&	Randoop	&	-	&	-	&	15745	&	9	&	61	&	71	\\
+	&	R-Serialize	&	7779	&	1468	&	606762	&	4	&	114	&	99	\\
+	&	R-Builders	&	13791	&	2950	&	1075698	&	5	&	148	&	111	\\
+	&	BEAPI	&	72	&	-	&	5616	&	2	&	150	&	109	\\
+ \cline{2-8}															
+10	&	Randoop	&	-	&	-	&	1138	&	5	&	77	&	96	\\
+	&	R-Serialize	&	16444	&	3246	&	1282632	&	5	&	114	&	99	\\
+	&	R-Builders	&	25569	&	5514	&	1994382	&	7	&	151	&	111	\\
+	&	BEAPI	&	72	&	-	&	5616	&	2	&	150	&	109	\\
+ \cline{2-8}															
+20	&	Randoop	&	-	&	-	&	2374	&	7	&	80	&	100	\\
+	&	R-Serialize	&	33188	&	6786	&	2588664	&	8	&	114	&	100	\\
+	&	R-Builders	&	43670	&	9358	&	3406260	&	9	&	151	&	111	\\
+	&	BEAPI	&	72	&	-	&	5616	&	2	&	150	&	109	\\
+ \cline{2-8}															
+40	&	Randoop	&	-	&	-	&	4736	&	11	&	80	&	100	\\
+	&	R-Serialize	&	62678	&	13170	&	4888884	&	11	&	125	&	109	\\
+	&	R-Builders	&	69110	&	14990	&	5390580	&	13	&	154	&	111	\\
+	&	BEAPI	&	72	&	-	&	5616	&	2	&	150	&	109	\\
+ \cline{2-8}															
+150	&	Randoop	&	-	&	-	&	16932	&	33	&	105	&	100	\\
+	&	R-Serialize	&	215136	&	47411	&	16780608	&	31	&	125	&	109	\\
+	&	R-Builders	&	150637	&	32426	&	11749686	&	25	&	154	&	111	\\
+	&	BEAPI	&	72	&	-	&	5616	&	2	&	150	&	109	\\
+\midrule
 \end{tabular}
+\caption{Comparativa de diferentes tecnicas en TreeSet}
+\end{table}
+
+\begin{table}[H]
+\scriptsize
+\centering
+\label{tab:results-obj1}
+\begin{tabular}{ c  r  |r | r | r|r|r|r  }
+  \toprule
+  \textbf{GTime} & \textbf{Tool} & \textbf{Valid}  & \textbf{Invalid} & \textbf{Test}&\textbf{T(Seg)} &\textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \midrule
+5	&	Randoop	&		&		&	460	&	4	&	27	&	51	\\
+	&	R-Serialize	&	3248	&	425	&	295568	&	4	&	115	&	100	\\
+	&	R-Builders	&	7924	&	570	&	721084	&	3	&	159	&	152	\\
+	&	BEAPI	&	1745	&		&	158795	&	3	&	173	&	140	\\
+ \cline{2-8}															
+10	&	Randoop	&		&		&	1068	&	4	&	31	&	58	\\
+	&	R-Serialize	&	5966	&	775	&	542906	&	3	&	116	&	100	\\
+	&	R-Builders	&	14454	&	742	&	1315314	&	3	&	159	&	152	\\
+	&	BEAPI	&	1745	&		&	158795	&	3	&	173	&	140	\\
+ \cline{2-8}															
+20	&	Randoop	&		&		&	2152	&	6	&	31	&	58	\\
+	&	R-Serialize	&	11209	&	1410	&	1020019	&	4	&	116	&	100	\\
+	&	R-Builders	&	23067	&	936	&	2099097	&	4	&	159	&	152	\\
+	&	BEAPI	&	34276	&		&	3119116	&	15	&	179	&	140	\\
+ \cline{2-8}															
+40	&	Randoop	&		&		&	4284	&	9	&	31	&	58	\\
+	&	R-Serialize	&	21260	&	2566	&	1934660	&	5	&	119	&	100	\\
+	&	R-Builders	&	33460	&	1141	&	3044860	&	4	&	162	&	152	\\
+	&	BEAPI	&	1098397	&		&	3119116	&	15	&	179	&	140	\\
+ \cline{2-8}															
+150	&	Randoop	&		&		&	15902	&	21	&	46	&	58	\\
+	&	R-Serialize	&	69747	&	8181	&	6346977	&	7	&	120	&	100	\\
+	&	R-Builders	&	68373	&	1645	&	6221943	&	5	&	162	&	152	\\
+	&	BEAPI	&		&		&	3119116	&	15	&	173	&	140	\\
+\midrule
+\end{tabular}
+\caption{Comparativa de diferentes tecnicas en TreeMap}
+\end{table}
+
+\begin{table}[H]
+\scriptsize
+\centering
+\label{tab:results-obj1}
+\begin{tabular}{ c  r  |r | r | r|r|r|r  }
+  \toprule
+  \textbf{GTime} & \textbf{Tool} & \textbf{Valid}  & \textbf{Invalid} & \textbf{Test}&\textbf{T(Seg)} &\textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \midrule
+5	&	Randoop	&	-	&	-	&	356	&	4	&	39	&	38	\\
+	&	R-Serialize	&	1945	&	2875	&	184852	&	4	&	49	&	56	\\
+	&	R-Builders	&	15571	&	81103	&	6088262	&	12	&	49	&	57	\\
+	&	BEAPI	&	781	&	-	&	305375	&	3	&	49	&	56	\\
+ \cline{2-8}															
+10	&	Randoop	&	-	&	-	&	794	&	5	&	43	&	43	\\
+	&	R-Serialize	&	3996	&	6241	&	367444	&	4	&	49	&	56	\\
+	&	R-Builders	&	26085	&	136050	&	10199236	&	19	&	49	&	58	\\
+	&	BEAPI	&		&	-	&	305375	&	3	&	49	&	56	\\
+ \cline{2-8}															
+20	&	Randoop	&		&	-	&	1678	&	7	&	45	&	45	\\
+	&	R-Serialize	&	7463	&	12437	&	719044	&	5	&	49	&	57	\\
+	&	R-Builders	&	40989	&	214029	&	16026700	&	28	&	49	&	58	\\
+	&	BEAPI	&		&	-	&	305375	&	3	&	49	&	56	\\
+ \cline{2-8}															
+40	&	Randoop	&		&	-	&	3432	&	11	&	47	&	50	\\
+	&	R-Serialize	&	14156	&	24838	&	1390324	&	7	&	49	&	57	\\
+	&	R-Builders	&	62051	&	323668	&	24261943	&	40	&	49	&	58	\\
+	&	BEAPI	&		&	-	&	305375	&	3	&	49	&	56	\\
+ \cline{2-8}															
+150	&	Randoop	&		&	-	&	12950	&	31	&	47	&	55	\\
+	&	R-Serialize	&	48428	&	88638	&	4667332	&	15	&	49	&	57	\\
+	&	R-Builders	&	129365	&	677056	&	50581717	&	86	&	49	&	58	\\
+	&	BEAPI	&		&	-	&	305375	&	3	&	49	&	56	\\
+\midrule
+\end{tabular}
+\caption{Comparativa de diferentes tecnicas en LinkedList}
+\end{table}
+
+\begin{table}[H]
+\scriptsize
+\centering
+\label{tab:results-obj1}
+\begin{tabular}{ c  r  |r | r | r|r|r|r  }
+  \toprule
+  \textbf{GTime} & \textbf{Tool} & \textbf{Valid}  & \textbf{Invalid} & \textbf{Test}&\textbf{T(Seg)} &\textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \midrule
+5	&	Randoop	&		&	-	&	78	&	2	&	48	&	66	\\
+	&	R-Serialize	&	3290	&	348	&	649448	&	9	&	95	&	118	\\
+	&	R-Builders	&	4222	&	?	&	856088	&	15	&	119	&	127	\\
+	&	BEAPI	&	1203	&	?	&	246623	&	4	&	102	&	119	 \\
+ \cline{2-8}															
+10	&	Randoop	&		&	-	&	80	&	3	&	48	&	66	\\
+	&	R-Serialize	&	6317	&	686	&	1285563	&	17	&	104	&	120	\\
+	&	R-Builders	&	5666	&	?	&	1158668	&	19	&	119	&	127	\\
+	&	BEAPI	&	10453	&	?	&	2142873	&	9	&	102	&	120	\\
+ \cline{2-8}															
+20	&	Randoop	&	-	&	-	&	82	&	3	&	48	&	66	\\
+	&	R-Serialize	&	11762	&	1200	&	2415318	&	26	&	104	&	120	\\
+	&	R-Builders	&	7249	&	?	&	1483798	&	24	&	119	&	127	\\
+	&	BEAPI	&	10453	&	?	&	2142873	&	9	&	102	&	120	 \\
+ \cline{2-8}															
+40	&	Randoop	&	-	&	-	&	90	&	3	&	48	&	66	\\
+	&	R-Serialize	&	22284	&	2042	&	4557158	&	46	&	104	&	120	\\
+	&	R-Builders	&	9318	&	?	&	1909583	&	30	&	119	&	127	\\
+	&	BEAPI	&	10453	&	?	&	2142873	&	9	&	122	&	120	\\ 
+ \cline{2-8}															
+150	&	Randoop	&	-	&	-	&	108	&	3	&	48	&	67	\\
+	&	R-Serialize	&	76581	&	5590	&	15567913	&	149	&	110	&	120	\\
+	&	R-Builders	&	14542	&	?	&	2962873	&	46	&	119	&	128	\\
+	&	BEAPI	&	10453	&	?	&	2142873		9	&	122	&	120		\\
+\midrule
+\end{tabular}
+\caption{Comparativa de diferentes tecnicas en HashMap}
 \end{table}
