@@ -66,7 +66,7 @@ Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{NCL-instances.png}
-    \caption{Three NodeCachingLinkedList instances with exactly two nodes}
+    \caption{Tres instancias de NodeCachingLinkedList con exactamente dos nodos}
     \label{fig:ncl-instances}
 \end{figure}
 
@@ -96,14 +96,14 @@ Además, es importante remarcar la importancia de obtener subconjuntos que sean 
 Los siguientes subconjuntos son suficientes pero no son mínimos para NCL:
 \\
 
-\begin{lstlisting}[numbers=none,label=fig:NCLadds, frame=tb , basicstyle=\scriptsize]
+\begin{lstlisting}[numbers=none,label=fig:NCLnoMin, frame=tb , basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (3)  addF(Object)
   (25) removeFirst()
 \end{lstlisting}
 
-\begin{lstlisting}[numbers=none,label=fig:NCLadds, caption= Conjuntos de metodos builders suficientes pero no mínimos, captionpos=b, frame=tb , basicstyle=\scriptsize]
+\begin{lstlisting}[numbers=none,label=fig:NCLnoMin1, caption= Conjuntos de metodos builders suficientes pero no mínimos, captionpos=b, frame=tb , basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (3)  remove(Object)
@@ -126,7 +126,7 @@ La función de evaluación, también conocida como función objetivo o función 
 
 
 
-Los métodos observadores son aquellos que no modifican el estado de un objeto al ejecutarse. En el ejemplo motivador presentado en la sección \ref{sec:motivation} y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos builders. Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
+Los métodos observadores son aquellos que no modifican el estado de un objeto al ejecutarse. En el ejemplo motivador presentado en la sección \ref{sec:motivacion} y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos builders. Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
 Para realizar esta identificación de métodos observadores, utilizamos una herramienta de análisis estático llamada \emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido desarrollada por \emph{Facebook} y ofrece varias funcionalidades específicas. En el contexto de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué métodos son considerados puros (observadores).
 
 El análisis estático realizado con \emph{Infer} nos permite obtener una lista de métodos que son clasificados como observadores en la API bajo prueba. Esta información es utilizada como paso previo a la ejecución de nuestros algoritmos, para asegurarnos de que solo consideramos los métodos relevantes y adecuados para comenzar la búsqueda de los métodos \emph{builders}.
@@ -204,7 +204,9 @@ Es importante destacar que el operador de selección basado en torneo tiene vari
 
 
 El siguiente es el algoritmo genético que utilizamos para nuestra búsqueda
+\\
 \cacho{Algortimo? esta en preliminares, es standard para Genetico. Pongo los valores que utilizamos en cada parametros aca? Lo tengo en evaluacion.}
+\\
 %Pongo ejemplo de codigo???%
 \begin{algorithm}[H]
 
@@ -342,17 +344,46 @@ Dado un candidato que representa un conjunto de métodos $M$, nuestra función d
 Nuestra función de valoración tiene como objetivo principal maximizar la cantidad de objetos que puedo generar utilizando el Generador exhaustivo que hemos desarrollado (explicado en el capítulo anterior,  \ref{cap:beapi}. Este enfoque nos permite evaluar la capacidad de los candidatos para construir una variedad de objetos y proporciona una base para la selección y mejora de los mejores candidatos en nuestro algoritmo.
 
 Esta función de valoración en esta tesis se utiliza para evaluar la calidad de un candidato, el cual representa un conjunto de métodos $M$. Para cada $M$ , nuestra función devuelve un valor real que se construye de la siguiente manera:
-
+{\small
 \[
 f(M) = \text{{\#Objectos}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
 \]
+}
 
 La función de valoración se compone de tres componentes. En primer lugar, $\text{{\#Objetos}}(M)$ representa el número de objetos generados por el conjunto de métodos $M$. La coma en la fórmula indica que este valor es independiente de los otros componentes, y se le da prioridad a la cantidad de objetos creados con el subconjunto de métodos $M$.
 
 El segundo componente, $(\text{{\#MétodosAPI}} - \text{{\#M}})$, refleja la diferencia entre el número total de métodos disponibles en la API y el número de métodos en el conjunto $M$. Este término se utiliza para desempatar en caso de que otro subconjunto de métodos $M_1$ construya la misma cantidad de objetos que $M$.
 
+\begin{lstlisting}[label=fig:NCLeqbuilders2, caption=Sufficient and minimal builders for NCL with more complex parameters than the ones in Figure \ref{fig:NCLbuilders}, captionpos=b, frame=tb, float=t]
+  (0)  NodeCachingLinkedList()
+  (4)  add(int,Object)
+  (23)remove(Object)
+\end{lstlisting}
+
 Finalmente, $\text{{PP}}(M)$ es un factor de ponderación que permite ajustar la importancia de tener menor complejidad y cantidad de parámetros en el conjunto de métodos $M$. Este valor es entre 1 y 0 es solo para ajustar en caso de que haya empate de cantidad de objetos y métodos.
-\cacho{Explicar el peso de los parametros}
+Los métodos con más parámetros o parámetros con tipos más complejos requieren más esfuerzo para generar entradas útiles, lo que los hace más exigentes para el análisis del programa. Por lo tanto, definimos un criterio de parámetro y adaptamos nuestra función de valoración para favorecer a los métodos con menos parámetros. Por ejemplo, ambos conjuntos de constructores en las Figuras \ref{fig:NCLbuilders} y \ref{fig:NCLeqbuilders2} son suficientes y mínimos (con 3 rutinas cada uno), pero el subconjunto de métodos en la Figura \ref{fig:NCLeqbuilders2} tienen más parámetros que deben ser instanciados. 
+
+\begin{lstlisting}[label=fig:NCLeqbuilders2, caption=Sufficient and minimal builders for NCL with more complex parameters than the ones in Figure \ref{fig:NCLbuilders}, captionpos=b, frame=tb, float=t]
+  (0)  NodeCachingLinkedList()
+  (4)  add(int,Object)
+  (23)remove(Object)
+\end{lstlisting}
+
+Al comparar las Figuras \ref{fig:NCLbuilders} y \ref{fig:NCLeqbuilders2}, podemos observar que \texttt{addFirst} ha sido reemplazado por \texttt{add}, que tiene un parámetro entero adicional, y que \texttt{removeFirst} se intercambió con \texttt{remove}, que tiene un parámetro no primitivo de tipo Object. Además, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores más adecuados. Hicimos un ranking de los tipos de parámetros más comunes para conocer su complejidad al instanciarlos.
+
+\begin{lstlisting}[label=fig:rankParameters, caption=Ranking con los tipos de parametros, captionpos=b, frame=tb, float=t]
+Boolean=1
+Integer,Char,Object=2
+Float,Double=3
+String=6
+Collection=10
+Other Types=16
+\end{lstlisting}
+
+Siguiendo el criterio explicado, nuestro algoritmo elige el set de la Figure \ref{fig:NCLbuilders} sobre la Figura~\ref{fig:NCLeqbuilders2}
+
+
+
 Esta función de valoración nos proporciona una medida cuantitativa de la calidad del candidato representado por el conjunto de métodos $M$. Los candidatos con valores de función de valoración más altos se consideran de mayor calidad y son preferidos en los algoritmos genéticos y en los algoritmos greedys que explicaremos en la sección \ref{sec:algorithms}.
 Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$ que se pueden construir utilizando los métodos del cromosoma actual. En otras palabras, necesitamos un generador exhaustivo acotado para el conjunto de métodos $BE(M, k)$. El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$).
 
@@ -368,7 +399,7 @@ Para obtener más información sobre el algoritmo y más detalles sobre BEAPI, i
 
 
 \subsection{Fitness: Cobertura de ramas con Randoop}
-
+\
 En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen}.
 
 Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.
@@ -377,9 +408,11 @@ La motivación detrás de esta modificación radica en que los subconjuntos de m
 
 La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se construye de la siguiente manera:
 
+{\small
 \[
-f(M) = \text{{\#CoberturaRama}}(M) \, (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
+f(M) = \text{{\#CoberturaRama}}(M) \ , \ (\text{{\#MétodosAPI}} - \text{{\#M}}) + w_1 \times \text{{PP}}(M)
 \]
+}
 
 La función de valoración consta de tres componentes principales. En primer lugar, $\text{{\#CoberturaRama}}(M)$ representa el número de ramas cubiertas por las suites de prueba generadas por Randoop utilizando el subconjunto de métodos $M$. Este componente refleja la cantidad de ramas cubiertas específicamente por este subconjunto priorizado de métodos.
 
@@ -389,3 +422,4 @@ Por último, penalizamos sobre los parámetros de cada método en el subconjunto
 
 En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconjunto de métodos durante la generación de secuencias de pruebas, y nuestra función de valoración se encarga de maximizar la cobertura de ramas de la API. Estas adaptaciones nos proporcionan una mejor comprensión de la calidad y efectividad de los subconjuntos de métodos generados.
 
+\cacho{Tengo que agregar un cierre.}

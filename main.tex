@@ -4,21 +4,9 @@
 
 \makeatletter
 
-
-% Note: Make all your adjustments in here
 \input{classicthesis-config}
-% \usepackage{array}
-% \usepackage{xcolor}
-% \usepackage{tikz}
-% \usepackage{multirow}
-% \usepackage{underscore}
+
 \usepackage{titletoc}
-% \usepackage{tocloft}
-% \usepackage{fancyhdr}
-% \usepackage{lineno}     % Line numbers with e.g. the linenumbers environment
-% \usepackage{sectsty}    % \allsectionsfont{}, \chapterfont{}, \sectionfont{}
-% \usepackage[misc]{ifsym}
-% \usepackage{tikz}
 
  % Add new own commands
 \newcommand{\cacho}{\textcolor{red}}
@@ -48,10 +36,9 @@
   {\titlerule*[0.75em]{.}\contentspage} % Agrega líneas de puntos para las subsecciones
 
 %Formato para chapter
-% \titleformat{\chapter}[display]
-%   {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{}{}
-  \titleformat{\chapter}[display]{\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter.}{0.42em}{}
-  \titleformat{\section}{\bfseries}{\thesection}{1em}{}
+
+\titleformat{\chapter}[display]{\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter.}{0.42em}{}
+\titleformat{\section}{\bfseries}{\thesection}{1em}{}
 
 \titleformat{\subsection}{\bfseries}{\thesubsection}{1em}{}
 
@@ -65,6 +52,8 @@
 
 % Aplicar el estilo de página a todo el documento
 % \pagestyle{mypagestyle}
+
+\usepackage{arydshln}
 
 \babelhyphenation[spanish]{Node-Caching-Linked-List}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -125,9 +114,6 @@
 
 %%%%  Contenido  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-
-% \raggedbottomn
-
 
 
 % ********************************************************************
