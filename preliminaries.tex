@@ -143,6 +143,23 @@ Es importante tener en cuenta que el algoritmo Greedy no garantiza encontrar la 
 En esta tesis se personalizó el algoritmo para detectar subconjuntos óptimos de métodos \emph{builders}. 
 Para mas informacion sobre este tipo de algoritmos, invitamos al lector referirse a \cite{Cormen2009}, \cite{kleinberg2006}
 
-\section{Coverage?}
+\section{Cobertura de Ramas y Mutación}
+
+La evaluación de la calidad y efectividad de las técnicas de generación de pruebas en el campo de la ingeniería de software es un aspecto fundamental para garantizar la confiabilidad y robustez de los sistemas. Dos criterios ampliamente utilizados para evaluar la calidad de las pruebas son la cobertura de ramas (branch coverage) y la mutación (mutation testing). Estas técnicas proporcionan métricas objetivas para medir la exhaustividad de las pruebas y la capacidad para detectar errores en el software.
+
+La cobertura de ramas es una métrica utilizada para medir qué porcentaje de las posibles rutas de ejecución en un programa ha sido cubierto por las pruebas. En otras palabras, se refiere a la medida en que se han ejecutado todas las ramas de decisión (if-else, switch-case, bucles, etc.) en el código fuente durante la ejecución de las pruebas. La cobertura de ramas es especialmente útil para identificar áreas del código que no han sido ejercitadas y que podrían contener errores lógicos o comportamientos no deseados.
+Al lograr una alta cobertura de ramas, se aumenta la confianza en la calidad de las pruebas realizadas, ya que se ha examinado exhaustivamente la lógica del programa en diferentes condiciones de ejecución. Sin embargo, es importante destacar que la cobertura de ramas no garantiza la ausencia de errores, ya que no evalúa la calidad o validez de las pruebas en sí mismas. Es decir, una alta cobertura de ramas indica que se han ejecutado diferentes rutas de ejecución, pero no necesariamente que se hayan utilizado entradas significativas o se hayan probado casos límite relevantes.
+
+La mutación es una técnica avanzada de evaluación de pruebas que se utiliza para medir la capacidad de un conjunto de pruebas para detectar cambios sintácticos o semánticos en el código fuente. Consiste en introducir cambios deliberados, llamados mutantes, en el programa original y luego ejecutar el conjunto de pruebas sobre estos mutantes. El objetivo es evaluar si las pruebas son lo suficientemente sensibles como para detectar estos cambios y, por lo tanto, indicar la presencia de posibles errores en el código.
+Cada mutante representa una posible variación o error que podría haberse introducido en el código original. Si una prueba es capaz de detectar un mutante, se considera que la prueba ha "matado" al mutante, lo que indica que el conjunto de pruebas tiene la capacidad de encontrar y reportar posibles errores. Por otro lado, si un mutante no es detectado por ninguna prueba, se considera que el conjunto de pruebas es inadecuado y podría necesitar mejoras para aumentar su capacidad para encontrar errores.
+La evaluación de la capacidad de detección de mutantes proporciona información valiosa sobre la efectividad de las pruebas en términos de su capacidad para encontrar posibles errores. Al identificar los mutantes que no son detectados por las pruebas, se pueden identificar deficiencias en el conjunto de pruebas y se pueden tomar medidas correctivas para mejorar su calidad.
+
+Estas técnicas se aplican en esta tesis para evaluar las nuevas técnicas implementadas y poder realizar una comparación con herramientas que se utilizan en el estado de arte, como \emph{Randoop} y \emph{Korat}. Mediante la utilización de estas técnicas, se busca mejorar la confiabilidad y calidad del análisis de software, permitiendo a los investigadores y profesionales tomar decisiones más informadas sobre las técnicas de generación de pruebas a utilizar. Al proporcionar medidas comparativas de cobertura de ramas y evaluación de mutantes, se puede determinar la efectividad de las nuevas herramientas y enfoques propuestos, y se pueden identificar deficiencias en las pruebas existentes. Esto conduce a mejoras en la calidad y confiabilidad de los sistemas de software, lo que es fundamental en el desarrollo de software de alta calidad.
 
 \section{Korat}
+Korat es una herramienta poderosa para la generación exhaustiva acotada de casos de prueba, permitiendo explorar todas las posibles estructuras válidas dentro de las restricciones establecidas. Su enfoque basado en filtrado, combinado con técnicas de poda y evitación de estructuras isomorfas, garantiza la eficiencia y efectividad en la generación de casos de prueba. 
+
+
+\cacho{Debo explicar bien Korat? Falta texto, pero el alogritmo? va a ser que se entienda mejor que es Korat. Pero es necesario?}
+
+En el contexto de la tesis, Korat se utiliza como una herramienta de comparación para evaluar la técnica de generación exhaustiva acotada basada en la API desarrollada.
