@@ -370,77 +370,21 @@ A continuación analizaremos caso por caso con sus respectivas tablas.
  \cacho{Mejorar esto:}
  
 La tabla \ref{tab:hashSetTools} muestra una comparativa de diferentes técnicas aplicadas en el contexto del caso de estudio de \emph{java.util}, HashSet.
-Test indica el total de casos de prueba, T(Seg) representa el tiempo en segundos, Ramas muestra la cantidad de ramas y Mutacion indica el valor correspondiente a la mutación.
+% Test indica el total de casos de prueba, T(Seg) representa el tiempo en segundos, Ramas muestra la cantidad de ramas y Mutacion indica el valor correspondiente a la mutación.
 
-En general, se realizaron pruebas utilizando diferentes técnicas, como Randoop, R-Serialize, R-Builders y BEAPI. Estas técnicas fueron evaluadas en diferentes intervalos de tiempo, como 5, 10, 20, 40 y 150 unidades.
+% En general, se realizaron pruebas utilizando diferentes técnicas, como Randoop, R-Serialize, R-Builders y BEAPI. Estas técnicas fueron evaluadas en diferentes intervalos de tiempo, como 5, 10, 20, 40 y 150 unidades.
 
-En cuanto a Randoop, no se proporcionan resultados específicos en la tabla, lo que implica que no se generaron casos de prueba válidos o inválidos utilizando esta técnica.
+Como se puede observar en la tabla \ref{tab:hashSetTools}, al utilizar los métodos builders como prioridad en Randoop, se generan significativamente más objetos (un aumento del 300%) en comparación con Randoop sin utilizar estos métodos. Por otro lado, BEAPI genera un total de 32 objetos para un scope de 5, y lo logra en menos de 5 segundos.
 
-Por otro lado, R-Serialize muestra resultados más significativos. Se generaron casos de prueba válidos e inválidos, y el número total de casos de prueba aumentó a medida que aumentaba el tiempo. Además, el tiempo de ejecución en segundos también aumentó proporcionalmente.
+La cantidad de tests ejecutados es una medida de la cobertura de la test suite. En las técnicas que utilizan los objetos generados para alimentar tests parametrizados, hay una correlación directa entre estos dos números. Es importante destacar que la test suite para tests parametrizados es la misma para R-Serialize, R-Builders y BEAPI.
 
-La técnica R-Builders también mostró resultados similares a R-Serialize. Se generaron casos de prueba válidos e inválidos, y tanto el número total de casos de prueba como el tiempo de ejecución aumentaron con el tiempo.
-
-En cuanto a BEAPI, se generaron un número constante de casos de prueba válidos y no se proporcionan resultados para casos de prueba inválidos en la tabla. El tiempo de ejecución y los valores relacionados con la mutación se mantuvieron constantes a lo largo de los diferentes intervalos de tiempo.
-
-En resumen, la evaluación experimental muestra que las técnicas R-Serialize y R-Builders generaron casos de prueba válidos e inválidos, y el número total de casos de prueba y el tiempo de ejecución aumentaron con el tiempo. BEAPI generó un número constante de casos de prueba válidos, pero no se proporcionaron resultados para casos de prueba inválidos. Es importante tener en cuenta que estos resultados se basan únicamente en la información presentada en la tabla y pueden requerir un análisis más detallado para obtener conclusiones más precisas.
-% Además, comparamos las suites de pruebas generadas con Randoop midiendo la cobertura de ramas y líneas de código. Al igual que en el experimento anterior, la suite de pruebas utilizada para la comparación se generó a partir de los métodos builders (BLD) en comparación con el uso de todos los métodos disponibles de la API con un Randoop predeterminado. Establecimos cinco presupuestos diferentes para la generación de pruebas: 60, 120, 180, 300 y 600 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-coverage}.
-
-% % Cabe destacar que la tabla \ref{tab:results-coverage} muestra que, para los casos que manipulan estructuras de datos complejas (por ejemplo, java.util.TreeMap), las pruebas generadas solo con los métodos BLD obtienen una mejor cobertura tanto en ramas como en líneas de código
-.
-% \begin{table}[!thb]
-% \scriptsize
-% \centering
-% \caption{Tiempo de ejecución de BEAPI con diferentes configuración.}
+En cuanto a la calidad de las test suites generadas, podemos observar que Randoop no logra alcanzar altos valores de cobertura en un corto período de tiempo. Solo después de 150 segundos comienza a alcanzar coberturas similares a las otras técnicas. Esto se debe a que Randoop genera muchos tests que resultan irrelevantes o que están subsumidos en otros. Cuando utilizamos estas secuencias de tests para serializar y crear objetos que se utilizan como inputs en nuestros tests parametrizados, se puede observar una mejora en la cobertura, pero aún no alcanza los valores obtenidos con la identificación previa de los métodos builders y su posterior uso con Randoop (R-Builders). Esta técnica logra la misma cobertura que BEAPI, tanto en términos de ramas como de mutación. Aquí podemos apreciar la importancia de guiar a Randoop mediante la identificación de los métodos builders.
 
 
-% \end{table}
 
-% \begin{table}[!thb]
-% \scriptsize
+\cacho{Como resultados finales:}
+Los resultados indican que la utilización de los métodos builders como prioridad en Randoop genera una mayor cantidad de objetos y mejora la calidad de las test suites en comparación con Randoop sin utilizar esta prioridad. Además, se destaca el desempeño de BEAPI, que logra generar un número significativo de objetos válidos en poco tiempo. Estos hallazgos respaldan la importancia de guiar la generación de casos de prueba utilizando información específica de la API, como la identificación de los métodos builders, para mejorar la efectividad y la cobertura de las pruebas en el contexto del software testing.
 
-% \centering
-% \begin{tabular}{ l r | r | r | r | r  }
-%   \toprule
-%   \multicolumn{6}{c}{\textbf{Real World}} \\
-%   \midrule 
-%   \textbf{Class} & \textbf{S} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
-%   \midrule
-%   NCL
-%   & 3 & .10 & .47 & -  & -  \\
-%   & 4 & .41 & 3.48  &  - & -  \\
-%   & 5 & 3.33  &  - &  - & -  \\
-%   & 6 & 73.78 &  - &  - &  - \\
-%   \midrule
-%   TSet
-%   & 3 & .03 & .07 & 56.82 & - \\
-%   & 11  & 21.52 & 86.06 &  - & -  \\
-%   & 12  & 69.98 & 276.85  &  - & -  \\
-%   & 13  & 226.66  & 887.83  &  - & -  \\
-%     \midrule
-%   TMap
-%   & 3 & .11 & .25 & - & - \\
-%   & 4 & .75 & 2.36  &  - &  - \\
-%   & 5 & 15.97 & 57.64 &  - & -  \\
-%   & 6 & 839.87  & 2901.37 &  - &  - \\
-%   \midrule
-%   LList
-%   & 3 & .02 & .13 & .64 & - \\
-%   & 6 & .96 & 258.85  & -  &  - \\
-%   & 7 & 12.98 &  - &  - &  - \\
-%   & 8 & 286.21  & -  & -  & -  \\
-%   \midrule
-%   HMap
-%   & 3 & .10 & 11.49 & - & - \\
-%   & 4 & .55 & -  & -  & -  \\
-%   & 5 & 5.33  & -  &  - &  - \\
-%   & 6 & 119.87  &  - &  - &  - \\
-%   \bottomrule
-
-% \end{tabular}
-
-% \label{table:beapi}
-
-% \end{table}
 
 
 
