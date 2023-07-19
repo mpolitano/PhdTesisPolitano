@@ -1,9 +1,35 @@
 \chapter[Identificación de métodos builders]{Enfoques para la identificación de Métodos Builders}
 \label{cap:builders}
+\pp{Reemplazar builders por generadores de objetos o algo parecido}
 
-El análisis de software es una tarea crucial en el campo de la Ingeniería de Software, ya sea para generar tests para el software bajo test (SUT)  o para realizar verificación de modelos de software. Estos enfoques requieren que los programadores identifiquen manualmente un subconjunto de los métodos de un módulo con el fin de dirigir el análisis. En general, al analizar un módulo, los programadores seleccionan un subconjunto de sus métodos que serán considerados como constructores de objetos (\emph{builders}) para definir lo que se conoce como un controlador o "driver", que se utilizará para construir objetos automáticamente para el análisis, combinándolos de manera no determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo y su estructura, ya que la exhaustividad relativa del análisis (omitir métodos importantes puede evitar sistemáticamente la generación de diferentes objetos) y su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera exponencial a medida que aumenta el número de métodos) se ven afectados por la selección.
+\pp{Tenemos que hacer una meet para ponernos de acuerdo en como llamamos a los builders, armar un
+ orden para la presentación de ideas, definir bien los conceptos y evitar
+ mencionar cosas que no hay sido definidas.}
 
-En este capitulo, proponemos tres enfoques para seleccionar automáticamente un conjunto de constructores de objetos a partir de la API, basados en un algoritmo evolutivo, un algoritmo greedy y un algoritmo basado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características sobre estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
+\pp{Lo primero que habría que hacer en esta sección es introducir la idea de
+builders, y nunca se hace. El párrafo que sigue está fuera de contexto.}
+El análisis de software es una tarea crucial en el campo de la Ingeniería de
+Software, ya sea para generar tests para el software bajo test (SUT) o para
+realizar verificación de modelos de software. Estos enfoques  requieren que los
+programadores identifiquen manualmente un subconjunto de los métodos de un
+módulo con el fin de dirigir el análisis \pp{Ojo, no hay muchos enfoques que requiran
+builders}. En general, al analizar un módulo
+\pp{los builders no se usan en general, quizás en algún análisis particular},
+los programadores seleccionan un subconjunto de sus métodos que serán
+considerados como constructores de objetos (\emph{builders}) para definir lo que
+se conoce como un controlador o "driver", que se utilizará para construir
+objetos automáticamente para el análisis, combinándolos de manera no
+determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo
+y su estructura, ya que la exhaustividad relativa del análisis (omitir métodos
+importantes puede evitar sistemáticamente la generación de diferentes objetos) y
+su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera
+exponencial a medida que aumenta el número de métodos) se ven afectados por la
+selección \pp{acá estás asumiendo que el que lee sabe de builders, y todavía no
+fueron introducidos}.
+
+En este capitulo, proponemos tres enfoques para seleccionar automáticamente un
+conjunto de constructores de objetos a partir de la API, basados en un algoritmo
+evolutivo, un algoritmo greedy y un algoritmo de particionado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características sobre estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
 
 % Para evaluar experimentalmente nuestra propuesta, hemos realizado una evaluación en un conjunto de clases con estado de referencia, que representan casos de uso típicos. Los resultados muestran que nuestro enfoque puede identificar automáticamente conjuntos de constructores de objetos que son suficientes (se pueden utilizar para crear cualquier instancia del módulo) y mínimos (no contienen métodos superfluos), en un tiempo razonable.
 
@@ -71,7 +97,14 @@ Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias
 \end{figure}
 
 
-NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. Sin embargo, para construir cualquier objeto de NCL factible, sólo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros apropiados, se pueden utilizar para construir cualquier objeto de NCL acotado con el scope deseado. Por lo tanto, los siguientes métodos:
+NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}.
+Sin embargo, para construir cualquier objeto de NCL, sólo se necesitan algunos
+métodos de la API. Por ejemplo, las combinaciones de los métodos en la
+Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros
+apropiados, se pueden utilizar para construir cualquier objeto de NCL acotado
+con el scope deseado \pp{Acá aparece scope y nunca hablaste de scope todavía}.
+Por lo tanto, los siguientes métodos \pp{Los metiste en una figura, y venís
+hablando de ellos, esto no se lee bien}:
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de metodos sufiente para NCL]
   (0)  NodeCachingLinkedList()
@@ -79,9 +112,26 @@ NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}. S
   (25) removeFirst()
 \end{lstlisting}
 
- son un ejemplo de un conjunto suficiente de constructores (\emph{builders}) de NCL. Hay que tener en cuenta que, después de utilizar el método constructor, la lista principal de NCL se puede rellenar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la lista secundaria (lista caché) no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores. Para la mayoría de las técnicas de análisis automáticas, nos gustaría considerar tantos escenarios (entradas) variables como sea posible, de ahí la motivación para construir estas con un un conjunto suficientes de métodos de la API. Además, los metodos \emph{builders} de la figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir bajo el scope deseado.
+ son un ejemplo de un conjunto suficiente de constructores (\emph{builders}) de
+ NCL \pp{Nunca definiste lo que es un conjunto suficiente, ni builders}.
+ Hay que tener en cuenta que, después de utilizar el método constructor \pp{hay
+     que buscarle la vuelta para nombrar a builders algo que no sea
+ constructores, porque sino se confunde con los constructores de la clase. Para
+ mi métodos generadores de objetos suena bien}, la
+ lista principal de NCL se puede completar simplemente utilizando el método
+ \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la
+ lista caché no esté vacía, podemos hacerlo a través del método
+ \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores.
+ Para la mayoría de las técnicas de análisis automáticas \pp{no son la mayoría},
+ nos gustaría considerar tantos escenarios (entradas) variables como sea
+ posible, de ahí la motivación para construir estas con un un conjunto
+ suficientes de métodos de la API \pp{acá hay un salto a generación de entradas
+ que no se entiende}. Además, los metodos \emph{builders} de la
+ figura~\ref{fig:NCLbuilders} también son mínimos \pp{no definido}, ya que la falta de alguno de
+ ellos implicaría que algunos objetos de NCL ya no se pueden construir bajo el
+ scope deseado \pp{no definido}.
 
-Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes. Por ejemplo, se pueden obtener constructores suficientes reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
+Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes \pp{no definido}. Por ejemplo, se pueden obtener constructores suficientes reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLadds, caption=Variantes del método 'Add' que puedo ser utilizado para rellanar la lista principal en NCL, captionpos=b, frame=tb , basicstyle=\scriptsize]
   (3) add(Object)
@@ -90,8 +140,13 @@ Hay que tener en cuenta que puede haber muchos conjuntos de constructores sufici
   (8) addLast(Object)
 \end{lstlisting}
 
-
-Además, es importante remarcar la importancia de obtener subconjuntos que sean mínimos, lo que significa que no contengan métodos adicionales. Esto es crucial para utilizar la combinación de estos métodos en la construcción de objetos. Cuantos más métodos tenga el subconjunto de builders, más costosa será la combinación de los mismos para generar los objetos.
+Además, es importante remarcar la importancia de obtener subconjuntos que sean
+mínimos\pp{acá aparece recién la definición de minímos}, lo que significa que 
+no contengan métodos adicionales \pp{qué signfica esto?}. Esto es crucial para
+utilizar la combinación de estos métodos en la construcción de objetos. Cuantos
+más métodos tenga el subconjunto de builders, más costosa será la combinación de
+los mismos para generar los objetos \pp{no está definido como se piensa generar
+los objetos}.
 
 Los siguientes subconjuntos son suficientes pero no son mínimos para NCL:
 \\
@@ -110,9 +165,21 @@ Los siguientes subconjuntos son suficientes pero no son mínimos para NCL:
   (25) removeFirst()
 \end{lstlisting}
 
-También observamos que cuanto más simples sean los parámetros de una rutina, más fácil será utilizarla para generar entradas en el contexto de un análisis de programas. Por ejemplo, entre las alternativas de rutinas para añadir dato a la lista principal de NCL (Figura.~\ref{fig:NCLadds}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para brindale a esta rutina a la hora de generar entradas. Esto hace que las otras tres alternativas tengan mas preferencia sobre esta. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
+También observamos que cuanto más simples sean los parámetros de una rutina, más
+fácil será utilizarla para generar entradas en el contexto de un análisis de
+programas. Por ejemplo, entre las alternativas de rutinas para insertar datos en
+la lista principal de NCL (Figura.~\ref{fig:NCLadds}), \texttt{add(int,Object)}
+recibe más parámetros que los otros tres métodos, por lo tanto es más difícil
+generar parámetros para brindale a esta rutina a la hora de generar entradas
+\pp{No está definido como se generarían entradas}. Esto hace que las otras tres alternativas tengan mas preferencia sobre esta. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
 
-Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos en los que operan, ni son útiles para crear objetos no primitivos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos. Nuestro enfoque intenta reconocerlos de antemano y descartarlos de la búsqueda para reducir significativamente el espacio de búsqueda.
+Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores
+(columna Obs?), lo que significa que no modifican los objetos en los que operan,
+ni son útiles para crear objetos. Por lo tanto, los observadores siempre son
+superfluos y nunca deben incluirse en un conjunto de constructores mínimos
+\pp{no definido}. Nuestro enfoque intenta reconocerlos de antemano y
+descartarlos de la búsqueda para reducir significativamente el espacio de
+búsqueda \pp{Buscaría hablar del concepto de builders antes que de los enfoques}.
 
 Todos estos problemas planteados en este capítulo fueron lo que nos motivó a desarrollar enfoques para obtener automáticamente métodos constructores de manera eficiente y mínima. Para lograrlo, utilizamos una variedad de técnicas y algoritmos que explicaremos en la próxima sección. 
 
@@ -121,19 +188,65 @@ Todos estos problemas planteados en este capítulo fueron lo que nos motivó a d
 
 
 \label{sec:algorithms}
-Para encontrar un conjunto suficiente de constructores a partir de una API de un programa, diseñamos tres algoritmos de búsqueda que se describen a continuación. El primero es una modificación de los algoritmos genéticos, el segundo es un algoritmo \emph{Greedy} más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero es un algoritmo de búsqueda de acuerdo a las \emph{clases de equivalencias}  de los subconjuntos respecto al valor de su función de valoración.
-La función de evaluación, también conocida como función objetivo o función de fitness, desempeña un papel crucial en los algoritmos de búsqueda. Esta función asigna un valor numérico a cada solución candidata en función de su calidad o idoneidad para resolver el problema en cuestión. El propósito de la función de evaluación es proporcionar una medida cuantitativa de la calidad de cada solución en relación con los objetivos y restricciones del problema. Dependiendo del tipo de problema, la función de evaluación puede buscar maximizar o minimizar ciertas variables, satisfacer restricciones específicas o lograr un equilibrio entre múltiples criterios. Es fundamental diseñar una función de evaluación adecuada que capture las características esenciales del problema y que permita seleccionar y guiar de manera efectiva la búsqueda hacia soluciones de alta calidad. Una función de evaluación bien definida puede influir en la eficiencia y efectividad de los algoritmos de búsqueda, ya que determina qué soluciones son consideradas prometedoras y merecen ser exploradas en mayor detalle. Sobre las funciones de evaluacion que hemos implementado lo explicaremos en la seccion \ref{sec:fitness}
+Para encontrar un conjunto suficiente \pp{y mínimo?} de constructores a partir
+de una API de un programa, diseñamos tres algoritmos de búsqueda que se
+describen a continuación. El primero es una modificación de los algoritmos
+genéticos \pp{un algoritmo genético?}, el segundo es un algoritmo \emph{greedy}
+más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero
+es un algoritmo de búsqueda de acuerdo a las \emph{clases de equivalencias}  de
+los subconjuntos respecto al valor de su función de valoración \pp{no definida}.
+La función de evaluación, también conocida como función objetivo o función de
+fitness, desempeña un papel crucial en los algoritmos de búsqueda
+\pp{informada}. Esta función asigna un valor numérico a cada solución candidata
+en función de su calidad o idoneidad \pp{idoneidad no se usa} para resolver el
+problema en cuestión. El propósito de la función de evaluación es proporcionar
+una medida cuantitativa de la calidad de cada solución en relación con los
+objetivos y restricciones del problema \pp{no son estándar estas definiciones,
+hay que buscar mejores}. Dependiendo del tipo de problema, la función de
+evaluación puede buscar maximizar o minimizar ciertas variables, satisfacer
+restricciones específicas o lograr un equilibrio entre múltiples criterios
+. Es fundamental diseñar una función de evaluación adecuada que capture las
+características esenciales del problema y que permita seleccionar y guiar de
+manera efectiva la búsqueda hacia soluciones de alta calidad. Una función de evaluación bien
+definida puede influir en la eficiencia y efectividad de los algoritmos de
+búsqueda, ya que determina qué soluciones son consideradas prometedoras y
+merecen ser exploradas en mayor detalle \pp{van como 5
+definiciones distintas de función de fitness, ninguna muy acertada}. Sobre las funciones de evaluacion que hemos implementado lo explicaremos en la seccion \ref{sec:fitness}
 
 
+Los métodos observadores son aquellos que no modifican el estado de un objeto al
+ejecutarse. En el ejemplo motivador presentado en la sección
+\ref{sec:motivacion} y la tabla \ref{tab:ncl-api}, se puede observar que existen
+muchos métodos clasificados como observadores. Esto nos indica que estos métodos
+no son relevantes para ser considerados como métodos builders. Antes de ejecutar
+cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático
+para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros
+métodos builders \pp{castellano}. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
+Para realizar esta identificación de métodos observadores, utilizamos una
+herramienta de análisis estático llamada
+\emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido
+desarrollada por \emph{Facebook} y ofrece varias funcionalidades. En el contexto
+de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué
+métodos son considerados puros (observadores) \pp{falta cita a paper de
+métodos puros}.
 
-Los métodos observadores son aquellos que no modifican el estado de un objeto al ejecutarse. En el ejemplo motivador presentado en la sección \ref{sec:motivacion} y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos builders. Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros métodos builders. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
-Para realizar esta identificación de métodos observadores, utilizamos una herramienta de análisis estático llamada \emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido desarrollada por \emph{Facebook} y ofrece varias funcionalidades específicas. En el contexto de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué métodos son considerados puros (observadores).
-
-El análisis estático realizado con \emph{Infer} nos permite obtener una lista de métodos que son clasificados como observadores en la API bajo prueba. Esta información es utilizada como paso previo a la ejecución de nuestros algoritmos, para asegurarnos de que solo consideramos los métodos relevantes y adecuados para comenzar la búsqueda de los métodos \emph{builders}.
+El análisis estático realizado con \emph{Infer} nos permite obtener una lista de
+métodos que son clasificados como observadores en la API bajo prueba. Esta
+información es utilizada como paso previo a la ejecución de nuestros algoritmos,
+para asegurarnos de que solo consideramos los métodos relevantes y adecuados
+para comenzar la búsqueda de los métodos \emph{builders}. \pp{este párrafo es
+una repetición de lo que dice el anterior}
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
-En esta sección presentamos los detalles para la detección de los subconjuntos de métodos builders utilizando un algoritmo evolutivo. Para lograr realizar esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el subconjunto de métodos que sean mínimo y suficientes, que describiremos a continuación.
+
+\pp{hay varios errores técnicos en esta sección que podemos charlar. Hay que
+    mirar la explicación de algún libro y tratar de mejorar las explicaciones}
+
+En esta sección presentamos los detalles para la detección de los subconjuntos
+de métodos builders utilizando un algoritmo evolutivo. Para lograr realizar
+esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el
+subconjunto de métodos que sean mínimo y suficientes \pp{constructores?}, que describiremos a continuación.
 
 
 % % basados en una estrategia de escalada de colinas \cite{Russell:2009}.
@@ -155,8 +268,11 @@ $c = \begin{array}{@{}cccccc@{}}
 \scriptsize g_0 & \scriptsize g_1 & \scriptsize g_2 & \ldots & \scriptsize g_{34}
 \end{array}$
 \end{center}
+\pp{este ejemplo quedó de más con el de abajo me parece, no aclara mucho así
+como está}
 
-Aquí, cada gen (\emph{g}) es un valor booleano que indica la presencia o ausencia del método en ese cromosoma.
+Aquí, cada gen (\emph{g}) es un valor booleano que indica la presencia o
+ausencia del método en ese cromosoma. \pp{está dicho arriba esto}
 
 Como ejemplo más concreto, consideremos la representación del cromosoma que representa el conjunto de métodos suficientes y mínimos para NCL, como se muestra en la Figura \ref{fig:NCLbuilders}:
 \begin{center}
@@ -168,39 +284,94 @@ $c = \begin{array}{|*{8}{c|}}
 \hline
 \end{array}$
 \end{center}
+\pp{los índices no son parte del cromosoma y deberían ir abajo, como está el dibujo parece una
+matriz, y no coincide el formato con el dibujo anterior}
 
 En este caso, las posiciones 0, 7 y 25 están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas.
 
 
-\subsubsection{Poblacion Inicial}
+\subsubsection{Poblacion Inicial \pp{por qué solo la inicial?}}
 
-El proceso comienza con un conjunto de individuos llamado Población. Recordemos que cada individuo es una solución al problema que deseas resolver.
+El proceso comienza con un conjunto de individuos llamado Población. Recordemos
+que cada individuo es una solución \pp{los individuos no son soluciones} al problema que deseas resolver.
 
-En nuestro algoritmo genético, la población inicial se crea generando aleatoriamente un conjunto de cromosomas, donde cada cromosoma representa una solución potencial al problema. Cada gen en el cromosoma se establece aleatoriamente como 1 o 0, lo que indica la presencia o ausencia del método que se codificó en esa posición. Además, todos nuestros cromosomas iniciales tienen un tamaño igual a la cantidad de métodos que tiene la API bajo test.
+En nuestro algoritmo genético, la población inicial se crea generando
+aleatoriamente un conjunto de cromosomas, donde cada cromosoma representa una
+solución potencial al problema \pp{los individuos no son soluciones}. Cada gen
+en el cromosoma se establece aleatoriamente como 1 o 0, lo que indica la
+presencia o ausencia del método que se codificó en esa posición \pp{repetición}.
+Además, todos nuestros cromosomas iniciales tienen un tamaño igual a la cantidad
+de métodos que tiene la API bajo test \pp{repetición}.
 
-Es importante destacar que el número de cromosomas en la población inicial desempeña un papel fundamental en el algoritmo genético, ya que proporciona la base para la evolución y mejora gradual de las soluciones a lo largo de las generaciones. En nuestro algoritmo, tenemos una población inicial de 100 individuos. A medida que el algoritmo avanza, se aplican operadores genéticos como la selección, el cruce y la mutación para crear nuevas soluciones a partir de la población actual. A continuación, se explican estos operadores en detalle.
+Es importante destacar que el número de cromosomas en la población inicial
+desempeña un papel fundamental en el algoritmo genético \pp{solo en la
+inicial?}, ya que proporciona la base para la evolución y mejora gradual de las
+soluciones\pp{no son soluciones} a lo largo de las generaciones. En nuestro algoritmo, tenemos una
+población inicial de 100 individuos \pp{por qué 100? No se debería buscar
+experimentalmente?}. A medida que el algoritmo avanza, se
+aplican operadores genéticos como la selección, el cruce \pp{mala traducción} y
+la mutación para crear nuevas soluciones \pp{no son soluciones} a partir de la población actual. A continuación, se explican estos operadores en detalle.
 
-\subsubsection{Operadores Geneticos}
+\subsubsection{Operadores Geneticos \pp{Noté algunos errores ortográficos, usar un spell checker}}
 
-A continuación explicaremos los operadores genéticos principales utilizados en el algoritmo evolutivo. Cada uno desempeña un papel importante en la exploración y explotación del espacio de búsqueda y en la mejora de la calidad de las soluciones a lo largo de las generaciones.
+A continuación explicaremos los operadores genéticos principales utilizados en
+el algoritmo evolutivo. Cada uno desempeña un papel importante en la exploración
+y explotación \pp{explotación?} del espacio de búsqueda y en la mejora de la
+calidad de las soluciones \pp{no son soluciones}a lo largo de las generaciones
+\pp{no definido}.
 
-\paragraph{Cross-over (Cruce)}
+\paragraph{Cross-over (Cruce\pp{mala traducción})}
 
-El cruzamiento (o \emph{cross-over} en inglés) es un operador genético que combina una parte de dos cromosomas $c1$ y $c2$ elegidos aleatoriamente para crear un nuevo cromosoma descendiente. Esa parte que toma de cada cromosoma padre depende de la configuración con la que se lo setee. En nuestro algoritmo, utilizamos un ratio de 0.30. Además, un cruzamiento de dos puntos de cruce dentro de los cromosomas de los padres. Su objetivo principal es explorar y explotar la información genética existente en la población.
-El cruce de varios puntos permite una mayor variedad en los descendientes generados, ya que se intercambian segmentos más largos de genes entre los padres. Esto puede ayudar a explorar el espacio de búsqueda de soluciones de manera más efectiva y encontrar soluciones potencialmente mejores.
+El cruzamiento (o \emph{cross-over} en inglés) es un operador genético que
+combina una parte de dos cromosomas $c1$ y $c2$ elegidos aleatoriamente para
+crear un nuevo cromosoma descendiente \pp{no se eligen aletoriamente, se eligen
+con el procedimiento de selección. Selección debería explicarse antes}. Esa parte que toma de cada cromosoma padre
+depende de la configuración con la que se lo setee. En nuestro algoritmo,
+utilizamos un ratio de 0.30\pp{No se debería buscar
+experimentalmente? Hay una mezcla entre la definición de algoritmos genéticos
+en general y la implementación particular}. Además, un cruzamiento de dos puntos \pp{no
+definido} de cruce dentro de los cromosomas de los padres. Su objetivo principal es explorar y explotar la información genética existente en la población.
+El cruce de varios puntos permite una mayor variedad en los descendientes
+generados, ya que se intercambian segmentos más largos de genes entre los
+padres. Esto puede ayudar a explorar el espacio de búsqueda de soluciones de
+manera más efectiva y encontrar soluciones potencialmente mejores \pp{errores
+técnicos}.
+\pp{un ejemplo hubiera estado bueno}
 
-\paragraph{Mutacion}
+\paragraph{Mutacion\pp{spell checker}}
 
-La mutación es un operador fundamental en un algoritmo genético que introduce pequeños cambios aleatorios en los cromosomas para explorar nuevas soluciones y mantener la diversidad dentro de la población. Juega un papel crucial en la prevención de la convergencia prematura y garantiza que el algoritmo explore de manera efectiva el espacio de búsqueda. Existen varios operadores de mutación que se pueden utilizar en un algoritmo genético. Uno de los operadores de mutación más comúnmente utilizados es la Mutación por Inversión de Bits, que es adecuada para algoritmos genéticos codificados en binario como en el caso de nuestra codificación.
-En la Mutación por Inversión de Bits, se selecciona uno o más bits aleatorios en el cromosoma y se invierten. Si un bit está inicialmente establecido en 1, se cambia a 0, y viceversa. Esta alteración aleatoria introduce cambios sutiles en la información del cromosoma, creando potencialmente nuevas soluciones que no estaban presentes en la población original. El número de bits invertidos y sus posiciones se determinan típicamente mediante una baja probabilidad de mutación.
+La mutación es un operador fundamental en un algoritmo genético que introduce
+pequeños cambios aleatorios en los cromosomas para explorar nuevas soluciones
+\pp{no son soluciones} y mantener la diversidad dentro de la población. Juega un
+papel crucial en la prevención de la convergencia prematura \pp{no me convence}
+y garantiza que el algoritmo explore de manera efectiva el espacio de búsqueda.
+Existen varios operadores de mutación que se pueden utilizar en un algoritmo
+genético. Uno de los operadores de mutación más comúnmente utilizados es la
+Mutación por Inversión de Bits \pp{por qué mayúsculas?}, que es adecuada para algoritmos genéticos codificados en binario como en el caso de nuestra codificación.
+En la Mutación por Inversión de Bits, se selecciona uno o más bits aleatorios en
+el cromosoma y se invierten. Si un bit está inicialmente establecido en 1, se
+cambia a 0, y viceversa. Esta alteración aleatoria introduce cambios sutiles en
+la información del cromosoma, creando potencialmente nuevas soluciones \pp{no son soluciones}que no
+estaban presentes en la población original. El número de bits invertidos y sus
+posiciones se determinan típicamente mediante una baja probabilidad de mutación
+\pp{en realidad se hace experimentalmente}.
+\pp{un ejemplo hubiera estado bueno}
 
 
 \paragraph{Selección}
-La operación de selección es un componente clave en nuestro algoritmo genético, ya que determina qué individuos serán preservados en la siguiente generación. En nuestro enfoque, hemos desarrollado un operador de selección que se basa en el nivel de aptitud de cada individuo.
+La operación de selección es un componente clave en nuestro algoritmo genético,
+ya que determina qué individuos serán preservados en la siguiente generación
+\pp{error técnico}. En nuestro enfoque, hemos desarrollado un operador de
+selección que se basa en el nivel de aptitud de cada individuo \pp{no
+desarrollamos ningún operador nuevo}.
 
-Utilizamos un enfoque de selección tipo torneo (\emph{tournament}) con un tamaño de torneo de 4 en nuestro algoritmo. En este enfoque, se selecciona aleatoriamente un grupo de individuos de la población y se compite entre ellos. El individuo con el mejor valor de fitness en el torneo es seleccionado para formar parte de la próxima generación. Este proceso se repite hasta que se hayan seleccionado todos los individuos necesarios.
+Utilizamos un enfoque de selección tipo torneo (\emph{tournament}) con un tamaño
+de torneo de 4 en nuestro algoritmo. En este enfoque, se selecciona
+aleatoriamente un grupo de individuos de la población y se \pp{los pone a
+competir} compite entre ellos. El individuo con el mejor valor de fitness en el
+torneo es seleccionado para formar parte de la próxima generación \pp{error técnico}. Este proceso se repite hasta que se hayan seleccionado todos los individuos necesarios\pp{error técnico}.
 
-Es importante destacar que el operador de selección basado en torneo tiene varias ventajas. No solo permite seleccionar a los individuos más aptos, sino que también introduce una presión de selección ajustable. Esto significa que los individuos más débiles tienen menos posibilidades de ser seleccionados en torneos más grandes, lo que ayuda a mejorar gradualmente la calidad de la población a lo largo de las generaciones.
+Es importante destacar que el operador de selección basado en torneo tiene varias ventajas. No solo permite seleccionar a los individuos más aptos\pp{error técnico}, sino que también introduce una presión de selección ajustable. Esto significa que los individuos más débiles tienen menos posibilidades de ser seleccionados en torneos más grandes, lo que ayuda a mejorar gradualmente la calidad de la población a lo largo de las generaciones.
 
 
 El siguiente es el algoritmo genético que utilizamos para nuestra búsqueda
@@ -225,20 +396,31 @@ Evaluar la aptitud de cada cromosoma en $P$\;
 }
 \caption{Algoritmo Genético}
 \end{algorithm}
-
+\pp{se queda muy corto este pseudocódigo, no explica casi nada.}
+\pp{En este punto todavía no se sabe cuál es la función de fitness. No se
+entiende que hace el algoritmo en el contexto de identificación de builders.}
 \cacho{Explicar algortimo}
-
 
 \subsection{Hill Climbing}
 \label{alg:approachHC}
-El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de colina\cite{Russell:2009}, es un algoritmo de búsqueda local que se utiliza para optimizar una función de valoracion. El objetivo del algoritmo es encontrar la solución óptima para un problema determinado.  Su enfoque se basa en realizar movimientos ascendentes, es decir, buscar soluciones que mejoren continuamente el valor objetivo o la función de evaluación.
-Este algoritmo es una algoritmo Greedy(Perezoso) explicado en la seccion de preliminares, (\ref{sec:greedyPrev}). Este selecciona un buen estado sucesor para el momento actual, sin pensar en dónde ir a continuación. 
+El algoritmo Hill Climbing, también conocido como búsqueda por ascenso de
+colina\cite{Russell:2009}, es un algoritmo de búsqueda local que se utiliza para
+optimizar una función de valoracion. El objetivo del algoritmo es encontrar la
+solución óptima \pp{no es óptima} para un problema determinado.  Su enfoque se
+basa en realizar movimientos ascendentes, es decir, buscar soluciones que
+mejoren continuamente el valor objetivo o la función de evaluación \pp{o?}.
+Este algoritmo es un algoritmo Greedy(Perezoso) explicado en la seccion de
+preliminares, (\ref{sec:greedyPrev})\pp{no hay mucho que explicar en
+preliminares sobre hill climbing, ya está todo acá por lo que veo}. Este selecciona un buen estado sucesor
+para el momento actual, sin pensar en dónde ir a continuación \pp{no se entiende}. 
 La idea principal detrás del algoritmo Hill Climbing es comenzar con una solución inicial y, en cada iteración, realizar un movimiento hacia una solución vecina que mejore el valor objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento.
 Es importante destacar que el algoritmo Hill Climbing puede quedar atrapado en óptimos locales, es decir, puede converger hacia soluciones que son mejores en comparación con sus vecinos inmediatos, pero no son óptimas en el contexto global
 
 La representación que hemos utilizado del problema fue igual a la que utilizamos para representar cromosomas en el Algoritmo genético explicado en la sección anterior. Esto quiere decir que utilizamos vectores de 0 y 1 para representar una posible solución. 
 
 A continuación mostraremos un pseudocódigo del algoritmo \emph{Hill Climbing} que hemos implementado:
+\pp{En este punto no se sabe cuál es la función de fitness, entonces no se
+entiende que significa el algoritmo en el contexto de identificación de builders.}
 
 \begin{algorithm}[H]
   \caption{Algoritmo de Hill Climbing}
@@ -259,17 +441,37 @@ A continuación mostraremos un pseudocódigo del algoritmo \emph{Hill Climbing} 
   \Return{$best$}\;
 \end{algorithm}
 
-Este algoritmo representa el esquema básico de Hill Climbing, comienza calculando la funcion de valoración de todos los singletones ${c}$ de métodos constructores.  El mejor de los singletones (mayor objectos puedo crear con ese constructor) se establece como el candidato actual $curr$, y Hill Climbing inicia un proceso de búsqueda típico e iterativo (Línea 1).
+Este algoritmo representa el esquema básico de Hill Climbing, comienza
+calculando la funcion de valoración de todos los singletones ${c}$ de métodos
+constructores.  El mejor de los singletones (mayor objectos puedo crear con ese
+constructor) se establece como el candidato actual $curr$, y Hill Climbing
+inicia un proceso de búsqueda típico e iterativo (Línea 1) \pp{Esto que se
+explica acá no está en el algoritmo, hay una asignación nomás}.
 
-En cada iteración (Línea 2 a 8), \emph{Hill Climbing} calcula $f(succ)$ para cada succ $\in$ $GenerarSucesores(curr)$. El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API (Línea 3).
-Sea $best$ el sucesor con el valor de valoración más alto. Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$ (Línea 4).
+En cada iteración (Línea 2 a 8), \emph{Hill Climbing} calcula $f(succ)$ para
+cada succ $\in$ $GenerarSucesores(curr)$. El método que genera los sucesores nos
+devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un
+método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$
+generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los
+conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API (Línea 3) \pp{
+Se podría poner el pseudocódigo de generar sucesores, y quizás poner un ejemplo
+para que se entienda}.
+Sea $best$ el sucesor con el valor de valoración más alto. Observe que $best$
+tiene exactamente un método más que el mejor candidato de la iteración anterior,
+$curr$ (Línea 4) \pp{hay que implementar con código el existe un mejor
+candidato. Mirar el libro de AI.}.
 
-Si $f(best) > f(curr)$, los métodos en $best$ se pueden utilizar para crear un conjunto más grande de estructuras que los en $curr$ (Línea 5 a 7). Por lo tanto, \emph{Hill Climbing} asigna $best$ a $cur$r y continúa con la siguiente iteración. En cambio, si $f(best) <= f(curr)$, $curr$ ya genera el conjunto más grande de estructuras posible (no se puede agregar ningún método que aumente el número de estructuras generadas a partir de $curr$). En este punto, $curr$ se devuelve como el conjunto de constructores identificados. (Linea 9) 
+Si $f(best) > f(curr)$, los métodos en $best$ se pueden utilizar para crear un
+conjunto más grande de estructuras que los en $curr$ (Línea 5 a 7) \pp{f no está
+definida}. Por lo tanto, \emph{Hill Climbing} asigna $best$ a $cur$r y continúa con la siguiente iteración. En cambio, si $f(best) <= f(curr)$, $curr$ ya genera el conjunto más grande de estructuras posible (no se puede agregar ningún método que aumente el número de estructuras generadas a partir de $curr$). En este punto, $curr$ se devuelve como el conjunto de constructores identificados. (Linea 9) 
 
 % \cacho{
 % En este algoritmo no se necesitan setear ningun parametros para guiar la busqueda a que sea mas efectiva}
 
-Se puede observar que este algoritmo puede quedar atrapado en un máximo local y no generar alguna combinación específica que podría ser aún mejor. Aquí se puede ver que es un algoritmo greedy, ya que obtiene una solución rápida pero puede no ser eficiente en encontrar la mejor solución global. 
+Se puede observar que este algoritmo puede quedar atrapado en un máximo local y
+no generar alguna combinación específica que podría ser aún mejor. Aquí se puede
+ver que es un algoritmo greedy, ya que obtiene una solución rápida pero puede no
+ser eficiente \pp{eficaz?} en encontrar la mejor solución global. 
 
 
 \subsection{Clases de equivalencia}
