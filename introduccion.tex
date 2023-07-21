@@ -12,3 +12,49 @@
 % Además, la llamada \emph{hipótesis de alcance pequeño} --que establece que la mayoría de los defectos de software se pueden descubrir ejecutando la SUT en "entradas pequeñas"-- sugiere que los enfoques exhaustivos acotados brindan un alto grado de confianza sobre la ausencia de defectos en la SUT \cite{Andoni02}. La desventaja es que estos enfoques tienen que lidiar con la generación de una cantidad de estructuras que a menudo crece exponencialmente con respecto a los límites de generación (llamados a menudo \emph{alcances}), y con la exploración de un espacio de búsqueda combinatorio que incluye una gran cantidad de estructuras inválidas (es decir, que no satisfacen \texttt{repOK}) y estructuras isomórficas. Por lo tanto, la poda del espacio de búsqueda y la eliminación de estructuras isomórficas son clave para hacer que los enfoques exhaustivos acotados sean escalables en la práctica.
 
 % Enfoques previos de exhaustividad acotada requieren un \texttt{repOK} escrito en un lenguaje lo suficientemente expresivo como para describir con precisión las propiedades de las entradas \cite{Marinov01, Boyapati02}. Los objetivos más comunes de estos enfoques han sido representaciones de clases complejas, como colecciones asignadas en el montón con restricciones estructurales complejas (listas enlazadas, árboles, etc.). Se han utilizado varios lenguajes de especificación para describir el \texttt{repOK}, por ejemplo, la lógica relacional (en el denominado estilo declarativo) empleada por \textsf{TestEra} \cite{Marinov01}; y el código fuente en un lenguaje de programación imperativo (en el denominado estilo operacional) utilizado por \textsf{Korat} \cite{Boyapati02}. En cualquier caso, conseguir las especificaciones correctas, en cualquier lenguaje, consume tiempo y es propenso a errores. Las especificaciones sobredimensionadas pueden llevar a saltarse partes relevantes del espacio de estado de las entradas válidas durante el análisis; por otro lado, las especificaciones infradimensionadas pueden llevar a falsos fallos, es decir, a generar entradas que desencadenan fallos, pero que de hecho son inválidas y no representan errores reales (reproducibles). Además, las especificaciones rara vez están disponibles junto con el software, e incluso cuando lo están, los enfoques de análisis exhaustivo acotado específicos, como \textsf{Korat} y \textsf{TestEra}, requieren que se escriban de maneras bastante específicas para permitir que las herramientas correspondientes generen entradas de manera eficiente.
+
+
+
+% Esqueleto de la intro general de la tesis
+% Contexto: Explayarse sobre por qué los análisis de software son importantes. Meter énfasis en el testing y la verificación
+El análisis de software es una tarea crucial en el campo de la Ingeniería de
+Software \cite{}. Por ejemplo, la generación automática de tests \cite{} y la verificación \cite{} son muy efectivos para encontrar defectos en el software.
+
+
+% Contribuciones:
+% 1- Definición y cómputo automático de builders
+
+% Cuales son los análisis que se podrían beneficiar de los builders y por qué
+
+% Definición intuitiva de builders
+% Introducción de cómputo automático de builders
+
+% 2- BEAPI
+% Importancia de técnicas exhaustivas acotadas
+
+% Por que me conviene generar a partir de la API
+
+% Descripción breve de la técnica
+
+
+% Breve resumen de los resultados
+
+
+
+% este párrafo puede encajar en el esqueleto de arriba
+Estos enfoques  requieren que los
+programadores identifiquen manualmente un subconjunto de los métodos de un
+módulo con el fin de dirigir el análisis \pp{Ojo, no hay muchos enfoques que requiran
+builders}. En general, al analizar un módulo
+\pp{los builders no se usan en general, quizás en algún análisis particular},
+los programadores seleccionan un subconjunto de sus métodos que serán
+considerados como constructores de objetos (\emph{builders}) para definir lo que
+se conoce como un controlador o "driver", que se utilizará para construir
+objetos automáticamente para el análisis, combinándolos de manera no
+determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo
+y su estructura, ya que la exhaustividad relativa del análisis (omitir métodos
+importantes puede evitar sistemáticamente la generación de diferentes objetos) y
+su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera
+exponencial a medida que aumenta el número de métodos) se ven afectados por la
+selección \pp{acá estás asumiendo que el que lee sabe de builders, y todavía no
+fueron introducidos}.

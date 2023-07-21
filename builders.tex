@@ -2,48 +2,39 @@
 \label{cap:builders}
 \pp{Reemplazar builders por generadores de objetos o algo parecido}
 
-\pp{Tenemos que hacer una meet para ponernos de acuerdo en como llamamos a los builders, armar un
- orden para la presentación de ideas, definir bien los conceptos y evitar
- mencionar cosas que no hay sido definidas.}
+% 
 
-\pp{Lo primero que habría que hacer en esta sección es introducir la idea de
-builders, y nunca se hace. El párrafo que sigue está fuera de contexto.}
-El análisis de software es una tarea crucial en el campo de la Ingeniería de
-Software, ya sea para generar tests para el software bajo test (SUT) o para
-realizar verificación de modelos de software. Estos enfoques  requieren que los
-programadores identifiquen manualmente un subconjunto de los métodos de un
-módulo con el fin de dirigir el análisis \pp{Ojo, no hay muchos enfoques que requiran
-builders}. En general, al analizar un módulo
-\pp{los builders no se usan en general, quizás en algún análisis particular},
-los programadores seleccionan un subconjunto de sus métodos que serán
-considerados como constructores de objetos (\emph{builders}) para definir lo que
-se conoce como un controlador o "driver", que se utilizará para construir
-objetos automáticamente para el análisis, combinándolos de manera no
-determinista, aleatoria, etc. Esto requiere una inspección minuciosa del módulo
-y su estructura, ya que la exhaustividad relativa del análisis (omitir métodos
-importantes puede evitar sistemáticamente la generación de diferentes objetos) y
-su eficiencia (las diferentes combinaciones acotadas de métodos crecen de manera
-exponencial a medida que aumenta el número de métodos) se ven afectados por la
-selección \pp{acá estás asumiendo que el que lee sabe de builders, y todavía no
-fueron introducidos}.
 
-En este capitulo, proponemos tres enfoques para seleccionar automáticamente un
-conjunto de constructores de objetos a partir de la API, basados en un algoritmo
-evolutivo, un algoritmo greedy y un algoritmo de particionado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características sobre estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
+
+% 1- Definir builders
+
+
+% 2- Por qué es importante
+
+
+
 
 % Para evaluar experimentalmente nuestra propuesta, hemos realizado una evaluación en un conjunto de clases con estado de referencia, que representan casos de uso típicos. Los resultados muestran que nuestro enfoque puede identificar automáticamente conjuntos de constructores de objetos que son suficientes (se pueden utilizar para crear cualquier instancia del módulo) y mínimos (no contienen métodos superfluos), en un tiempo razonable.
 
 % En resumen, en este trabajo abordamos el desafío de seleccionar automáticamente un conjunto óptimo de constructores de objetos a partir de la API de un módulo, con el objetivo de mejorar tanto la exhaustividad como la eficiencia del análisis de software. Nuestros resultados experimentales demuestran la viabilidad y efectividad de nuestra propuesta, lo que abre nuevas perspectivas para la automatización de la selección de constructores de objetos en el análisis de software.
 
+\cacho{Falta defininir los que son builders, minimo y suficiente}
+% Falta definir lo que son builders
 
-\section{Motivacion}
-\label{sec:motivacion}
+
+% Suficiente (indep. de los algoritmos)
+
+
+% Minimos (indep. de los algoritmos)
+
+
+
 \begin{table}[H]
 \center
 {\scriptsize
 \begin{tabular}{|l|l|l|l|}
 \hline
-No. &Return type & Method name & Obs? \\
+No. &Tipo de retorno & Nombre del Método & Observador? \\
 \hline
     0 && NCL() & no \\
     1& & NCL(int) & no \\
@@ -55,16 +46,16 @@ No. &Return type & Method name & Obs? \\
     7&boolean&addFirst(Object) & no \\
     8&boolean&addLast(Object) & no\\
     9&void&clear() & no\\
-    10&boolean&contains(Object) & yes \\
-    11&boolean&containsAll(Collection) & yes \\
-    12&boolean&equals(Object) & yes \\
-    13&Object&get(int) & yes\\
-    14&Object&getFirst() &yes \\
-    15&Object&getLast() & yes\\
-    16&int&indexOf(Object) &yes\\
-    17&boolean&isEmpty() & yes\\
+    10&boolean&contains(Object) & si \\
+    11&boolean&containsAll(Collection) & si \\
+    12&boolean&equals(Object) & si \\
+    13&Object&get(int) & si\\
+    14&Object&getFirst() & si \\
+    15&Object&getLast() & si\\
+    16&int&indexOf(Object) & si\\
+    17&boolean&isEmpty() & si\\
     18&Iterator&iterator() & no\\
-    19&int&lastIndexOf(Object) &yes \\
+    19&int&lastIndexOf(Object) & si \\
     20&ListIterator&listIterator() &no \\
     21&ListIterator&listIterator(int) & no\\
     22&Object&remove(int) &no\\
@@ -74,17 +65,18 @@ No. &Return type & Method name & Obs? \\
     26&Object&removeLast() &no\\
     27&boolean&retainAll(Collection) &no \\
     28&Object&set(int,Object) &no\\
-    29&int&size() &yes\\
+    29&int&size() &si \\
     30&List&subList(int,int) & no \\
-    31&Object[]&toArray() & yes \\
-    32&Object[]&toArray(Object[]) &yes\\
-    33&String&toString() & yes \\
+    31&Object[]&toArray() & si \\
+    32&Object[]&toArray(Object[]) &si\\
+    33&String&toString() & si \\
 \hline
 \end{tabular}
 }
 \caption{Apache's NodeCachingLinkedList API}
 \label{tab:ncl-api}
 \end{table} 
+
 En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista principal circular doblemente enlazada  que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
 Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
 
@@ -101,10 +93,8 @@ NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}.
 Sin embargo, para construir cualquier objeto de NCL, sólo se necesitan algunos
 métodos de la API. Por ejemplo, las combinaciones de los métodos en la
 Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros
-apropiados, se pueden utilizar para construir cualquier objeto de NCL acotado
-con el scope deseado \pp{Acá aparece scope y nunca hablaste de scope todavía}.
-Por lo tanto, los siguientes métodos \pp{Los metiste en una figura, y venís
-hablando de ellos, esto no se lee bien}:
+apropiados, se pueden utilizar para construir cualquier objeto de NCL.
+Por lo tanto, los métodos de la figura \ref{fig:NCLbuilders} son un ejemplo de un conjunto suficiente de métodos generadores de objetos para NCL \pp{Nunca definiste lo que es un conjunto suficiente, ni builders}.
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de metodos sufiente para NCL]
   (0)  NodeCachingLinkedList()
@@ -112,13 +102,9 @@ hablando de ellos, esto no se lee bien}:
   (25) removeFirst()
 \end{lstlisting}
 
- son un ejemplo de un conjunto suficiente de constructores (\emph{builders}) de
- NCL \pp{Nunca definiste lo que es un conjunto suficiente, ni builders}.
- Hay que tener en cuenta que, después de utilizar el método constructor \pp{hay
-     que buscarle la vuelta para nombrar a builders algo que no sea
- constructores, porque sino se confunde con los constructores de la clase. Para
- mi métodos generadores de objetos suena bien}, la
- lista principal de NCL se puede completar simplemente utilizando el método
+
+ 
+ Hay que tener en cuenta que, después de utilizar el método constructor de las clases NCL, la lista principal de NCL se puede completar simplemente utilizando el método
  \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la
  lista caché no esté vacía, podemos hacerlo a través del método
  \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores.
@@ -181,20 +167,64 @@ superfluos y nunca deben incluirse en un conjunto de constructores mínimos
 descartarlos de la búsqueda para reducir significativamente el espacio de
 búsqueda \pp{Buscaría hablar del concepto de builders antes que de los enfoques}.
 
-Todos estos problemas planteados en este capítulo fueron lo que nos motivó a desarrollar enfoques para obtener automáticamente métodos constructores de manera eficiente y mínima. Para lograrlo, utilizamos una variedad de técnicas y algoritmos que explicaremos en la próxima sección. 
 
+
+% 3- Resumen de los algos que vamos a introducir
+Todos estos problemas planteados en este capítulo fueron lo que nos motivó a desarrollar enfoques para obtener automáticamente métodos constructores de manera eficiente y mínima. Para lograrlo, utilizamos una variedad de técnicas y algoritmos que explicaremos en la próxima sección. 
+En este capitulo, proponemos tres enfoques para seleccionar automáticamente un
+conjunto de constructores de objetos a partir de la API, basados en un algoritmo
+evolutivo, un algoritmo greedy y un algoritmo de particionado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características sobre estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
 
 \section{Algoritmos}
-
-
 \label{sec:algorithms}
-Para encontrar un conjunto suficiente \pp{y mínimo?} de constructores a partir
-de una API de un programa, diseñamos tres algoritmos de búsqueda que se
-describen a continuación. El primero es una modificación de los algoritmos
-genéticos \pp{un algoritmo genético?}, el segundo es un algoritmo \emph{greedy}
-más precisamente una variante de un algoritmo \emph{Hill Climbing}, y el tercero
-es un algoritmo de búsqueda de acuerdo a las \emph{clases de equivalencias}  de
-los subconjuntos respecto al valor de su función de valoración \pp{no definida}.
+
+% Intro
+Para identificar un conjunto suficiente y mínimo de generadores de objetos a partir
+de la API de un programa, diseñamos tres algoritmos de búsqueda que se
+describen a continuación. El primero es un algoritmo genético, el segundo es un algoritmo \emph{greedy}, más precisamente una variante de un algoritmo \emph{hill climbing}, y el tercero
+es un algoritmo basado en particionar los subconjuntos métodos de la API en \emph{clases de equivalencias} de acuerdo a los objetos que construyen.
+
+
+% Observadores que es compartido por todos los algoritmos
+\subsection{Identificación de métodos observadores}
+\pp{Explayarse sobre esto, dar algunos ejemplos}
+Los métodos observadores son aquellos que no modifican el estado de un objeto al
+ejecutarse. En el ejemplo motivador presentado en la sección
+\ref{sec:motivacion} y la tabla \ref{tab:ncl-api}, se puede observar que existen
+muchos métodos clasificados como observadores. Esto nos indica que estos métodos
+no son relevantes para ser considerados como métodos builders. Antes de ejecutar
+cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático
+para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros
+métodos builders \pp{castellano}. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
+
+% mergear los dos párrafos que siguen
+Para realizar esta identificación de métodos observadores, utilizamos una
+herramienta de análisis estático llamada
+\emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido
+desarrollada por \emph{Facebook} y ofrece varias funcionalidades. En el contexto
+de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué
+métodos son considerados puros (observadores) \pp{falta cita a paper de
+métodos puros}.
+
+El análisis estático realizado con \emph{Infer} nos permite obtener una lista de
+métodos que son clasificados como observadores en la API bajo prueba. Esta
+información es utilizada como paso previo a la ejecución de nuestros algoritmos,
+para asegurarnos de que solo consideramos los métodos relevantes y adecuados
+para comenzar la búsqueda de los métodos \emph{builders}. \pp{este párrafo es
+una repetición de lo que dice el anterior}
+
+% 1- estados o configuraciones del problema
+\subsection{Estados}
+
+
+\subsection{Función objetivo}
+% 2- función de valoración
+% también denominada función de aptitud en algoritmos genéticos
+
+
+
+
+
 La función de evaluación, también conocida como función objetivo o función de
 fitness, desempeña un papel crucial en los algoritmos de búsqueda
 \pp{informada}. Esta función asigna un valor numérico a cada solución candidata
@@ -214,28 +244,7 @@ merecen ser exploradas en mayor detalle \pp{van como 5
 definiciones distintas de función de fitness, ninguna muy acertada}. Sobre las funciones de evaluacion que hemos implementado lo explicaremos en la seccion \ref{sec:fitness}
 
 
-Los métodos observadores son aquellos que no modifican el estado de un objeto al
-ejecutarse. En el ejemplo motivador presentado en la sección
-\ref{sec:motivacion} y la tabla \ref{tab:ncl-api}, se puede observar que existen
-muchos métodos clasificados como observadores. Esto nos indica que estos métodos
-no son relevantes para ser considerados como métodos builders. Antes de ejecutar
-cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático
-para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros
-métodos builders \pp{castellano}. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
-Para realizar esta identificación de métodos observadores, utilizamos una
-herramienta de análisis estático llamada
-\emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido
-desarrollada por \emph{Facebook} y ofrece varias funcionalidades. En el contexto
-de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué
-métodos son considerados puros (observadores) \pp{falta cita a paper de
-métodos puros}.
 
-El análisis estático realizado con \emph{Infer} nos permite obtener una lista de
-métodos que son clasificados como observadores en la API bajo prueba. Esta
-información es utilizada como paso previo a la ejecución de nuestros algoritmos,
-para asegurarnos de que solo consideramos los métodos relevantes y adecuados
-para comenzar la búsqueda de los métodos \emph{builders}. \pp{este párrafo es
-una repetición de lo que dice el anterior}
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
@@ -321,6 +330,33 @@ calidad de las soluciones \pp{no son soluciones}a lo largo de las generaciones
 \pp{no definido}.
 
 \paragraph{Cross-over (Cruce\pp{mala traducción})}
+
+
+Let's consider two parent individuals:
+
+Parent 1: $P1 = (gene_1, gene_2, \ldots, gene_n)$
+
+Parent 2: $P2 = (gene_1', gene_2', \ldots, gene_n')$
+
+Now, we randomly choose a crossover point, let's say at position $k$:
+
+\[
+P1 = (gene_1, gene_2, \ldots, gene_k, |, gene_{k+1}, gene_{k+2}, \ldots, gene_n)
+\]
+
+\[
+P2 = (gene_1', gene_2', \ldots, gene_k', |, gene_{k+1}', gene_{k+2}', \ldots, gene_n')
+\]
+
+The offspring resulting from the single-point crossover will be:
+
+Offspring 1: $O1 = (gene_1, gene_2, \ldots, gene_k, |, gene_{k+1}', gene_{k+2}', \ldots, gene_n')$
+
+Offspring 2: $O2 = (gene_1', gene_2', \ldots, gene_k', |, gene_{k+1}, gene_{k+2}, \ldots, gene_n)$
+
+
+
+
 
 El cruzamiento (o \emph{cross-over} en inglés) es un operador genético que
 combina una parte de dos cromosomas $c1$ y $c2$ elegidos aleatoriamente para
@@ -440,6 +476,7 @@ entiende que significa el algoritmo en el contexto de identificación de builder
   }
   \Return{$best$}\;
 \end{algorithm}
+\pp{Por qué devolver el return?}
 
 Este algoritmo representa el esquema básico de Hill Climbing, comienza
 calculando la funcion de valoración de todos los singletones ${c}$ de métodos
