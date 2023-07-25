@@ -7,19 +7,30 @@
 
 
 % 1- Definir builders
-
-
-% 2- Por qué es importante
-
-
-
-
-% Para evaluar experimentalmente nuestra propuesta, hemos realizado una evaluación en un conjunto de clases con estado de referencia, que representan casos de uso típicos. Los resultados muestran que nuestro enfoque puede identificar automáticamente conjuntos de constructores de objetos que son suficientes (se pueden utilizar para crear cualquier instancia del módulo) y mínimos (no contienen métodos superfluos), en un tiempo razonable.
-
-% En resumen, en este trabajo abordamos el desafío de seleccionar automáticamente un conjunto óptimo de constructores de objetos a partir de la API de un módulo, con el objetivo de mejorar tanto la exhaustividad como la eficiencia del análisis de software. Nuestros resultados experimentales demuestran la viabilidad y efectividad de nuestra propuesta, lo que abre nuevas perspectivas para la automatización de la selección de constructores de objetos en el análisis de software.
-
-\cacho{Falta defininir los que son builders, minimo y suficiente}
 % Falta definir lo que son builders
+En el contexto del desarrollo de software, los métodos generadores de objetos (también conocidos como métodos \emph{builders} de una API) son aquellos métodos específicos diseñados para crear, modificar y retornar objetos de una clase en particular. Este subconjunto de métodos es capaz de generar cualquier configuración posible de la API. La identificación manual de estos métodos requiere un análisis exhaustivo de la lógica y el código de la API.
+% 2- Por qué es importante
+Los métodos \emph{builders} son especialmente útiles cuando se necesita crear objetos que requieren una serie de pasos o configuraciones específicas. En muchas aplicaciones, especialmente en sistemas de software grandes y complejos, los objetos pueden tener múltiples atributos y configuraciones que deben especificarse para su creación. Los métodos generadores de objetos simplifican este proceso al proporcionar métodos concisos para crear diferentes tipos de objetos de una API.
+
+\cacho{quiero decir que para recrear configuraciones de la API, es complejo utilizar los metodos de la API}
+Esta funcionalidad es especialmente relevante en las pruebas unitarias, ya que permite crear objetos con configuraciones específicas para probar diferentes escenarios y casos de uso. Estas configuraciones solo se crean mediante combinaciones de llamadas a los métodos generadores de objetos.
+
+Es importante destacar que estas configuraciones deben estar limitadas para poder crearlas de manera eficiente y efectiva. Para lograr esto, se introduce el concepto de "scope", que representa el límite en el número de objetos y rangos para los tipos de datos, como se describe en \cite{jackson2006, frias2005dynalloy}.
+\cacho{Chequear la cita, lo saque del paper de Efficient Bounded Model Checking of Heap-Manipulating Programs using Tight Field Bounds}. La justificación para utilizar conjuntos acotados de objetos es similar a la hipótesis de alcance de la cota pequeña \cite{Andoni:2003}. Si un conjunto de métodos no puede utilizarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes.
+
+\cacho{No se como enganchar y explicar lo de scope para que quede claro la deficinion. Chequear esto.}
+
+% Esto puede tener gran importancia en las pruebas unitarias, ya que permiten crear objetos con configuraciones específicas para probar diferentes escenarios y casos de uso. Estas configuraciones solo se crean con la combinaciones de llamadas a los métodos generadores de objetos. 
+% Es importante remarcar que estas configuraciones deben estar limitadas para poder crearlas de manera efictivas y eficientes. Para esto se intruduce la idea de \emph{scope} que es el limite de numeros de objectos y rangos para los tipos de datos tal como se describe en \cite{jackson2006, frias2005dynalloy}
+%  La justificación para utilizar conjuntos acotados de objetos es similar a la hipótesis de alcance de la cota pequeña \cite{Andoni:2003}. Si un conjunto de métodos no puede utilizarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes. 
+
+
+En el contexto de una API, el conjunto de métodos generadores de objetos debe ser suficiente y minimal para garantizar un manejo eficiente y completo de las configuraciones de objetos posibles.
+
+La propiedad de "suficiente" implica que este conjunto de métodos debe ofrecer todas las opciones y parámetros necesarios para configurar completamente un objeto de la API. En otras palabras, con estos métodos, los usuarios deben poder generar cualquier configuración deseada de objetos dentro de la API. Esta característica es fundamental, ya que garantiza que el subconjunto de métodos generadores sea competente y abarque todas las posibilidades que la API puede ofrecer.
+
+Por otro lado, la propiedad de "minimal" es igualmente importante. Al referirnos a que los métodos deben ser minimalistas, nos referimos a que deben ser lo más simples y en menor cantidad posible. Cada método debe cumplir una función específica y claramente definida, sin redundancia innecesaria. La ausencia de cualquier método de este conjunto podría significar que exista al menos una configuración de la API que no se pueda recrear o generar. Especialmente en situaciones donde los objetos pueden tener múltiples atributos o propiedades, la falta de la propiedad de minimalismo del subconjunto de métodos puede generar una explosión de combinaciones de los mismos, dificultando el proceso de configuración y aumentando el riesgo de errores.
+
 
 
 % Suficiente (indep. de los algoritmos)
@@ -77,7 +88,7 @@ No. &Tipo de retorno & Nombre del Método & Observador? \\
 \label{tab:ncl-api}
 \end{table} 
 
-En esta sección, motivamos nuestro enfoque mediante un ejemplo práctico. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista principal circular doblemente enlazada  que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
+Vamos a motivar estas definiciones mediante un ejemplo de una API. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista principal circular doblemente enlazada  que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
 Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
 
 
@@ -102,20 +113,11 @@ Por lo tanto, los métodos de la figura \ref{fig:NCLbuilders} son un ejemplo de 
   (25) removeFirst()
 \end{lstlisting}
 
-
- 
+ \cacho{DEBERIA INTRODUCIR QUE VOY A encontrarlo automaticamente}
  Hay que tener en cuenta que, después de utilizar el método constructor de las clases NCL, la lista principal de NCL se puede completar simplemente utilizando el método
- \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la
- lista caché no esté vacía, podemos hacerlo a través del método
+ \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la lista caché no esté vacía, podemos hacerlo a través del método
  \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores.
- Para la mayoría de las técnicas de análisis automáticas \pp{no son la mayoría},
- nos gustaría considerar tantos escenarios (entradas) variables como sea
- posible, de ahí la motivación para construir estas con un un conjunto
- suficientes de métodos de la API \pp{acá hay un salto a generación de entradas
- que no se entiende}. Además, los metodos \emph{builders} de la
- figura~\ref{fig:NCLbuilders} también son mínimos \pp{no definido}, ya que la falta de alguno de
- ellos implicaría que algunos objetos de NCL ya no se pueden construir bajo el
- scope deseado \pp{no definido}.
+ Para la mayoría de las técnicas de análisis automáticas \pp{no son la mayoría}, nos gustaría considerar tantos escenarios (entradas) variables como sea posible, de ahí la motivación para construir estas con un un conjunto suficientes de métodos de la API \pp{acá hay un salto a generación de entradas que no se entiende}. Además, los métodos \emph{builders} de la figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir bajo el scope deseado \pp{no definido}.
 
 Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes \pp{no definido}. Por ejemplo, se pueden obtener constructores suficientes reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
 \\
@@ -126,16 +128,17 @@ Hay que tener en cuenta que puede haber muchos conjuntos de constructores sufici
   (8) addLast(Object)
 \end{lstlisting}
 
-Además, es importante remarcar la importancia de obtener subconjuntos que sean
-mínimos\pp{acá aparece recién la definición de minímos}, lo que significa que 
-no contengan métodos adicionales \pp{qué signfica esto?}. Esto es crucial para
-utilizar la combinación de estos métodos en la construcción de objetos. Cuantos
-más métodos tenga el subconjunto de builders, más costosa será la combinación de
-los mismos para generar los objetos \pp{no está definido como se piensa generar
-los objetos}.
+% Además, es importante remarcar la importancia de obtener subconjuntos que sean mínimos\pp{acá aparece recién la definición de minímos}, lo que significa que 
+% no contengan métodos adicionales. Esto es crucial para
+% utilizar la combinación de estos métodos en la construcción de objetos. Cuantos
+% más métodos tenga el subconjunto de builders, más costosa será la combinación de
+% los mismos para generar los objetos 
+% \pp{no está definido como se piensa generar
+% los objetos}.
 
-Los siguientes subconjuntos son suficientes pero no son mínimos para NCL:
+Como explicamos al principio, existen dos propiedades que deseamos que tengan los subconjuntos de métodos generadores de objetos. Primero deseamos obtener subconjuntos de métodos que sean suficientes, por ejemplo, los siguientes conjuntos son suficientes de NCL:
 \\
+\cacho{HAgo referencia al listing o lo dejo en linea como esta?}
 
 \begin{lstlisting}[numbers=none,label=fig:NCLnoMin, frame=tb , basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
@@ -161,8 +164,7 @@ generar parámetros para brindale a esta rutina a la hora de generar entradas
 
 Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores
 (columna Obs?), lo que significa que no modifican los objetos en los que operan,
-ni son útiles para crear objetos. Por lo tanto, los observadores siempre son
-superfluos y nunca deben incluirse en un conjunto de constructores mínimos
+ni son útiles para crear objetos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos
 \pp{no definido}. Nuestro enfoque intenta reconocerlos de antemano y
 descartarlos de la búsqueda para reducir significativamente el espacio de
 búsqueda \pp{Buscaría hablar del concepto de builders antes que de los enfoques}.
