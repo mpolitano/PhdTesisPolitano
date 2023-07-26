@@ -170,12 +170,8 @@ descartarlos de la búsqueda para reducir significativamente el espacio de
 búsqueda \pp{Buscaría hablar del concepto de builders antes que de los enfoques}.
 
 
-
 % 3- Resumen de los algos que vamos a introducir
-Todos estos problemas planteados en este capítulo fueron lo que nos motivó a desarrollar enfoques para obtener automáticamente métodos constructores de manera eficiente y mínima. Para lograrlo, utilizamos una variedad de técnicas y algoritmos que explicaremos en la próxima sección. 
-En este capitulo, proponemos tres enfoques para seleccionar automáticamente un
-conjunto de constructores de objetos a partir de la API, basados en un algoritmo
-evolutivo, un algoritmo greedy y un algoritmo de particionado en clases de equivalencias. Estos algoritmos favorecen conjuntos de métodos cuyas combinaciones conducen a la generación de conjuntos más grandes de objetos o a aquellos conjuntos que obtienen mejor cobertura de ramas del SUT. Además, los algoritmos tienen en cuenta otras características sobre estos conjuntos de métodos, tratando de priorizar la selección de aquellos con menor cantidad de métodos y con más simples parámetros.
+Para abordar estos desafíos planteados, hemos propuesto tres enfoques para seleccionar automáticamente un conjunto de métodos generadores de objetos a partir de la API. Además, buscamos que estos subconjuntos identificados cumplan con las propiedades de suficiencia y minimalista de los métodos de la API de un programa  Estos enfoques utilizan algoritmos evolutivos, algoritmos greedy y algoritmos de particionado en clases de equivalencias. Cada enfoque tiene como objetivo favorecer la generación de conjuntos más grandes de objetos o aquellos conjuntos que logran una mejor cobertura de ramas del Sistema bajo Prueba (SUT). Además, los algoritmos toman en cuenta otras características de los conjuntos de métodos, como la cantidad y la simplicidad de los parámetros, para priorizar su selección. En la próxima sección, explicaremos en detalle cada uno de estos enfoques y las técnicas y algoritmos utilizados para su implementación.
 
 \section{Algoritmos}
 \label{sec:algorithms}
@@ -185,36 +181,51 @@ Para identificar un conjunto suficiente y mínimo de generadores de objetos a pa
 de la API de un programa, diseñamos tres algoritmos de búsqueda que se
 describen a continuación. El primero es un algoritmo genético, el segundo es un algoritmo \emph{greedy}, más precisamente una variante de un algoritmo \emph{hill climbing}, y el tercero
 es un algoritmo basado en particionar los subconjuntos métodos de la API en \emph{clases de equivalencias} de acuerdo a los objetos que construyen.
-
+\cacho{Similar a como termine arriba. Chequear esta intro}
 
 % Observadores que es compartido por todos los algoritmos
+
 \subsection{Identificación de métodos observadores}
 \pp{Explayarse sobre esto, dar algunos ejemplos}
-Los métodos observadores son aquellos que no modifican el estado de un objeto al
-ejecutarse. En el ejemplo motivador presentado en la sección
-\ref{sec:motivacion} y la tabla \ref{tab:ncl-api}, se puede observar que existen
-muchos métodos clasificados como observadores. Esto nos indica que estos métodos
-no son relevantes para ser considerados como métodos builders. Antes de ejecutar
-cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático
-para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestros
-métodos builders \pp{castellano}. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
 
-% mergear los dos párrafos que siguen
+Los métodos observadores o puros son aquellos que no modifican el estado de un objeto al ejecutarse. Los métodos puros son útiles para obtener información sobre el estado de un objeto sin modificarlo. También pueden usarse para verificar el estado de un objeto antes de realizar una operación que podría modificarlo. En el ejemplo motivador presentado en la sección anterior y la tabla \ref{tab:ncl-api}, se puede observar que existen muchos métodos clasificados como observadores. Esto nos indica que estos métodos no son relevantes para ser considerados como métodos generadores de objetos de una clase. 
+Fácilmente, se puede observar en el código de la Figura \ref{fig:emptyObs} que la función \emph{isEmpty} y \emph{size} de la clase NodeCachingLinkedList (NCL) son métodos puros.  Estos  métodos no modifican ningún campo de estado de la clase NCL.
+\cacho{acentos y ñ En listing}
+\begin{lstlisting}[language=Java, label=fig:emptyObs, caption=Métodos observadores de la clase NCL. Se observa que no modifican el estado de NCL., captionpos=b, frame=tb, float=t]
+public class NodeCachingLinkedList {
+
+    Node head;
+    int size;
+    /**
+    Devuelve verdadero si la lista esta vacia. 
+    */ 
+    public boolean isEmpty() { 
+        return head == null; 
+    }
+    
+    /**
+    Devuelve el tamano de la lista. 
+    */ 
+    public int size() { 
+        return size; 
+    }
+    
+    
+    // Otros campos y metodos
+    
+}
+\end{lstlisting}
+
+
+Antes de ejecutar cualquiera de nuestros algoritmos, aplicamos una técnica de análisis estático
+para eliminar de la búsqueda aquellos métodos que son irrelevantes para nuestro propósito de encontrar los métodos generadores de una API. En otras palabras, necesitamos identificar y eliminar aquellos métodos que son considerados observadores en la API.
+
 Para realizar esta identificación de métodos observadores, utilizamos una
 herramienta de análisis estático llamada
 \emph{Infer}\footnote{https://fbinfer.com/}. Esta herramienta ha sido
-desarrollada por \emph{Facebook} y ofrece varias funcionalidades. En el contexto
-de nuestra tesis, utilizamos únicamente su analizador estático para detectar qué
-métodos son considerados puros (observadores) \pp{falta cita a paper de
-métodos puros}.
-
-El análisis estático realizado con \emph{Infer} nos permite obtener una lista de
-métodos que son clasificados como observadores en la API bajo prueba. Esta
-información es utilizada como paso previo a la ejecución de nuestros algoritmos,
-para asegurarnos de que solo consideramos los métodos relevantes y adecuados
-para comenzar la búsqueda de los métodos \emph{builders}. \pp{este párrafo es
-una repetición de lo que dice el anterior}
-
+desarrollada por \emph{Facebook} y ofrece varias funcionalidades. El análisis estático realizado con \emph{Infer} nos permite obtener una lista de métodos que son clasificados como puros (observadores) \cite{Huang:2012} en la API bajo prueba. Esta
+información es utilizada como paso previo a la ejecución de nuestros algoritmos, para asegurarnos de que solo consideramos los métodos relevantes y adecuados para comenzar la búsqueda de los métodos \emph{builders}. 
+Por ejemplo
 % 1- estados o configuraciones del problema
 \subsection{Estados}
 
