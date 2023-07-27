@@ -27,11 +27,9 @@ Es importante destacar que estas configuraciones deben estar limitadas para pode
 
 En el contexto de una API, el conjunto de métodos generadores de objetos debe ser suficiente y minimal para garantizar un manejo eficiente y completo de las configuraciones de objetos posibles.
 
-La propiedad de "suficiente" implica que este conjunto de métodos debe ofrecer todas las opciones y parámetros necesarios para configurar completamente un objeto de la API. En otras palabras, con estos métodos, los usuarios deben poder generar cualquier configuración deseada de objetos dentro de la API. Esta característica es fundamental, ya que garantiza que el subconjunto de métodos generadores sea competente y abarque todas las posibilidades que la API puede ofrecer.
+La propiedad de ``suficiente'' implica que este conjunto de métodos debe ofrecer todas las opciones y parámetros necesarios para configurar completamente un objeto de la API. En otras palabras, con estos métodos, los usuarios deben poder generar cualquier configuración deseada de objetos dentro de la API. Esta característica es fundamental, ya que garantiza que el subconjunto de métodos generadores sea competente y abarque todas las posibilidades que la API puede ofrecer.
 
-Por otro lado, la propiedad de "minimal" es igualmente importante. Al referirnos a que los métodos deben ser minimalistas, nos referimos a que deben ser lo más simples y en menor cantidad posible. Cada método debe cumplir una función específica y claramente definida, sin redundancia innecesaria. La ausencia de cualquier método de este conjunto podría significar que exista al menos una configuración de la API que no se pueda recrear o generar. Especialmente en situaciones donde los objetos pueden tener múltiples atributos o propiedades, la falta de la propiedad de minimalismo del subconjunto de métodos puede generar una explosión de combinaciones de los mismos, dificultando el proceso de configuración y aumentando el riesgo de errores.
-
-
+Por otro lado, la propiedad de ``minimal'' es igualmente importante que la propiedad de suficiencia. Al referirnos a que los métodos deben ser minimalistas, nos referimos a que deben ser los más simples \cacho{No se si es la palabra acorde} y el conjunto debe tener la menor cantidad posible de métodos. Esto quiere decir, que cada método debe cumplir una función específica y claramente definida, sin redundancia innecesaria. La ausencia de cualquier método de este conjunto podría significar que exista al menos una configuración de la API que no se pueda recrear o generar. Especialmente en situaciones donde los objetos pueden tener múltiples atributos o propiedades, la falta de la propiedad de minimalismo del subconjunto de métodos puede generar una explosión de combinaciones de los mismos, dificultando el proceso de generación.
 
 % Suficiente (indep. de los algoritmos)
 
@@ -88,9 +86,9 @@ No. &Tipo de retorno & Nombre del Método & Observador? \\
 \label{tab:ncl-api}
 \end{table} 
 
-Vamos a motivar estas definiciones mediante un ejemplo de una API. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista principal circular doblemente enlazada  que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
-Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos.
-
+Vamos a motivar estas definiciones mediante un ejemplo de una API. La estructura de datos NodeCachingLinkedList (NCL) de Apache \cite{apache} consta de una lista principal circular doblemente enlazada que contiene los elementos de la colección y una lista secundaria simplemente enlazada que actúa como caché para los nodos que se han `eliminado de la lista principal. Los nodos almacenados en la caché pueden ser reutilizados y añadidos de nuevo a la lista principal al insertar elementos en ella. Gracias a su caché, en las aplicaciones en las que las inserciones y eliminaciones de la lista son muy frecuentes, NCL puede reducir significativamente la sobrecarga necesaria para la asignación de memoria y la recolección de basura de los nodos. 
+Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias de NCL que se pueden construir con exactamente dos nodos (scope).
+\cacho{Chequear definir antes SCOPE}
 
 \begin{figure}[H]
     \centering
@@ -101,11 +99,9 @@ Como ilustración, la Figura~\ref{fig:ncl-instances} muestra las tres instancias
 
 
 NCL tiene una API muy completa, como se muestra en la Tabla~\ref{tab:ncl-api}.
-Sin embargo, para construir cualquier objeto de NCL, sólo se necesitan algunos
-métodos de la API. Por ejemplo, las combinaciones de los métodos en la
-Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros
+Sin embargo, para construir cualquier objeto de NCL hasta un \emph{scope} dado, solo se necesitan algunos métodos de la API. Por ejemplo, las combinaciones de los métodos en la Figura~\ref{fig:NCLbuilders}, cuando se instancian con los parámetros
 apropiados, se pueden utilizar para construir cualquier objeto de NCL.
-Por lo tanto, los métodos de la figura \ref{fig:NCLbuilders} son un ejemplo de un conjunto suficiente de métodos generadores de objetos para NCL \pp{Nunca definiste lo que es un conjunto suficiente, ni builders}.
+Por lo tanto, los métodos de la figura \ref{fig:NCLbuilders} son un ejemplo de un conjunto suficiente de métodos generadores de objetos para NCL
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de metodos sufiente para NCL]
   (0)  NodeCachingLinkedList()
@@ -113,13 +109,9 @@ Por lo tanto, los métodos de la figura \ref{fig:NCLbuilders} son un ejemplo de 
   (25) removeFirst()
 \end{lstlisting}
 
- \cacho{DEBERIA INTRODUCIR QUE VOY A encontrarlo automaticamente}
- Hay que tener en cuenta que, después de utilizar el método constructor de las clases NCL, la lista principal de NCL se puede completar simplemente utilizando el método
- \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la lista caché no esté vacía, podemos hacerlo a través del método
- \texttt{removeFirst}, como sugiere el conjunto suficiente de constructores.
- Para la mayoría de las técnicas de análisis automáticas \pp{no son la mayoría}, nos gustaría considerar tantos escenarios (entradas) variables como sea posible, de ahí la motivación para construir estas con un un conjunto suficientes de métodos de la API \pp{acá hay un salto a generación de entradas que no se entiende}. Además, los métodos \emph{builders} de la figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir bajo el scope deseado \pp{no definido}.
+ Hay que tener en cuenta que, después de utilizar el método constructor de las clases NCL, la lista principal de NCL se puede completar simplemente utilizando el método \texttt{addFirst}. Sin embargo, si queremos generar instancias en las que la lista caché no esté vacía, podemos hacerlo a través del método \texttt{removeFirst}, como sugiere el conjunto suficiente de métodos generadores. Además, los métodos generadores de la figura~\ref{fig:NCLbuilders} también son mínimos, ya que la falta de alguno de ellos implicaría que algunos objetos de NCL ya no se pueden construir bajo el scope deseado.
 
-Hay que tener en cuenta que puede haber muchos conjuntos de constructores suficientes \pp{no definido}. Por ejemplo, se pueden obtener constructores suficientes reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
+Hay que tener en cuenta que puede haber muchos conjuntos de genereadores suficientes. Por ejemplo, se pueden obtener métodos generadores suficientes reemplazando el método \texttt{addFirst} en la Figura~\ref{fig:NCLbuilders} por cualquier otra variante de \texttt{add} que se muestra en la Figura~\ref{fig:NCLadds}, ya que para cualquier manera de llenar la lista principal de NCL con \texttt{addFirst}, existe una forma diferente de construir el mismo objeto utilizando otra variante de \texttt{add} (quizás invocada con diferentes parámetros y cambiando el orden de ejecución).
 \\
 \begin{lstlisting}[numbers=none,label=fig:NCLadds, caption=Variantes del método 'Add' que puedo ser utilizado para rellanar la lista principal en NCL, captionpos=b, frame=tb , basicstyle=\scriptsize]
   (3) add(Object)
@@ -158,16 +150,13 @@ También observamos que cuanto más simples sean los parámetros de una rutina, 
 fácil será utilizarla para generar entradas en el contexto de un análisis de
 programas. Por ejemplo, entre las alternativas de rutinas para insertar datos en
 la lista principal de NCL (Figura.~\ref{fig:NCLadds}), \texttt{add(int,Object)}
-recibe más parámetros que los otros tres métodos, por lo tanto es más difícil
-generar parámetros para brindale a esta rutina a la hora de generar entradas
-\pp{No está definido como se generarían entradas}. Esto hace que las otras tres alternativas tengan mas preferencia sobre esta. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
+recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para brindale a esta rutina a la hora de generar entradas \pp{No está definido como se generarían entradas}. Esto hace que las otras tres alternativas tengan mas preferencia sobre esta. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
 
-Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores
-(columna Obs?), lo que significa que no modifican los objetos en los que operan,
-ni son útiles para crear objetos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos
-\pp{no definido}. Nuestro enfoque intenta reconocerlos de antemano y
-descartarlos de la búsqueda para reducir significativamente el espacio de
-búsqueda \pp{Buscaría hablar del concepto de builders antes que de los enfoques}.
+Para algunas técnicas de análisis automáticas \cacho{CITAR algunas}, nos gustaría considerar tantos escenarios (entradas) variables como sea posible, de ahí la motivación para construir estas con un conjunto suficientes de métodos de la API 
+\pp{acá hay un salto a generación de entradas que no se entiende}.
+\cacho{No se si hace falta esto aca, capaz que en la intro general va mejor}
+% Muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos en los que operan, ni son útiles para crear objetos. Por lo tanto, los observadores siempre son superfluos y nunca deben incluirse en un conjunto de constructores mínimos \pp{no definido}. Nuestro enfoque intenta reconocerlos de antemano y descartarlos de la búsqueda para reducir significativamente el espacio de
+% búsqueda \pp{Buscaría hablar del concepto de builders antes que de los enfoques}.
 
 
 % 3- Resumen de los algos que vamos a introducir
@@ -229,6 +218,42 @@ Por ejemplo
 % 1- estados o configuraciones del problema
 \subsection{Estados}
 
+En el contexto de los algoritmos de búsqueda, los estados se refieren a la representación de las diferentes configuraciones o situaciones que puede tomar un problema. Cada estado representa un punto en el espacio de búsqueda, que es el conjunto de todas las posibles combinaciones o configuraciones que se pueden explorar para resolver el problema.
+
+La representación de los estados es fundamental para el funcionamiento de los algoritmos de búsqueda, ya que determina cómo se explorará el espacio de búsqueda en busca de soluciones. Una buena representación de los estados debe ser capaz de codificar todas las características relevantes del problema y permitir que el algoritmo realice operaciones eficientes de expansión y exploración para encontrar la solución deseada.
+
+La codificación del espacio de búsqueda se refiere al proceso de definir cómo se representan y generan los diferentes estados en el problema. Esto implica definir qué información es relevante para el problema y cómo se estructura la representación de los estados para que el algoritmo de búsqueda pueda moverse eficientemente a través del espacio de búsqueda.
+
+Un aspecto importante a considerar en la codificación del espacio de búsqueda es el equilibrio entre la complejidad de la representación y la eficiencia del algoritmo. Si la representación es demasiado compleja, el algoritmo puede volverse lento y costoso computacionalmente. Por otro lado, si la representación es demasiado simplificada, es posible que se pierda información relevante y el algoritmo no encuentre soluciones óptimas o incluso pueda quedar atrapado en óptimos locales.
+
+Cada estado en el espacio de búsqueda debe poder representarse como un individuo o
+cromosoma en la población del algoritmo de búsqueda que se implemente. 
+% La codificación consiste en una función biyectiva que mapea candidatos a resolver el problema con el conjunto de todos los posibles candidatos.
+Comúnmente, los estados están compuestos por genes que representan características del individuo, por ejemplo,
+$c_s = [g1, g2, ..., gn]$,donde cada gen representa una característica del cromosoma.
+
+
+Los estados en nuestros algoritmos de búsqueda son subconjuntos de métodos de la API.  En nuestro caso, necesitamos alguna forma de representar los métodos de la clase como un vector. Para realizar esto, hemos utilizados vectores booleanos. Por ejemplo, consideremos el ejemplo de NCL explicado en el capítulo anterior, que tiene 34 métodos (consultar Tabla \ref{tab:ncl-api}).
+\cacho{Aca me mmeto en decir que en realidad es con los 34 menos los obs? }
+Para representar nuestras posibles soluciones, crearemos un vector de genes booleanos, donde cada posición $i$ es verdadera si y solo si el cromosoma contiene el $i$-ésimo método de la API. Para hacer esto, enumeraremos los métodos de la API desde 0 hasta $n$, donde $n$ es el número total de métodos en la API. Cabe destacar que cada cromosoma tendrá la misma longitud, lo cual es común en los algoritmos genéticos.
+
+Para el ejemplo de NCL, que tiene 34 métodos (Tabla \ref{tab:ncl-api}), tendríamos la siguiente representación del estado que representa una solucion posible de métodos suficientes y mínimos para NCL (como se muestra en la Figura \ref{fig:NCLbuilders}):
+% \begin{center}
+% $c = \begin{array}{|*{8}{c|}}
+% \hline
+% & \multicolumn{2}{c|}{} & 0 & 1 & \ldots & 7 & \ldots & 25 & \ldots & 33 \\
+% \hline
+% 0 & 1 & \ldots & 1 & \ldots & 1 & \ldots & 0 \\
+% \hline
+% \end{array}$
+% \end{center}
+
+\cacho{Agregar cromosoma}
+
+\pp{los índices no son parte del cromosoma y deberían ir abajo, como está el dibujo parece una
+matriz, y no coincide el formato con el dibujo anterior}
+
+En este caso, las posiciones 0, 7 y 25 están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas.
 
 \subsection{Función objetivo}
 % 2- función de valoración
@@ -281,35 +306,6 @@ subconjunto de métodos que sean mínimo y suficientes \pp{constructores?}, que 
 \subsubsection{Cromosomas}
 \label{ge:cromosomas}
 
-Los elementos de la población de nuestro algoritmo genético son subconjuntos de métodos de la API. Para representar esto, necesitamos codificarlos como \emph{cromosomas}. En nuestro caso, necesitamos alguna forma de representar los métodos de la clase como un vector. Por ejemplo, consideremos el ejemplo de NCL explicado en el capítulo anterior, que tiene 34 métodos (consultar Tabla \ref{tab:ncl-api}). Para representar nuestras posibles soluciones, crearemos un vector de genes booleanos, donde cada posición $i$ es verdadera si y solo si el cromosoma contiene el $i$-ésimo método de la API. Para hacer esto, enumeraremos los métodos de la API desde 0 hasta $n$, donde $n$ es el número total de métodos en la API. Cabe destacar que cada cromosoma tendrá la misma longitud, lo cual es común en los algoritmos genéticos.
-
-Para el ejemplo de NCL, que tiene 34 métodos (Tabla \ref{tab:ncl-api}), tendríamos la siguiente representación del cromosoma:
-
-\begin{center}
-$c = \begin{array}{@{}cccccc@{}}
-\scriptsize g_0 & \scriptsize g_1 & \scriptsize g_2 & \ldots & \scriptsize g_{34}
-\end{array}$
-\end{center}
-\pp{este ejemplo quedó de más con el de abajo me parece, no aclara mucho así
-como está}
-
-Aquí, cada gen (\emph{g}) es un valor booleano que indica la presencia o
-ausencia del método en ese cromosoma. \pp{está dicho arriba esto}
-
-Como ejemplo más concreto, consideremos la representación del cromosoma que representa el conjunto de métodos suficientes y mínimos para NCL, como se muestra en la Figura \ref{fig:NCLbuilders}:
-\begin{center}
-$c = \begin{array}{|*{8}{c|}}
-\hline
-0 & 1 & \ldots & 7 & \ldots & 25 & \ldots & 33 \\
-\hline
-1 & 0 & \ldots & 1 & \ldots & 1 & \ldots & 0 \\
-\hline
-\end{array}$
-\end{center}
-\pp{los índices no son parte del cromosoma y deberían ir abajo, como está el dibujo parece una
-matriz, y no coincide el formato con el dibujo anterior}
-
-En este caso, las posiciones 0, 7 y 25 están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas.
 
 
 \subsubsection{Poblacion Inicial \pp{por qué solo la inicial?}}
