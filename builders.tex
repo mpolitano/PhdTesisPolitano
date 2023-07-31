@@ -404,56 +404,42 @@ El operador de selección tipo torneo ofrece una forma sencilla de elegir indivi
 % calidad de las soluciones \pp{no son soluciones}a lo largo de las generaciones
 % \pp{no definido}.
 
-\paragraph{Cross-over (Cruce\pp{mala traducción})}
-El cruzamiento, es uno de los operadores principales de los algoritmos genéticos. Consiste en combinar información genética de dos individuos seleccionados de la población para crear nuevos individuos (descendientes). Para realizar el cruzamiento, se elige un punto de corte aleatorio en las cadenas de bits que representan a los individuos, y se intercambian las porciones de las cadenas que se encuentran a ambos lados del punto de corte. Este proceso es similar a la reproducción sexual en la naturaleza, donde los rasgos genéticos de ambos padres se combinan para formar la descendencia.
+\paragraph{Cruzamiento} 
 
-El "crossover" o "cruzamiento" es una de las principales operaciones utilizadas en los algoritmos genéticos. Es el proceso mediante el cual dos individuos seleccionados de la población (llamados padres) combinan partes de sus cromosomas (representados generalmente como cadenas de bits) para crear nuevos individuos (llamados descendientes o hijos) que heredan características de ambos padres.
+
+El cruzamiento, también conocido como \emph{crossover} en inglés, es uno de los operadores principales de los algoritmos genéticos. Es el proceso mediante el cual dos individuos seleccionados de la población (llamados padres) combinan partes de sus estados para crear nuevos individuos (llamados descendientes o hijos) que heredan características de ambos padres. De esta manera, el algoritmo va generando nuevos estados y explorando diferentes combinaciones genéticas.
+
+En el proceso de cruzamiento, se seleccionan dos puntos de cruzamiento aleatoriamente para cada par de padres. Luego, se toma una parte del cromosoma de un padre hasta el punto de cruzamiento, y se intercambian las secciones entre esos puntos para formar un nuevo cromosoma para el descendiente. Esto crea dos descendientes, uno para cada par de padres.
+
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{images/crossOver}
-  \caption{Ejemplo de crossover con dos cromosomas.}
+  \includegraphics[width=0.9\textwidth]{images/crossOver.png}
+  \caption{Ejemplo de crossover de dos puntos con dos cromosomas.}
+  \label{fig:crossover}
 \end{figure}
 
 
+La Figura \ref{fig:crossover} muestra un ejemplo de cruzamiento para dos pares de padres con cromosomas representados como cadenas de bits. Los puntos de cruzamiento se encuentran después del tercer bit y después del sexto bit. Luego, se muestran los hijos o descendientes que se crean cruzando los cromosomas de los padres en los puntos de cruzamiento.
 
+Para el primer par de padres, el descendiente resultante toma los primeros tres bits del primer padre, los tres bits siguientes del segundo padre y los últimos cuatro bits del primer padre. En cambio, para el segundo par de padres, el descendiente toma los primeros tres bits del segundo padre, los tres bits siguientes del primer padre y los últimos cuatro bits del primer padre.
 
+En nuestro algoritmo, utilizamos un ratio de 0.30 para el cruzamiento, lo cual significa que en cada generación aproximadamente el 30 porciento de los individuos serán seleccionados para cruzarse y crear nuevos descendientes. Este valor fue obtenido a partir de evaluaciones experimentales que hemos realizado con 10 corridas del algoritmo.
 
+El cruzamiento es una operación fundamental en los algoritmos genéticos, ya que permite combinar información genética de diferentes individuos y crear diversidad en la población, lo cual es esencial para la búsqueda de soluciones óptimas y la evolución del algoritmo.
 
-El cruzamiento (o \emph{cross-over} en inglés) es un operador genético que
-combina una parte de dos cromosomas $c1$ y $c2$ elegidos aleatoriamente para
-crear un nuevo cromosoma descendiente \pp{no se eligen aletoriamente, se eligen
-con el procedimiento de selección. Selección debería explicarse antes}. Esa parte que toma de cada cromosoma padre
-depende de la configuración con la que se lo setee. En nuestro algoritmo,
-utilizamos un ratio de 0.30\pp{No se debería buscar
-experimentalmente? Hay una mezcla entre la definición de algoritmos genéticos
-en general y la implementación particular}. Además, un cruzamiento de dos puntos \pp{no
-definido} de cruce dentro de los cromosomas de los padres. Su objetivo principal es explorar y explotar la información genética existente en la población.
-El cruce de varios puntos permite una mayor variedad en los descendientes
-generados, ya que se intercambian segmentos más largos de genes entre los
-padres. Esto puede ayudar a explorar el espacio de búsqueda de soluciones de
-manera más efectiva y encontrar soluciones potencialmente mejores \pp{errores
-técnicos}.
-\pp{un ejemplo hubiera estado bueno}
 
 \paragraph{Mutacion\pp{spell checker}}
 
-La mutación es un operador fundamental en un algoritmo genético que introduce
-pequeños cambios aleatorios en los cromosomas para explorar nuevas soluciones
-\pp{no son soluciones} y mantener la diversidad dentro de la población. Juega un
-papel crucial en la prevención de la convergencia prematura \pp{no me convence}
-y garantiza que el algoritmo explore de manera efectiva el espacio de búsqueda.
-Existen varios operadores de mutación que se pueden utilizar en un algoritmo
-genético. Uno de los operadores de mutación más comúnmente utilizados es la
-Mutación por Inversión de Bits \pp{por qué mayúsculas?}, que es adecuada para algoritmos genéticos codificados en binario como en el caso de nuestra codificación.
-En la Mutación por Inversión de Bits, se selecciona uno o más bits aleatorios en
-el cromosoma y se invierten. Si un bit está inicialmente establecido en 1, se
-cambia a 0, y viceversa. Esta alteración aleatoria introduce cambios sutiles en
-la información del cromosoma, creando potencialmente nuevas soluciones \pp{no son soluciones}que no
-estaban presentes en la población original. El número de bits invertidos y sus
-posiciones se determinan típicamente mediante una baja probabilidad de mutación
-\pp{en realidad se hace experimentalmente}.
-\pp{un ejemplo hubiera estado bueno}
+
+
+
+La mutación es otro operador importante en los algoritmos genéticos. Consiste en introducir cambios aleatorios en los cromosomas de los individuos de la población para diversificar la búsqueda y evitar que el algoritmo quede atrapado en óptimos locales.
+
+En el proceso de mutación, cada posición del estado de un individuo tiene una pequeña probabilidad de ser modificada. Esto significa que un bit en el estado puede cambiar de valor de manera aleatoria. Por ejemplo, si estamos representando los cromosomas como cadenas de bits, una mutación puede implicar cambiar un 0 por un 1 o viceversa.
+
+Aunque la mutación es un proceso aleatorio, su probabilidad suele ser muy pequeña, generalmente en el rango de 0.01 a 0.05, para evitar que los cambios sean demasiado drásticos y permitir que los individuos mejor adaptados dominen la población. En nuestro algoritmo utilizamos 0.05.
+
 
 
 
