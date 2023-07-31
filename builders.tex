@@ -398,61 +398,22 @@ El operador de selección tipo torneo ofrece una forma sencilla de elegir indivi
 
 \subsubsection{Operadores Genéticos}
 
-A continuación explicaremos los operadores genéticos principales utilizados en
-el algoritmo evolutivo. Cada uno desempeña un papel importante en la exploración
-y explotación \pp{explotación?} del espacio de búsqueda y en la mejora de la
-calidad de las soluciones \pp{no son soluciones}a lo largo de las generaciones
-\pp{no definido}.
+% A continuación explicaremos los operadores genéticos principales utilizados en
+% el algoritmo evolutivo. Cada uno desempeña un papel importante en la exploración
+% y explotación \pp{explotación?} del espacio de búsqueda y en la mejora de la
+% calidad de las soluciones \pp{no son soluciones}a lo largo de las generaciones
+% \pp{no definido}.
 
 \paragraph{Cross-over (Cruce\pp{mala traducción})}
 El cruzamiento, es uno de los operadores principales de los algoritmos genéticos. Consiste en combinar información genética de dos individuos seleccionados de la población para crear nuevos individuos (descendientes). Para realizar el cruzamiento, se elige un punto de corte aleatorio en las cadenas de bits que representan a los individuos, y se intercambian las porciones de las cadenas que se encuentran a ambos lados del punto de corte. Este proceso es similar a la reproducción sexual en la naturaleza, donde los rasgos genéticos de ambos padres se combinan para formar la descendencia.
 
+El "crossover" o "cruzamiento" es una de las principales operaciones utilizadas en los algoritmos genéticos. Es el proceso mediante el cual dos individuos seleccionados de la población (llamados padres) combinan partes de sus cromosomas (representados generalmente como cadenas de bits) para crear nuevos individuos (llamados descendientes o hijos) que heredan características de ambos padres.
 
-
-\begin{tikzpicture}[
-  node distance=1cm,
-  every node/.style={minimum size=0.7cm}
-]
-
-% Parent vectors
-\draw (0,0) grid (8,1);
-\node at (0.5,0.5) {$0$};
-\node at (1.5,0.5) {$0$};
-\node at (2.5,0.5) {$1$};
-\node at (3.5,0.5) {$0$};
-\node at (4.5,0.5) {$1$};
-\node at (5.5,0.5) {$1$};
-\node at (6.5,0.5) {$0$};
-\node at (7.5,0.5) {$1$};
-\draw[dashed] (2,1) -- (2,-1);
-
-\draw (0,0) grid (8,2);
-\node at (0.5,0.5) {$0$};
-\node at (1.5,0.5) {$0$};
-\node at (2.5,0.5) {$1$};
-\node at (3.5,0.5) {$0$};
-\node at (4.5,0.5) {$1$};
-\node at (5.5,0.5) {$1$};
-\node at (6.5,0.5) {$0$};
-\node at (7.5,0.5) {$1$};
-% Crossover point
-s
-% Child vectors
-\draw (0,-2) grid (4,-1);
-\node at (0.5,-1.5) {$A$};
-\node at (1.5,-1.5) {$B$};
-\node at (2.5,-1.5) {$C$};
-\node at (3.5,-1.5) {$D$};
-
-\draw (0,-3) grid (4,-2);
-\node at (0.5,-2.5) {$A$};
-\node at (1.5,-2.5) {$B$};
-\node at (2.5,-2.5) {$C$};
-\node at (3.5,-2.5) {$D$};
-
-% \draw[->,thick] (2,-0.8) -- (2,-1.2);
-
-\end{tikzpicture}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/crossOver}
+  \caption{Ejemplo de crossover con dos cromosomas.}
+\end{figure}
 
 
 
