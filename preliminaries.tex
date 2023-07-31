@@ -35,113 +35,48 @@ Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \
 Además, en esta tesis se realizó una modificación de Randoop que consistió en incorporar una funcionalidad que permitiera al usuario especificar un porcentaje de prioridad para un subconjunto de métodos en la generación de pruebas. Al proporcionar un porcentaje de prioridad para un subconjunto de métodos, Randoop tendrá mayor probabilidad de generar casos de prueba que cubran esos métodos específicos de manera más exhaustiva. Y le hemos agregado la posibilidad de serializar los objetos (con secuencia de llamadas a métodos de los test podemos generar objetos) Esto nos permitió utilizarlo como una función de valoración explicada en \ref{sec:randoopObjects}.
 
 
-\section{Algoritmos Genéticos}
-\label{sec:geneticoPrev}
-Los algoritmos genéticos (AG) \cite{goldberg1989genetic} son una técnica de búsqueda y optimización que se inspira en la evolución biológica. Se utilizan para resolver problemas de búsqueda, especialmente problemas de optimización, imitando el proceso de evolución natural. A través de un proceso evolutivo basado en elecciones aleatorias guiadas, los algoritmos genéticos exploran un espacio de soluciones en busca de la mejor solución posible.
-Para abordar un problema utilizando un algoritmo genético, es necesario contar con los siguientes componentes:
-
-\begin{itemize}
-    \item  \textbf{Codificacionl}: Cada solución candidata en el espacio de búsqueda debe poder representarse como un individuo o \emph{cromosoma} en la población del algoritmo genético. La codificación consiste en una función biyectiva que mapea soluciones del problema al conjunto de todos los posibles cromosomas. Comúnmente, los cromosomas están compuestos por genes que representan características del individuo, por ejemplo  $c\_s = [g1, g2, ..., gn]$ donde cada gen representa una característica del cromosoma.
 
 
-    \item \textbf{Población inicial}: La población inicial del algoritmo genético está formada por un conjunto de cromosomas que codifican soluciones candidatas al problema. Los genes de estos cromosomas son seleccionados aleatoriamente. El tamaño de la población inicial se define a priori y se mantiene constante durante las iteraciones del algoritmo.
+% \section{Algoritmos Perezosos? (Greedy)}
+% \label{sec:greedyPrev}
+% El algoritmo Greedy es una estrategia de resolución de problemas que sigue un enfoque voraz, tomando decisiones locales óptimas en cada etapa con la esperanza de llegar a una solución global óptima. A diferencia de otros enfoques, el algoritmo Greedy no realiza una búsqueda exhaustiva en el espacio de soluciones, sino que se centra en elegir la mejor opción disponible en cada momento.
 
-    \item \textbf{Función de Fitness}: La función de aptitud (también conocida como función de fitness) es una función que mide la calidad de un cromosoma o solución candidata. Evalúa cuán bien resuelve el problema la solución representada por el cromosoma. Durante la evolución del algoritmo, el objetivo es optimizar esta función, es decir, encontrar el individuo de la población con el mayor (o menor) valor de aptitud según el objetivo del problema.
+% El enfoque Greedy se basa en la idea de que, al tomar decisiones óptimas en cada etapa, se puede obtener una solución aproximadamente óptima para el problema en general. Sin embargo, debido a su naturaleza voraz, el algoritmo Greedy puede no garantizar una solución óptima en todos los casos. En algunos casos, el algoritmo puede llegar a un óptimo local, pero no a un óptimo global. Por lo tanto, es importante tener en cuenta las limitaciones y restricciones del problema al aplicar el algoritmo Greedy.
 
-\item \textbf{Operadores genéticos}: Los operadores genéticos son las herramientas mediante las cuales se generan nuevas soluciones a partir de soluciones existentes. Los principales operadores son:
-    \begin{itemize}
-    \item \textbf{Selección}: Selecciona los cromosomas más aptos para reproducirse. Existen diferentes estrategias de selección, como la selección por torneo.
+% \begin{algorithm}[H]
+%   \SetAlgoLined
+%   \SetKwInOut{Input}{Input}
+%   \SetKwInOut{Output}{Output}
+%   \SetKwFunction{Greedy}{Greedy}
 
-    \item \textbf{Cruce (\emph{Cross-over} en inglés)}: Combina los genes de dos cromosomas para producir uno o más descendientes. El cruce se realiza en puntos específicos de los cromosomas y puede ser de un solo punto, de múltiples puntos o uniforme.
+%   \caption{Greedy Algorithm}
 
-    \item \textbf{Mutación}: Introduce cambios aleatorios en un cromosoma para explorar nuevas regiones del espacio de soluciones. La mutación permite evitar la convergencia prematura y mantener la diversidad genética en la población.
-    \end{itemize}
+%   \Input{Set $S$}
+%   \Output{Solution $R$}
 
-\item \textbf{Par\'ametros}: El algoritmo genético recibe una serie de parámetros que deben ajustarse para su ejecución. Algunos de los parámetros comunes incluyen el tamaño máximo de la población, el número de iteraciones, las tasas de mutación y cruce, y los criterios de convergencia.
-\end{itemize}
+%   \BlankLine
+%   $R \gets \emptyset$ 
+%   $U \gets S$ \tcp*{Set of available elements}
 
-A continuación, se describen las etapas principales del algoritmo genético y para explicar un algoritmo genético estándar :
-
-\begin{algorithm}[H]
-
-\SetAlgoLined
-\KwResult{Best solution}
-Inicializar población inicial $P$ de cromosomas aleatorios\;
-
-Evaluar la aptitud de cada cromosoma en $P$\;
-
-\While{Criterio de terminación no se cumple}{ 
-    Seleccionar cromosomas padres de $P$ para la reproducción\;
-    Aplicar operador de cruce para generar descendencia\;
-    Aplicar operador de mutación a la descendencia\;
-    Evaluar la aptitud de los nuevos cromosomas\;
-    % Reemplazar cromosomas menos aptos en $P$ por la descendencia\;
-}
-\caption{Algoritmo Genético}
-\end{algorithm}
-
-\begin{itemize}
-
-\item \textbf{Inicialización}: En esta etapa, se crea la población inicial de cromosomas aleatorios. Los cromosomas se generan codificando soluciones candidatas al problema.
-
-\item \textbf{Evaluación}: En esta etapa, se evalúa la aptitud de cada cromosoma en la población utilizando la función de aptitud. La aptitud se utiliza para guiar la búsqueda y seleccionar los cromosomas más aptos para reproducirse.
-
-\item \textbf{Selección}: En esta etapa, se seleccionan los cromosomas más aptos para reproducirse y formar la próxima generación de la población. Los métodos de selección pueden variar, pero generalmente se utiliza la selección por torneo o la selección proporcional al valor de aptitud.
-
-\item \textbf{Cruce}: En esta etapa, se aplican operadores de cruce a los cromosomas seleccionados. El cruce combina los genes de dos cromosomas para generar uno o más descendientes. El tipo de cruce depende del problema y se selecciona según su eficacia para explorar el espacio de soluciones.
-
-\item \textbf{Mutación}: En esta etapa, se aplican operadores de mutación a los cromosomas seleccionados. La mutación introduce cambios aleatorios en un cromosoma para explorar nuevas regiones del espacio de soluciones. La tasa de mutación controla la probabilidad de que ocurra una mutación en un gen dado.
-
-\item \textbf{Reemplazo}: En esta etapa, se reemplazan los cromosomas menos aptos en la población por los descendientes generados mediante el cruce y la mutación. Esto permite que los cromosomas más aptos sobrevivan y transmitan sus características a las siguientes generaciones.
-
-\item \textbf{Convergencia}: El algoritmo genético se repite durante un número determinado de iteraciones o hasta que se cumpla un criterio de convergencia. Este criterio puede ser un número máximo de generaciones, una aptitud objetivo alcanzada o la estabilización de la aptitud promedio de la población.
-\end{itemize}
-
-En resumen, los algoritmos genéticos son una herramienta poderosa y versátil para abordar problemas de optimización y búsqueda en una amplia gama de campos. Su capacidad para explorar ampliamente el espacio de soluciones y su capacidad para manejar problemas complejos los convierten en una opción atractiva para resolver desafíos en diversos dominios.
-
-En esta tesis, nos enfocamos en el uso de AGs para buscar subconjunto de métodos de la API que sean builders. Esto lo hablaremos en detalle en el Capítulo \ref{cap:builders}. Para más información sobre Algoritmo Genéticos, puede referirse a \cite{dejong2006evolutionary} 
-
-
-\section{Algoritmos Perezosos? (Greedy)}
-\label{sec:greedyPrev}
-El algoritmo Greedy es una estrategia de resolución de problemas que sigue un enfoque voraz, tomando decisiones locales óptimas en cada etapa con la esperanza de llegar a una solución global óptima. A diferencia de otros enfoques, el algoritmo Greedy no realiza una búsqueda exhaustiva en el espacio de soluciones, sino que se centra en elegir la mejor opción disponible en cada momento.
-
-El enfoque Greedy se basa en la idea de que, al tomar decisiones óptimas en cada etapa, se puede obtener una solución aproximadamente óptima para el problema en general. Sin embargo, debido a su naturaleza voraz, el algoritmo Greedy puede no garantizar una solución óptima en todos los casos. En algunos casos, el algoritmo puede llegar a un óptimo local, pero no a un óptimo global. Por lo tanto, es importante tener en cuenta las limitaciones y restricciones del problema al aplicar el algoritmo Greedy.
-
-\begin{algorithm}[H]
-  \SetAlgoLined
-  \SetKwInOut{Input}{Input}
-  \SetKwInOut{Output}{Output}
-  \SetKwFunction{Greedy}{Greedy}
-
-  \caption{Greedy Algorithm}
-
-  \Input{Set $S$}
-  \Output{Solution $R$}
-
-  \BlankLine
-  $R \gets \emptyset$ 
-  $U \gets S$ \tcp*{Set of available elements}
-
-  \BlankLine
-  \While{$U \neq \emptyset$}{
-    $x \gets$ element selected according to Greedy criteria
+%   \BlankLine
+%   \While{$U \neq \emptyset$}{
+%     $x \gets$ element selected according to Greedy criteria
     
-    $R \gets R \cup \{x\}$ \tcp*{Add $x$ to the solution}
-    $U \gets U \setminus \{x\}$ \tcp*{Remove $x$ from available elements}
-  }
+%     $R \gets R \cup \{x\}$ \tcp*{Add $x$ to the solution}
+%     $U \gets U \setminus \{x\}$ \tcp*{Remove $x$ from available elements}
+%   }
 
-  \BlankLine
-  \Return $R$ 
+%   \BlankLine
+%   \Return $R$ 
 
-\end{algorithm}
+% \end{algorithm}
 
-El algoritmo comienza con un conjunto de elementos disponibles y un conjunto solución vacío. En cada iteración, se selecciona el elemento óptimo según la función de heurística para los estados que se haya implementado y se agrega a la solución. Luego, se elimina ese elemento de los disponibles y se repite el proceso hasta que no queden elementos disponibles.
+% El algoritmo comienza con un conjunto de elementos disponibles y un conjunto solución vacío. En cada iteración, se selecciona el elemento óptimo según la función de heurística para los estados que se haya implementado y se agrega a la solución. Luego, se elimina ese elemento de los disponibles y se repite el proceso hasta que no queden elementos disponibles.
 
-Es importante tener en cuenta que el algoritmo Greedy no garantiza encontrar la solución óptima en todos los casos, ya que puede quedarse atrapado en mínimos locales. Sin embargo, en muchos casos, el enfoque Greedy proporciona soluciones rápidas y razonables.
+% Es importante tener en cuenta que el algoritmo Greedy no garantiza encontrar la solución óptima en todos los casos, ya que puede quedarse atrapado en mínimos locales. Sin embargo, en muchos casos, el enfoque Greedy proporciona soluciones rápidas y razonables.
 
-En esta tesis se personalizó el algoritmo para detectar subconjuntos óptimos de métodos \emph{builders}. 
-Para mas informacion sobre este tipo de algoritmos, invitamos al lector referirse a \cite{Cormen2009}, \cite{kleinberg2006}
+% En esta tesis se personalizó el algoritmo para detectar subconjuntos óptimos de métodos \emph{builders}. 
+% Para mas informacion sobre este tipo de algoritmos, invitamos al lector referirse a \cite{Cormen2009}, \cite{kleinberg2006}
 
 \section{Cobertura de Ramas y Mutación}
 
