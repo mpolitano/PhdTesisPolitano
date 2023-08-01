@@ -150,7 +150,7 @@ También observamos que cuanto más simples sean los parámetros de una rutina, 
 fácil será utilizarla para generar entradas en el contexto de un análisis de
 programas. Por ejemplo, entre las alternativas de rutinas para insertar datos en
 la lista principal de NCL (Figura.~\ref{fig:NCLadds}), \texttt{add(int,Object)}
-recibe más parámetros que los otros tres métodos, por lo tanto es más difícil generar parámetros para brindale a esta rutina a la hora de generar entradas \pp{No está definido como se generarían entradas}. Esto hace que las otras tres alternativas tengan mas preferencia sobre esta. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
+recibe más parámetros que los otros tres métodos, por lo tanto, es más difícil generar parámetros para brindarle a esta rutina a la hora de generar entradas \pp{No está definido como se generarían entradas}. Esto hace que las otras tres alternativas tengan más preferencia sobre esta. Así, nuestro enfoque tiene en cuenta el número de parámetros y sus complejidades para seleccionar los constructores mejores posibles.
 
 Para algunas técnicas de análisis automáticas \cacho{CITAR algunas}, nos gustaría considerar tantos escenarios (entradas) variables como sea posible, de ahí la motivación para construir estas con un conjunto suficientes de métodos de la API 
 \pp{acá hay un salto a generación de entradas que no se entiende}.
@@ -160,7 +160,7 @@ Para algunas técnicas de análisis automáticas \cacho{CITAR algunas}, nos gust
 
 
 % 3- Resumen de los algos que vamos a introducir
-Para abordar estos desafíos planteados, hemos propuesto tres enfoques para seleccionar automáticamente un conjunto de métodos generadores de objetos a partir de la API. Además, buscamos que estos subconjuntos identificados cumplan con las propiedades de suficiencia y minimalista de los métodos de la API de un programa  Estos enfoques utilizan algoritmos evolutivos, algoritmos greedy y algoritmos de particionado en clases de equivalencias. Cada enfoque tiene como objetivo favorecer la generación de conjuntos más grandes de objetos o aquellos conjuntos que logran una mejor cobertura de ramas del Sistema bajo Prueba (SUT). Además, los algoritmos toman en cuenta otras características de los conjuntos de métodos, como la cantidad y la simplicidad de los parámetros, para priorizar su selección. En la próxima sección, explicaremos en detalle cada uno de estos enfoques y las técnicas y algoritmos utilizados para su implementación.
+Para abordar estos desafíos planteados, hemos propuesto tres enfoques para seleccionar automáticamente un conjunto de métodos generadores de objetos a partir de la API. Además, buscamos que estos subconjuntos identificados cumplan con las propiedades de suficiencia y minimalista de los métodos de la API de un programa  Estos enfoques utilizan algoritmos evolutivos, algoritmos perezosos y algoritmos de particionado en clases de equivalencias. Cada enfoque tiene como objetivo favorecer la generación de conjuntos más grandes de objetos o aquellos conjuntos que logran una mejor cobertura de ramas del Software bajo Prueba (\emph{SUT} por sus siglas en inglés). Además, los algoritmos toman en cuenta otras características de los conjuntos de métodos, como la cantidad y la simplicidad de los parámetros, para priorizar su selección. En la próxima sección, explicaremos en detalle cada uno de estos enfoques y las técnicas y algoritmos utilizados para su implementación.
 
 
 \cacho{Pensar mejor el orden de las cosas}
@@ -283,6 +283,7 @@ La segunda función objetivo se enfoca en crear conjuntos de pruebas (test suite
 En las siguientes subsecciones, detallaremos la implementación y funcionamiento de estas funciones objetivo, explicando cómo son utilizadas en nuestros algoritmos para guiar el proceso de búsqueda y seleccionar conjuntos de métodos generadores óptimos.
 
 \subsection{Generador Exhaustivo}
+\label{sec:fitnessGE}
 
 Dado un estado que representa un conjunto de métodos $M$, nuestra función de valoración intenta calcular una aproximación del número de objetos acotados que se pueden construir utilizando combinaciones de métodos habilitados en el cromosoma. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
 Nuestra función de valoración tiene como objetivo principal maximizar la cantidad de objetos que puedo generar utilizando el Generador exhaustivo que hemos desarrollado (explicado en el capítulo anterior,  \ref{cap:beapi}. Este enfoque nos permite evaluar la capacidad de los candidatos para construir una variedad de objetos y proporciona una base para la selección y mejora de los mejores candidatos en nuestro algoritmo.
@@ -341,7 +342,8 @@ Para obtener más información sobre el algoritmo y más detalles sobre BEAPI, i
 
 
 \subsection{Cobertura de ramas con Randoop}
-\
+\label{sec:fitnessRandoop}
+
 En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen}.
 
 Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.

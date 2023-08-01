@@ -7,10 +7,10 @@
 En los capítulos \ref{cap:builders} y \ref{cap:beapi} presentamos varios enfoques para mejorar la generación exhaustiva acotada:
 
 \begin{itemize}
-\item Identificación de métodos \emph{builders} para construir todos los objetos disponibles hasta una cota en una API. En este sentido, presentamos los siguientes algoritmos para encontrar estos métodos:
+\item Identificación de métodos generadores para construir todos los objetos disponibles hasta una cota en una API. En este sentido, presentamos los siguientes algoritmos para encontrar estos métodos:
 \begin{itemize}
 \item Algoritmo Genético.
-\item Algoritmo Greedy.
+\item Algoritmo Perezoso.
 \item Algoritmo basado en clases de equivalencia.
 \end{itemize}
 \item Generación exhaustiva acotada a partir de métodos de la API.
@@ -20,9 +20,9 @@ En este capítulo, realizamos una evaluación experimental de estas técnicas co
 
 \cacho{TODO: pensar mejor las RQ}
 \begin{itemize}
-\item \emph{RQ1}: ¿Qué tan eficientes son los algoritmos (Algoritmo Genético, Greedy, Clases de Equivalencia) para identificar conjuntos de métodos suficientes? 
-\item \emph{RQ2}: ¿Qué tan efectivos son los algoritmos presentados para identificar conjuntos de métodos \emph{builders} suficientes de cada API?
-\emph{builders} y cuánto tiempo computacional requiere cada enfoque?
+\item \emph{RQ1}: ¿Qué tan eficientes son los algoritmos (Algoritmo Genético, \emph{Hill Climbing}, Clases de Equivalencia) para identificar conjuntos de métodos suficientes? 
+\item \emph{RQ2}: ¿Qué tan efectivos son los algoritmos presentados para identificar conjuntos de métodos generadores de objectos suficientes de cada API?
+¿Cuánto tiempo computacional requiere cada enfoque?
 \item \emph{RQ3}: ¿Cuál es el impacto de utilizar métodos Builders identificados en comparación con el uso de todos los métodos de la API en el contexto de verificación de software?
 \item \emph{RQ4}: ¿Puede realizarse eficientemente la generación exhaustiva utilizando métodos de la API (BEAPI)?
 \item\emph{RQ4}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEG a partir de la API?
@@ -47,8 +47,8 @@ Todos los experimentos se ejecutaron en máquinas Intel Core i7-6700 de 3.4 GHz 
 \subsection{Parámetros y Evaluación}
 Como se discutió en el capítulo \ref{cap:beapi}, es necesario configurar ciertos parámetros para el funcionamiento de nuestros algoritmos y funciones de valoración. Los parámetros más importantes que afectan la eficiencia y efectividad de nuestro algoritmo genético son la tasa de mutación y de cruce, el tamaño de la población y el número de torneos en la selección. 
 
-Para nuestra función de evaluación de Randoop, es importante conocer el tiempo disponible para generar objetos. Ademas, Randoop  necesita de una semilla. Esta semilla en Randoop se utiliza para controlar la generación de pruebas aleatorias y permite reproducir los mismos resultados en ejecuciones posteriores si utilizas la misma semilla. Esto puede ser útil para la reproducibilidad y comparación de resultados en el contexto de pruebas de software. Los resultados de Randoop, siempre tiene una aleatoriedad que, entre otras cosas, depende de esta semilla. En nuestros experimentos, cada vez que ejecutamos nuestra técnica, elegimos aleatoriamente una semilla para poder ver como se comporta. 
-En cuanto a la función de valoración de Bounded Exhaustive, es crucial determinar el alcance de las estructuras generadas. Además, debemos omitir ciertos valores de los campos de nuestras clases que son irrelevantes para la generación de objetos. Estos campos son aquellos que cambian la representación del objeto pero no su estructura en sí. Un ejemplo común en varias clases de prueba es el campo \emph{ModCount}, que es un contador de modificaciones. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada.
+Para nuestra función objetivo donde medimos cobertura a partir de test suites generadas por Randoop \ref{sec:fitnessRandoop}, es importante conocer el tiempo disponible para generar objetos. Además, Randoop  necesita de una semilla. Esta semilla en Randoop se utiliza para controlar la generación de pruebas aleatorias y permite reproducir los mismos resultados en ejecuciones posteriores si utilizas la misma semilla. Esto puede ser útil para la reproducibilidad y comparación de resultados en el contexto de pruebas de software. Los resultados de Randoop, siempre tiene una aleatoriedad que, entre otras cosas, depende de esta semilla. En nuestros experimentos, cada vez que ejecutamos nuestra técnica, elegimos aleatoriamente una semilla para poder ver como se comporta. 
+En cuanto a la función de valoración que se utiliza un generador exhaustivo (\ref{sec:fitnessGE}), es crucial determinar el alcance de las estructuras generadas. Además, debemos omitir ciertos valores de los campos de nuestras clases que son irrelevantes para la generación de objetos. Estos campos son aquellos que cambian la representación del objeto pero no su estructura en sí. Un ejemplo común en varias clases de prueba es el campo \emph{modCount}, que es un contador de modificaciones. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada.
 
 Para establecer estos valores en la experimentación, realizamos una tarea de prueba y error para determinar los valores que mejor se ajustan a nuestros algoritmos. Esto es comúnmente realizado en algoritmos genéticos para determinar los parámetros óptimos para un problema específico.
 
@@ -229,6 +229,8 @@ El método controlador anterior, en primer lugar, selecciona el número de méto
 Para evitar este crecimiento exponencial en este experimento, se propone utilizar únicamente los constructores detectados por nuestro enfoque explicado en la sección \ref{sec:builders}.
 \\
 \\
+\begin{figure}
+
 \begin{lstlisting}[caption={Controlador con métodos constructores},label={lst:driverBLD},language=Java,captionpos=b]
 private static TreeMap generateStructure(int scope) {
    int maxLength = Verify.getInt(0,scope);
@@ -246,6 +248,7 @@ private static TreeMap generateStructure(int scope) {
    return t;
 }
 \end{lstlisting}
+\end{figure}
 
 Como se muestra en el controlador anterior, solo 2 métodos componen un conjunto mínimo y suficiente para construir controladores para TreeMap de \textit{java.util}. Utilizando solo esos métodos, generamos exactamente los mismos objetos TreeMap que antes (porque los constructores son suficientes y mínimos), y por lo tanto JPF explora las mismas ejecuciones de propiedades con ambos controladores.
 
