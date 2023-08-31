@@ -114,24 +114,41 @@ Motivados por estos problemas y la dificultad de escribir métodos \emph{repOK} 
 \section[BEAPI]{BEAPI}
 \label{sec:beapiIntro}
 
-En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de pruebas dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
-El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a las rutinas de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de prueba, y las ejecuta para generar estructuras. 
+En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos, haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de pruebas dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
+El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test, y las ejecuta para generar estructuras. 
 
-A diferencia de los enfoques de generación basados en caja negra, \textsf{BEAPI} no requiere una especificación formal de las propiedades de las estructuras. En su lugar, el usuario solo debe proporcionar los alcances para la generación, que se abordan en detalle en la sección correspondiente.
+A diferencia de los enfoques de generación basados en caja negra, \textsf{BEAPI} no requiere una especificación formal de las propiedades de las estructuras. Al igual que otras técnicas de generación exhaustiva acotada (BEG), el usuario solo debe proporcionar los alcances para la generación, que se abordan en detalle en la sección correspondiente.  Esto permite generar estructuras válidas sin requerir una especificación detallada de las propiedades de las estructuras, reduciendo así la carga de trabajo para el programador.
 
-La principal ventaja de \textsf{BEAPI} es que requiere un esfuerzo mínimo de especificación para realizar la generación exhaustiva acotada (BEG). Si los métodos de la API utilizados en la generación son correctos, todas las estructuras generadas serán válidas para su construcción. El programador solo necesita asegurarse de que los métodos de la API lancen excepciones cuando se violen las reglas de uso, siguiendo un estilo de programación defensivo \cite{Liskov00}. En la mayoría de los casos, esto implica verificar condiciones muy simples en las entradas. Por ejemplo, el método para agregar (\emph{add(Object)}) un elemento a una \texttt{NCL} lanza una \texttt{IllegalArgumentException} cuando se llama con un elemento \texttt{null}, donde se puede observar que la implementación del método se encarga de cumplir con las demás propiedades del \texttt{NCL}.
+La principal ventaja de \textsf{BEAPI} es que requiere un esfuerzo menor de especificación para realizar la generación exhaustiva acotada. Si los métodos de la API utilizados en la generación son correctos, todas las estructuras generadas serán válidas para su construcción. El programador solo necesita asegurarse de que los métodos de la API lancen excepciones cuando se violen las reglas de uso, siguiendo un estilo de programación defensivo \cite{Liskov00}. En la mayoría de los casos, esto implica verificar condiciones muy simples en las entradas. Por ejemplo, el método para eliminar (\emph{remove(int)}) un elemento de una \texttt{NCL} en un índice pasado como parámetro lanza una \texttt{IllegalArgumentException} cuando se llama con un indice menor a 0 o mayor al \emph{size} de la lista. El \emph{listing} de la figura \ref{fig:algoProgDefensiva}  se puede observar que la implementación del método se encarga de cumplir con la especificación indicada \texttt{NCL}.
 
-Es importante destacar que el enfoque \textsf{BEAPI} aborda las dificultades de escribir especificaciones formales para la generación de estructuras exhaustiva acotadas al aprovechar la ejecución de las rutinas de la API y aplicar técnicas de poda para mejorar la eficiencia de la generación. Esto permite generar estructuras válidas sin requerir una especificación detallada de las propiedades de las estructuras, reduciendo así la carga de trabajo para el programador.
 
-La generación exhaustiva de todas las secuencias de prueba factibles a partir de rutinas hasta una longitud máxima, también conocida como generación por fuerza bruta, es un enfoque intrínsecamente combinatorio que consume una gran cantidad de recursos computacionales, incluso para alcances pequeños. Por lo tanto, \textsf{BEAPI} utiliza varias técnicas de poda que son fundamentales para mejorar su eficiencia y permitir la escalabilidad a alcances más grandes.
+\begin{figure}[!thb]
+\begin{lstlisting}
+public Object removeIndex(int index) {
+  // Check precondicion
+  if(index < 0 || index >= size)
+      throws new IllegalArgumentException();  
+  . . .
+}
 
-En primer lugar, \textsf{BEAPI} ejecuta las secuencias de prueba y descarta aquellas que producen excepciones que violan las reglas de uso de la API, como \emph{IllegalArgumentException} e \emph{IllegalStateException} en Java.
+\end{lstlisting}
+\caption{Programación defensiva aplicada en métodos de la API}
+\label{fig:algoProgDefensiva}
+\end{figure}
 
-En segundo lugar, \textsf{BEAPI} implementa la técnica de coincidencia de estados, la cual descarta secuencias de métodos que generan estructuras que ya han sido creadas por secuencias de métodos exploradas previamente. Esta técnica se describe en detalle en la sección correspondiente.
 
-En tercer lugar, \textsf{BEAPI} utiliza un subconjunto de las rutinas de la API para crear las secuencias de prueba. Este subconjunto se identifica mediante un algoritmo de búsqueda greedy y una función de valoración que tiene en cuenta qué subconjunto permite crear la mayor cantidad de objetos utilizando \textsf{BEAPI} en el menor tiempo posible. Este proceso se detalla en el capítulo correspondiente.
+Es importante destacar que el enfoque \textsf{BEAPI} aborda las dificultades de escribir especificaciones formales para la generación de estructuras exhaustiva acotadas al aprovechar la ejecución de las rutinas de la API y aplicar técnicas de poda para mejorar la eficiencia de la generación.
 
-A continuación, explicaremos en detalle cada una de estas optimizaciones..
+% La generación exhaustiva de todas las secuencias de prueba factibles a partir de rutinas hasta una longitud máxima, también conocida como generación por fuerza bruta, es un enfoque intrínsecamente combinatorio que consume una gran cantidad de recursos computacionales, incluso para alcances pequeños. Por lo tanto, \textsf{BEAPI} utiliza varias técnicas de poda que son fundamentales para mejorar su eficiencia y permitir la escalabilidad a alcances más grandes.
+
+% En primer lugar, \textsf{BEAPI} ejecuta las secuencias de prueba y descarta aquellas que producen excepciones que violan las reglas de uso de la API, como \emph{IllegalArgumentException} e \emph{IllegalStateException} en Java.
+
+% En segundo lugar, \textsf{BEAPI} implementa la técnica de coincidencia de estados, la cual descarta secuencias de métodos que generan estructuras que ya han sido creadas por secuencias de métodos exploradas previamente. Esta técnica se describe en detalle en la sección \ref{sec:state-matching}.
+
+% En tercer lugar, \textsf{BEAPI} utiliza un subconjunto de las rutinas de la API para crear las secuencias de prueba.
+% Este subconjunto se identifica mediante un algoritmo de búsqueda greedy y una función de valoración que tiene en cuenta qué subconjunto permite crear la mayor cantidad de objetos utilizando \textsf{BEAPI} en el menor tiempo posible. Este proceso se detalla en el capítulo \ref{cap:builders}.
+
+A continuación, explicaremos en detalle cada una de estas optimizaciones.
 
 % \cacho{TODO: no se si agregar arbolitos de exploracion para explicarlos}
 % \begin{tikzpicture}
@@ -171,12 +188,14 @@ A continuación, explicaremos en detalle cada una de estas optimizaciones..
 \end{figure}
 
 
-Lo primero que realizamos fue adaptar nuestra técnica basada en generación de test basada por feedback para que funcione con un conjunto fijo de valores primitivos (enteros del 0 al $k-1$). (Normalmente, las técnicas basada en generación por retroalimentación guardaría los valores primitivos que son devueltos por la ejecución de las pruebas y reutilizaría estos valores en pruebas futuras). También logramos descartar secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo), para evitar que se construyan objetos más grandes de lo necesario. Para lograr esto, canonizamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$.
+Nuestra técnica, basada en generación de test por feedback, funciona con un conjunto fijo de valores primitivos (enteros, strings, etc) que son utilizados para alimentar a los métodos, que requieran valores primitivos, de la API que se combinan para generar las estructuras del SUT.
+% (Normalmente, las técnicas basada en generación por retroalimentación guardaría los valores primitivos que son devueltos por la ejecución de las pruebas y reutilizaría estos valores en pruebas futuras). También nuestra técnica descartar secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo), para evitar que se construyan objetos más grandes de lo necesario. Para lograr esto, canonizamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$. 
+\cacho{Definicion de canonizar y algun ejemplo simple del file que canoniza} 
 
 \begin{figure}[H]
 \begin{lstlisting}[keywordstyle=\scriptsize\ttfamily]
-max.objects=3
-int.range=0:2
+max.objects=k
+int.range=0:k
 strings=str1,str2,str3
 omit.fields=NCL.DEFAULT_MAXIMUM_CACHE_SIZE
 \end{lstlisting}
@@ -184,7 +203,7 @@ omit.fields=NCL.DEFAULT_MAXIMUM_CACHE_SIZE
 \label{fig:NCL-fin-BEAPI}
 \end{figure}
 
-\emph{BEAPI} explora el espacio de búsqueda de secuencias de prueba (acotadas) que se pueden formar mediante llamadas a la API. Supongamos el caso de la figura \ref{fig:ncl-instances} de instancias de \texttt{NCL}.  El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$). Esto asegura que se generen NCL con no más de 2 nodos. 
+\emph{BEAPI} explora el espacio de búsqueda de secuencias de prueba (acotadas) que se pueden formar mediante llamadas a la API. Supongamos el caso de la figura \ref{fig:ncl-instances} de instancias de \texttt{NCL}.  El límite $k$ es un valor entero que representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$). Esto asegura que se generen NCL con no más de $k$ nodos. Además, se puede observar en el archivo de configuración, que se especifica con qué cadena de caracteres se van a utilizar los métodos de la API que la requieran. En este caso es str1, str2, str3.
 Por lo tanto, debemos proporcionar dominios de datos para los tipos primitivos utilizados en esas llamadas y establecer un límite en el tamaño máximo de las estructuras que deseamos generar a partir de esas llamadas de API. Para limitar el número de estructuras generadas y establecer los valores primitivos, BE necesita un archivo de descripción simple en formato \texttt{java.properties}, en el que se establecen algunos parámetros. (Figura \ref{fig:NCL-fin-BEAPI}).  La línea 1 del archivo de configuración de \emph{BEAPI} establece el número máximo de objetos que se asignarán para cada clase, en este caso es 2. Esto especifica el número máximo de objetos diferentes (alcanzables desde la raíz) permitidos en una estructura. Las secuencias de prueba generadas por \emph{BEAPI} que crean estructuras que exceden este número (para cualquier clase) se descartan y no se extienden aún más. Esto asegura que se generen solo \texttt{NCL} con no más de 2 nodos. La línea 2 especifica que solo se emplearán enteros del 0 al 2 para invocar rutinas de la API que tomen valores enteros como parámetros (es decir, para insertar un entero en la lista, eliminar un entero, insertar en una posición entera dada, etc.). También se puede especificar dominios para otros tipos primitivos como floats, doubles y strings (linea 3) describiendo sus valores por extensión. Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de canonización de objetos, que se lleva a cabo en la ejecución de las secuencias de métodos de la API. Esto permite al usuario controlar qué partes de la estructura del objeto son relevantes para la coincidencia de estados (ver más adelante en la sección \ref{sec:stateMatching}). Por ejemplo,  la línea 4 haría que \emph{BEAPI} omita el tamaño máximo predeterminado de la caché en la coincidencia de estados, que en la API de \emph{NCL} es una constante inicializada en 20 en el constructor de la clase. Es importante que aqui se omitan campos que puede afectar la coincidencia de estados, como el caso del campo \emph{modCount}. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada. 
 La configuración mostrada en la Figura~\ref{fig:NCL-fin-BEAPI} es suficiente para que \emph{BEAPI} genere NCL con un máximo de 3 nodos, que contienen enteros del 0 al 2 como valores. 
 \\
