@@ -305,7 +305,7 @@ int[] lin(O raiz, Heap<O, E> heap, int alcance, Map ids, Regex omitirCampos) {
 
 
 
-El algoritmo mostrado en la Figura~\ref{alg:linearization} es una versión personalizada para \textsf{BEAPI} del algoritmo de linearización presentado en \cite{Xie04}. Esta versión ha sido modificada para informar cuando los objetos exceden los alcances y para permitir la omisión de campos de objeto.
+El algoritmo mostrado en la Figura~\ref{alg:linearization} es una versión personalizada para \textsf{BEAPI} del algoritmo de linearización presentado en \cite{Xie04}. Esta versión ha sido modificada para informar cuando los objetos exceden los alcances y para permitir la omisión de campos de la estructura de dato en análisis.
 
 El algoritmo \texttt{linearize} invoca a la función \texttt{lin} y realiza un recorrido en profundidad del heap comenzando desde la raíz (línea 3). Durante este recorrido, se asignan identificadores diferentes a cada objeto visitado. Cuando se visita un objeto por primera vez, se le asigna un nuevo identificador único (líneas 10-11) y se crea una secuencia de un solo elemento llamada \texttt{seq}, que contiene el identificador de objeto y representa el objeto (línea 12). El mapa \texttt{ids} se utiliza para almacenar el mapeo entre los objetos y los identificadores de objeto únicos.
 
@@ -322,7 +322,7 @@ Cabe destacar que la linearización proporciona una forma eficiente de comparar 
 
 \section{Uso de Builders en BEAPI}
 \label{sec:builders}
-En esta sección, introducimos una optimización que hemos desarrollado y que es una parte importante de esta tesis. Explicaremos una de las formas en las que utilizamos una técnica llamada \emph{identificación de métodos builders} en una API. Estos métodos builders nos permiten generar una gran diversidad de objetos (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
+En esta sección, introducimos una optimización que hemos desarrollado y que es una parte importante de esta tesis \ref{cap:builders}. Explicaremos una de las formas en las que utilizamos una técnica llamada \emph{identificación de métodos builders} en una API. Estos métodos builders nos permiten generar una gran diversidad de objetos (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
 
 Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos, es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, utilizamos un enfoque de identificación automática de métodos builders que se describe en el capítulo siguiente (Capítulo \ref{cap:builders}). Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. En el contexto de \textsf{BEAPI}, utilizamos un algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de builders.
 
