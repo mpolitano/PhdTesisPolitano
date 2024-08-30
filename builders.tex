@@ -325,32 +325,29 @@ Other Types=16
 
 Siguiendo el criterio explicado, nuestro algoritmo elige el set de la Figure \ref{fig:NCLbuilders} sobre la Figura~\ref{fig:NCLeqbuilders2}
 
-
-
 Esta función de valoración nos proporciona una medida cuantitativa de la calidad del candidato representado por el conjunto de métodos $M$. Los candidatos con valores de función de valoración más altos se consideran de mayor calidad y son preferidos en los algoritmos genéticos y en los algoritmos greedys que explicaremos en la sección \ref{sec:algorithms}.
 Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$ que se pueden construir utilizando los métodos del cromosoma actual. En otras palabras, necesitamos un generador exhaustivo acotado para el conjunto de métodos $BE(M, k)$. El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$) y el número máximo de valores primitivos disponibles (por ejemplo, enteros del 0 a $k-1$).
 
-Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en la Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
+Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en el Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
 
-En segundo lugar, descartamos las secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo) para evitar construir objetos más grandes de lo necesario. Para lograr esto, canonicamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$.
+En segundo lugar, descartamos las secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo) para evitar construir objetos más grandes de lo necesario. Para lograr esto, canonizamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$.
 
 En tercer lugar, ampliamos esta generación con coincidencia de estado. Esto se debe a que, en la generación de pruebas, a menudo hay muchas secuencias de pruebas que producen el mismo objeto. Por ejemplo, insertar en una colección y luego eliminar el mismo elemento resulta en muchos casos en exactamente la misma estructura antes de la inserción. Nuestro enfoque asume que las ejecuciones de rutinas son deterministas con respecto a sus entradas. Bajo esta suposición, se deduce que, para generar un conjunto exhaustivo acotado de estructuras, solo necesitamos guardar una secuencia de prueba para crear cada estructura diferente en el conjunto, y que todas las siguientes secuencias de prueba que generen la misma estructura se pueden descartar.
 
-Nuestra justificación para usar conjuntos acotados de objetos es similar a la \emph{hipótesis de la cota pequeña} \cite{Andoni:2003}.Si un conjunto de métodos no puede usarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes. Esta hipótesis se mantuvo durante nuestra evaluación empírica en todos nuestros casos de estudio.
+Nuestra justificación para usar conjuntos acotados de objetos es similar a la \emph{hipótesis de la cota pequeña} \cite{Andoni:2003}. Si un conjunto de métodos no puede usarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes. Esta hipótesis se mantuvo durante nuestra evaluación empírica en todos nuestros casos de estudio.
 
 Para obtener más información sobre el algoritmo y más detalles sobre BEAPI, invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
-
 
 \subsection{Cobertura de ramas con Randoop}
 \label{sec:fitnessRandoop}
 
 En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen}.
 
-Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.
+Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.  \cacho{Solo le damos prioridad}
 
 La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, tal como se describe en la sección de preliminares \ref{sec:coverage}.
 
-La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se construye de la siguiente manera:
+La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, es una tripla que se construye de la siguiente manera:
 
 \begin{equation*}
 f(M) = (\text{{\#CoberturaRama}}(M), \text{{\#MétodosAPI}} - \text{{\#M}}, w_1 \times \text{{PP}}(M))
@@ -360,7 +357,7 @@ La función de valoración consta de tres componentes principales. En primer lug
 
 El segundo componente, $\text{{\#MétodosAPI}} - \text{{\#M}}$, tiene en cuenta la cantidad de métodos restantes en la API que no están presentes en el subconjunto $M$. Este componente incentiva a que el conjunto de métodos sea menor.
 
-Por último, penalizamos sobre los parámetros de cada método en el subconjunto como lo hacíamos en la sección anterior.
+Por último, penalizamos sobre los parámetros de cada método en el subconjunto como lo hacíamos en la sección anterior. \cacho{REFERENCIA}
 
 En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconjunto de métodos durante la generación de secuencias de pruebas, y nuestra función de valoración se encarga de maximizar la cobertura de ramas de la API. Estas adaptaciones nos proporcionan una mejor comprensión de la calidad y efectividad de los subconjuntos de métodos generados.
 
@@ -369,7 +366,7 @@ En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconj
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
 
-En esta sección presentamos los detalles para la detección de los subconjuntos de métodos generadores de objetos utilizando un algoritmo evolutivo. Para lograr realizar esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el subconjunto de métodos generadores de objetos que sean mínimo y suficientes, que describiremos a continuación.
+En esta sección presentamos los detalles para la detección de los subconjuntos de métodos generadores de objetos utilizando un algoritmo evolutivo. Para lograr realizar esto, implementamos un algoritmo genético (\ref{sec:geneticoPrev}) que busca el subconjunto de métodos generadores de objetos que sean mínimo y suficientes y que describiremos a continuación.
 
 
 % % basados en una estrategia de escalada de colinas \cite{Russell:2009}.
@@ -377,9 +374,6 @@ En esta sección presentamos los detalles para la detección de los subconjuntos
 
 
 % Dare mas detalles de este algoritmo en la seccion {TODO!!!!}.
-
-
-
 
 \subsubsection{Población}
 

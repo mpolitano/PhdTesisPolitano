@@ -16,48 +16,46 @@ En este capítulo, introduciremos BEAPI, un enfoque eficiente que genera un conj
 \begin{figure}[!thb]
 \begin{lstlisting}
 public boolean repOK() {
-  if (this.header == null) return false;
-  //  Missing constraint: the value of the sentinel node
-  // must be null  
-  // if (this.header.value != null) return false;
-  if (this.header.next == null) return false;
-  if (this.header.previous == null) return false;
-  if (this.cacheSize > this.maximumCacheSize) return false;
-  if (this.size < 0) return false;
-  int cyclicSize = 0;
-  LinkedListNode n = this.header;
-  do {
-      cyclicSize++;
-      if (n.previous == null) return false;
-      if (n.previous.next != n) return false;
-      if (n.next == null) return false;
-      if (n.next.previous != n) return false;
-      if (n != null) n = n.next;
-  } while (n != this.header && n != null);
-  if (n == null) return false;
-  if (this.size != cyclicSize - 1) return false;
-  int acyclicSize = 0;
-  LinkedListNode m = this.firstCachedNode;
-  Set visited = new HashSet();
-  visited.add(this.firstCachedNode);
-  while (m != null) {
-      acyclicSize++;
-      if (m.previous != null) return false;
-      // Missing constraint: the value of cache nodes
-      // must be null
-      // if (m.value != null) return false;
-      m = m.next;
-      if (!visited.add(m)) return false;
-  }
-  if (this.cacheSize != acyclicSize) return false;
-  return true;
+    if (this.header == null) return false;
+    // Missing constraint: the value of the sentinel node must be null  
+    // if (this.header.value != null) return false;
+    if (this.header.next == null) return false;
+    if (this.header.previous == null) return false;
+    if (this.cacheSize > this.maximumCacheSize) return false;
+    if (this.size < 0) return false;
+    int cyclicSize = 0;
+    LinkedListNode n = this.header;
+    do {
+        cyclicSize++;
+        if (n.previous == null) return false;
+        if (n.previous.next != n) return false;
+        if (n.next == null) return false;
+        if (n.next.previous != n) return false;
+        if (n != null) n = n.next;
+    } while (n != this.header && n != null);
+    if (n == null) return false;
+    if (this.size != cyclicSize - 1) return false;
+    int acyclicSize = 0;
+    LinkedListNode m = this.firstCachedNode;
+    Set visited = new HashSet();
+    visited.add(this.firstCachedNode);
+    while (m != null) {
+        acyclicSize++;
+        if (m.previous != null) return false;
+        // Missing constraint: the value of cache nodes must be null
+        // if (m.value != null) return false;
+        m = m.next;
+        if (!visited.add(m)) return false;
+    }
+    if (this.cacheSize != acyclicSize) return false;
+    return true;
 }
 \end{lstlisting}
-\caption{\texttt{repOK} de \texttt{NodeCachingLinkedList} tomado del benchmarks de \textsf{ROOPS}}
+\caption{\texttt{repOK} de \texttt{NodeCachingLinkedList} tomado del benchmark de \textsf{ROOPS}}
 \label{fig:NCL-repOK}
 \end{figure}
 
-Para motivar las dificultades de escribir especificaciones formales para la generación de exhaustiva acotada de  estructuras, considere el invariante de representación (comúnmente llamados \emph{repOK}) de la clase \emph{NodeCachingLinkedList} (NCL) de Apache, que se muestra en la Figura \ref{fig:NCL-repOK}. Este es un \emph{repOK} del \emph{benchmarks} \emph{ROOPS}. Los NCL se componen de una lista principal circular doblemente enlazada con un nodo ficticio al comienzo de la estructura. Esta estructura es utilizada para el almacenamiento de datos, y una caché de nodos previamente utilizados implementada como una lista enlazada simple. Los nodos eliminados de la lista principal se mueven a la caché, cambiando su valor a \emph{null}, donde se guardan para su uso en el futuro. De esta manera, cuando se requiere un nodo para una operación de inserción, se reutiliza un nodo de la caché (si existe) en lugar de asignar un nuevo nodo. El objetivo es evitar la sobrecarga de recolección de basura para las aplicaciones que realizan una gran cantidad de inserciones y eliminaciones en la lista. El \emph{repOK} devuelve true si y solo si la estructura de entrada satisface las propiedades estructurales de NCL \cite{Liskov00}. En la figura \ref{fig:nclInstanceRepOK} se pueden observar instancias válidas de la estructura.
+Para ilustrar las dificultades de escribir especificaciones formales para la generación exhaustiva acotada de estructuras, consideremos el invariante de representación (comúnmente llamado \emph{repOK}) de la clase \emph{NodeCachingLinkedList} (NCL) de Apache, que se muestra en la Figura \ref{fig:NCL-repOK}. Este es un \emph{repOK} del benchmark \emph{ROOPS}. Los NCL se componen de una lista principal circular doblemente enlazada con un nodo ficticio al comienzo de la estructura. Esta estructura se utiliza para el almacenamiento de datos y una caché de nodos previamente utilizados, implementada como una lista enlazada simple. Los nodos eliminados de la lista principal se mueven a la caché, cambiando su valor a \emph{null}, donde se guardan para su uso futuro. De esta manera, cuando se requiere un nodo para una operación de inserción, se reutiliza un nodo de la caché (si existe) en lugar de asignar un nuevo nodo. El objetivo es evitar la sobrecarga de recolección de basura para las aplicaciones que realizan una gran cantidad de inserciones y eliminaciones en la lista. El \emph{repOK} devuelve \texttt{true} si y solo si la estructura de entrada satisface las propiedades estructurales de NCL \cite{Liskov00}. En la Figura \ref{fig:nclInstanceRepOK} se pueden observar instancias válidas de la estructura.
 
 \begin{figure}[H]
     \centering
@@ -65,38 +63,36 @@ Para motivar las dificultades de escribir especificaciones formales para la gene
     \caption{Instancia de NodeCachingLinkedList}
     \label{fig:nclInstanceRepOK}
 \end{figure}
-Las restricciones impuestas en el método Java que abarca las líneas 2 a 11 se refiere a la verificación de la estructura general de \emph{Node Caching LinkedList}, como por ejemplo la existencia de un nodo ficticio en la lista principal. Este nodo ficticio es generalmente un nodo especial que no contiene datos reales (deberia contener \emph{null} como valor del nodo), pero se utiliza como una especie de marcador de inicio que simplifica la manipulación de la lista. La idea es que este nodo ficticio tiene un enlace que apunta al primer elemento real de la lista. Por ejemplo, la figura \ref{fig:repOK1} nos muestra dos instancias de NCL. La lista de la parte superior es la lista principal y la lista de la parte inferior es la representación de la lista caché.  En la figura, la instancia del lado derecho es válida, la del izquierdo es inválida debido a que no cumple la especificación de poseer un nodo ficticio. El \emph{repOK} en la línea 6 controla esta situación y lanza falso como respuesta el método.
 
-\begin{figure}
+Las restricciones impuestas en el método Java que abarcan las líneas 2 a 11 se refieren a la verificación de la estructura general de \emph{NodeCachingLinkedList}, como por ejemplo la existencia de un nodo ficticio en la lista principal. Este nodo ficticio es generalmente un nodo especial que no contiene datos reales (debería contener \emph{null} como valor del nodo), pero se utiliza como una especie de marcador de inicio que simplifica la manipulación de la lista. La idea es que este nodo ficticio tiene un enlace que apunta al primer elemento real de la lista. Por ejemplo, la Figura \ref{fig:repOK1} nos muestra dos instancias de NCL. La lista de la parte superior es la lista principal y la lista de la parte inferior es la representación de la lista caché. En la figura, la instancia del lado derecho es válida, la del izquierdo es inválida debido a que no cumple la especificación de poseer un nodo ficticio. El \emph{repOK} en la línea 6 controla esta situación y el método retorna \texttt{false}.
+
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{images/repok1.jpg}
-  \caption{Ejemplo una instancia válida y otra no de acuerdo al RepOK en las configuraciones generales de la estructura.}
+  \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en las configuraciones generales de la estructura.}
   \label{fig:repOK1}
 \end{figure}
 
-Siguiendo con el análisis del \emph{repOK} de la figura \ref{fig:NCL-repOK}, las líneas 12 a 21 del método verifican que la lista principal sea una lista circular doblemente enlazada. Veamos en detalle lo que esto significa:
-\cacho{Hace falta explciar la noción de lista ?}
-\\
-- Lista Circular: Una lista circular es aquella en la que el último elemento de la lista está enlazado al primer elemento, formando un ciclo. En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al último elemento y luego volveremos al primer elemento.
-\\
-- Doblemente Enlazada: En una lista doblemente enlazada, cada nodo tiene dos enlaces, uno que apunta al nodo anterior y otro que apunta al nodo siguiente. Esto permite recorrer la lista en ambas direcciones: desde el primer nodo hasta el último y viceversa.
-\\
-El método Java, que especifica la estructura entre las líneas 12 a 21, realizan un recorrido sobre la lista principal. 
-En la figura \ref{fig:repok2} se puede observar ejemplos de instancia donde pasan o no esta sección de restricciones del método. La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha tiene el error de  que la lista principal no es acíclica, característica que poseen las listas principales (donde se guardan los datos) de NCL. El campo \emph{next} del nodo \textbf{NO} apunta a \emph{null}, lo que rompe la propiedad de ciclicidad. Esta restricción se contempla en la linea 16 del \emph{repOK}.
+Siguiendo con el análisis del \emph{repOK} de la Figura \ref{fig:NCL-repOK}, las líneas 12 a 21 del método verifican que la lista principal sea una lista circular doblemente enlazada. Veamos en detalle lo que esto significa:
+\begin{itemize}
+    \item \textbf{Lista Circular:} Una lista circular es aquella en la que el último elemento de la lista está enlazado al primer elemento, formando un ciclo. En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al último elemento y luego volveremos al primer elemento.
+    \item \textbf{Doblemente Enlazada:} En una lista doblemente enlazada, cada nodo tiene dos enlaces, uno que apunta al nodo anterior y otro que apunta al nodo siguiente. Esto permite recorrer la lista en ambas direcciones: desde el primer nodo hasta el último y viceversa.
+\end{itemize}
+El método Java, que especifica la estructura entre las líneas 12 a 21, realiza un recorrido sobre la lista principal. En la Figura \ref{fig:repok2} se pueden observar ejemplos de instancias que pasan o no esta sección de restricciones del método. La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha tiene el error de que la lista principal no es cíclica, característica que poseen las listas principales (donde se guardan los datos) de NCL. El campo \emph{next} del nodo \textbf{NO} apunta a \emph{null}, lo que rompe la propiedad de ciclicidad. Esta restricción se contempla en la línea 16 del \emph{repOK}.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
-  \includegraphics[width=1.1\textwidth]{images/repok2.jpg}
-  \caption{Ejemplo una instancia válida y otra no de acuerdo al RepOK en la lista principal.}
+  \includegraphics[width=0.8\textwidth]{images/repok2.jpg}
+  \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista principal.}
   \label{fig:repok2}
 \end{figure}
 
-Por último, el método \emph{repOK} de la figura \ref{fig:NCL-repOK}, en las líneas 22 a 37 verifican que propiedades sobre la lista caché. Esta debe ser una lista simplemente enlazada terminada en un valor nulo (y se verifica la consistencia de los campos de tamaño en el proceso). Como ejemplo de esta situación, mostramos dos nuevas instancias en la figura \ref{fig:repok3}. La primera es una instancia válida de la lista caché y el \emph{repOK} nos devuelve True. La segunda instancia en la figura, nos muestra una instancia inválida de acuerdo a la especificación. Esto se debe a que la lista cache (la lista de la parte inferior de la estructura) es cíclica. La insatisfacción  de la propiedad se da cuando el método vuelve a insertar el mismo nodo al conjunto \emph{visited}. Este conjunto va recorriendo la lista y va chequeando en la línea 33 si vuelve a pasar por un nodo ya visitado. En caso de que esto suceda, retorna Falso. Esto es lo que sucede en la instancia de la figura \ref{fig:repok3}.
+Por último, el método \emph{repOK} de la Figura \ref{fig:NCL-repOK}, en las líneas 22 a 37 verifica propiedades sobre la lista caché. Esta debe ser una lista simplemente enlazada terminada en un valor nulo (y se verifica la consistencia de los campos de tamaño en el proceso). Como ejemplo de esta situación, mostramos dos nuevas instancias en la Figura \ref{fig:repok3}. La primera es una instancia válida de la lista caché y el \emph{repOK} nos devuelve \texttt{true}. La segunda instancia en la figura nos muestra una instancia inválida de acuerdo a la especificación. Esto se debe a que la lista caché (la lista de la parte inferior de la estructura) es cíclica. La insatisfacción de la propiedad se da cuando el método vuelve a insertar el mismo nodo al conjunto \emph{visited}. Este conjunto recorre la lista y chequea en la línea 33 si vuelve a pasar por un nodo ya visitado. En caso de que esto suceda, retorna \texttt{false}. Esto es lo que sucede en la instancia de la Figura \ref{fig:repok3}.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
-  \includegraphics[scale=0.5]{images/repok3.jpg}
-  \caption{Ejemplo una instancia válida y otra no de acuerdo al RepOK en la lista cache.}
+  \includegraphics[scale=0.3]{images/repok3.jpg}
+  \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista caché.}
   \label{fig:repok3}
 \end{figure}
 
@@ -115,7 +111,7 @@ Motivados por estos problemas y la dificultad de escribir métodos \emph{repOK} 
 \label{sec:beapiIntro}
 
 En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos, haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de pruebas dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
-El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test, y las ejecuta para generar estructuras. 
+El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test, y las ejecuta para generar estructuras. 
 
 A diferencia de los enfoques de generación basados en caja negra, \textsf{BEAPI} no requiere una especificación formal de las propiedades de las estructuras. Al igual que otras técnicas de generación exhaustiva acotada (BEG), el usuario solo debe proporcionar los alcances para la generación, que se abordan en detalle en la sección correspondiente.  Esto permite generar estructuras válidas sin requerir una especificación detallada de las propiedades de las estructuras, reduciendo así la carga de trabajo para el programador.
 
@@ -240,11 +236,11 @@ Para finalizar esta sección, se puede observar en la figura \ref{sec:scope} un 
 \section{State Matching}
 \label{sec:stateMatching}
 
-En la generación de objetos con \textsf{BEAPI}, a menudo muchas secuencias de prueba producen la misma estructura. Por ejemplo, en la figura \ref{fig:stateMatching}, insertar un elemento en una lista y luego eliminarlo . \textsf{BEAPI} asume que las ejecuciones de métodos son deterministas, es decir, cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. Observamos que para cada estructura distinta $s$, solo necesitamos guardar la primera secuencia de prueba que genera $s$ (y la estructura en sí). Todas las secuencias de prueba generadas posteriormente que también crean $s$ pueden ser descartadas. Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, lo que resultaría en extensiones innecesarias. Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera.
+En la generación de objetos con \textsf{BEAPI}, a menudo muchas secuencias de prueba producen la misma estructura. Por ejemplo, en la figura \ref{fig:stateMatching}, insertar un elemento en una lista, luego eliminar y volver a agregarlo a la lista principal, produce un estado que ya fue analizado con solo la secuencia que crea la lista y agrega el elemento. Lo mismo sucede en el caso que se quiera eliminar un objecto de la lista cuando la misma es vacia. Esto va a provocar un nuevo estado que es igual al estado utilizando solo el metodo constructor de la clase. \textsf{BEAPI} asume que las ejecuciones de métodos son deterministas, es decir, cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. Observamos que para cada estructura distinta $s$, solo necesitamos guardar la primera secuencia de prueba que genera $s$ (y la estructura en sí). Todas las secuencias de prueba generadas posteriormente que también crean $s$ pueden ser descartadas. Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, lo que resultaría tener que realizar un cómputo de las secuencias que sería innecesario ya que producen un estado que ya hemos computado y que hemos extendido.  Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{images/stateMatching.jpg}
+    \includegraphics[width=1\textwidth]{images/stateMatching1.jpg}
     \caption{Representación con scope 3 para NCL}
     \label{fig:stateMatching}
 \end{figure}
@@ -322,24 +318,47 @@ Cabe destacar que la linearización proporciona una forma eficiente de comparar 
 
 \section{Uso de Builders en BEAPI}
 \label{sec:builders}
-En esta sección, introducimos una optimización que hemos desarrollado y que es una parte importante de esta tesis \ref{cap:builders}. Explicaremos una de las formas en las que utilizamos una técnica llamada \emph{identificación de métodos builders} en una API. Estos métodos builders nos permiten generar una gran diversidad de objetos (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
+En esta sección, utilizaremos una optimización que hemos desarrollado y que es una parte importante de esta tesis \ref{cap:builders}. Estos métodos builders nos permiten generar cualquier configuración posible que se puede construir con la API (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
+Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos, es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, utilizamos el enfoque de identificación automática de métodos builders que se describe en el capítulo (Capítulo \ref{cap:builders}). Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. 
 
-Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos, es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, utilizamos un enfoque de identificación automática de métodos builders que se describe en el capítulo siguiente (Capítulo \ref{cap:builders}). Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. En el contexto de \textsf{BEAPI}, utilizamos un algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de builders.
+En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de métodos generadores.El enfoque está basado en el algoritmo de optimización \emph{Hill Climbing} que logra un mejor rendimiento. Aunque \emph{Hill Climbing} puede ser menos preciso, ya que puede incluir algunos métodos que no son necesarios para producir un conjunto acotado y exhaustivo de estructuras, en nuestros experimentos, \emph{Hill Climbing}  funcionó muy bien y calculó consistentemente conjuntos sufientes de métodos generadores (verificamos que coincidieran con los métodos que identificados manualmente y que son generadores en cada caso de estudio). 
+% Nuestro objetivo aquí es evaluar el impacto de utilizar builders para la generación exhaustiva acotada (BEG) a partir de una API.
 
-En esta sección, presentamos un enfoque más simple basado en el algoritmo de optimización Hill Climbing (HC) que logra un mejor rendimiento. Aunque HC puede ser menos preciso, ya que puede incluir algunos métodos que no son necesarios para producir un conjunto acotado y exhaustivo de estructuras, en nuestros experimentos, HC funcionó muy bien y calculó consistentemente conjuntos mínimos de builders (verificamos que coincidieran con los builders identificados manualmente en cada estudio de caso). Nuestro objetivo aquí es evaluar el impacto de utilizar builders para la generación exhaustiva acotada (BEG) a partir de una API.
+Para la identificación de métodos generadores, utilizamos como función de evaluación un generador exhaustivo para crear objetos de la API (ver sección \ref{sec:fitness}). Este generador es precisamente BEAPI que estamos desarrollando en esta sección. 
+La idea clave que hace factible la identificación de los métodos generadores es que a menudo los generadores identificados para un \emph{scope} relativamente pequeño utilizan el mismo conjunto de métodos que se necesitan para crear estructuras de cualquier tamaño. En otras palabras, una vez que el alcance para el cálculo de los métodos generadores es lo suficientemente grande, aumentar el alcance producirá como resultado el mismo conjunto de constructores. Este resultado se asemeja a la hipótesis de la cota pequeña para la detección de errores[\cite{Andoni02} (a la técnica de \emph{transcoping} \cite{Rosner13}).
+En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para calcular los métodos generadores de objetos. 
+Después de identificar eficientemente los métodos generadores con un alcance pequeño, podemos ejecutar \textsf{BEAPI}, utilizando los métodos generadores identificados y, con un alcance mayor. Esto nos permite generar objetos más grandes y utilizarlos para probar el software bajo prueba.
 
-Para la identificación de métodos builders, utilizamos una función de evaluación que emplea un generador exhaustivo para crear objetos de la API (ver sección \ref{sec:fitness}). El algoritmo Hill Climbing realiza múltiples invocaciones a este generador exhaustivo durante la identificación de los builders.
+En la mayoría de nuestros casos de estudio, los métodos generadores de objetos consisten en un constructor y un solo método para agregar elementos a la estructura. Como por ejemplo en el caso de listas simplemente enlazadas. 
+Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores mostró que, en el caso de los árboles Rojo-Negro (ver figura \ref{fig:redBlack}), también se requería un método de eliminación (para alcances mayores que 3). 
 
-La idea clave que hace posible la identificación eficiente de builders es que a menudo los builders identificados para un alcance relativamente pequeño son los mismos que se necesitan para crear estructuras de cualquier tamaño. En otras palabras, una vez que el alcance es lo suficientemente grande para computar los builders, aumentar aún más el alcance no modificará el conjunto de builders. Este resultado se asemeja a la hipótesis del alcance pequeño para la detección de errores \cite{Andoni02} (y a la técnica de "transcoping" \cite{Rosner13}). En todos nuestros casos de estudio, un alcance de 5 fue suficiente para calcular los builders (verificamos manualmente la corrección de los builders en todos los casos). Después de identificar eficientemente los builders con un alcance pequeño, podemos ejecutar \textsf{BEAPI} utilizando los builders identificados y un alcance mayor. Esto nos permite generar objetos más grandes y utilizarlos para probar el SUT.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/redBlackTree.jpg}
+  \caption{Ejemplo de un árbol red-black}
+  \label{fig:redBlack}
+\end{figure}
 
-En la mayoría de nuestros casos de estudio, los builders consisten en un constructor y un solo método para agregar elementos a la estructura. Sin embargo, nuestro enfoque automatizado de identificación de builders mostró que, en el caso de los árboles Rojo-Negro, también se requería un método de eliminación (para alcances mayores que 3). Esto se debe a que existen árboles con una configuración específica de equilibrio (coloreando los nodos en rojo y negro) que no se pueden construir solo agregando elementos al árbol. En contraste, los árboles AVL, que también son estructuras balanceadas, no requieren el método de eliminación como parte de su builder; solo el constructor de la clase y una rutina de adición son suficientes. Esto demuestra que la identificación de builders no es trivial de realizar manualmente.
+Esto se debe a que estos tipos de árboles necesitan una configuración específica de equilibrio (coloreando los nodos en rojo y negro) que no se pueden construir solo agregando elementos al árbol. En contraste, los árboles AVL (figura \ref{fig:avl}), que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
+Los árboles AVL están siempre equilibrados, de tal modo que para todos los nodos, la altura de la rama izquierda no debe diferir en más de una unidad de la altura de la rama derecha o viceversa. Gracias a esta forma de equilibrio (o balanceo), la complejidad de una búsqueda en uno de estos árboles se mantiene siempre en orden de complejidad O(log n). 
+Para este caso de árboles, solo el constructor de la clase y una rutina de adición son suficientes. Esto demuestra que la identificación de métodos generadores no es trivial de realizar manualmente.
+
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/avl.jpg}
+  \caption{Ejemplo de un árbol AVL}
+  \label{fig:redBlack}
+\end{figure}
+
 
 Para obtener más información sobre esta sección, invitamos al lector a leer el siguiente capítulo donde se explica en detalle el desarrollo de esta técnica (Capítulo \ref{cap:builders}).
 
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
 
-A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{alg:beapi}. \emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. Estos metodos pueden ser la API completa o un subconjuntos de metodos de la misma. En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos \emph{builders} previamente identificados. Ademas, el algoritmo toma el alcance (scope) de objetos para la generación, \texttt{scope}; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de las opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); y una expresión regular que coincide con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI}, por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. La estructura de datos de tipo Map, \texttt{currSeqs} de \emph{BEAPI}  almacena, para cada tipo, la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. El \cacho{check}\texttt{currSeqs} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 3-4). En cada iteración del bucle principal (líneas 6-39), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 9), explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{currSeqs} (líneas 10-35). Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 7). Se puede observar que todas las secuencias generadas se agregan a \texttt{currSeqs} al final de la iteración principal (línea 40). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 36), el bucle principal del algoritmo de  \textsf{BEAPI}  termina su ejecución y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 40).
+A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{alg:beapi}. \emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. Estos métodos pueden ser la API completa o un subconjuntos de métodos de la misma. En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos \emph{builders} previamente identificados. Ademas, el algoritmo recibe de parametro, el alcance (\emph{scope}) de objetos para la generación, \texttt{scope}; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de las opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); y una expresión regular que coincide con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI}, por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. La estructura de datos de tipo Map, \texttt{currSeqs} de \emph{BEAPI}  almacena, para cada tipo, la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. El \cacho{check}\texttt{currSeqs} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 3-4). En cada iteración del bucle principal (líneas 6-39), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 9), explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{currSeqs} (líneas 10-35). Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 7). Se puede observar que todas las secuencias generadas se agregan a \texttt{currSeqs} al final de la iteración principal (línea 40). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 36), el bucle principal del algoritmo de  \textsf{BEAPI}  termina su ejecución y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 40).
 
 
 \begin{figure}[t!]
