@@ -1,6 +1,4 @@
 \chapter{Generacion Exhaustiva acotada desde API de los programas}
-
-
 \label{cap:beapi}
 
 En adelante, se presenta la técnica desarrollada llamada BEAPI, que tiene como objetivo mejorar la generación exhaustiva acotada (BEG, por sus siglas en inglés, \emph{Bounded Exhaustive Generation}). \ref{sec:BE}. \cacho{Agregar en preliminar? ampliar?}
@@ -96,22 +94,23 @@ Por último, el método \emph{repOK} de la Figura \ref{fig:NCL-repOK}, en las l�
   \label{fig:repok3}
 \end{figure}
 
-Este \emph{repOK} está escrito de la manera recomendada por los autores del enfoque de generación exhaustiva de BEAPI, \textsf{Korat} \cite{Boyapati02}.
-Este método devuelve falso tan pronto como encuentra una violación de una propiedad prevista en la estructura actual. De lo contrario, devuelve verdadero al final de método. Esto permite a \textsf{Korat} podar grandes porciones del espacio de búsqueda ni bien se encuentra con alguna restricción que no se cumple, lo que mejora en gran medida su eficiencia.
+Este método \emph{repOK} está implementado siguiendo las recomendaciones de los autores del enfoque de generación exhaustiva acotada de BEAPI, utilizando la herramienta \textsf{Korat} \cite{Boyapati02}. La función devuelve \emph{falso} tan pronto como detecta una violación en alguna propiedad esperada de la estructura actual. En caso contrario, devuelve \emph{verdadero} al finalizar el método. Este enfoque permite a \textsf{Korat} podar eficientemente grandes porciones del espacio de búsqueda al encontrar restricciones incumplidas, mejorando así significativamente su eficiencia.
 
-En el \emph{repOK} de la figura \ref{fig:NCL-repOK}, se puede observar que existe código que está comentado y hace referencia a restricciones que faltan en el mismo. Estas restricciones no estaban presentes en el \emph{repOK} que tomamos de Roops; las agregamos después de analizar las estructuras generadas para las pruebas que resultaron incorrectas.
+Sin embargo, en el \emph{repOK} que se presenta en la figura \ref{fig
+}, se puede observar que algunas restricciones están comentadas, lo que indica la ausencia de validaciones cruciales. Estas restricciones no estaban presentes en la versión original del \emph{repOK} que tomamos de Roops; las incorporamos después de analizar las estructuras generadas para las pruebas que resultaron incorrectas.
 
-Olvidar alguna restricción provoca un aumento significativo en la cantidad de estructuras generadas, lo que complica la identificación de cuáles son válidas y cuáles no. Por ejemplo, el número de estructuras generadas por \emph{Korat} con el \emph{repOK}, sin las restricciones que están comentadas, asciende a 54.5 millones para un \emph{scope} de 8. Sin embargo, si agregamos las restricciones que faltan en el método de especificación, se generan solo 2.8 millones de estructuras para el mismo \emph{scope}. Esto podría llevarnos a generar varias estructuras como falsos positivos que luego seran utilizadas para realizar testing.
+La omisión de restricciones en el \emph{repOK} tiene un impacto directo y considerable en la cantidad de estructuras que \textsf{Korat} genera. Esta falta de precisión no solo aumenta exponencialmente el número de estructuras generadas, sino que también complica la tarea de identificar cuáles son válidas y cuáles no. Por ejemplo, cuando se ejecuta \textsf{Korat} con el \emph{repOK} sin las restricciones comentadas, se generan 54.5 millones de estructuras para un \emph{scope} de 8. Al incluir las restricciones faltantes, la cantidad de estructuras generadas se reduce drásticamente a solo 2.8 millones para el mismo \emph{scope}.
 
-Motivados por estos problemas y la dificultad de escribir métodos \emph{repOK} para llevar a cabo la generación exhaustiva acotada, hemos desarrollado una técnica a la que denominamos BEAPI, la cual describiremos en las siguientes secciones.
+Este incremento masivo en la generación de estructuras debido a la omisión de restricciones tiene implicaciones graves para el proceso de testing. Aumenta la probabilidad de que se generen falsos positivos, es decir, estructuras que cumplen con las propiedades básicas pero que no son representativas de casos válidos. Estos falsos positivos pueden llevar a realizar pruebas innecesarias o a interpretar incorrectamente los resultados del testing, comprometiendo la calidad del software.
 
+Motivados por estos desafíos y la complejidad inherente a la escritura de métodos \emph{repOK} precisos para la generación exhaustiva acotada, hemos desarrollado una técnica que hemos denominado BEAPI. Esta técnica será detallada en las siguientes secciones, y busca ofrecer una solución más robusta y precisa para la generación y validación de estructuras en el contexto de pruebas exhaustivas.
 
 
 \section[BEAPI]{BEAPI}
 \label{sec:beapiIntro}
 
 En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos, haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de pruebas dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
-El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test, y las ejecuta para generar estructuras. 
+El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test \cite{Ammann16}, y las ejecuta para generar estructuras. 
 
 A diferencia de los enfoques de generación basados en caja negra, \textsf{BEAPI} no requiere una especificación formal de las propiedades de las estructuras. Al igual que otras técnicas de generación exhaustiva acotada (BEG), el usuario solo debe proporcionar los alcances para la generación, que se abordan en detalle en la sección correspondiente.  Esto permite generar estructuras válidas sin requerir una especificación detallada de las propiedades de las estructuras, reduciendo así la carga de trabajo para el programador.
 
@@ -199,22 +198,35 @@ En el contexto de la generación exhaustiva acotada, el término \emph{scope} se
 
 Para limitar el número de estructuras generadas, BEAPI necesita definirlo en un archivo de descripción simple en formato \texttt{java.properties}, en el cual, además, se establecen algunos otros parámetros. En la figura \ref{fig:NCL-fin-BEAPI}, en la línea 1, se puede observar como establecer el \emph{scope} para un caso específico con la sentencia \emph{max.objects}. Este valor (\emph{k}) debe ser un valor entero. Supongamos el caso de la figura \ref{fig:ncl-instances} de instancias de \texttt{NCL}.  El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$). Esto especifica el número máximo de objetos diferentes (alcanzables desde la raíz) permitidos en una estructura. Las secuencias de prueba generadas por \emph{BEAPI} que crean estructuras que exceden este número (para cualquier clase) se descartan y no se siguen extendiendo
 
-
 Nuestra técnica, basada en generación de test por feedback, necesita, también, un conjunto de valores primitivos especificado por el usuario (enteros, strings, etc) que son utilizados para alimentar a los métodos (que requieran valores primitivos) de la API que se combinan para generar las estructuras del SUT que estamos buscando.
 Por ejemplo, en la figura \ref{fig:scope} el método \emph{add(int)}, que agrega un elemento a la lista principal, necesita un entero para el campo \emph{value} de cada nodo. Este valor entero, como es un valor primitivo, se toma de algunos de los valores primitivos que definió el usuario en el archivo de configuración de BEAPI (\ref{fig:NCL-fin-BEAPI}). En la línea 2 y 3 se puede observar que define valores de tipo enteros y valores de tipo string que serán utilizados por los métodos cuando necesiten valores de este tipo. 
 \cacho{Explicar sobre objects que son int para nosotros? o esconderlo?}
 
 Cómo último, nuestro archivo de configuración, permite que el usuario especifique que valores desea que no sean tenidos en cuenta a la hora de comparar estructuras. 
-Esto toma especial importancia el contexto de estructuras de datos, especialmente en colecciones y contenedores en Java. En estos casos suelen aparecer campos en la clase que representa un contador de modificaciones o cambios realizados en la estructura de datos. Conmútente son llamados \emph{modCount}. Este es un campo que se utiliza para realizar un seguimiento de las modificaciones que se han realizado en la colección desde su creación o desde la última vez que se realizó un seguimiento. El \emph{modCount} es un campo de tipo entero que se incrementa cada vez que se realiza una modificación en la estructura de datos. Las modificaciones pueden incluir inserciones, eliminaciones, actualizaciones u otras operaciones que afecten la colección. El propósito principal de llevar un contador de modificaciones es facilitar la detección de modificaciones concurrentes o cambios inesperados en la colección por parte de múltiples hilos de ejecución. En la línea 4 del archivo de configuración \ref{fig:NCL-fin-BEAPI}, se puede observar como se especifica aquellos campos que deseamos omitir a la hora de tener una representación canónica de la estructura. Canonicalizar un objeto se refiere a la acción de garantizar que un objeto se encuentre en su forma más básica y representativa, lo que facilita las comparaciones y operaciones con otros objetos similares.
+Esto toma especial importancia el contexto de estructuras de datos, especialmente en colecciones y contenedores en Java. En estos casos suelen aparecer campos en la clase que representa un contador de modificaciones o cambios realizados en la estructura de datos. Comúnmente son llamados \emph{modCount}. Este es un campo que se utiliza para realizar un seguimiento de las modificaciones que se han realizado en la colección desde su creación o desde la última vez que se realizó un seguimiento. El \emph{modCount} es un campo de tipo entero que se incrementa cada vez que se realiza una modificación en la estructura de datos. Las modificaciones pueden incluir inserciones, eliminaciones, actualizaciones u otras operaciones que afecten la colección. El propósito principal de llevar un contador de modificaciones es facilitar la detección de modificaciones concurrentes o cambios inesperados en la colección por parte de múltiples hilos de ejecución. En la línea 4 del archivo de configuración \ref{fig:NCL-fin-BEAPI}, se puede observar como se especifica aquellos campos que deseamos omitir a la hora de tener una representación canónica de la estructura. Canonicalizar un objeto se refiere a la acción de garantizar que un objeto se encuentre en su forma más básica y representativa, lo que facilita las comparaciones y operaciones con otros objetos similares.
 Para lograr todo lo explicado en esta sección, nosotros canonizamos los objetos generados por la ejecución de cada secuencia de métodos y analizamos y trabajamos con su representación canónica.
 Para finalizar esta sección, se puede observar en la figura \ref{sec:scope} un ejemplo del espacio de búsqueda de una secuencia generada con la combinación del método constructor de la clase más el método \emph{add} de NCL. En esta figura, se especificó un scope de 3. Esto quiere decir que cuando genera alguna estructura con más de 3 nodos como es en el caso de la última secuencia de la figura, esta es descartada por exceder el límite de nodos en la estructura (el nodo ficticio de la estructura se tiene en cuenta en la definición de \emph{scope})
-\cacho{Definicion de canonizar y algun ejemplo simple de canonizar?} 
+
+Imaginemos un conjunto de números representado en diferentes órdenes:
+\begin{itemize}
+    \item Conjunto 1: \{3, 1, 2\}
+    \item Conjunto 2: \{1, 2, 3\}
+    \item Conjunto 3: \{2, 3, 1\}
+\end{itemize}
+
+Aunque los elementos de cada conjunto son los mismos, el orden de los números varía. Si quisiéramos comparar estos conjuntos para determinar si son equivalentes, el proceso de canonización podría consistir en ordenar los números en cada conjunto de manera ascendente:
+
+\begin{itemize}
+    \item Conjunto 1 canonizado: {1, 2, 3}
+    \item Conjunto 2 canonizado: {1, 2, 3}
+    \item Conjunto 3 canonizado: {1, 2, 3}
+\end{itemize}
+
+Tras la canonización, todas las versiones del conjunto resultan idénticas, lo que nos permite determinar fácilmente que los tres conjuntos son equivalentes, independientemente del orden en el que aparecían originalmente los números.
+
+En el contexto de estructuras de datos, este proceso podría implicar reorganizar los nodos, normalizar los valores de ciertos campos, o eliminar detalles que no son relevantes para la comparación, como el \emph{modCount} mencionado anteriormente. Al canonizar, se asegura que dos estructuras de datos se comparen en términos de su contenido esencial, ignorando diferencias superficiales o de implementación.
 
 % (Normalmente, las técnicas basada en generación por retroalimentación guardaría los valores primitivos que son devueltos por la ejecución de las pruebas y reutilizaría estos valores en pruebas futuras). También nuestra técnica descartar secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo), para evitar que se construyan objetos más grandes de lo necesario. 
-
-
-
-
 
 
 % \cacho{VER BIEN ESTO DE NO EXTENDERSE, porq para crear estrucutras de 3 nodos a veces necesito crear previamente una de 4 nodos}
@@ -236,7 +248,99 @@ Para finalizar esta sección, se puede observar en la figura \ref{sec:scope} un 
 \section{State Matching}
 \label{sec:stateMatching}
 
-En la generación de objetos con \textsf{BEAPI}, a menudo muchas secuencias de prueba producen la misma estructura. Por ejemplo, en la figura \ref{fig:stateMatching}, insertar un elemento en una lista, luego eliminar y volver a agregarlo a la lista principal, produce un estado que ya fue analizado con solo la secuencia que crea la lista y agrega el elemento. Lo mismo sucede en el caso que se quiera eliminar un objecto de la lista cuando la misma es vacia. Esto va a provocar un nuevo estado que es igual al estado utilizando solo el metodo constructor de la clase. \textsf{BEAPI} asume que las ejecuciones de métodos son deterministas, es decir, cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. Observamos que para cada estructura distinta $s$, solo necesitamos guardar la primera secuencia de prueba que genera $s$ (y la estructura en sí). Todas las secuencias de prueba generadas posteriormente que también crean $s$ pueden ser descartadas. Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, lo que resultaría tener que realizar un cómputo de las secuencias que sería innecesario ya que producen un estado que ya hemos computado y que hemos extendido.  Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera.
+Para introducirno en el tema veamos algunos ejemplos de secuencias de test en estructuras de datos:
+
+Estos sos algunos ejemplos de secuencia de test: 
+\begin{itemize}
+    \item \textbf{Ejemplo 1: Operaciones en una Lista}
+
+    \begin{itemize}
+        \item \textbf{Secuencia 1}:
+
+        
+\begin{lstlisting}[numbers=none,label=fig:NCLadds, caption= Crear una lista vacía y agregar un elemento, captionpos=b, frame=tb , basicstyle=\scriptsize]
+        List<Integer> lista = new ArrayList<>();
+        lista.add(5);
+\end{lstlisting}
+
+
+        \item \textbf{Secuencia 2}:
+        \begin{verbatim}
+        // Crear una lista vacía, agregar y eliminar un elemento, luego agregarlo nuevamente
+        List<Integer> lista = new ArrayList<>();
+        lista.add(5);
+        lista.remove(0);
+        lista.add(5);
+        \end{verbatim}
+
+        \textbf{Estado resultante}:
+        \begin{verbatim}
+        Lista: [5]
+        \end{verbatim}
+    \end{itemize}
+
+    \item \textbf{Ejemplo 2: Eliminación de Elementos en una Lista Vacía}
+
+    \begin{itemize}
+        \item \textbf{Secuencia 1}:
+        \begin{verbatim}
+        // Crear una lista vacía
+        List<Integer> lista = new ArrayList<>();
+        \end{verbatim}
+
+        \textbf{Estado resultante}:
+        \begin{verbatim}
+        Lista: []
+        \end{verbatim}
+
+        \item \textbf{Secuencia 2}:
+        \begin{verbatim}
+        // Crear una lista vacía e intentar eliminar un elemento (sin efecto)
+        List<Integer> lista = new ArrayList<>();
+        lista.remove(new Integer(5)); // No tiene efecto ya que la lista está vacía
+        \end{verbatim}
+
+        \textbf{Estado resultante}:
+        \begin{verbatim}
+        Lista: []
+        \end{verbatim}
+    \end{itemize}
+
+    \item \textbf{Ejemplo 3: Agregar y Remover en una Pila (Stack)}
+
+    \begin{itemize}
+        \item \textbf{Secuencia 1}:
+        \begin{verbatim}
+        // Crear una pila y apilar un elemento
+        Stack<Integer> pila = new Stack<>();
+        pila.push(10);
+        \end{verbatim}
+
+        \textbf{Estado resultante}:
+        \begin{verbatim}
+        Pila: [10]
+        \end{verbatim}
+
+        \item \textbf{Secuencia 2}:
+        \begin{verbatim}
+        // Crear una pila, apilar un elemento, desapilarlo y volver a apilar el mismo elemento
+        Stack<Integer> pila = new Stack<>();
+        pila.push(10);
+        pila.pop();
+        pila.push(10);
+        \end{verbatim}
+
+        \textbf{Estado resultante}:
+        \begin{verbatim}
+        Pila: [10]
+        \end{verbatim}
+    \end{itemize}
+\end{itemize}
+
+En la generación de objetos con \textsf{BEAPI}, a menudo muchas secuencias de prueba producen la misma estructura. Por ejemplo, en la figura \ref{fig:stateMatching}, insertar un elemento en una lista, luego eliminar y volver a agregarlo a la lista principal, produce un estado que ya fue analizado con solo la secuencia que crea la lista y agrega el elemento. Lo mismo sucede en el caso que se quiera eliminar un objecto de la lista cuando la misma es vacia. Esto va a provocar un nuevo estado que es igual al estado utilizando solo el metodo constructor de la clase. \textsf{BEAPI} asume que las ejecuciones de métodos son deterministas, es decir, cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. Observamos que para cada estructura distinta $s$, solo necesitamos guardar la primera secuencia de prueba que genera $s$ (y la estructura en sí). Todas las secuencias de prueba generadas posteriormente que también crean $s$ pueden ser descartadas. Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, lo que resultaría tener que realizar un cómputo de las secuencias que sería innecesario ya que producen un estado que ya hemos computado y que hemos extendido.  
+
+
+Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera.
 
 \begin{figure}[H]
     \centering
@@ -320,6 +424,18 @@ Cabe destacar que la linearización proporciona una forma eficiente de comparar 
 \label{sec:builders}
 En esta sección, utilizaremos una optimización que hemos desarrollado y que es una parte importante de esta tesis \ref{cap:builders}. Estos métodos builders nos permiten generar cualquier configuración posible que se puede construir con la API (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
 Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos, es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, utilizamos el enfoque de identificación automática de métodos builders que se describe en el capítulo (Capítulo \ref{cap:builders}). Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. 
+El uso de métodos \textit{builders} permite generar estados complejos sin necesidad de ejecutar múltiples pasos individuales. Esto reduce significativamente la cantidad de secuencias que BEAPI necesita explorar, optimizando el análisis. 
+
+Por ejemplo, consideremos una clase \texttt{NodeCachingLinkedList (NCL)}. Sin \textit{builders}, para generar una lista con un solo elemento, se necesitarían las siguientes operaciones:
+
+
+Esto implica ejecutar al menos dos pasos para construir el estado deseado. Sin embargo, con un método \textit{builder} predefinido, se puede simplificar a:
+
+\begin{lstlisting}
+ncl.NodeCachingLinkedList.<init>(42) // Crear lista con un elemento directamente
+\end{lstlisting}
+
+De esta manera, los metodos \textit{builders} permite construir un estado equivalente sin necesidad de explorar todas las combinaciones posibles de pasos intermedios.
 
 En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de métodos generadores.El enfoque está basado en el algoritmo de optimización \emph{Hill Climbing} que logra un mejor rendimiento. Aunque \emph{Hill Climbing} puede ser menos preciso, ya que puede incluir algunos métodos que no son necesarios para producir un conjunto acotado y exhaustivo de estructuras, en nuestros experimentos, \emph{Hill Climbing}  funcionó muy bien y calculó consistentemente conjuntos sufientes de métodos generadores (verificamos que coincidieran con los métodos que identificados manualmente y que son generadores en cada caso de estudio). 
 % Nuestro objetivo aquí es evaluar el impacto de utilizar builders para la generación exhaustiva acotada (BEG) a partir de una API.
@@ -358,7 +474,7 @@ Para obtener más información sobre esta sección, invitamos al lector a leer e
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
 
-A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{alg:beapi}. \emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. Estos métodos pueden ser la API completa o un subconjuntos de métodos de la misma. En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos \emph{builders} previamente identificados. Ademas, el algoritmo recibe de parametro, el alcance (\emph{scope}) de objetos para la generación, \texttt{scope}; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de las opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); y una expresión regular que coincide con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI}, por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. La estructura de datos de tipo Map, \texttt{currSeqs} de \emph{BEAPI}  almacena, para cada tipo, la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. El \cacho{check}\texttt{currSeqs} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 3-4). En cada iteración del bucle principal (líneas 6-39), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 9), explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{currSeqs} (líneas 10-35). Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 7). Se puede observar que todas las secuencias generadas se agregan a \texttt{currSeqs} al final de la iteración principal (línea 40). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 36), el bucle principal del algoritmo de  \textsf{BEAPI}  termina su ejecución y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 40).
+A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{alg:beapi}. \emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. Estos métodos pueden ser la API completa o un subconjuntos de métodos de la misma. En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos \emph{builders} previamente identificados. Ademas, el algoritmo recibe de parámetro, el alcance (\emph{scope}) de objetos para la generación; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de las opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); y una expresión regular que coincide con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI}, por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. La estructura de datos de tipo Map, \texttt{currSeqs} de \emph{BEAPI}  almacena, para cada tipo, la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. El \cacho{check}\texttt{currSeqs} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 3-4). En cada iteración del bucle principal (líneas 6-39), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 9), explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{currSeqs} (líneas 10-35). Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 7). Se puede observar que todas las secuencias generadas se agregan a \texttt{currSeqs} al final de la iteración principal (línea 40). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 36), el bucle principal del algoritmo de  \textsf{BEAPI}  termina su ejecución y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 40).
 
 
 \begin{figure}[t!]

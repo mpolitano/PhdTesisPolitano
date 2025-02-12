@@ -1,15 +1,144 @@
 \chapter[Preliminares]{Preliminares}
 \label{cap:preliminares.BE}
-\section{Generacion exhaustiva acotada  de entradas}
-\label{sec:BE}
 
-\cacho{Explicar sobre BE}
-% La generación automatizada de entradas de prueba para las APIs de los programas es una tarea crítica en la prueba de software, ya que puede ayudar a identificar errores y garantizar que los programas se comporten correctamente bajo una amplia gama de entradas. Sin embargo, la generación de entradas para las APIs puede ser desafiante, ya que el número de posibles valores de entrada a menudo es muy grande. La prueba exhaustiva de todas las posibles entradas es típicamente inviable debido a la explosión combinatoria de los valores de entrada, mientras que la prueba aleatoria puede pasar por alto casos importantes. En este artículo, se propone un nuevo enfoque para generar valores de entrada exhaustivos y acotados para las APIs de los programas. Nuestro enfoque combina la ejecución simbólica con la resolución de restricciones para generar un conjunto representativo de valores de entrada que se pueden utilizar para probar APIs con una alta cobertura, sin la necesidad de probar cada posible valor de entrada. Evaluamos nuestro enfoque en un conjunto de APIs del mundo real y mostramos que es más efectivo que los enfoques existentes en términos de cobertura y eficiencia.
+
+\section{Cobertura de Código y Mutación}
+
+La evaluación de la calidad y efectividad de las técnicas de generación de pruebas en el campo de la ingeniería de software es un aspecto fundamental para garantizar la confiabilidad y robustez de los sistemas. Dos criterios ampliamente utilizados para evaluar la calidad de las pruebas son la \pp{Falta cobertura de líneas} cobertura de ramas (branch coverage)  y la mutación (mutation testing). Estas técnicas proporcionan métricas objetivas para medir la exhaustividad de las pruebas y la capacidad para detectar errores en el software.
+
+La cobertura de ramas es una métrica utilizada para medir qué porcentaje de las posibles rutas de ejecución en un programa ha sido cubierto por las pruebas. En otras palabras, se refiere a la medida en que se han ejecutado todas las ramas de decisión (if-else, switch-case, bucles, etc.) en el código fuente durante la ejecución de las pruebas. La cobertura de ramas es especialmente útil para identificar áreas del código que no han sido ejercitadas y que podrían contener errores lógicos o comportamientos no deseados.
+Al lograr una alta cobertura de ramas, se aumenta la confianza en la calidad de las pruebas realizadas, ya que se ha examinado exhaustivamente la lógica del programa en diferentes condiciones de ejecución. Sin embargo, es importante destacar que la cobertura de ramas no garantiza la ausencia de errores, ya que no evalúa la calidad o validez de las pruebas en sí mismas. Es decir, una alta cobertura de ramas indica que se han ejecutado diferentes rutas de ejecución, pero no necesariamente que se hayan utilizado entradas significativas o se hayan probado casos límite relevantes.
+
+La mutación es una técnica avanzada de evaluación de pruebas que se utiliza para medir la capacidad de un conjunto de pruebas para detectar cambios sintácticos o semánticos en el código fuente. Consiste en introducir cambios deliberados, llamados mutantes, en el programa original y luego ejecutar el conjunto de pruebas sobre estos mutantes. El objetivo es evaluar si las pruebas son lo suficientemente sensibles como para detectar estos cambios y, por lo tanto, indicar la presencia de posibles errores en el código.
+Cada mutante representa una posible variación o error que podría haberse introducido en el código original. Si una prueba es capaz de detectar un mutante, se considera que la prueba ha "matado" al mutante, lo que indica que el conjunto de pruebas tiene la capacidad de encontrar y reportar posibles errores. Por otro lado, si un mutante no es detectado por ninguna prueba, se considera que el conjunto de pruebas es inadecuado y podría necesitar mejoras para aumentar su capacidad para encontrar errores.
+La evaluación de la capacidad de detección de mutantes proporciona información valiosa sobre la efectividad de las pruebas en términos de su capacidad para encontrar posibles errores. Al identificar los mutantes que no son detectados por las pruebas, se pueden identificar deficiencias en el conjunto de pruebas y se pueden tomar medidas correctivas para mejorar su calidad.
+
+Estas técnicas se aplican en esta tesis para evaluar las nuevas técnicas implementadas y poder realizar una comparación con herramientas que se utilizan en el estado de arte, como \emph{Randoop} y \emph{Korat}. Mediante la utilización de estas técnicas, se busca mejorar la confiabilidad y calidad del análisis de software, permitiendo a los investigadores y profesionales tomar decisiones más informadas sobre las técnicas de generación de pruebas a utilizar. Al proporcionar medidas comparativas de cobertura de ramas y evaluación de mutantes, se puede determinar la efectividad de las nuevas herramientas y enfoques propuestos, y se pueden identificar deficiencias en las pruebas existentes. Esto conduce a mejoras en la calidad y confiabilidad de los sistemas de software, lo que es fundamental en el desarrollo de software de alta calidad.
+
+
+
+\section{Korat: Generación exhaustiva acotada de entradas basada en especificaciones}
+\label{sec:korat}
+
+La \textit{generación exhaustiva de entradas} para probar APIs es una tarea crítica en la prueba de software, ya que permite identificar errores y garantizar que los programas funcionen correctamente bajo diversas condiciones. Sin embargo, el número potencialmente enorme de valores de entrada genera una explosión combinatoria, lo que hace inviable probar todas las posibles combinaciones.
+
+Para abordar este problema, se utiliza la \textit{generación exhaustiva acotada de entradas} (\textit{Bounded Exhaustive Testing, BE}), que consiste en generar todas las combinaciones posibles dentro de un rango predefinido. Este enfoque equilibra cobertura y factibilidad al reducir el espacio de prueba a un subconjunto manejable, sin dejar de incluir casos críticos que podrían pasar desapercibidos con métodos menos sistemáticos, como la \textit{generación aleatoria de pruebas}. Si bien la generación aleatoria es menos costosa computacionalmente, puede omitir casos límite relevantes, afectando la detección de errores.
+
+Korat es una herramienta que implementa la generación exhaustiva acotada, explorando todas las estructuras válidas dentro de ciertas restricciones. Su eficiencia se basa en la poda de combinaciones redundantes y en la eliminacion de estructuras isomorfas redundantes.
+
+El proceso de Korat consta de tres pasos clave:
+
+\begin{enumerate}
+    \item \textbf{Especificación de invariantes}: El usuario define las propiedades que deben cumplir las estructuras de datos, como que un árbol binario no debe tener ciclos y que cada nodo puede tener hasta dos hijos.
+    \item \textbf{Generación de candidatos}: Se generan todas las configuraciones posibles dentro de los límites especificados. Por ejemplo, si se establece un máximo de tres nodos para un árbol binario, se generarán todas las combinaciones con 1, 2 y 3 nodos.
+    \item \textbf{Filtrado y validación}: Se descartan las configuraciones que no cumplen con las restricciones definidas.
+\end{enumerate}
+
+\subsubsection{Ejemplo: Árboles Binarios}
+
+Si queremos probar una función que opera sobre árboles binarios, podemos definir:
+
+\begin{itemize}
+    \item \textbf{Límite}: Máximo 3 nodos.
+    \item \textbf{Invariantes}:
+    \begin{itemize}
+        \item No hay ciclos en el árbol.
+        \item Cada nodo tiene como máximo dos hijos.
+        \item Todos los nodos están conectados.
+    \end{itemize}
+\end{itemize}
+
+Korat generará todas las configuraciones válidas dentro de estos límites, como:
+
+\begin{itemize}
+    \item Un árbol con un solo nodo raíz.
+    \item Un árbol con un nodo raíz y un hijo izquierdo.
+    \item Un árbol con un nodo raíz, un hijo izquierdo y un hijo derecho.
+\end{itemize}
+
+Estos casos de prueba permiten verificar que la función maneja correctamente distintas estructuras de árboles binarios.
+
+\subsection{Ventajas de Korat}
+
+\begin{itemize}
+    \item \textbf{Cobertura completa}: Garantiza la exploración de todas las configuraciones dentro de los límites establecidos.
+    \item \textbf{Detección de casos límite}: Aumenta la probabilidad de encontrar errores en escenarios extremos.
+    \item \textbf{Eficiencia}: Evita la generación de estructuras inválidas o redundantes mediante poda y filtrado.
+\end{itemize}
+
+En esta tesis, Korat se utiliza como referencia para evaluar nuevas técnicas de generación de pruebas. Su enfoque sistemático y basado en especificaciones permite compararlo con otros métodos en términos de cobertura y calidad de los casos generados.
+
+
+
+
+
+La generación exhaustiva de entradas para realizar pruebas a las APIs de los programas es una tarea crítica en la prueba del software, ya que permite identificar errores y garantizar que los programas se comporten correctamente bajo una amplia gama de condiciones. Sin embargo, este proceso es inherentemente complejo debido al número potencialmente enorme de valores de entrada posibles, lo que genera una explosión combinatoria que hace inviable la prueba exhaustiva de todas las posibles entradas.
+
+Para abordar esta problemática, se recurre a la generación exhaustiva acotada de entradas (\emph{Bounded Exhaustive Testing, BE}), una técnica que consiste en generar todas las combinaciones posibles de entradas dentro de un rango o límite predefinido. Este enfoque permite reducir el espacio de entradas a un subconjunto manejable que aún cubre una diversidad significativa de casos, aumentando así la probabilidad de descubrir errores que podrían pasar desapercibidos con otros métodos de prueba.
+
+Por otro lado, una alternativa común a la generación exhaustiva acotada es la generación aleatoria de pruebas. Aunque este método es menos costoso computacionalmente y puede ser útil en ciertos contextos, presenta el inconveniente de que podría no cubrir casos críticos o bordes del espacio de entradas, lo que podría resultar en la omisión de errores significativos.
+
+En resumen, la generación exhaustiva acotada de entradas representa un compromiso entre la cobertura exhaustiva y la factibilidad práctica, ofreciendo una estrategia eficaz para la prueba de APIs, especialmente en sistemas donde la calidad y la seguridad son primordiales.
+
+Korat es una herramienta que implementa la técnica de generación exhaustiva acotada. Korat es una herramienta poderosa para la generación exhaustiva acotada de casos de prueba, permitiendo explorar todas las posibles estructuras válidas dentro de las restricciones establecidas. Su enfoque basado en filtrado, combinado con técnicas de poda y evitando las estructuras isomorfas, garantiza la eficiencia y efectividad en la generación de casos de prueba.
+
+La idea fundamental detrás de Korat es generar todas las configuraciones válidas de una estructura de datos dentro de un rango acotado (por ejemplo, un número máximo de nodos en un árbol o elementos en una lista). A diferencia de la generación aleatoria de pruebas, Korat garantiza que se exploren todas las combinaciones posibles dentro de los límites establecidos, lo que aumenta la probabilidad de detectar errores sutiles o casos límite.
+
+El proceso de Korat se basa en tres pasos clave:
+\begin{enumerate}
+\item \textbf{Especificación de invariantes}: El usuario define las propiedades que deben cumplir las estructuras de datos mediante predicados lógicos. Por ejemplo, en un árbol binario, se puede especificar que no debe contener ciclos y que cada nodo debe tener como máximo dos hijos
+
+\item \textbf{Generación de candidatos}: Korat genera todas las posibles configuraciones de la estructura de datos dentro de los límites especificados. Por ejemplo, si se define un límite de 3 nodos para un árbol binario, Korat generará todas las combinaciones posibles de árboles con 1, 2 o 3 nodos.
+
+\item \textbf{Filtrado y validación}: Cada configuración generada es validada contra los invariantes especificados. Solo las configuraciones que cumplen con las restricciones son retenidas como casos de prueba válidos.
+
+\end{enumerate}
+
+Para ilustrar el funcionamiento de Korat, consideremos el siguiente ejemplo concreto:
+
+\subsubsection{Ejemplo: Árboles Binarios}
+Supongamos que queremos probar una función que opera sobre árboles binarios. Con Korat, podemos definir los siguientes límites y restricciones:
+\begin{itemize}
+\item Límite: Árboles con un máximo de 3 nodos.
+\item Invariantes:
+\begin{itemize}
+\item No hay ciclos en el árbol.
+\item Cada nodo tiene como máximo dos hijos.
+\item Todos los nodos están conectados (no hay subárboles desconectados).
+\end{itemize}
+\end{itemize}
+
+Korat generará todas las posibles configuraciones de árboles binarios con 1, 2 y 3 nodos que cumplan con estas restricciones. Por ejemplo:
+\begin{itemize}
+\item Un árbol con un solo nodo raíz.
+\item Un árbol con un nodo raíz y un hijo izquierdo.
+\item Un árbol con un nodo raíz, un hijo izquierdo y un hijo derecho.
+\end{itemize}
+
+Estos casos de prueba permiten verificar que la función bajo prueba maneja correctamente diferentes configuraciones de árboles binarios.
+
+\cacho{Pongo ejemplos de codigo? de repok? de dibujitos?}
+
+La generación exhaustiva acotada implementada por Korat ofrece varias ventajas:
+\begin{itemize}
+\item \textbf{Cobertura completa}: Garantiza que todas las configuraciones válidas dentro de los límites establecidos sean exploradas.
+\item \textbf{Detección de casos límite}: Al generar todas las combinaciones posibles, aumenta la probabilidad de detectar errores en casos extremos o inusuales.
+\item \textbf{Eficiencia}: Las técnicas de poda y filtrado evitan la generación de configucciones redundantes o inválidas, optimizando el proceso.
+\end{itemize}
+
+En esta tesis, Korat se utiliza como una herramienta de referencia para evaluar la efectividad de nuevas técnicas de generación de pruebas. Su enfoque sistemático y basado en especificaciones lo convierte en un estándar ideal para comparar la cobertura y la calidad de los casos de prueba generados. Además, su capacidad para explorar exhaustivamente el espacio de entradas dentro de límites acotados proporciona una base sólida para identificar deficiencias en otros métodos de generación de pruebas.
+
+%En resumen, la generación exhaustiva acotada de entradas representa un compromiso entre la cobertura exhaustiva y la factibilidad práctica, ofreciendo una estrategia eficaz para la prueba de APIs, especialmente en sistemas donde la calidad y la seguridad son primordiales.
+
+\pp{Hacer una única sección con estas dos}
 
 % Los enfoques de generación de pruebas automatizadas tienen como objetivo ayudar a los desarrolladores en tareas cruciales de prueba de software [TODO ???], como la generación automática o facilitar la creación de conjuntos de pruebas [TODO: ????] y la detección y reporte automáticos de fallas [TODO: ????] . Muchos de estos enfoques implican componentes aleatorios que evitan una exploración sistemática del espacio de comportamientos, pero mejoran la eficiencia de la generación de pruebas [TODO: ????] . Si bien estos enfoques han sido muy útiles para encontrar una gran cantidad de errores en el software, podrían perder la exploración de ciertos comportamientos defectuosos del software debido a su naturaleza aleatoria. Los enfoques alternativos tienen como objetivo explorar sistemáticamente un número muy grande de ejecuciones del software bajo prueba (SUT), con el objetivo de proporcionar garantías más sólidas sobre la ausencia de errores[TODO: ????] . Uno de estos enfoques es la generación exhaustiva acotada (BE) [TODO: ????] , que consiste en generar todas las estructuras factibles que se pueden construir utilizando dominios de datos acotados. Los objetivos comunes de los enfoques BE han sido implementaciones de estructuras de datos complejas y dinámicas con ricos y estructurados enlaces (por ejemplo, listas enlazadas, árboles, etc.). Los enfoques BE de caja negra [TODO: ????]  son los más utilizados y eficientes para probar software. Requieren que el usuario proporcione una especificación formal de las restricciones que las estructuras deben satisfacer, con mayor frecuencia una invariante de representación de la estructura (repOK), y los límites de los dominios de datos [TODO: ????] , a menudo llamados \emph{scope}. De este modo, los enfoques BE de caja negra generan todas las estructuras dentro de los ámbitos proporcionados que satisfacen repOK.
 % Varios estudios muestran que los enfoques BE son efectivos para revelar fallas en el software [TODO ???]. Además, la llamada hipótesis del cota pequeña [TODO ?], que establece que la mayoría de las fallas de software se pueden revelar ejecutando el SUT en "entradas pequeñas", sugiere que, si se utilizan ámbitos lo suficientemente grandes, los enfoques BE deberían ser capaces de revelar la mayoría (si no todas) las fallas en el SUT. El desafío que enfrentan los enfoques BE es cómo explorar eficientemente un gran espacio de búsqueda, que en el peor de los casos crece exponencialmente con respecto a los ámbitos. El espacio de búsqueda a menudo incluye un gran número de estructuras no válidas (que no satisfacen repOK) y estructuras isomórficas [TODO ??]. Por lo tanto, podar partes del espacio de búsqueda que involucran estructuras inválidas y redundantes es clave para hacer que los enfoques BE se escalen en la práctica [TODO ??]. Escribir especificaciones formales apropiadas para la generación de BE es una tarea desafiante y que consume mucho tiempo. Las especificaciones deben capturar precisamente el conjunto de restricciones previstas en las estructuras. Las especificaciones sobrerestringidas hacen que falte la generación de una parte de las estructuras válidas, lo que puede hacer que la etapa de prueba subsiguiente pierda la exploración de los comportamientos defectuosos del SUT. Las especificaciones subrestringidas pueden llevar a la generación de estructuras inválidas (es decir, estructuras que no cumplen con las restricciones previstas), lo que puede producir falsos negativos durante la prueba del SUT. Además, a veces el usuario tiene que tener en cuenta la forma en que opera el enfoque de generación y escribir las especificaciones de una manera muy específica, de manera que el enfoque pueda lograr un buen rendimiento [TODO ???]. Finalmente, tales especificaciones formales precisas rara vez están disponibles en el software, lo que dificulta la usabilidad de los enfoques BE de caja negra.
 
-\section{Generación de test por retroalimentación}\label{sec:feedback-directed-test-gen}
+\section{Randoop: Generación aleatoria de tests guiada por  retroalimentación}\label{sec:feedback-directed-test-gen}
+
+\pp{Escribir un pseudocódigo de Randoop}
+
 % Randoop es una herramienta de generación automática de pruebas que utiliza la técnica de generación aleatoria para explorar el espacio de entrada de un programa y generar casos de prueba automáticamente \cite{Pacheco:07}.
 
 % La técnica de generación aleatoria empleada por Randoop consiste en generar de forma automática entradas aleatorias para el programa bajo prueba. Utiliza la reflexión en Java para analizar la estructura del programa y generar una serie de llamadas a métodos con valores de entrada aleatorios. Estas llamadas se combinan de manera inteligente para formar secuencias de instrucciones que representan escenarios de prueba.
@@ -78,23 +207,5 @@ Además, en esta tesis se realizó una modificación de Randoop que consistió e
 % En esta tesis se personalizó el algoritmo para detectar subconjuntos óptimos de métodos \emph{builders}. 
 % Para mas informacion sobre este tipo de algoritmos, invitamos al lector referirse a \cite{Cormen2009}, \cite{kleinberg2006}
 
-\section{Cobertura de Ramas y Mutación}
-
-La evaluación de la calidad y efectividad de las técnicas de generación de pruebas en el campo de la ingeniería de software es un aspecto fundamental para garantizar la confiabilidad y robustez de los sistemas. Dos criterios ampliamente utilizados para evaluar la calidad de las pruebas son la cobertura de ramas (branch coverage) y la mutación (mutation testing). Estas técnicas proporcionan métricas objetivas para medir la exhaustividad de las pruebas y la capacidad para detectar errores en el software.
-
-La cobertura de ramas es una métrica utilizada para medir qué porcentaje de las posibles rutas de ejecución en un programa ha sido cubierto por las pruebas. En otras palabras, se refiere a la medida en que se han ejecutado todas las ramas de decisión (if-else, switch-case, bucles, etc.) en el código fuente durante la ejecución de las pruebas. La cobertura de ramas es especialmente útil para identificar áreas del código que no han sido ejercitadas y que podrían contener errores lógicos o comportamientos no deseados.
-Al lograr una alta cobertura de ramas, se aumenta la confianza en la calidad de las pruebas realizadas, ya que se ha examinado exhaustivamente la lógica del programa en diferentes condiciones de ejecución. Sin embargo, es importante destacar que la cobertura de ramas no garantiza la ausencia de errores, ya que no evalúa la calidad o validez de las pruebas en sí mismas. Es decir, una alta cobertura de ramas indica que se han ejecutado diferentes rutas de ejecución, pero no necesariamente que se hayan utilizado entradas significativas o se hayan probado casos límite relevantes.
-
-La mutación es una técnica avanzada de evaluación de pruebas que se utiliza para medir la capacidad de un conjunto de pruebas para detectar cambios sintácticos o semánticos en el código fuente. Consiste en introducir cambios deliberados, llamados mutantes, en el programa original y luego ejecutar el conjunto de pruebas sobre estos mutantes. El objetivo es evaluar si las pruebas son lo suficientemente sensibles como para detectar estos cambios y, por lo tanto, indicar la presencia de posibles errores en el código.
-Cada mutante representa una posible variación o error que podría haberse introducido en el código original. Si una prueba es capaz de detectar un mutante, se considera que la prueba ha "matado" al mutante, lo que indica que el conjunto de pruebas tiene la capacidad de encontrar y reportar posibles errores. Por otro lado, si un mutante no es detectado por ninguna prueba, se considera que el conjunto de pruebas es inadecuado y podría necesitar mejoras para aumentar su capacidad para encontrar errores.
-La evaluación de la capacidad de detección de mutantes proporciona información valiosa sobre la efectividad de las pruebas en términos de su capacidad para encontrar posibles errores. Al identificar los mutantes que no son detectados por las pruebas, se pueden identificar deficiencias en el conjunto de pruebas y se pueden tomar medidas correctivas para mejorar su calidad.
-
-Estas técnicas se aplican en esta tesis para evaluar las nuevas técnicas implementadas y poder realizar una comparación con herramientas que se utilizan en el estado de arte, como \emph{Randoop} y \emph{Korat}. Mediante la utilización de estas técnicas, se busca mejorar la confiabilidad y calidad del análisis de software, permitiendo a los investigadores y profesionales tomar decisiones más informadas sobre las técnicas de generación de pruebas a utilizar. Al proporcionar medidas comparativas de cobertura de ramas y evaluación de mutantes, se puede determinar la efectividad de las nuevas herramientas y enfoques propuestos, y se pueden identificar deficiencias en las pruebas existentes. Esto conduce a mejoras en la calidad y confiabilidad de los sistemas de software, lo que es fundamental en el desarrollo de software de alta calidad.
-
-\section{Korat}
-Korat es una herramienta poderosa para la generación exhaustiva acotada de casos de prueba, permitiendo explorar todas las posibles estructuras válidas dentro de las restricciones establecidas. Su enfoque basado en filtrado, combinado con técnicas de poda y evitación de estructuras isomorfas, garantiza la eficiencia y efectividad en la generación de casos de prueba. 
 
 
-\cacho{Debo explicar bien Korat? Falta texto, pero el alogritmo? va a ser que se entienda mejor que es Korat. Pero es necesario?}
-
-En el contexto de la tesis, Korat se utiliza como una herramienta de comparación para evaluar la técnica de generación exhaustiva acotada basada en la API desarrollada.
