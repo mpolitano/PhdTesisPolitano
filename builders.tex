@@ -111,7 +111,6 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
     (7)  addFirst(Object)
     (7)  addFirst(Object)
     \end{lstlisting}
-    \newline
 
     \item Figura (b):  
     Esta instancia se logra agregando un nodo a la lista principal y luego eliminarlo para que sea insertado en la cache:
@@ -122,7 +121,6 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
     (7)  addFirst(Object)
     (25) removeFirst()
     \end{lstlisting}
-    \newline
 
     \item Figura (c): 
     Esta instancia se genera añadiendo dos nodos al inicio y luego eliminándolos secuencialmente para que se inserten en la lista cache:
@@ -135,7 +133,6 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
     (25) removeFirst()
     (25) removeFirst()
     \end{lstlisting}
-    \newline
 
 \end{itemize}
 
@@ -165,7 +162,6 @@ Notar que pueden existir distintos subconjuntos suficientes de generadores de ob
   (25) removeFirst()
 \end{lstlisting}
 
-\newline
 
 En particular, la Figura~\ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}, es decir, métodos que pueden quitarse sin perder la propiedad de suficiencia del conjunto resultante. Por ejemplo, podemos eliminar \texttt{remove(Object)} y los métodos restantes siguen siendo generadores de objetos suficientes (similarmente, podríamos eliminar \texttt{removeFirst()}). 
 \newline
@@ -176,7 +172,6 @@ En particular, la Figura~\ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}
   (3)  remove(Object)
   (25) removeFirst()
 \end{lstlisting}
-\newline
 
 Estamos interesados en conjuntos de métodos generadores de objetos \emph{minimales}, es decir, en conjuntos generadores de objetos suficientes con la menor cantidad posible de métodos. En otras palabras, los generadores de objetos son minimales si la exclusión de cualquiera de los métodos hace imposible la creación de ciertas instancias del módulo.
 Así, las Figuras~\ref{fig:NCLbuilders} y ~\ref{fig:NCLbuilders2} muestran ejemplos de generadores de objetos suficientes y minimales.
@@ -401,7 +396,6 @@ En este caso, las posiciones 0, 6 y 16 del vector están establecidas como verda
   (7)  addFirst(Object)
   (16) removeFirst()
 \end{lstlisting}
-\newline
 
 \subsection{Funciones objetivo}
 \label{sec:fitness}
@@ -490,8 +484,7 @@ En el primer caso, tenemos dos conjuntos de métodos:\\
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
-\end{lstlisting} \\
-
+\end{lstlisting} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders2, caption=Conjunto de métodos \( M_2 \)]
   NodeCachingLinkedList()
@@ -516,7 +509,6 @@ En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), p
   removeFirst()
 \end{lstlisting}
 
-\newline
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders4, caption=Conjunto de métodos \( M_4 \)]
   NodeCachingLinkedList()
   addFirst(Object)
@@ -540,7 +532,6 @@ En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos,
   removeFirst()
 \end{lstlisting}
 
-\newline
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders6, caption=Conjunto de métodos \( M_6 \)]
   NodeCachingLinkedList()
   add(int, Object)
@@ -654,7 +645,7 @@ En nuestro enfoque, hemos utilizado un operador de selección tipo torneo (\emph
 
 El operador de selección tipo torneo ofrece una forma eficiente de elegir individuos y típicamente da lugar una buena diversidad de individuos en la población \cite{Goldberg:1989}. Es eficiente porque los torneos pueden paralelizarse, debido a que son independientes entre si. Además, es un operador muy flexible, ya que permite adaptar la velocidad de convergencia del algoritmo variando $t$. Valores más grandes de $t$ producen una mayor probabilidad de selección de los invidividuos más aptos, lo que acelera la convergencia, y viceversa. 
 
-Nuevamente, elegimos este operador de selección porque dió los mejores resultados en nuestros experimentos (también probamos otros operadores típicos como selección por ruleta, selección por ranking \cite{Goldberg:1989}}).
+Nuevamente, elegimos este operador de selección porque dió los mejores resultados en nuestros experimentos (también probamos otros operadores típicos como selección por ruleta, selección por ranking \cite{Goldberg:1989}.
 
 \pp{La biblioteca usada para algoritmos genéticos no está mencionada en ningún lado por ahora. Quizás va al final del capítulo?}
 
@@ -749,7 +740,7 @@ Una vez que se ha creado la nueva población (Línea 13), reemplaza a la poblaci
 Al final del algoritmo, se selecciona el mejor individuo (de acuerdo a la función de valoración) de la última población como la solución encontrada. (Línea 16)
 
 \pp{Acá habría que describir la biblioteca utilizada y meter una referencia}
-\cacho{Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
+\cacho{Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.}
 
 \cacho{\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. }
