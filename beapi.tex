@@ -96,8 +96,7 @@ Por último, el método \emph{repOK} de la Figura \ref{fig:NCL-repOK}, en las l�
 
 Este método \emph{repOK} está implementado siguiendo las recomendaciones de los autores del enfoque de generación exhaustiva acotada de BEAPI, utilizando la herramienta \textsf{Korat} \cite{Boyapati02}. La función devuelve \emph{falso} tan pronto como detecta una violación en alguna propiedad esperada de la estructura actual. En caso contrario, devuelve \emph{verdadero} al finalizar el método. Este enfoque permite a \textsf{Korat} podar eficientemente grandes porciones del espacio de búsqueda al encontrar restricciones incumplidas, mejorando así significativamente su eficiencia.
 
-Sin embargo, en el \emph{repOK} que se presenta en la figura \ref{fig
-}, se puede observar que algunas restricciones están comentadas, lo que indica la ausencia de validaciones cruciales. Estas restricciones no estaban presentes en la versión original del \emph{repOK} que tomamos de Roops; las incorporamos después de analizar las estructuras generadas para las pruebas que resultaron incorrectas.
+Sin embargo, en el \emph{repOK} que se presenta en la figura \ref{fig:NCL-repOK}, se puede observar que algunas restricciones están comentadas, lo que indica la ausencia de validaciones cruciales. Estas restricciones no estaban presentes en la versión original del \emph{repOK} que tomamos de Roops; las incorporamos después de analizar las estructuras generadas para las pruebas que resultaron incorrectas.
 
 La omisión de restricciones en el \emph{repOK} tiene un impacto directo y considerable en la cantidad de estructuras que \textsf{Korat} genera. Esta falta de precisión no solo aumenta exponencialmente el número de estructuras generadas, sino que también complica la tarea de identificar cuáles son válidas y cuáles no. Por ejemplo, cuando se ejecuta \textsf{Korat} con el \emph{repOK} sin las restricciones comentadas, se generan 54.5 millones de estructuras para un \emph{scope} de 8. Al incluir las restricciones faltantes, la cantidad de estructuras generadas se reduce drásticamente a solo 2.8 millones para el mismo \emph{scope}.
 
@@ -452,7 +451,7 @@ Sin embargo, nuestro enfoque automatizado de identificación de métodos generad
   \centering
   \includegraphics[width=0.9\textwidth]{images/redBlackTree.jpg}
   \caption{Ejemplo de un árbol red-black}
-  \label{fig:redBlack}
+  \label{fig:redBlack1}
 \end{figure}
 
 Esto se debe a que estos tipos de árboles necesitan una configuración específica de equilibrio (coloreando los nodos en rojo y negro) que no se pueden construir solo agregando elementos al árbol. En contraste, los árboles AVL (figura \ref{fig:avl}), que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
@@ -465,7 +464,7 @@ Para este caso de árboles, solo el constructor de la clase y una rutina de adic
   \centering
   \includegraphics[width=0.7\textwidth]{images/avl.jpg}
   \caption{Ejemplo de un árbol AVL}
-  \label{fig:redBlack}
+  \label{fig:avl}
 \end{figure}
 
 

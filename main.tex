@@ -1,4 +1,3 @@
-%\documentclass[10pt]{report} %twoside para impresion final 
 %\documentclass[12pt,a4paper,openany]{report} %a4paper,
 
 \documentclass[a4paper, 12pt]{report}
@@ -8,6 +7,8 @@
 \makeatletter
 
 \input{classicthesis-config}
+
+\usepackage[utf8]{inputenc}
 
 \usepackage{titletoc}
 \usepackage{tikz}
@@ -45,7 +46,7 @@
 
 \titleformat{\chapter}[display]{\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter.}{0.42em}{}
 \titleformat{\section}{\bfseries}{\thesection}{1em}{}
-
+% chktex-file 1
 
 \titleformat{\subsection}{\bfseries}{\thesubsection}{1em}{}
 
@@ -103,10 +104,7 @@
     captionpos=b,
     escapeinside={(*@}{@*)},
 }
-% \usepackage{algorithm}
-% \usepackage{algorithmicx}
-% \usepackage{algorithm2e}
-% \usepackage{algorithmic}
+
 \usepackage{pgfplots}
 \usepackage[linesnumbered,ruled,vlined,spanish,onelanguage]{algorithm2e}
 \newcommand{\pp}[1]{{\color{blue}\bf [PP: #1]}}
@@ -149,22 +147,12 @@
 \include{titlepage-famaf}
 % \chapter*{}
 \pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
-
 \include{resumen}
-
-% \pagenumbering{roman}
-% \pagestyle{plain}
-
 \include{agradecimientos}
 \pagestyle{empty}
 
 \tableofcontents % indice de contenidos
 
-% \listoffigures
-%\cleardoublepage
-% \listoftables
-% \pagestyle{scrheadings}
-%\cleardoublepage
 
 % ********************************************************************
 % Mainmatter
@@ -198,11 +186,6 @@
 \bibliographystyle{acm} % estilo de la bibliografía.
 \bibliography{Bibliografia}
 
-% \bibliographystyle{apalike}
-% \bibliographystyle{apacite}
-% \bibliographystyle{unsrtnat} % Estilo de bibliografía
-
-%\bibliographystyle{alpha}
 %\cleardoublepage\phantomsection
 
 %\appendix
