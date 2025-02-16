@@ -1,7 +1,7 @@
 \chapter[Identificación de Métodos Generadores de Objetos]{Identificación de Métodos Generadores de Objetos}
 \label{cap:builders}
 
-\cacho{1 - Cambiar putos por observadores en todos lados}
+\cacho{1 - Cambiar puros por observadores en todos lados}
 \cacho{2 - terminar las citas}
 \cacho{1 - }
 \cacho{1 -}
@@ -328,7 +328,7 @@ En nuestros algoritmos de búsqueda, los estados están compuestos por subconjun
 
 Como vimos en la tabla \ref{tab:ncl-api}, \texttt{NCL}, tiene un total de 34 métodos. Sin embargo, no todos estos métodos son relevantes para nuestros algoritmos. Por ejemplo, los métodos observadores deben excluirse del análisis ya que no contribuyen a la construcción de objetos. Esto reduce el número total de métodos considerados, lo que a su vez reduce significativamente el espacio de búsqueda.
 
-Después de excluir los métodos puros, quedan 20 métodos relevantes en NCL. Estos métodos se enumeran desde 0 hasta 19 como se puede observar en la tabla \ref{tab:ncl-api-infer}. 
+Después de excluir los métodos observadores, quedan 20 métodos relevantes en NCL. Estos métodos se enumeran desde 0 hasta 19 como se puede observar en la tabla \ref{tab:ncl-api-infer}. 
 \begin{table}[h!]
 \centering
 {\scriptsize
@@ -417,7 +417,7 @@ Como el conjunto de objetos que se pueden construir con la API de un módulo es 
 
 Dado un candidato $c$ que representa un subconjunto de métodos $M$ de la API, nuestra función de valuación intenta calcular una aproximación del número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
 
-Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $c$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $c$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos. Más adelante, analizaremos el caso en el que existe más de un subconjunto de generadores de objetos (como se discutió en la Sección \ref{}).
+Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $c$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $c$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos. Más adelante, analizaremos el caso en el que existe más de un subconjunto de generadores de objetos.
 \cacho{referncia del capitlo}
 
 Nuestro enfoque utiliza un generador exhaustivo acotado eficiente basado en métodos de la API \cite{Politano20}. Este generador se denomina BEAPI y es una de las contribuciones principales de este trabajo (ver Capítulo \ref{cap:beapi}).
@@ -446,18 +446,17 @@ Donde:
     \item $O(M)$ (Objetos): Es el número de objetos generados por el conjunto de métodos $M$ usando generación exhaustiva acotada, para un scope fijo. Este componente es el más importante, ya que los siguientes componentes sólo se usan para decidir en caso de empate respecto de $O(M)$. Recordemos que los generadores de objetos a identificar deben ser siempre suficientes, por lo que la función objetivo siempre prioriza los métodos que generen un mayor número de objetos.
     \item $R(M)$ (Redundancia): Representa la diferencia entre el número total de métodos de la API ($M_t$) y la cantidad de métodos en $M$. Esto se utiliza para desempatar entre conjuntos de métodos que generan la misma cantidad de objetos, dando preferencia a aquellos conjuntos que contengan menos métodos. En otras palabras, este componente de la función busca identificar generadores de objetos minimales.
     \item $P(M)$ (Parámetros): 
-    \cacho{Es una medida ponderada de la simplicidad de los parámetros de los métodos en $M$, definida como $w_1 \cdot PP(M)$, donde $w_1$ es un peso configurable. Este peso se puede observar en la tabla \ref{fig:rankParameters}. La funcion PP(M), devuelve los tipos de parametros que contiene el metodo M y de acuerdo al tipo se lo multiplica por el peso determinado. Este componente de $f$ se usa para desempatar entre conjuntos de métodos que generen la misma cantidad de objetos y tengan la misma cantidad de métodos.
+    \cacho{Es una medida ponderada de la simplicidad de los parámetros de los métodos en $M$, definida como $w_1 \cdot PP(M)$, donde $w_1$ es un peso configurable (ver Tabla \ref{fig:rankParameters}). La función $PP(M)$ calcula la cantidad y el tipo de parámetros que contienen los métodos en $M$, asignando un peso específico a cada tipo.  
+    Para obtener este valor, se recorre toda la API y se calcula el número total de parámetros disponibles en todos los métodos. Luego, se toma la diferencia entre este total y la cantidad de parámetros del subconjunto de métodos considerado.
+    Este componente de $f(M)$ se utiliza para desempatar entre conjuntos de métodos que generan la misma cantidad de objetos y tienen la misma cantidad de métodos, favoreciendo subconjuntos con una menor complejidad en sus parámetros.
     }
-    \cacho{TENGO QUE DEFINIR MEJOR ESTO. ACA ES COMO EL MENOR Y EN CANTIDAD DE METODOS ES EL MAYOR. HAY QUE DEFINIR MEJOR ESTO }
 \end{itemize}
 
 
 A partir de esto, podemos definir un orden sobre esta función: 
 
-\( f(M_1) = \langle O(M_1), R(M_1), P(M_1) \rangle \) 
-\\
-y 
-\\
+\( f(M_1) = \langle O(M_1), R(M_1), P(M_1) \rangle \) y
+
 \( f(M_2) = \langle O(M_2), R(M_2), P(M_2) \rangle \) 
 \newline
 
@@ -477,7 +476,8 @@ En otras palabras, se compara primero el número de objetos \( O(M_1) \) con \( 
 
 Para ilustrar este concepto, consideremos los siguientes ejemplos.
 
-En el primer caso, tenemos dos conjuntos de métodos:\\
+En el primer caso, tenemos dos conjuntos de métodos:
+\\
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders1, caption=Conjunto de métodos \( M_1 \)]
   NodeCachingLinkedList()
@@ -485,10 +485,12 @@ En el primer caso, tenemos dos conjuntos de métodos:\\
   removeFirst()
 \end{lstlisting} 
 
+
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders2, caption=Conjunto de métodos \( M_2 \)]
   NodeCachingLinkedList()
   addFirst(Object)
 \end{lstlisting}
+
 
 Obtenemos las siguientes triplas:
 
@@ -500,7 +502,8 @@ f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18,
 
 Dado que el conjunto \( M_1 \) genera más objetos (15 frente a 12), \( f(M_1) > f(M_2) \). Esto implica que \( M_1 \) es capaz de generar más instancias, mientras que \( M_2 \) no puede generar algunas que requieren métodos para agregar nodos a la lista cache.
 
-En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), pero \( M_4 \) tiene un método adicional:\\
+En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), pero \( M_4 \) tiene un método adicional:
+\\
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders3, caption=Conjunto de métodos \( M_3 \)]
   NodeCachingLinkedList()
@@ -508,12 +511,14 @@ En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), p
   removeFirst()
 \end{lstlisting}
 
+
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders4, caption=Conjunto de métodos \( M_4 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   add(Object)
   removeFirst()
 \end{lstlisting}
+
 
 Las triplas resultantes son:
 
@@ -523,7 +528,8 @@ f(M_3) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_4) = \langle 15, 16,
 
 Aunque ambos conjuntos generan la misma cantidad de objetos, \( M_3 \) tiene una redundancia menor (16 frente a 17). Esto significa que \( f(M_3) > f(M_4) \), ya que \( M_3 \) contiene menos métodos redundantes.
 
-En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos, pero \( M_6 \) tiene más parámetros en el método \( add(int, Object) \):\\
+En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos, pero \( M_6 \) tiene más parámetros en el método \( add(int, Object) \):
+\\
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders5, caption=Conjunto de métodos \( M_5 \)]
   NodeCachingLinkedList()
@@ -531,11 +537,13 @@ En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos,
   removeFirst()
 \end{lstlisting}
 
+
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders6, caption=Conjunto de métodos \( M_6 \)]
   NodeCachingLinkedList()
   add(int, Object)
   removeFirst()
 \end{lstlisting}
+
 
 Obtenemos las siguientes triplas:
 
@@ -543,9 +551,9 @@ Obtenemos las siguientes triplas:
 f(M_5) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_6) = \langle 15, 17, 6 \rangle
 \]
 
-Ambos conjuntos generan la misma cantidad de objetos y tienen la misma redundancia, pero \( M_6 \) tiene parámetros más complejos (el método \( add(int, Object) \) tiene un parámetro adicional). Como resultado, \( f(M_6) > f(M_5) \), debido a que preferimos una menor complejidad en los parámetros.
+Ambos conjuntos generan la misma cantidad de objetos y tienen la misma redundancia, pero \( M_6 \) tiene mas parámetros (el método \( add(int, Object) \) tiene un parámetro adicional). Como resultado, \( f(M_6) > f(M_5) \), debido a que preferimos una menor complejidad en los parámetros.
 
-\cacho{Deberia ser el Pesos total de parametros - el peso, pero es complicarla la explicacion. PENSAR COMO HACERLO}
+\cacho{Poner el total de parametros que tiene NCL, buscar en experimentos}
 
 \pp{Definir la función P teniendo en cuenta lo siguiente:
 \texttt{o.M(p1: T1, p2: T2, ..., pm: Tm) -> P(M) = w(T1) + w(T2) + ... + w(Tm) = sum i=1..m w(Ti)}?
@@ -582,13 +590,18 @@ Este enfoque es especialmente útil en casos donde el objetivo es garantizar que
 
 Ambas funciones objetivo son utilizadas como criterios de evaluación en los algoritmos de búsqueda implementados. En algoritmos genéticos, la función objetivo actúa como la métrica de aptitud (\textit{fitness}), guiando la selección de los cromosomas más prometedores. En otros algoritmos de búsqueda, como los basados en escalada de colinas o recocido simulado (\textit{simulated annealing}), la función objetivo orienta el proceso de exploración del espacio de búsqueda.
 
-En las siguientes subsecciones, detallaremos la implementación y funcionamiento de estas funciones objetivo, explicando cómo son utilizadas en nuestros algoritmos para guiar el proceso de búsqueda y seleccionar conjuntos de métodos generadores óptimos.
+%En las siguientes subsecciones, detallaremos la implementación y funcionamiento de estas funciones objetivo, explicando cómo son utilizadas en nuestros algoritmos para guiar el proceso de búsqueda y seleccionar conjuntos de métodos generadores óptimos.
 
 % END: Mergear con lo de abajo
 
-En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen}.
+En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen} para generar test suite que luego se les medira que tan buenas son con respecto a la cobertura que alcanzan dichas test suite.
 
-Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que se enfoquen principalmente en la ejecución de estos métodos seleccionados. Sin embargo, es importante destacar que esto no implica excluir por completo otros métodos, ya que aún buscamos ejercitar la API en su totalidad para obtener una buena cobertura de todos los métodos.  \cacho{Solo le damos prioridad}
+Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados. No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
+
+En otras palabras, modificamos Randoop para generar secuencias de llamadas a métodos con la siguiente estructura: $builders^* + no\_builders$. Es decir, primero generamos secuencias compuestas exclusivamente por métodos *builders* y luego añadimos un método *no builder* seleccionado al azar.  
+
+Este método *no builder* es necesario para garantizar la cobertura de líneas y ramas de código en aquellos métodos que no son *builders* pero que, no obstante, resultan clave para evaluar la calidad general de las secuencias generadas y su capacidad para ejercitar la API de manera efectiva.  
+
 
 La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, tal como se describe en la sección de preliminares \ref{sec:coverage}.
 
