@@ -170,14 +170,16 @@ Es posible construir un método no determinista (harness de test) que genere tod
 
 JPF admite anotaciones de programa que se agregan a los programas a través de llamadas a métodos de una clase especial Verify.
 Utilizamos los siguientes métodos de la biblioteca JPF \verb"Verify":
-\\
+\vspace{5pt} 
+
 \begin{itemize}
 \item El método \verb"Verify.getInt(int lo, int hi)" devuelve un valor entre \verb"lo" y \verb"hi", inclusive. Crea un punto de elección no determinista: JPF necesita explorar las ejecuciones para todos los valores en el rango.
 \item \verb"random(int n)" devuelve valores de 0 a \verb"n", de manera no determinista.
 \end{itemize}
 
 Si se desea verificar que el método \emph{put}  de TreeMap cumple con el repOK (predicado imperativo que verifica las invariantes de clase) de la estructura de datos, es necesario escribir algo como: 
-\\
+\vspace{5pt} 
+
 
 \begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:label},language=Java,captionpos=b]
 public static void main(String[] args) {
@@ -190,8 +192,8 @@ public static void main(String[] args) {
 
 Para realizar el análisis de esta propiedad, es necesario proporcionar a JPF los mecanismos para generar todo el árbol de entrada (\textit{generateStructure}). 
 En el siguiente ejemplo, mostramos un controlador de prueba construido con todos los métodos de la estructura de datos \textit{TreeMap}:
-\\
-\\
+\vspace{5pt} 
+
 \begin{lstlisting}[caption={Controlador con todos los métodos},label={lst:driverAPI},language=Java,captionpos=b]
 private static TreeMap generateStructure(int scope) {
    int maxLength = Verify.getInt(0, scope);
@@ -225,8 +227,8 @@ El método controlador anterior, en primer lugar, selecciona el número de méto
 %(for every method that is executed in one iteration, there are \textit{n_methods} possible methods to execute in the next iteration).
 
 Para evitar este crecimiento exponencial en este experimento, se propone utilizar únicamente los constructores detectados por nuestro enfoque explicado en la sección \ref{sec:builders}.
-\\
-\\
+\vspace{5pt} 
+
 \begin{figure}
 
 \begin{lstlisting}[caption={Controlador con métodos constructores},label={lst:driverBLD},language=Java,captionpos=b]

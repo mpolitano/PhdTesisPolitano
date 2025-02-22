@@ -14,7 +14,7 @@
 {\scriptsize
 \begin{tabular}{|l|l|l|}
 \hline
-No. & Nombre del Método & Puro? \\
+No. & Nombre del Método & Observador? \\
 \hline
 0 & NCL() & no \\
 1 & NCL(int) & no \\
@@ -103,18 +103,17 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
 \end{figure}
 
 \begin{itemize}
-    \item Figura (a):  
-    Esta instancia se construye mediante la adición secuencial de dos nodos a la lista principal:
-    \newline
+\item Figura (a): Esta instancia se construye mediante la adición secuencial de dos nodos a la lista principal:
+\vspace{5pt} 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_a,xleftmargin=0pt]
     (0)  NodeCachingLinkedList()
     (7)  addFirst(Object)
     (7)  addFirst(Object)
     \end{lstlisting}
 
-    \item Figura (b):  
+\item Figura (b):  
     Esta instancia se logra agregando un nodo a la lista principal y luego eliminarlo para que sea insertado en la cache:
-    \newline
+    \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_b, xleftmargin=0pt]
     (0)  NodeCachingLinkedList()
@@ -122,9 +121,9 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
     (25) removeFirst()
     \end{lstlisting}
 
-    \item Figura (c): 
+\item Figura (c): 
     Esta instancia se genera añadiendo dos nodos al inicio y luego eliminándolos secuencialmente para que se inserten en la lista cache:
-    \newline
+    \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_c, xleftmargin=0pt]
     (0)  NodeCachingLinkedList()
@@ -143,7 +142,7 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
 
 %\pp{Definición de generadores de objetos}
 Notar que, a pesar de que la API de NCL es muy compleja, como se observa en la Tabla~\ref{tab:ncl-api}, no todos los métodos son necesarios para construir objetos. Por ejemplo, combinaciones de los métodos mostrados en la Figura~\ref{fig:NCLbuilders}, con los parámetros adecuados, son suficientes para generar cualquier instancia de NCL.
-\newline
+\vspace{5pt} 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de métodos generadores de objetos para NCL]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
@@ -155,7 +154,7 @@ Una vez inicializada la instancia de NCL con el constructor, se pueden insertar 
 De esta manera, los métodos de la Figura~\ref{fig:NCLbuilders} conforman un conjunto \emph{suficiente de métodos generadores de objetos}, es decir, son conjuntos de métodos que permiten generar todos los objetos posibles de NCL. Por simplicidad, llamaremos \emph{generadores de objetos} a estos métodos.
 
 Notar que pueden existir distintos subconjuntos suficientes de generadores de objetos, como por ejemplo los que se muestran en las Figuras~\ref{fig:NCLbuilders2} y~\ref{fig:NCLnoMin1}. 
-\newline
+\vspace{5pt} 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders2, caption=Otros métodos generadores de objetos, frame=tb , basicstyle=\scriptsize, xleftmargin=0pt]
   (0)  NodeCachingLinkedList()
   (3)  add(Object)
@@ -164,7 +163,7 @@ Notar que pueden existir distintos subconjuntos suficientes de generadores de ob
 
 
 En particular, la Figura~\ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}, es decir, métodos que pueden quitarse sin perder la propiedad de suficiencia del conjunto resultante. Por ejemplo, podemos eliminar \texttt{remove(Object)} y los métodos restantes siguen siendo generadores de objetos suficientes (similarmente, podríamos eliminar \texttt{removeFirst()}). 
-\newline
+\vspace{5pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLnoMin1, caption=Métodos generadores de objetos suficientes pero no minimales, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
@@ -181,7 +180,10 @@ Notar que muchos métodos en la tabla \ref{tab:ncl-api} están marcados como obs
 Por último, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
 la lista principal de NCL (ver Tabla~\ref{tab:ncl-api}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos posibles. En cambio, \texttt{add(Object)}, \texttt{addFirst(Object)}, \texttt{addLast(Object)} toman un único parámetro. Si bien cualquiera de estas rutinas sirve para generar los mismos objetos de NCL, hay más formas de invocar a \texttt{add(int,Object)}. Esto usualmente redunda en una pérdida de eficiencia en la construcción de objetos por parte de un análisis automático de programas. Similarmente, elegiremos métodos con parámetros más simples (por ejemplo, parámetros de tipo primitivo), que otros con parámetros más complejos (por ejemplo, parámetros de tipo referencia) siempre y cuando los métodos permitan construir los mismos objetos.
 
-De la discusión anterior se desprende que preferimos los métodos con menor número de parámetros, y con parámetros más fáciles de instanciar en los generadores de objetos (siempre que se mantengan las propiedades de suficiencia y minimalidad de los generadores). En nuestro ejemplo anterior, elegiremos \texttt{add(Object)} (o \texttt{addFirst(Object)} o \texttt{addLast(Object)}) en lugar de \texttt{add(int,Object)} como parte de un conjunto suficiente y minimal de generadores de objetos.
+De la discusión anterior se desprende que preferimos los métodos con menor número de parámetros, y con parámetros más fáciles de instanciar en los generadores de objetos (siempre que se mantengan las propiedades de suficiencia y minimalidad de los generadores). 
+En nuestro ejemplo anterior, elegiremos \texttt{add(Object)} (o \texttt{addFirst(Object)} o \texttt{addLast(Object)}) en lugar de \\
+\texttt{add(int,Object)} 
+como parte de un conjunto suficiente y minimal de generadores de objetos.
 
 Para concluir esta sección, es importante destacar que identificar manualmente un conjunto suficiente y minimal de métodos generadores de objetos es una tarea difícil y trabajosa, que requiere inspeccionar minuciosamente el código fuente del módulo y las formas en las que los métodos interactúan entre sí para generar objetos. Esto se dificulta aún más cuando los módulos cuentan con APIs ricas, como en nuestro ejemplo motivador (ver Tabla~\ref{tab:ncl-api}). 
 Para facilitar la tarea del desarrollador, en las secciones siguientes proponemos enfoques automáticos para identificar conjuntos de métodos generadores de objetos.
@@ -240,13 +242,16 @@ Para facilitar la tarea del desarrollador, en las secciones siguientes proponemo
 
 % Intro
 \cacho{Poner las citas}
-En este capítulo, nos enfrentamos al desafío de identificar un conjunto suficiente y mínimo de generadores de objetos a partir de la API de un módulo. Nos enfrentamos a un problema de optimización, donde apuntamos a encontrar el mejor estado según una función objetivo. Esta definición es la de los algoritmos de búsqueda local \cite{Russell:2009}. Para abordar este problema desarrollamos dos algoritmos de búsqueda, cada uno con su enfoque único. Estos algoritmos nos permiten explorar el espacio de búsqueda de manera eficiente y efectiva.
+En este capítulo, nos enfrentamos al desafío de identificar un conjunto suficiente y mínimo de generadores de objetos a partir de la API de un módulo. 
+Nos enfrentamos a un problema de optimización, donde apuntamos a encontrar el mejor estado según una función objetivo.
+ Esta definición es la de los algoritmos de búsqueda local \cite{Russell:2009}.
+  Para abordar este problema desarrollamos dos algoritmos de búsqueda, cada uno con su enfoque único. Estos algoritmos nos permiten explorar el espacio de búsqueda de manera eficiente y efectiva.
 
-El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica \cite{}
+El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica \cite{Goldberg:1989}
 %, este algoritmo se enfoca en generar conjuntos de métodos generadores que puedan dar lugar a configuraciones más grandes y diversas de objetos. 
 La naturaleza basada en la evolución de este enfoque permite encontrar soluciones prometedoras y adaptarse a diferentes situaciones.
 
-El segundo algoritmo que proponemos es un enfoque \emph{greedy}, específicamente una variante de un algoritmo de ascenso de colinas \cite{}. Este enfoque se centra en mejorar iterativamente un conjunto inicial de métodos generadores mediante la adición de métodos.
+El segundo algoritmo que proponemos es un enfoque \emph{greedy}, específicamente una variante de un algoritmo de ascenso de colinas \cite{Russell:2009,Cormen2009}. Este enfoque se centra en mejorar iterativamente un conjunto inicial de métodos generadores mediante la adición de métodos.
 %, buscando siempre mejorar la calidad del conjunto en términos de eficiencia en cuanto a los objectos generados y la cobertura que se logra utilizando estos objectos sobre la API bajo test.
 
 %Por último, presentamos un algoritmo basado en la idea de particionar los subconjuntos de métodos de la API en "clases de equivalencias" según los objetos que construyen. Esta estrategia nos permite agrupar métodos con propiedades similares y seleccionar conjuntos de métodos más cohesivos y efectivos.
@@ -292,7 +297,11 @@ public class NodeCachingLinkedList {
  En el ejemplo motivador presentado en la sección anterior y en la Tabla \ref{tab:ncl-api} se puede ver que existen muchos métodos clasificados como observadores. 
 Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental identificar los métodos observadores. La razón principal es que estos métodos no contribuyen en la creación de nuevos objetos, ya que no sirven para construir objetos ni para modificar el estado de los objetos existentes. Por ende, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de generadores de objetos.
 
-Para automatizar la identificación de métodos observadores, hemos utilizado una herramienta de análisis estático, \emph{Infer} \footnote{https://fbinfer.com/}, desarrollada por Facebook. \emph{Infer} ofrece funcionalidades avanzadas que permiten analizar código fuente y clasificar métodos como observadores \cite{Huang:2012} (también denominados métodos puros en la bibliografía \cite{Huang:2012}). \emph{Infer} implementa la identificación de observadores mediante un análisis estático del código de los métodos \cite{}. Si bien el análisis de \emph{Infer} puede ser impreciso en algunos casos y generar falsos negativos (clasificar métodos como no observadores cuando si lo son), en nuestros experimentos \emph{Infer}  identifica una buena proporción de los observadores de las APIs, lo que reduce significativamente el espacio de búsqueda de nuestros algoritmos.
+Para automatizar la identificación de métodos observadores, hemos utilizado una herramienta de análisis estático, \emph{Infer} \footnote{https://fbinfer.com/}, 
+desarrollada por Facebook. \emph{Infer} ofrece funcionalidades avanzadas que permiten analizar código fuente y clasificar métodos como observadores \cite{Huang:2012} (también denominados métodos puros en la bibliografía \cite{Huang:2012}).
+ \emph{Infer} implementa la identificación de observadores mediante un análisis estático del código de los métodos \cite{Huang:2012,Salcianu:2005}. 
+ Si bien el análisis de \emph{Infer} puede ser impreciso en algunos casos y generar falsos negativos (clasificar métodos como no observadores cuando si lo son), 
+ en nuestros experimentos \emph{Infer}  identifica una buena proporción de los observadores de las APIs, lo que reduce significativamente el espacio de búsqueda de nuestros algoritmos.
 
 
 % Entre las ventajas de utilizar \emph{Infer} se incluyen:
@@ -304,7 +313,7 @@ Para automatizar la identificación de métodos observadores, hemos utilizado un
 % \end{itemize}
 
 
-\cacho{Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que obtenemos es el que se encuentra en la columna "Puro?" de la tabla \ref{tab:ncl-api}}
+\cacho{Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que obtenemos es el que se encuentra en la columna \emph{Observador?}  de la tabla \ref{tab:ncl-api}}
 
 De esta manera, \emph{Infer} es utilizado como paso previo a la ejecución de nuestros algoritmos. Los métodos reportados como observadores por \emph{Infer} se descartan antes de comenzar la búsqueda de métodos generadores de objetos.
 
@@ -388,7 +397,7 @@ Por ejemplo, un estado posible puede representarse como un vector de la siguient
 \end{figure}
 
 En este caso, las posiciones 0, 6 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjuto de métodos:
-\newline
+\vspace{5pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLnoMin1, caption=Métodos generadores de objetos que representa el cromosoma de la Figura 2, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
@@ -458,7 +467,7 @@ A partir de esto, podemos definir un orden sobre esta función:
 \( f(M_1) = \langle O(M_1), R(M_1), P(M_1) \rangle \) y
 
 \( f(M_2) = \langle O(M_2), R(M_2), P(M_2) \rangle \) 
-\newline
+\vspace{5pt} 
 
 de la siguiente forma:
 
@@ -477,7 +486,7 @@ En otras palabras, se compara primero el número de objetos \( O(M_1) \) con \( 
 Para ilustrar este concepto, consideremos los siguientes ejemplos.
 
 En el primer caso, tenemos dos conjuntos de métodos:
-\\
+\vspace{5pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders1, caption=Conjunto de métodos \( M_1 \)]
   NodeCachingLinkedList()
@@ -503,7 +512,7 @@ f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18,
 Dado que el conjunto \( M_1 \) genera más objetos (15 frente a 12), \( f(M_1) > f(M_2) \). Esto implica que \( M_1 \) es capaz de generar más instancias, mientras que \( M_2 \) no puede generar algunas que requieren métodos para agregar nodos a la lista cache.
 
 En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), pero \( M_4 \) tiene un método adicional:
-\\
+\vspace{10pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders3, caption=Conjunto de métodos \( M_3 \)]
   NodeCachingLinkedList()
@@ -511,6 +520,7 @@ En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), p
   removeFirst()
 \end{lstlisting}
 
+\vspace{10pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders4, caption=Conjunto de métodos \( M_4 \)]
   NodeCachingLinkedList()
@@ -529,7 +539,7 @@ f(M_3) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_4) = \langle 15, 16,
 Aunque ambos conjuntos generan la misma cantidad de objetos, \( M_3 \) tiene una redundancia menor (16 frente a 17). Esto significa que \( f(M_3) > f(M_4) \), ya que \( M_3 \) contiene menos métodos redundantes.
 
 En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos, pero \( M_6 \) tiene más parámetros en el método \( add(int, Object) \):
-\\
+\vspace{10pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders5, caption=Conjunto de métodos \( M_5 \)]
   NodeCachingLinkedList()
@@ -537,6 +547,7 @@ En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos,
   removeFirst()
 \end{lstlisting}
 
+\vspace{10pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders6, caption=Conjunto de métodos \( M_6 \)]
   NodeCachingLinkedList()
@@ -544,6 +555,7 @@ En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos,
   removeFirst()
 \end{lstlisting}
 
+\vspace{10pt} 
 
 Obtenemos las siguientes triplas:
 
@@ -598,10 +610,15 @@ En el contexto de nuestra tesis, hemos realizado modificaciones en la herramient
 
 Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados. No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
 
-En otras palabras, modificamos Randoop para generar secuencias de llamadas a métodos con la siguiente estructura: $builders^* + no\_builders$. Es decir, primero generamos secuencias compuestas exclusivamente por métodos *builders* y luego añadimos un método *no builder* seleccionado al azar.  
+En otras palabras, modificamos Randoop para generar secuencias de llamadas a métodos con la siguiente estructura: 
+\vspace{10pt} 
+
+$builders^* + no\_builders$. 
+
+Es decir, primero generamos secuencias compuestas exclusivamente por métodos *builders* y luego, una vez que alcanzamos el tamaño de las secuencias deseadas (\emph{scope}), 
+añadimos un método *no builder* seleccionado al azar.  
 
 Este método *no builder* es necesario para garantizar la cobertura de líneas y ramas de código en aquellos métodos que no son *builders* pero que, no obstante, resultan clave para evaluar la calidad general de las secuencias generadas y su capacidad para ejercitar la API de manera efectiva.  
-
 
 La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, tal como se describe en la sección de preliminares \ref{sec:coverage}.
 
@@ -615,7 +632,6 @@ Donde:
 
 \begin{itemize}
     \item $Cob(M)$ (Cobertura de Ramas): Es el número de ramas cubiertas por las suites de prueba generadas por \emph{Randoop} utilizando el subconjunto de métodos $M$. Este componente tiene la mayor prioridad, ya que refleja directamente la efectividad de las pruebas al cubrir ramas específicas de la API.
-    \cacho{Esta repetido, cambiar}
     \item $R(M)$ (Redundancia): Igual a la funcion de valoracion de la seccion de generador exhaustivo
     \item $C(M)$ (Complejidad): Tambien mantuvimos el mismo calculo que la funcion de valoracion del generador exhaustivo
 \end{itemize}
@@ -638,11 +654,24 @@ En esta sección presentamos los detalles para la detección de los subconjuntos
 
 \subsubsection{Población}
 
-En el contexto de un algoritmo genético, la población se refiere a un conjunto de individuos o soluciones candidatas \cite{Goldberg:1989}. Cada individuo de la población representa una posible solución al problema que se está tratando de resolver. 
-Para nuestro algoritmo representaremos los individuos como vectores de bits, como se describió en la Sección \ref{sec:estados}. 
-La población inicial se crea mediante  la generación aleatoria de $p$ individuos (vectores de bits), donde $p$ es un hiperparámetro del algoritmo genético.
+En el contexto de un algoritmo genético, la población se refiere a un conjunto de individuos o soluciones candidatas \cite{Goldberg:1989}. 
+Cada individuo de la población representa una posible solución al problema que se está tratando de resolver.
 
-En un algoritmo genético, la población evoluciona a lo largo de las generaciones a través de operaciones de selección, cruzamiento (\emph{cross-over}) y mutación \cite{}. En cada iteración del algoritmo, los individuos más aptos tienen más probabilidad de ser seleccionados para cruzarse y/o mutarse, y así crear nuevos individuos que a su vez formarán parte de la población de la siguiente generación. Con el tiempo, se espera que la población evolucione y mejore su aptitud en función del criterio de optimización establecido por la función objetivo.
+Para nuestro algoritmo, los individuos se representan como vectores de bits, como se describió en la Sección \ref{sec:estados}. 
+La población inicial puede generarse de manera aleatoria o definirse según un criterio específico para mejorar la exploración del espacio de búsqueda. 
+En nuestro caso, optamos por una población inicial estructurada, donde cada individuo representa un estado \emph{singleton}, es decir, 
+un vector de bits en el que solo un único método está activado. Esta estrategia permite una mejor exploración inicial del espacio de soluciones, 
+facilitando la combinación progresiva de métodos a lo largo de las generaciones.
+
+En un algoritmo genético, la población evoluciona a lo largo de las generaciones a través de operaciones de selección, 
+cruzamiento (\emph{crossover}) y mutación \cite{Goldberg:1989}
+
+En cada iteración del algoritmo, los individuos más aptos tienen más probabilidad de ser seleccionados para cruzarse y/o mutarse, 
+y así crear nuevos individuos que a su vez formarán parte de la población de la siguiente generación. Con el tiempo, se espera que la población evolucione y
+mejore su aptitud en función del criterio de optimización establecido por la función objetivo.
+
+En nuestro caso, la población está limitada a un tamaño de 100 individuos a lo largo del proceso evolutivo. Como es típico en los algoritmos genéticos, 
+el tamaño de la población fue determinado empíricamente, probando distintos valores y eligiendo aquel que mejor rendimiento obtuvo en nuestros experimentos.
 
 En nuestro algoritmo, tenemos una población inicial de 100 individuos. Durante todo el proceso evolutivo, la población está limitada a un tamaño de 100 individuos. Cómo es típico para los hiperparámetros de los algoritmos genéticos determinamos el tamaño de la población empíricamente, probando distintos valores y utilizando el que mejor funcionaba en nuestros experimentos. 
 %El método de prueba y error es comúnmente utilizado en computación evolutiva para definir los parámetros de búsqueda de manera adecuada. Es importante mencionar que si bien elegimos estos valores basándonos en los resultados de experimentos en un solo caso de estudio, luego utilizamos los mismos valores para el resto de los casos de estudio.
@@ -650,8 +679,6 @@ En nuestro algoritmo, tenemos una población inicial de 100 individuos. Durante 
 A medida que el algoritmo avanza, se aplican operadores genéticos como el cruzamiento y la mutación para crear nuevos individuos a partir de la población actual.
 
 \subsubsection{Selección}
-
-\cacho{Ver la palabra objetivo}
 
 La selección en los algoritmos genéticos es el proceso de elegir qué individuos de la población actual participarán en la reproducción y darán lugar a la siguiente generación \cite{Goldberg:1989}. En este proceso, se otorgan mayores probabilidades de selección a los individuos más aptos, es decir, aquellos que tienen un mejor valor de la función objetivo \cite{Goldberg:1989} \pp{No sé si función objetivo es un buen nombre, en este contexto se usa fitness. Hay que ver cuál es la diferencia entre fitness y objetivo en el libro de AI}. \cacho{Llamar funcion objetivo pero aclarar en la seccion de genetico, que se suele llamarse fitness pero que usaremos funcion objetivo para simplificar los conceptos } La idea detrás de la selección es favorecer la transmisión de características deseables de los individuos más aptos a las generaciones futuras, para así mejorar gradualmente la calidad de las soluciones.
 
@@ -734,22 +761,27 @@ public Estado algoritmoGenetico(poblacion, funObjectivo) {
     } while (!condicionDeTerminacionCumplida);
     
     return mejorEstadoEnPoblacion(poblacion, funcionValoracion);
+
 }
 \end{lstlisting}
 \end{figure}
 
-El algoritmo comienza con una población inicial de individuos, que son configuraciones del problema que estamos tratando de resolver. \pp{Antes se menciona que se genera aleatoriamente, no está en el algoritmo esto. Hay que hacer referencia a las secciones en las que se explica cada componente.}.
-
+El algoritmo comienza con una población inicial de individuos, que son configuraciones del problema que estamos tratando de resolver. El metedo \emph{new Poblacion()} 
+es el encargado de devolvernos el conjunto de individuos iniciales con el que comenzara la busqueda.
+\pp{Antes se menciona que se genera aleatoriamente, no está en el algoritmo esto. Hay que hacer referencia a las secciones en las que se explica cada componente.}.
+\cacho{Aca comente arriba que inciiamos con una poblacion de singletons, se puede evitar decir esto, para no ensuciar el algoritmo genetico como tal}
 El algoritmo se ejecuta en ciclos repetitivos llamados generaciones. En cada generación, se crea una nueva población a partir de la población anterior mediante una combinación de selección, cruzamiento y mutación.
 
 En la fase de selección (línea 5 y 6), se eligen los individuos de la población actual que participarán en la reproducción.
 Los individuos más aptos, es decir, aquellos con una mayor adaptación o valor de la función objetivo, tienen más probabilidad de ser seleccionados.
 En la fase de cruzamiento (línea 7), se seleccionan dos individuos padres de la población y se combinan partes de sus genes para crear nuevos individuos hijos, tal cual lo explicamos en la sección de cruzamiento. \pp{No está en crossover rate.}
 
-Luego, en la fase de mutación (Línea 8 y 9), se introducen cambios aleatorios en los genes de algunos individuos para diversificar la población y evitar que el algoritmo quede atrapado en óptimos locales. La probabilidad de mutación suele ser baja, por ende, depende de esta probabilidad para realizar la mutación.
+Luego, en la fase de mutación (Línea 8 y 9), se introducen cambios aleatorios en los genes de algunos individuos para diversificar la población y evitar que el algoritmo quede atrapado en óptimos locales. 
+La probabilidad de mutación suele ser baja, por ende, depende de esta probabilidad para realizar la mutación.
 
-Una vez que se ha creado la nueva población (Línea 13), reemplaza a la población anterior y se repite el proceso para generar una nueva generación. El algoritmo se repite durante un número determinado de generaciones o hasta que sé durante 7 generaciones se repita siempre el mejor estado \emph{condicionDeTerminacionCumplida} en el algoritmo).
-\cacho{Hace falta esto?}\pp{Si, no está en el algoritmo esto}.
+Una vez que se ha creado la nueva población (Línea 13), reemplaza a la población anterior y se repite el proceso para generar una nueva generación. 
+El algoritmo se repite durante un número determinado de generaciones o hasta que, durante 7 generaciones, se repita siempre el mejor estado. Esto es lo que refleja la \emph{condicionDeTerminacionCumplida}
+en el algoritmo (linea 14).
 
 Al final del algoritmo, se selecciona el mejor individuo (de acuerdo a la función de valoración) de la última población como la solución encontrada. (Línea 16)
 
@@ -758,9 +790,11 @@ Al final del algoritmo, se selecciona el mejor individuo (de acuerdo a la funci�
 
 \cacho{\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. }
-\subsection{Algortimo hill climbing}
+
+\subsection{Algortimo de Escalada}
 \label{alg:approachHC}
 
+\cacho{Revisar todo esto, mejorar, agregar dibujos, y explicacion de algoritmo}
 El algoritmo de escalada (\emph{hill climbing} en inglés) \cite{Russell:2009, Cormen2009, kleinberg2006}, es un algoritmo de búsqueda local que intenta encontrar una solución que maximice (o minimice) el valor de una función objetivo. Su enfoque se basa en realizar siempre movimientos ascendentes, es decir, buscar sucesores del estado actual que mejoren el valor de la función objetivo. La búsqueda de escalada es un algoritmo codicioso (\emph{greedy}), ya que selecciona un estado en base a los sucesores del estado actual (información local) sin tener en cuenta la mejor solución global al problema. A pesar de su simplicidad, los algoritmos codiciosos suelen dar buenas soluciones para algunos problemas. Sin embargo, en algunos casos pueden quedar estancados en un máximo (mínimo) local, y no retornar la solución óptima.
 
 % La búsqueda de escalada a menudo avanza rápidamente hacia una solución porque generalmente es bastante fácil mejorar un estado malo.
@@ -779,6 +813,7 @@ El algoritmo de escalada (\emph{hill climbing} en inglés) \cite{Russell:2009, C
 En esta sección, presentamos un enfoque para la identificación de métodos generadores de objetos basado en un algoritmo de escalada. El pseudocódigo de este enfoque se muestra en la Figura~\ref{alg:hill_climbing}.
 La representación que hemos utilizado del problema es la explicada en la sección \ref{sec:estados}. Esto quiere decir que utilizamos vectores de bits para representar los estados. 
 
+\begin{figure}[H]
 
 \begin{lstlisting}[style=javaStyle, caption={Algoritmo de Hill Climbing}, label={alg:hill_climbing}]
 public Estado hillClimbing(problem, funObjectivo) {
@@ -787,23 +822,17 @@ public Estado hillClimbing(problem, funObjectivo) {
     do {
         List<Estado> sucesores = generarSucesores(curr);
         Estado best = mejorSucesor(sucesores,funObjectivo);
-        if (best.value <= curr.value) {
+        if (best.value < curr.value) {
             return curr;
         }
         curr = best;
     }
 }
 \end{lstlisting}
-\pp{Meter una única figura con todas las funciones así se pueden leer más fácil. El <= de la línea 7 está mal, no? mejorSucesor no está definido. generarEstadoInicial no está definido. Qué es problem?}
-
-La idea principal detrás del algoritmo \emph{hill climbing} (ver Algortimo \ref{alg:hill_climbing}) es comenzar con un estado inicial y, en cada iteración, generar los sucesores de un estado y realizar un movimiento hacia el que tenga el mejor valor de la función objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento. \pp{Habría que poner qué líneas del algoritmo se corresponden con cada cosa. Y mergear con el párrafo de abajo.}
-
-
-El algoritmo \ref{alg:hill_climbing} representa el esquema básico de \emph{Hill Climbing}, comienza
-calculando la función de valoración de todos los \emph{singletons} (Linea 2, \emph{generarEstadoInical}) solo con los métodos constructores activados (osea con el bit prendido en la posición correspondiente al método constructor de la clase). \pp{Habría que hacer un algoritmo con esto.}. El mejor de los \emph{singletons} (mejor valor de la función objetivo) se establece como el candidato actual $curr$, y \emph{Hill Climbing} inicia un proceso de búsqueda típico e iterativo (Línea 4 a 11). \pp{Esto está al revés, hay que explicar esto primero en el algoritmo, y después lo del proceso iterativo que está en el párrafo de arriba.}
+\end{figure}
 
 \begin{figure}[H]
-\begin{lstlisting}[style=javaStyle, caption={Algoritmo de Hill Climbing}, label={alg:sucessores}]
+\begin{lstlisting}[style=javaStyle, caption={Algoritmo para generar los sucesores}, label={alg:sucessores}]
 public List<Estados> generarSucesores(Estado s) {
     List<int[]> sucesores = new ArrayList<>();  
     for (int i = 0; i < s.size(); i++) {
@@ -817,6 +846,18 @@ public List<Estados> generarSucesores(Estado s) {
 }
 \end{lstlisting}
 \end{figure}
+\pp{Meter una única figura con todas las funciones así se pueden leer más fácil. El <= de la línea 7 está mal, no? mejorSucesor no está definido. generarEstadoInicial no está definido. Qué es problem?}
+
+La idea principal detrás del algoritmo \emph{hill climbing} (ver Algortimo \ref{alg:hill_climbing}) es comenzar con un estado inicial y, en cada iteración, generar los sucesores de un estado y realizar un movimiento hacia el que tenga el mejor valor de la función objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento. \pp{Habría que poner qué líneas del algoritmo se corresponden con cada cosa. Y mergear con el párrafo de abajo.}
+
+
+El algoritmo \ref{alg:hill_climbing} representa el esquema básico de el \emph{Algoritmo de escalada} \cite{}.
+Este comienza calculando la función de valoración de todos los \emph{singletons} (Linea 2, \emph{generarEstadoInical}) solo con los métodos constructores activados (osea con el bit prendido en la posición correspondiente al método constructor de la clase).
+ \pp{Habría que hacer un algoritmo con esto.}. 
+ El mejor de los \emph{singletons} (mejor valor de la función objetivo) se establece como el candidato actual $curr$, y \emph{Hill Climbing} inicia un proceso de búsqueda típico e iterativo (Línea 4 a 11). 
+ \pp{Esto está al revés, hay que explicar esto primero en el algoritmo, y después lo del proceso iterativo que está en el párrafo de arriba.}
+
+
 En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. Esto, simplemente, genera estados sucesores prendiendo únicamente un bit (poniendo 1) por cada bit apagado (bit en 0). Esto significa que crear un sucesor para nuestro problema es agregar un método al estado corriente. El método \emph{generarSucesores} nos devuelve el conjunto de estados del estado \emph{curr}. \pp{Esto también está desordenado. Habría que poner un ejemplo con figuras para que se entienda bien qué hace.}
 
 % El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API (Línea 3) \pp{Se podría poner el pseudocódigo de generar sucesores, y quizás poner un ejemplo para que se entienda}.
