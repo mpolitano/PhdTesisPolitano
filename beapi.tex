@@ -1,7 +1,7 @@
 \chapter{Generacion Exhaustiva acotada desde API de los programas}
 \label{cap:beapi}
 
-En adelante, se presenta la técnica desarrollada llamada BEAPI, que tiene como objetivo mejorar la generación exhaustiva acotada (BEG, por sus siglas en inglés, \emph{Bounded Exhaustive Generation}). \ref{sec:BE}. \cacho{Agregar en preliminar? ampliar?}
+En adelante, se presenta la técnica desarrollada llamada BEAPI, que tiene como objetivo mejorar la generación exhaustiva acotada (BEG, por sus siglas en inglés, \emph{Bounded Exhaustive Generation}). \ref{sec:be}. \cacho{Agregar en preliminar? ampliar?}
 La generación exhaustiva acotada se refiere a un enfoque en pruebas de software y análisis de sistemas en el cual se generan y evalúan todas las posibles combinaciones o instancias de entrada dentro de un conjunto acotado. Esto significa que se examinan todas las combinaciones posibles de entrada dentro de un límite especificado. Es un enfoque efectivo para revelar fallas en el sofware. Este enfoque se utiliza a menudo en sistemas donde el espacio de entrada es manejable y finito. 
 Existen varios enfoques de BEG que requieren una especificación precisa de que entradas son válidas en el contexto del sistema. Esta especificación comúnmente se llaman \emph{RepOK} y debe ser brindada por el usuario.
 En este capítulo, introduciremos BEAPI, un enfoque eficiente que genera un conjunto exhaustivo acotado de objetos realizando únicamente llamadas a la API de un módulo. Discutiremos las principales ideas de nuestros enfoques para generar de manera eficiente. Este capítulo está organizado de la siguiente manera: en la Sección \ref{sec:motivating-example}, se presenta un ejemplo que ilustra el problema que se aborda con la técnica propuesta, la cual se explica en la Sección \ref{sec:beapiIntro}. Luego, en las Secciones \ref{sec:scope}, \ref{sec:stateMatching} y \ref{sec:builders}, se describen las optimizaciones implementadas en BEAPI. Estas optimizaciones son de vital importancia a la hora de trabajar con BE, ya que necesitamos acortar el espacio de búsqueda para poder generar suites exhaustivas acotadas con un rendimiento comparable al de las técnicas basada en especificaciones, una de ellas es \emph{Korat}\cite{Boyapati02} 
@@ -445,7 +445,7 @@ En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para cal
 Después de identificar eficientemente los métodos generadores con un alcance pequeño, podemos ejecutar \textsf{BEAPI}, utilizando los métodos generadores identificados y, con un alcance mayor. Esto nos permite generar objetos más grandes y utilizarlos para probar el software bajo prueba.
 
 En la mayoría de nuestros casos de estudio, los métodos generadores de objetos consisten en un constructor y un solo método para agregar elementos a la estructura. Como por ejemplo en el caso de listas simplemente enlazadas. 
-Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores mostró que, en el caso de los árboles Rojo-Negro (ver figura \ref{fig:redBlack}), también se requería un método de eliminación (para alcances mayores que 3). 
+Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores mostró que, en el caso de los árboles Rojo-Negro (ver figura \ref{fig:redBlack1}), también se requería un método de eliminación (para alcances mayores que 3). 
 
 \begin{figure}
   \centering

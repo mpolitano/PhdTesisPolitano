@@ -638,7 +638,9 @@ En esta sección presentamos los detalles para la detección de los subconjuntos
 
 \subsubsection{Población}
 
-En el contexto de un algoritmo genético, la población se refiere a un conjunto de individuos o soluciones candidatas \cite{}. Cada individuo de la población representa una posible solución al problema que se está tratando de resolver. Para nuestro algoritmo representaremos los individuos como vectores de bits, como se describió en la Sección \ref{}. La población inicial se crea mediante  la generación aleatoria de $p$ individuos (vectores de bits), donde $p$ es un hiperparámetro del algoritmo genético.
+En el contexto de un algoritmo genético, la población se refiere a un conjunto de individuos o soluciones candidatas \cite{Goldberg:1989}. Cada individuo de la población representa una posible solución al problema que se está tratando de resolver. 
+Para nuestro algoritmo representaremos los individuos como vectores de bits, como se describió en la Sección \ref{sec:estados}. 
+La población inicial se crea mediante  la generación aleatoria de $p$ individuos (vectores de bits), donde $p$ es un hiperparámetro del algoritmo genético.
 
 En un algoritmo genético, la población evoluciona a lo largo de las generaciones a través de operaciones de selección, cruzamiento (\emph{cross-over}) y mutación \cite{}. En cada iteración del algoritmo, los individuos más aptos tienen más probabilidad de ser seleccionados para cruzarse y/o mutarse, y así crear nuevos individuos que a su vez formarán parte de la población de la siguiente generación. Con el tiempo, se espera que la población evolucione y mejore su aptitud en función del criterio de optimización establecido por la función objetivo.
 

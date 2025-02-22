@@ -3,8 +3,12 @@
 
 
 \section{Cobertura de Código y Mutación}
+\label{sec:coverage}
+La evaluación de la calidad y efectividad de las técnicas de generación de pruebas en el campo de la ingeniería de software es un aspecto fundamental para garantizar la confiabilidad y robustez de los sistemas. Dos criterios ampliamente utilizados para evaluar la calidad de las pruebas son la \emph{cobertura de líneas}, la \emph{cobertura de ramas} y \emph{mutacion} (cobertura de mutantes matado. Estas técnicas proporcionan métricas objetivas para medir la exhaustividad de las pruebas y la capacidad para detectar errores en el software.
 
-La evaluación de la calidad y efectividad de las técnicas de generación de pruebas en el campo de la ingeniería de software es un aspecto fundamental para garantizar la confiabilidad y robustez de los sistemas. Dos criterios ampliamente utilizados para evaluar la calidad de las pruebas son la \pp{Falta cobertura de líneas} cobertura de ramas (branch coverage)  y la mutación (mutation testing). Estas técnicas proporcionan métricas objetivas para medir la exhaustividad de las pruebas y la capacidad para detectar errores en el software.
+La cobertura de líneas es una métrica utilizada para medir qué porcentaje de las líneas de código ha sido ejecutado durante las pruebas. 
+Esta técnica evalúa la exhaustividad de las pruebas al determinar si cada línea de código ha sido ejecutada al menos una vez. 
+Sin embargo, la cobertura de líneas no mide si se han ejecutado todas las rutas posibles en el programa, lo que puede limitar su capacidad para detectar errores en situaciones complejas.
 
 La cobertura de ramas es una métrica utilizada para medir qué porcentaje de las posibles rutas de ejecución en un programa ha sido cubierto por las pruebas. En otras palabras, se refiere a la medida en que se han ejecutado todas las ramas de decisión (if-else, switch-case, bucles, etc.) en el código fuente durante la ejecución de las pruebas. La cobertura de ramas es especialmente útil para identificar áreas del código que no han sido ejercitadas y que podrían contener errores lógicos o comportamientos no deseados.
 Al lograr una alta cobertura de ramas, se aumenta la confianza en la calidad de las pruebas realizadas, ya que se ha examinado exhaustivamente la lógica del programa en diferentes condiciones de ejecución. Sin embargo, es importante destacar que la cobertura de ramas no garantiza la ausencia de errores, ya que no evalúa la calidad o validez de las pruebas en sí mismas. Es decir, una alta cobertura de ramas indica que se han ejecutado diferentes rutas de ejecución, pero no necesariamente que se hayan utilizado entradas significativas o se hayan probado casos límite relevantes.
@@ -139,32 +143,87 @@ En esta tesis, Korat se utiliza como una herramienta de referencia para evaluar 
 \section{Randoop: Generación aleatoria de tests guiada por  retroalimentación}
 \label{sec:feedback-directed-test-gen}
 
-\pp{Escribir un pseudocódigo de Randoop}
+% \begin{lstlisting}[caption={Método generar pruebas},basicstyle=\ttfamily\scriptsize]
+%     public Set<Test> generarPruebas(Set<Metodo> mds, int tLimite, int nPruebas) {
+%         Set<Test> tests = new HashSet<>();
+%         long inicio = System.currentTimeMillis();
+        
+%         while (System.currentTimeMillis() - inicio < tLimite 
+%                && tests.size() < nPruebas) {
+            
+%             Metodo metSel = selMetodoAleatorio(mds);
+%             List<Parametro> params = new ArrayList<>();
+            
+%             for (Parametro param : metSel.getParams()) {
+%                 Tipo tipo = param.getTipo();
+%                 Object valor;
+                
+%                 if (tipo.esPrimitivo()) {
+%                     valor = genValorPrimitivo(tipo);
+%                 } else {
+%                     valor = genSecuenciaTests(tests, tipo);
+%                 }
+%                 params.add(new ParamInstanciado(param, valor));
+%             }
+%             tests.add(new Test(metSel, params));
+%         }
+%         return tests;
+%     }
+%     \end{lstlisting}
+    
 
-% Randoop es una herramienta de generación automática de pruebas que utiliza la técnica de generación aleatoria para explorar el espacio de entrada de un programa y generar casos de prueba automáticamente \cite{Pacheco:07}.
+La generación automática de pruebas es una técnica fundamental para mejorar la confiabilidad del software y detectar errores en el código. 
+Uno de los enfoques más utilizados para esta tarea es la generación aleatoria de pruebas, 
+que explora el espacio de entrada del programa mediante la ejecución de combinaciones diversas de valores y secuencias de invocaciones. 
+Dentro de este enfoque, Randoop se destaca como una herramienta ampliamente utilizada en la industria y la academia debido 
+a su capacidad para generar pruebas de manera eficiente y efectiva.
 
-% La técnica de generación aleatoria empleada por Randoop consiste en generar de forma automática entradas aleatorias para el programa bajo prueba. Utiliza la reflexión en Java para analizar la estructura del programa y generar una serie de llamadas a métodos con valores de entrada aleatorios. Estas llamadas se combinan de manera inteligente para formar secuencias de instrucciones que representan escenarios de prueba.
+Randoop es una herramienta de generación automática de pruebas que emplea la técnica de generación aleatoria con retroalimentación para explorar el espacio de entrada del programa bajo prueba. 
+Su enfoque se basa en la ejecución iterativa de pruebas y la observación de su comportamiento en tiempo de ejecución.
 
-% Randoop utiliza una estrategia de búsqueda guiada para guiar la generación aleatoria de pruebas. El objetivo de esta estrategia es maximizar la cobertura del programa bajo prueba. Para lograrlo, Randoop utiliza técnicas de generación de casos de prueba basadas en la cobertura de sentencias y la cobertura de ramas del programa \cite{Pacheco:07}.
+El algoritmo principal de Randoop se describe en el siguiente pseudocódigo:
 
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
+    \KwOut{Conjunto de tests generados}
+    
+    Inicializar $tests \leftarrow \emptyset$\;
+    
+    \While{tiempo transcurrido $< S$ \textbf{y} $|tests| < W$}{
+        Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
+        \For{cada parámetro $p_i:T_i$ de $M$}{
+            \If{$T_i$ es primitivo}{
+                $v_i \leftarrow$ valor primitivo aleatorio para $T_i$\;
+            }\Else{
+                $v_i \leftarrow$ secuencia aleatoria de $tests$ que crea objeto de tipo $T_i$\;
+            }
+            Registrar instanciación $S_i \leftarrow v_i$\;
+        }
+        $nuevoTest \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
+        $tests \leftarrow tests \cup \{nuevoTest\}$\;
+    }
+    \Return{$tests$}\;
+    \end{algorithm}
 
+Este proceso iterativo permite generar casos de prueba de manera progresiva, 
+utilizando la retroalimentación obtenida de ejecuciones previas para evitar redundancias e ineficiencias.
+Como se puede observar en el pseudocódigo, en cada iteración se selecciona aleatoriamente un metodo (linea 3), luego se instancia sus parametros eligiendo aleatoriamente de valores primitivos
+o de test (linea 4 a 9) y por ultimo se almacena estas secuencias en un nuevo test (linea 10 y 11 ) 
+La generación de pruebas dirigida por retroalimentación se introdujo por primera vez en el enfoque \textsf{Randoop}\footnote{https://randoop.github.io/randoop/manual/}, basado en la generación aleatoria de pruebas \cite{Pacheco07}. \textsf{Randoop} requiere un conjunto de rutinas de una API y un budget para la generación de pruebas.
 
-% Randoop ha sido ampliamente utilizado en la industria y en la investigación académica para evaluar la calidad de programas, encontrar errores y mejorar la confiabilidad del software. Ha demostrado ser efectivo en la generación de casos de prueba y en la detección de errores en una variedad de dominios y aplicaciones \cite{Pacheco08, Pacheco07}.
-
-% En resumen, Randoop es una herramienta de generación automática de pruebas basada en la técnica de generación aleatoria. Proporciona una forma eficiente y efectiva de generar casos de prueba que cubren diferentes partes de un programa y ayuda en la detección de errores y la mejora de la calidad del software.
-
-La generación de pruebas dirigida por retroalimentación se introdujo por primera vez en el enfoque \textsf{Randoop}\footnote{https://randoop.github.io/randoop/manual/}, basado en la generación aleatoria de pruebas \cite{Pacheco07}. \textsf{Randoop} requiere un conjunto de rutinas de una API y un budget para la generación de pruebas 
-% (tiempo o número de pruebas a generar). 
 \textsf{Randoop} representa las pruebas como secuencias de invocaciones a las rutinas de la API. Por lo tanto, a menudo se llaman \emph{secuencias de prueba}. Comienza con unos pocos valores semilla predeterminados para los tipos primitivos que se utilizarán para instanciar los parámetros de las rutinas de tipos primitivos durante la generación (el usuario también puede proporcionar valores semilla adicionales). \textsf{Randoop} realiza un proceso iterativo. Cada paso consiste en seleccionar aleatoriamente una única rutina \texttt{r(p$_1$,..,p$_k$)} para generar una nueva secuencia de prueba. Para esta rutina, \textsf{Randoop} selecciona aleatoriamente las secuencias \texttt{s$_1$,..,s$_k$} de un conjunto de secuencias de prueba previamente generadas, que se pueden usar para crear valores de los tipos apropiados para instanciar los parámetros \texttt{p$_1$,..,p$_k$} de \texttt{r}, respectivamente. Una nueva prueba \texttt{T} se crea componiendo secuencialmente \texttt{s$_1$,..,s$_k$} y \texttt{r} (y reemplazando los parámetros formales de \texttt{r} por las variables correspondientes en \texttt{s$_1$,..,s$_k$}). \texttt{T} podría ser una prueba ilegal debido al uso no válido de la API y/o fallas en el código en prueba. También podría ser redundante en el sentido de que no produce ninguna estructura para ejercitar el código de manera diferente que las pruebas generadas anteriormente.
 La idea principal de la generación de pruebas dirigida por retroalimentación es ejecutar \texttt{T} y observar su comportamiento en tiempo de ejecución. Si \texttt{T} es una prueba legal, es decir, su ejecución termina con éxito,
 y \texttt{T} no es redundante, entonces, \texttt{T} se agrega al conjunto de pruebas generadas previamente. Esto hace que \texttt{T} sea un candidato para su posible extensión para generar nuevas pruebas cuando se seleccione un nuevo método en una iteración futura del algoritmo. De lo contrario, si \texttt{T} es una prueba ilegal, por ejemplo, porque genera una excepción o viola un contrato, o si es redundante (consulte la sección~\ref{sec:state-matching})), entonces \texttt{T} no se considera para su posible extensión. \textsf{Randoop} continúa este proceso iterativo hasta que agota su presupuesto. Las evaluaciones experimentales han encontrado que la generación de pruebas dirigida por retroalimentación funciona significativamente mejor que la generación aleatoria simple de pruebas \cite{Pacheco07,Pacheco08}.
 La principal ventaja de \textsf{Randoop} es su capacidad para generar automáticamente una gran cantidad de casos de prueba que cubren diferentes partes del programa bajo prueba. Esto permite detectar errores y comportamientos inesperados que pueden surgir en situaciones de entrada no contempladas durante el desarrollo manual de pruebas.
 Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \textsf{Randoop}, pero en lugar de la generación aleatoria, tiene como objetivo generar \emph{todas} las secuencias de pruebas factibles (acotadas), dentro de un alcance dado. La retroalimentación de la ejecución permite a \textsf{BEAPI} descartar pruebas ilegales durante el proceso de generación. Además, al estar basado en una generación de pruebas dirigida por retroalimentación, \textsf{BEAPI} genera una secuencia de prueba para cada estructura en el conjunto exhaustivo acotado que construye y solo guarda los conjuntos de secuencias de llamadas a métodos que generan objetos válidos.
 
-% Cabe destacar que esta modificación se realizó basándonos en la arquitectura y diseño modular de Randoop, lo que permitió una fácil extensión de sus funcionalidades sin afectar su funcionalidad principal.
-
-Además, en esta tesis se realizó una modificación de Randoop que consistió en incorporar una funcionalidad que permitiera al usuario especificar un porcentaje de prioridad para un subconjunto de métodos en la generación de pruebas. Al proporcionar un porcentaje de prioridad para un subconjunto de métodos, Randoop tendrá mayor probabilidad de generar casos de prueba que cubran esos métodos específicos de manera más exhaustiva. Y le hemos agregado la posibilidad de serializar los objetos (con secuencia de llamadas a métodos de los test podemos generar objetos) Esto nos permitió utilizarlo como una función de valoración explicada en \ref{sec:randoopObjects}.
-
+Uno de los enfoques que presentamos en esta tesis, BEAPI, toma como base la idea de Randoop pero introduce una diferencia clave: en lugar de generar pruebas de manera aleatoria, 
+BEAPI busca generar todas las secuencias de prueba factibles dentro de un alcance acotado. Es decir, en lugar de depender de la aleatoriedad, 
+BEAPI explora sistemáticamente el espacio de búsqueda, asegurando una mayor cobertura.
+Además, BEAPI aprovecha la retroalimentación de la ejecución para descartar pruebas ilegales de manera eficiente, 
+reduciendo el número de combinaciones a evaluar. También genera una única secuencia de prueba para cada estructura válida, 
+evitando la repetición innecesaria de casos similares.
 
 
 

@@ -32,6 +32,7 @@ En este capítulo, realizamos una evaluación experimental de estas técnicas co
 
 % \section{Algoritmos de Identificacion de metodos builders}
 
+
 \section{Evaluación Experimental en identificación de métodos builders}
 \label{sec:buildersExp}
 En esta sección, evaluamos experimentalmente nuestros enfoques presentados en el capítulo \ref{cap:builders}. Describiremos como es la eficiencia y efectividad de cada algoritmo con las funciones de valoración presentada en la sección \ref{sec:fitness}. Además, mostraremos el uso de estos métodos identificados por nuestras técnicas durante el uso de una herramienta de verificación de software.
@@ -85,7 +86,7 @@ Para implementar el algoritmo genético, utilizamos una biblioteca muy popular e
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. 
 
 % necesarias para obtener las soluciones. Comparando los resultados obtenidos con la técnica evolutiva y la técnica greedy, pudimos evaluar la eficiencia de ambos enfoques y determinar cuál es más rápido en términos de tiempo de ejecución.
-\subsection{Eficiencia}
+\subsection{Eficiencia}\label{sec:eficiencia}
 La eficiencia de nuestros algoritmos es la cantidad de segundos que le lleva a cada uno de nuestros algoritmos con cada función de valoración para encontrar el subconjunto de métodos \emph{builders} suficientes. Para evaluar la eficiencia de nuestro algoritmo, llevamos a cabo experimentos utilizando conjuntos de datos de muestra y medimos el tiempo de promedio de las 5 ejecuciones necesarias para obtener las soluciones. Comparamos los resultados obtenidos con la técnica evolutiva (\emph{GA}), la técnica greedy (\emph{HC}) y la técnica de clase de equivalencia (\emph{SubSet}) para evaluar la eficiencia de ambos enfoques en función de la función de valoración utilizada. Los resultados se presentan en la Tabla \ref{tab:eficiencia}.
 
 
@@ -138,10 +139,6 @@ Adicionalmente, examinamos los usos de los builders generados por nuestra técni
 
 % \paragraph{Randoop Objects}
 % \label{sec:randoopObjectsExp}
-
-
-
-
 % \paragraph{Bounded Exhuastive}
 % \label{sec:BEExp}
 
