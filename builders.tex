@@ -816,9 +816,8 @@ La representación que hemos utilizado del problema es la explicada en la secci�
 \begin{figure}[H]
 
 \begin{lstlisting}[style=javaStyle, caption={Algoritmo de Hill Climbing}, label={alg:hill_climbing}]
-public Estado hillClimbing(problem, funObjectivo) {
-    Estado curr = generarEstadoIncial(problem,funObjectivo);
-    curr = problem.estadoInicial;
+public Estado hillClimbing(funObjectivo) {
+    Estado curr = generarEstadoIncial(funObjectivo);
     do {
         List<Estado> sucesores = generarSucesores(curr);
         Estado best = mejorSucesor(sucesores,funObjectivo);
@@ -846,6 +845,38 @@ public List<Estados> generarSucesores(Estado s) {
 }
 \end{lstlisting}
 \end{figure}
+
+\begin{figure}[H]
+  \begin{lstlisting}[style=javaStyle, caption={Algoritmo para encontrar el mejor sucesor}, label={alg:mejor_sucesor}]
+  public Estado mejorSucesor(List<Estado> sucesores, FunValoracion funObjetivo) {
+      Estado mejor = sucesores.get(0);
+      double mejorValor = funObjetivo.calcularValor(mejor);
+      for (Estado s : sucesores) {
+          double valor = funObjetivo.calcularValor(s);
+          if (valor < mejorValor) {  // Si el valor del sucesor es mejor (menor)
+              mejor = s;
+              mejorValor = valor;
+          }
+      }
+      return mejor;
+  }
+  \end{lstlisting}
+  \end{figure}
+
+  \begin{figure}[H]
+    \begin{lstlisting}[style=javaStyle, caption={Algoritmo para generar el estado inicial}, label={alg:generar_estado_inicial}]
+    public Estado generarEstadoInicial(FunValoracion funObjetivo) {
+        Estado estado = new Estado();
+        List<Metodo> constructores = funObjetivo.obtenerConstructores();
+        
+        for (Metodo m : constructores) {
+            estado.activarBit(m);
+        }
+        return estado;
+    }
+    \end{lstlisting}
+    \end{figure}
+    
 \pp{Meter una única figura con todas las funciones así se pueden leer más fácil. El <= de la línea 7 está mal, no? mejorSucesor no está definido. generarEstadoInicial no está definido. Qué es problem?}
 
 La idea principal detrás del algoritmo \emph{hill climbing} (ver Algortimo \ref{alg:hill_climbing}) es comenzar con un estado inicial y, en cada iteración, generar los sucesores de un estado y realizar un movimiento hacia el que tenga el mejor valor de la función objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento. \pp{Habría que poner qué líneas del algoritmo se corresponden con cada cosa. Y mergear con el párrafo de abajo.}
@@ -857,8 +888,16 @@ Este comienza calculando la función de valoración de todos los \emph{singleton
  El mejor de los \emph{singletons} (mejor valor de la función objetivo) se establece como el candidato actual $curr$, y \emph{Hill Climbing} inicia un proceso de búsqueda típico e iterativo (Línea 4 a 11). 
  \pp{Esto está al revés, hay que explicar esto primero en el algoritmo, y después lo del proceso iterativo que está en el párrafo de arriba.}
 
+ \begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{images/succesores.png}
+  \caption{Sucesores de un estado.}
+  \label{fig:ncl-instances-intro}
+\end{figure}
 
-En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. Esto, simplemente, genera estados sucesores prendiendo únicamente un bit (poniendo 1) por cada bit apagado (bit en 0). Esto significa que crear un sucesor para nuestro problema es agregar un método al estado corriente. El método \emph{generarSucesores} nos devuelve el conjunto de estados del estado \emph{curr}. \pp{Esto también está desordenado. Habría que poner un ejemplo con figuras para que se entienda bien qué hace.}
+En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. 
+Esto, simplemente, genera estados sucesores prendiendo únicamente un bit (poniendo 1) por cada bit apagado (bit en 0). 
+Esto significa que crear un sucesor para nuestro problema es agregar un método al estado corriente. El método \emph{generarSucesores} nos devuelve el conjunto de estados del estado \emph{curr}. \pp{Esto también está desordenado. Habría que poner un ejemplo con figuras para que se entienda bien qué hace.}
 
 % El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API (Línea 3) \pp{Se podría poner el pseudocódigo de generar sucesores, y quizás poner un ejemplo para que se entienda}.
 Sea $best$ el sucesor con valor objetivo más alto (línea 6), si este tiene un valor que es menor o igual al corriente, significa que no hay un sucesor mejor y el algoritmo retorna el estado corriente (Línea 7 y 8). Se puede observar que este estado es un máximo local y el algoritmo lo encontró.
