@@ -12,7 +12,17 @@ En la actualidad, el software está presente en casi todos los aspectos de la vi
 A medida que el software se vuelve ubicuo gracias a los rápidos avances en tecnología, garantizar la corrección funcional del software es más crucial que nunca. Sin embargo, a menudo sucede que el software desarrollado es defectuoso, lo que causa distintos tipos de inconvenientes a los usuarios finales.
 Además, la creciente demanda de sistemas de software crítico ha llevado a la aparición de diversos desafíos y problemas en su desarrollo y mantenimiento.
 
-Para abordar estos problemas, un área de investigación de creciente importancia es la del análisis automático de software, cuyo objetivo es la provisión de herramientas para asistir a los programadores en diversas tareas, entre las que se encuentra la identificación de defectos en el software. La generación automática de tests \cite{Ponzio:2016, Rosner15, Abad13, Galeotti:2010, Khalek:2011, Pasareanu:2010, Gligoric10, Tillmann:2008, Pacheco07}, los \emph{model checkers} para software \cite{Visser06, Visser05, Clarke:2004}, y los análisis estáticos \cite{Calcagno:2011, Itzhaky:2014}, entre otros, son enfoques destacados en esta línea de investigación.
+Para abordar estos problemas, un área de investigación de creciente importancia es la del análisis automático de software, cuyo objetivo es la provisión de herramientas para asistir a los programadores en diversas tareas
+%la identificación de defectos en el software. 
+La generación automática de tests \cite{Ponzio:2016, Rosner15, Abad13,
+Galeotti:2010, Khalek:2011, Pasareanu:2010, Gligoric10, Tillmann:2008,
+Pacheco07}, los \emph{model checkers} para software \cite{Visser06, Visser05,
+Clarke:2004}, y los análisis estáticos \cite{Calcagno:2011, Itzhaky:2014}, entre
+otros, son enfoques destacados en esta línea de investigación. En particular,
+los enfoques de generación automática de tests tienen como objetivo asistir a los desarrolladores 
+en diversas tareas cruciales del testing de software \cite{Ammann16,Myers11},
+como la generación automática de entradas para los tests \cite{Cadar08,Christakis15,Iosif02,Luckow14,Fraser11}, 
+y la detección y reporte automáticos de fallas \cite{Pacheco07, Ma15 , Godefroid05, Marinov01, Boyapati02, Godefroid12}.
 
 Aunque estas técnicas implican en muchos casos análisis completamente automatizados, su aplicación suele requerir cierto esfuerzo por parte de los ingenieros de software. Los \emph{model checkers} para software dependen de la definición de \emph{drivers}, programas que permiten construir entradas para el código bajo análisis. De manera similar, en los enfoques de pruebas unitarias parametrizadas \cite{Tillmann:2010} es obligatorio un mecanismo para construir entradas. Algunas herramientas basadas en la ejecución simbólica requieren las llamadas "fábricas de objetos" para construir casos de prueba que incluyan entradas con tipos no primitivos \cite{Tillmann:2008}. Las técnicas automatizadas de generación de pruebas basadas en la API de un módulo pueden usarse para construir entradas de tipos no primitivos \cite{Pacheco07, Fraser11}, automatizando así los problemas de generación de entradas antes mencionados. Sin embargo, suelen presentar dificultades para generar un buen conjunto de entradas diversas para módulos que manipulan estructuras dinámicas complejas (almacenadas en el heap). Esto es aún más difícil para módulos con APIs ricas \cite{Ponzio:2018}. Muchos autores han abordado este problema definiendo diferentes enfoques para guiar la generación de pruebas y crear conjuntos más diversos de entradas \cite{Ponzio:2018, Ciupa:2008}.
 
@@ -28,17 +38,122 @@ Nuestra evaluación experimental muestra que usando cotas razonables, los algori
 
 
 % TODO: Introducir BEAPI
+Por otro lado, se observa que muchos de los enfoques de generación automática de
+entradas actuales incluyen componentes aleatorios, los cuales evitan realizar una exploración 
+sistemática del espacio de entradas, pero logran una mayor eficiencia en la generación \cite{Pacheco07, Ma15, Fraser11}. 
+Aunque estos enfoques han sido útiles para encontrar un gran número de errores en software, podrían no 
+explorar ciertos comportamientos defectuosos debido a su naturaleza aleatoria.
+
+Enfoques alternativos buscan explorar sistemáticamente un gran número de
+ejecuciones del software bajo test, 
+%(\emph{SUT}, por sus siglas en inglés), 
+con el objetivo de proporcionar mayores garantías sobre la ausencia de errores
+en el código \cite{Marinov01, Boyapati02, Godefroid05, Godefroid18, Cadar08, Luckow14}. 
+Algunos de estos enfoques se basan en la generación exhaustiva acotada \cite{Marinov01, Boyapati02}, 
+que consiste en generar todas las entradas que pueden construirse utilizando dominios de datos acotados. 
+Típicamente, los enfoques de generación exhaustiva acotada se usan para testear
+módulos que manipulan estructuras de datos dinámicas complejas (por ejemplo, listas enlazadas, árboles, etc.). 
+Usualmente, las estructuras del módulo deben satisfacer ciertas restricciones,
+conocidas como el invariante de representación (denominado \textit{repOK})). Este invariante 
+describe las propiedades que deben satisfacer las estructuras válidas del
+módulo. Además, los métodos del módulo pueden contar con precondiciones, que
+describen las entradas aceptables para la ejecución los métodos (adicionalmente,
+\textit{repOK} debe cumplirse antes de la ejecución de cada método). 
+Los enfoques más utilizados de generación exhaustiva acotada requieren que el
+usuario proporcione una especificación formal de las restricciones que las
+entradas de un método debe satisfacer \cite{Marinov01, Boyapati02} (típicamente,
+la precondición y el invariante de representación). En particular, Korat
+requiere que la especificación se provea como un método booleano en Java, que 
+retorna true si las estructuras satisfacen la especificación, o falso en caso
+contrario.
+Dada la especificación y límites en el tamaño de los dominios de datos
+\cite{Marinov01, Boyapati02} (a menudo denominados \textit{scopes}), los
+enfoques de generación exhaustiva acotada generan todas las entradas acotadas
+que satisfacen la especificación.
+
+Varios estudios demuestran que los enfoques de generación exhaustiva acotada son
+efectivos para revelar fallas en el software \cite{Marinov01, Khurshid01,
+Boyapati02, Sullivan04}. Además, la hipótesis de la cota pequeña (\textit{small
+scope hypothesis}) \cite{Andoni02}, que establece que la mayoría de las fallas
+en el software pueden revelarse ejecutando el programa con ``datos de entrada
+pequeños'', sugiere que los enfoques de generación exhaustiva acotada deberían
+descubrir la mayoría de las fallas (si no todas), si se utilizan \textit{scopes}
+lo suficientemente grandes. El desafío que enfrentan los enfoques de generación
+exhaustiva acotada es cómo explorar eficientemente un espacio de búsqueda
+enorme, que a menudo crece exponencialmente con respecto a los \textit{scopes}.
+El espacio de búsqueda típicamente incluye una gran cantidad de entradas
+inválidas (que no satisfacen la especificación), y entradas isomorfas \cite{15, 28} \pp{citas}. 
+Por lo tanto, podar partes del espacio de búsqueda que involucran datos de entrada 
+inválidos e isomorfos (redundantes) es clave para que estos enfoques sean eficientes y 
+escalables en la práctica \cite{Boyapati02}.
+
+Sin embargo, escribir especificaciones formales adecuadas para la generación
+exhaustiva acotada (e.g. para Korat) es una tarea desafiante y que consume mucho tiempo. Las
+especificaciones deben capturar con precisión las restricciones sobre las
+entradas (propiedades del invariante de representación, precondición, etc.). 
+Las especificaciones demasiado restrictivas pueden llevar a no generar
+algunas entradas válidas, lo cual podría hacer que el testing posterior no explore 
+comportamientos defectuosos del software. Por otro lado, las especificaciones
+poco restrictivas pueden llevar a la generación de entradas inválidas, lo que
+podría producir falsas alarmas durante el testing. Además, el usuario necesita 
+tener en cuenta la forma en que opera el enfoque de generación y escribir las especificaciones 
+siguiendo reglas específicas para lograr una buena eficiencia en la generación \cite{Boyapati02}. 
+Por último, las especificaciones formales requeridas por estas herramientas raramente están disponibles 
+en el software actual, lo que dificulta la usabilidad de los enfoques de generación exhaustiva 
+acotada basados en especificaciones.
+
+En este trabajo, definimos un nuevo enfoque para la generación exhaustiva
+acotada, denominado BEAPI, que funciona realizando llamadas a métodos de la API
+del módulo bajo test. De manera similar a los enfoques de generación de tests basados en API \cite{Pacheco07, Ma15,Fraser11}, BEAPI genera secuencias de invocaciones a métodos de la API, denominadas secuencias de test. 
+La ejecución de cada secuencia de test generada por BEAPI produce una entrada en el conjunto resultante de objetos exhaustivo acotado. 
+Como es habitual en la generación exhaustiva acotada, BEAPI requiere que el
+usuario proporcione los scopes para la generación, que en BEAPI incluyen cotas
+en el tamaño de las estructuras a generar, y valores primitivos para invocar a
+los métodos de la API (ver Capítulo \ref{}). 
+
+Un enfoque de fuerza bruta intentaría generar todas las secuencias de test con
+hasta $m$ métodos, donde $m$ es la longitud máxima permitida para las secuencias de test, 
+dado por el usuario. Este enfoque es intrínsecamente combinatorio, y agota los recursos 
+computacionales antes de su finalización incluso para valores de $m$ muy pequeños. 
+Si BEAPI se basa en la creación de secuencias de tests a partir de métodos de la
+API, definimos varias técnicas de poda que son cruciales para la eficiencia de
+la generación, y que permiten que BEAPI escale a scopes significativamente mayores. 
+
+Primero, BEAPI ejecuta las secuencias de test y descarta aquellas que corresponden 
+a violaciones de las reglas de uso de la API \cite{Pacheco07} (por ejemplo, lanzar 
+excepciones que indican un uso incorrecto de la API, como IllegalArgumentException en 
+Java \cite{Liskov00, Pacheco07}). 
+Segundo, BEAPI implementa la coincidencia de estados (\emph{state matching})
+\cite{Iosif02, Politano20, Xie04} para descartar secuencias de test que
+producen estructuras ya creadas por secuencias previamente exploradas. 
+Tercero, BEAPI emplea solo un subconjunto de los métodos de la API para crear
+secuencias de test: un conjunto de métodos identificados automáticamente como
+generadores de objetos \cite{Ponzio19} (definidos anteriormente). 
+Previo a la generación de tests, BEAPI ejecuta un enfoque automatizado de
+identificación de métodos generadores \cite{Ponzio19}, en busca de un
+subconjunto pequeño de métodos de la API que sea suficiente para generar el conjunto 
+de entradas exhaustivas acotadas (esto es, generadores de objetos suficientes y
+minimales). 
+
+Una ventaja de BEAPI respecto de los enfoques basados en especificaciones es que
+no requiere especificaciones complejas que describan con precisión las
+propiedades de las entradas válidas (por ejemplo, no requiere de la definición
+de un invariante de representación). En cambio, en BEAPI 
+requiere un esfuerzo mínimo de especificación en la mayoría de los casos (incluidos nuestros estudios de estudios), que consiste en 
+hacer que los métodos de la API lancen excepciones en presencia de entradas
+inválidas. Este estilo de programación se denomina "programación defensiva", 
+fue popularizado por Liskov \cite{Liskov00}, y es ampliamente recomendado para el desarrollo de APIs robustas. 
+Otra ventaja de BEAPI respecto a los enfoques basados en especificaciones es que produce secuencias de test para crear las entradas correspondientes utilizando métodos de la API, lo que facilita la creación de tests, y mejora la legibilidad y mantenibilidad de los mismos \cite{Braione17}. Esto es en contraste con las técnicas existentes, en las que las estructuras son codificadas directamente en los tests (como grafos) usando mecanismos de bajo nivel del lenguaje de programación (como reflexión en Java \cite{} \pp{algo de reflection}).
 
 
-
-
-
-
-% TODO: Evaluación experimental de builders
+\pp{TODO: Evaluación experimental de builders cuando tengamos la sección
+    experimental}
 Evaluamos nuestro enfoque experimentalmente en un conjunto de clases Java con estados complejos, extraídas de la literatura. Los resultados muestran que, en nuestros casos de estudio, nuestro enfoque identifica conjuntos de rutinas que son suficientes y mínimos, en un tiempo aceptable \pp{Cuánto en promedio?}. También evaluamos el impacto de nuestro enfoque en un análisis automatizado, concretamente, en la generación de casos de prueba para pruebas parametrizadas \pp{No hicimos esto según entiendo}. Comparamos cómo se comporta la herramienta de generación de casos de prueba aleatorios Randoop cuando se le proporciona la API completa del módulo, frente a proporcionarle únicamente los constructores identificados por nuestro enfoque. Los resultados indican que, en este último caso, Randoop generó más objetos (y más grandes), dentro de un tiempo límite fijo.
 
 
-% TODO: Evaluación experimental de BEAPI
+\pp{TODO: Evaluación experimental de BEAPI cuando tengamos la sección
+    experimental}
+Evaluamos experimentalmente BEAPI y mostramos que su eficiencia y escalabilidad son comparables a las del mejor enfoque exhaustivo acotado actual (Korat), sin necesidad de proveer especificaciones formales para la estructuras (repOKs). También mostramos que BEAPI puede ser útil para encontrar fallos en los repOKs, comparando los conjuntos de entradas generados por BEAPI utilizando la API con los conjuntos de entradas generados por Korat a partir de un repOK. Usando este procedimiento, encontramos varios errores en los repOKs empleados en la evaluación experimental de herramientas relacionadas, proporcionando así evidencia sobre la dificultad de escribir repOKs (en particular, los repOKs precisos requeridos por las herramientas de generación acotada).
 
 
 % Contribuciones:
