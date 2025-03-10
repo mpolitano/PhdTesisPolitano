@@ -8,7 +8,10 @@
 \input{classicthesis-config}
 
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish,es-tabla]{babel}
+\let\AlgorithmicSemicolon\semicolon
+
+
 
 \usepackage{titletoc}
 \usepackage{tikz}
@@ -105,10 +108,13 @@
     }
 
 \usepackage{pgfplots}
-\usepackage[linesnumbered,ruled,vlined,spanish,onelanguage,noend]{algorithm2e}
+\usepackage[linesnumbered,ruled,onelanguage,algonl]{algorithm2e}
+\renewcommand{\theAlgoLine}{\arabic{AlgoLine}}
+
 
 \newcommand{\pp}[1]{{\color{blue}\bf [PP: #1]}}
 
+\usepackage{algorithmic}
 
 \lstnewenvironment{algorithm1}[1][] %defines the algorithm listing environment
 {   

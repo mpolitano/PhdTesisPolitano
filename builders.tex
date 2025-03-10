@@ -779,7 +779,8 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
   \ENDFOR
   
   \STATE $C \gets$ mejor Cromosoma de la población
-  
+  \STATE $actual \gets estadoInicial$
+
   \STATE detener si la aptitud de $C$ es constante durante $maxIteracionesConstantes$
   
 \end{algorithmic}
@@ -811,7 +812,11 @@ Como es habitual, determinamos valores para los parámetros del algoritmo que fu
 En nuestra evaluación experimental, establecimos $numEvo=20$, $popSize=30$, $cRate=0.35$, $mRate=0.08$ 
 (los dos últimos corresponden a los valores por defecto de la biblioteca JGap).
 
-La mayor parte del Algoritmo~\ref{alg:enfoqueGA} es una implementación evolutiva estándar de la biblioteca Java JGap \cite{jgap}. 
+Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
+
+\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
+Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda.
+
 Nótese que, si ignoramos la complejidad de la función de fitness, nuestro algoritmo genético es bastante convencional, 
 por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos.
 Por supuesto, mejoras en el algoritmo evolutivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) podrían optimizar los tiempos de ejecución.
@@ -883,7 +888,20 @@ Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera 
 \label{alg:approachHC}
 
 \cacho{Revisar todo esto, mejorar, agregar dibujos, y explicacion de algoritmo}
-El algoritmo de escalada (\emph{hill climbing} en inglés) \cite{Russell:2009, Cormen2009, kleinberg2006}, es un algoritmo de búsqueda local que intenta encontrar una solución que maximice (o minimice) el valor de una función objetivo. Su enfoque se basa en realizar siempre movimientos ascendentes, es decir, buscar sucesores del estado actual que mejoren el valor de la función objetivo. La búsqueda de escalada es un algoritmo codicioso (\emph{greedy}), ya que selecciona un estado en base a los sucesores del estado actual (información local) sin tener en cuenta la mejor solución global al problema. A pesar de su simplicidad, los algoritmos codiciosos suelen dar buenas soluciones para algunos problemas. Sin embargo, en algunos casos pueden quedar estancados en un máximo (mínimo) local, y no retornar la solución óptima.
+
+El segundo algoritmo, denominado en inglés \textit{hill climbing},  \cite{Russell:2009, Cormen2009, kleinberg2006}, es un algoritmo de busqueda local basasdo en la escalada de colinas.
+Selecciona en cada paso el estado vecino con mayor valor en la función objetivo sin realizar planificación a largo plazo.
+Parte de un estado inicial no óptimo y lo mejora sucesivamente hasta alcanzar un estado que no puede ser mejorado (estado pico). 
+Para guiar este proceso se emplea una función heurística () que evalúa la calidad de cada estado.
+
+Su principal diferencia con los algoritmos genéticos radica en el mecanismo de selección. Mientras que en la escalada de colinas se generan y evalúan todos los vecinos del estado actual seleccionando el óptimo inmediato, 
+los algoritmos genéticos operan mediante recombinación y mutación de una población de soluciones. 
+En nuestra implementación, tanto los candidatos como la función objetivo son idénticos para ambos algoritmos.
+
+Como limitaciones principales, este algoritmo puede quedar atrapado en óptimos locales donde ningún vecino inmediato es mejor, 
+pero existan soluciones superiores en regiones no adyacentes del espacio de búsqueda. 
+También puede estancarse en mesetas (candidatos vecinos con valores idénticos de la función objetivo), 
+impidiendo su progreso hacia soluciones mejores.
 
 % La búsqueda de escalada a menudo avanza rápidamente hacia una solución porque generalmente es bastante fácil mejorar un estado malo.
 % Pero desafortunadamente, la búsqueda de escalada a menudo queda atrapada por las siguientes razones:
@@ -901,69 +919,75 @@ El algoritmo de escalada (\emph{hill climbing} en inglés) \cite{Russell:2009, C
 En esta sección, presentamos un enfoque para la identificación de métodos generadores de objetos basado en un algoritmo de escalada. El pseudocódigo de este enfoque se muestra en la Figura~\ref{alg:hill_climbing}.
 La representación que hemos utilizado del problema es la explicada en la sección \ref{sec:estados}. Esto quiere decir que utilizamos vectores de bits para representar los estados. 
 
-\begin{figure}[H]
 
-\begin{lstlisting}[style=javaStyle, caption={Algoritmo de Hill Climbing}, label={alg:hill_climbing}]
-public Estado hillClimbing(funObjectivo) {
-    Estado curr = generarEstadoIncial(funObjectivo);
-    do {
-        List<Estado> sucesores = generarSucesores(curr);
-        Estado best = mejorSucesor(sucesores,funObjectivo);
-        if (best.value < curr.value) {
-            return curr;
-        }
-        curr = best;
+\SetKwFunction{Compute}{Compute} 
+\SetKwFunction{fBuilders}{computeBuilders}
+\SetKwFunction{hc}{hillClimbing}
+\SetKwFunction{successor}{generarSucesores}
+\SetKwFunction{mejorSuccesor}{mejorSuccesor}
+\SetKwFunction{generarSucesores}{generarSucesores}
+\SetKwFunction{isCons}{esConstructor}
+
+\SetKwProg{Fn}{Function}{:}{}
+
+\begin{algorithm}[H]
+    \caption{Algoritmo Genético implementando nuestro enfoque}
+    \label{alg:enfoqueHC}
+
+    \Fn{\fBuilders{}}{
+        $resultado \gets x + y$\;
+        $initial \gets [0,0,\ldots,0]$\;
+        $cons \gets$ \hc{initial, true}\;
+        \Return \hc{cons, false}\;
     }
-}
-\end{lstlisting}
-\end{figure}
+    \BlankLine
 
-\begin{figure}[H]
-  \begin{lstlisting}[style=javaStyle, caption={Algoritmo para generar el estado inicial}, label={alg:generar_estado_inicial}]
-  public Estado generarEstadoInicial(FunValoracion funObjetivo) {
-      Estado estado = new Estado();
-      List<Metodo> constructores = funObjetivo.obtenerConstructores();
-      
-      for (Metodo m : constructores) {
-          estado.activarBit(m);
-      }
-      return estado;
-  }
-  \end{lstlisting}
-  \end{figure}
-
-\begin{figure}[H]
-\begin{lstlisting}[style=javaStyle, caption={Algoritmo para generar los sucesores}, label={alg:sucessores}]
-public List<Estados> generarSucesores(Estado s) {
-    List<int[]> sucesores = new ArrayList<>();  
-    for (int i = 0; i < s.size(); i++) {
-        if (s[i] == 0) {
-            Estado sucesor = s.clone();
-            sucesor[i] = 1;
-            sucesores.add(sucesor);
+    \Fn{\hc{$initialState, constructores$}}{
+        $curr \gets initialState$\;
+        \While{true}{
+            $successors \gets$ \successor{$curr$, constructores}\;
+            $best \gets$ \mejorSuccesor{$successors$}\;
+            \If{$f(best) \leq f(curr)$}{
+                \Return $curr$\;
+            }
+            \Else{
+                $curr \gets best$\;
+            }
         }
     }
-    return sucesores;
-}
-\end{lstlisting}
-\end{figure}
+    \BlankLine
+
+    \Fn{\successor{$state$, $constructores$}}{
+        $initial \gets []$\;
+        \For{$i \gets 0$ \KwTo \#M}{
+            \If{$s[i] == 0$}{
+                \If{($builders$ \textbf{and} $isConstructor(i)$) || (!$builders$ \textbf{and} !$isConstructor(i)$)}{
+                    $successor \gets clone(s)$\;
+                    $successor[i] \gets 1$\;
+                    $successors.add(successor)$\;
+                }
+            }
+        }
+
+        \Return $successors$\;
+    }
+    \BlankLine
+
+    \Fn{\mejorSuccesor{$successors$}}{
+        $curr \gets -INF$\;
+        \For{$i \gets 0$ \KwTo \#successors}{
+            \If{$s[i] > bestVal$}{
+                $bestVal \gets f(s)$\;
+                $best \gets s$\;
+            }
+        }
+        \Return $best$\;
+    }
+
+
+\end{algorithm}
 
 \begin{figure}[H]
-  \begin{lstlisting}[style=javaStyle, caption={Algoritmo para encontrar el mejor sucesor}, label={alg:mejor_sucesor}]
-  public Estado mejorSucesor(List<Estado> sucesores, FunValoracion funObjetivo) {
-      Estado mejor = sucesores.get(0);
-      double mejorValor = funObjetivo.calcularValor(mejor);
-      for (Estado s : sucesores) {
-          double valor = funObjetivo.calcularValor(s);
-          if (valor < mejorValor) {
-              mejor = s;
-              mejorValor = valor;
-          }
-      }
-      return mejor;
-  }
-  \end{lstlisting}
-  \end{figure}
 
 La idea principal detrás del algoritmo \emph{hill climbing} (ver Algortimo \ref{alg:hill_climbing}) es comenzar con un estado inicial y, en cada iteración, generar los sucesores de un estado y realizar un movimiento hacia el que tenga el mejor valor de la función objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento. \pp{Habría que poner qué líneas del algoritmo se corresponden con cada cosa. Y mergear con el párrafo de abajo.}
 
