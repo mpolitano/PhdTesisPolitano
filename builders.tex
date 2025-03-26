@@ -768,7 +768,7 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
   
   \STATE $poblacion \gets $ generar población aleatoria
   \FOR{$i \gets 0$ ; $i \leq numEvoluciones$}
-      \STATE $poblacion \leftarrow $ seleccionar $tasaOriginal$ de Cromosomas con mejor aptitud
+      \STATE $poblacion \leftarrow $ seleccionar $popSize$ de Cromosomas con mejor aptitud
       \FOR{$j = 1 \dots tasaC * tamanoPoblacion$}
           \STATE $C1, C2 \gets $ seleccionar dos Cromosomas con mejor aptitud
           \STATE cruzar $C1$ y $C2$
@@ -781,7 +781,7 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
   \STATE $C \gets$ mejor Cromosoma de la población
   \STATE $actual \gets estadoInicial$
 
-  \STATE detener si la aptitud de $C$ es constante durante $maxIteracionesConstantes$
+  \STATE detener si la aptitud de $C$ es constante durante $maxIterConst$
   
 \end{algorithmic}
 \end{algorithm}
@@ -791,15 +791,15 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
 Los elementos descritos anteriormente son las partes constitutivas del algoritmo genético que implementa nuestro enfoque. Un pseudocódigo del algoritmo genético se muestra en el Algoritmo~\ref{alg:enfoqueGA}. 
 Nótese que el Algoritmo~\ref{alg:enfoqueGA} sigue la estructura general de un algoritmo genético. 
 La población inicial se genera produciendo todos los cromosomas factibles con un único método disponible 
-(vectores con falso en todas las posiciones excepto una, establecida en verdadero) (línea 3). 
-Luego, comienza a evolucionar la población de forma iterativa (líneas 4-15). 
+(vectores con falso en todas las posiciones excepto una, establecida en verdadero) (línea 1). 
+Luego, comienza a evolucionar la población de forma iterativa (líneas 2-14). 
 Al inicio de cada iteración de evolución, el algoritmo descarta algunos individuos para controlar el tamaño de la población, 
-conservando los $popSize$ individuos más aptos de la población actual y eliminando el resto (línea 5). 
+conservando los $popSize$ individuos más aptos de la población actual y eliminando el resto (línea 3). 
 
-Posteriormente, el algoritmo realiza un cruzamiento de un punto en individuos seleccionados aleatoriamente (líneas 6-10). 
+Posteriormente, el algoritmo realiza un cruzamiento de dos puntos en individuos seleccionados aleatoriamente (líneas 4-7). 
 El cruzamiento se aplica un número de veces proporcional al tamaño de la población $popSize$, 
 determinado por el producto de $popSize$ y la tasa de cruzamiento $cRate$ ($0 \leq cRate \leq 1$). 
-Luego, el algoritmo muta los individuos (líneas 11-15) cambiando el valor de cada uno de sus genes con probabilidad $mRate$ ($0 \leq mRate \leq 1$). 
+Luego, el algoritmo muta los individuos (líneas 8-10) cambiando el valor de cada uno de sus genes con probabilidad $mRate$ ($0 \leq mRate \leq 1$). 
 Todos los nuevos individuos creados por las operaciones de cruzamiento y mutación se agregan a la población.
 
 El algoritmo se detiene después de $numEvo$ evoluciones, donde $numEvo$ es un parámetro del algoritmo. 
@@ -810,25 +810,17 @@ mientras que un número menor lo hace más rápido pero podría no encontrar el 
 
 Como es habitual, determinamos valores para los parámetros del algoritmo que funcionan bien en la práctica. 
 En nuestra evaluación experimental, establecimos $numEvo=20$, $popSize=30$, $cRate=0.35$, $mRate=0.08$ 
-(los dos últimos corresponden a los valores por defecto de la biblioteca JGap).
+y $maxIterConst=5$. Estos valores se eligieron después de realizar experimentos en varios casos de estudios
+
+Cabe destacar que, si quitamos la complejidad de la función de aptitud, nuestro algoritmo evolutivo es bastante estándar, por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos. Por supuesto, realizar mejoras en el algoritmo evolutivo y ajustar sus parámetros (como las tasas de cruce y mutación) podría acelerar los tiempos de ejecución.
+
+También implementamos una versión simple de nuestro enfoque que utiliza múltiples hilos (multi-threading), lo que ayuda a mejorar el rendimiento. Básicamente, en cada iteración se crean t copias de la población actual, donde t es el número de hilos disponibles. Luego, cada réplica de la población evoluciona de forma independiente. Cuando todos los hilos terminan, se conservan los 100/t individuos más aptos de la población evolucionada por cada hilo, y estos se utilizan para construir la población de la siguiente iteración del algoritmo.
 
 Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
-
 \emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda.
+utivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) podrían optimizar los tiempos de ejecución.
 
-Nótese que, si ignoramos la complejidad de la función de fitness, nuestro algoritmo genético es bastante convencional, 
-por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos.
-Por supuesto, mejoras en el algoritmo evolutivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) podrían optimizar los tiempos de ejecución.
-
-% Esto lo agregamos? hace falta?
-También implementamos una versión multihilo simple de nuestro enfoque, 
-que ayuda a mejorar el rendimiento. 
-Básicamente, en cada iteración realizamos $t$ copias de la población actual, 
-donde $t$ es el número de hilos disponibles, 
-y evolucionamos cada réplica de población de forma independiente. 
-Una vez que todos los hilos finalizan, conservamos los $100/t$ individuos más aptos de la población evolucionada por cada hilo, 
-y los utilizamos para construir la población de la siguiente iteración del algoritmo.
 
 %\subsection{Representación del Cromosoma}
 
@@ -987,31 +979,59 @@ La representación que hemos utilizado del problema es la explicada en la secci�
 
 \end{algorithm}
 
-\begin{figure}[H]
-
-La idea principal detrás del algoritmo \emph{hill climbing} (ver Algortimo \ref{alg:hill_climbing}) es comenzar con un estado inicial y, en cada iteración, generar los sucesores de un estado y realizar un movimiento hacia el que tenga el mejor valor de la función objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento. \pp{Habría que poner qué líneas del algoritmo se corresponden con cada cosa. Y mergear con el párrafo de abajo.}
 
 
-El algoritmo \ref{alg:hill_climbing} representa el esquema básico de el \emph{Algoritmo de escalada} \cite{}.
-Este comienza calculando la función de valoración de todos los \emph{singletons} (Linea 2, \emph{generarEstadoInical}, figura \ref{fig}) solo con los métodos constructores activados (osea con el bit prendido en la posición correspondiente al método constructor de la clase).
- \pp{Habría que hacer un algoritmo con esto.}. 
- El mejor de los \emph{singletons} (mejor valor de la función objetivo) se establece como el candidato actual $curr$, y \emph{Hill Climbing} inicia un proceso de búsqueda típico e iterativo (Línea 4 a 11). 
- \pp{Esto está al revés, hay que explicar esto primero en el algoritmo, y después lo del proceso iterativo que está en el párrafo de arriba.}
+El algoritmo presentado (en la figura \ref{alg:enfoqueHC}) implementa una versión del enfoque $Hill Climbing (HC)$ diseñado para encontrar un conjunto óptimo de métodos generadores de objectos en una API. 
+El proceso comienza con la función principal $computeBuilders()$, que se encarga de inicializar el proceso de búsqueda. 
+En esta función se define un estado inicial representado por un vector de ceros, 
+que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing()$, 
+junto con un valor lógico que indica que se deben considerar únicamente constructores. 
+Posteriormente, el algoritmo invoca nuevamente a $hillClimbin())$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
+la busqueda anterior (línea 1 a 5).
+
+La función $hillClimbing()$ constituye el núcleo del algoritmo de Hill Climbing. Su ejecución parte del estado inicial recibido por parámetro y, 
+mediante un ciclo iterativo, genera todos los posibles sucesores del estado actual utilizando la función $generarSuccessor()$. 
+Entre estos sucesores se selecciona el que presente el mejor valor según la función de aptitud $f()$. Si dicho sucesor no mejora el valor del estado actual,
+el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mejor sucesor pasa a ser el nuevo estado y el ciclo continúa. (línea 6 a 17)
+
+La generación de sucesores se realiza en la función $successor()$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
+(indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando metodos constructores de la API o no. 
+En caso de cumplir con esta condición, se genera un clon del estado actual en el que se activa dicha posición, y este nuevo estado se añade a la lista de sucesores.
+\cacho{Ver esta parte anterior} (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
+
+Finalmente, la función $mejorSuccesor()$ se encarga de seleccionar el mejor sucesor de la lista proporcionada.
+Para ello, recorre la lista evaluando el valor de la función de aptitud ($f()$)en cada elemento y selecciona aquel que tenga el mayor valor. (línea 30 a 38)
+
+Este enfoque de Hill Climbing presenta la ventaja de tener menos parámetros de configuración que los algoritmos genéticos, 
+lo que simplifica su implementación. Sin embargo, este tipo de búsqueda local implica el riesgo de quedar atrapado en óptimos locales, 
+dado que el algoritmo solo avanza hacia soluciones que mejoran directamente la aptitud del estado actual. 
+En cualquier caso, el enfoque propuesto resulta eficiente en contextos donde se requiere una búsqueda controlada y directa, 
+sin la necesidad de manejar múltiples parámetros adicionales.
+
+
+%La idea principal detrás del algoritmo \emph{hill climbing} (ver Algortimo \ref{alg:hill_climbing}) es comenzar con un estado inicial y, en cada iteración, generar los sucesores de un estado y realizar un movimiento hacia el que tenga el mejor valor de la función objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento. \pp{Habría que poner qué líneas del algoritmo se corresponden con cada cosa. Y mergear con el párrafo de abajo.}
+
+
+% El algoritmo \ref{alg:hill_climbing} representa el esquema básico de el \emph{Algoritmo de escalada} \cite{}.
+% Este comienza calculando la función de valoración de todos los \emph{singletons} (Linea 2, \emph{generarEstadoInical}, figura \ref{fig}) solo con los métodos constructores activados (osea con el bit prendido en la posición correspondiente al método constructor de la clase).
+%  \pp{Habría que hacer un algoritmo con esto.}. 
+%  El mejor de los \emph{singletons} (mejor valor de la función objetivo) se establece como el candidato actual $curr$, y \emph{Hill Climbing} inicia un proceso de búsqueda típico e iterativo (Línea 4 a 11). 
+%  \pp{Esto está al revés, hay que explicar esto primero en el algoritmo, y después lo del proceso iterativo que está en el párrafo de arriba.}
 
  \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{images/succesores.png}
   \caption{Sucesores de un estado.}
-  \label{fig:ncl-instances-intro}
+  \label{fig:succ-hillClimbing}
 \end{figure}
 
-En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. 
-Esto, simplemente, genera estados sucesores prendiendo únicamente un bit (poniendo 1) por cada bit apagado (bit en 0). 
-Esto significa que crear un sucesor para nuestro problema es agregar un método al estado corriente. El método \emph{generarSucesores} nos devuelve el conjunto de estados del estado \emph{curr}. \pp{Esto también está desordenado. Habría que poner un ejemplo con figuras para que se entienda bien qué hace.}
+% En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. 
+% Esto, simplemente, genera estados sucesores prendiendo únicamente un bit (poniendo 1) por cada bit apagado (bit en 0). 
+% Esto significa que crear un sucesor para nuestro problema es agregar un método al estado corriente. El método \emph{generarSucesores} nos devuelve el conjunto de estados del estado \emph{curr}. \pp{Esto también está desordenado. Habría que poner un ejemplo con figuras para que se entienda bien qué hace.}
 
 % El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API (Línea 3) \pp{Se podría poner el pseudocódigo de generar sucesores, y quizás poner un ejemplo para que se entienda}.
-Sea $best$ el sucesor con valor objetivo más alto (línea 6), si este tiene un valor que es menor o igual al corriente, significa que no hay un sucesor mejor y el algoritmo retorna el estado corriente (Línea 7 y 8). Se puede observar que este estado es un máximo local y el algoritmo lo encontró.
-En caso de que el valor del estado corriente sea menor al mejor sucesor encontrado en la iteración, se reemplaza el corriente y vuelve a ejecutar una nueva iteración con este estado hasta encontrar un máximo local. \pp{Esto también está explicado arriba, y ahora de nuevo. Hay que ordenarlo.}
+% Sea $best$ el sucesor con valor objetivo más alto (línea 6), si este tiene un valor que es menor o igual al corriente, significa que no hay un sucesor mejor y el algoritmo retorna el estado corriente (Línea 7 y 8). Se puede observar que este estado es un máximo local y el algoritmo lo encontró.
+% En caso de que el valor del estado corriente sea menor al mejor sucesor encontrado en la iteración, se reemplaza el corriente y vuelve a ejecutar una nueva iteración con este estado hasta encontrar un máximo local. \pp{Esto también está explicado arriba, y ahora de nuevo. Hay que ordenarlo.}
 % Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$ (Línea 4) \pp{hay que implementar con código el existe un mejor candidato. Mirar el libro de AI.}.
 
 %Se puede observar que este algoritmo puede quedar atrapado en un máximo local y no generar alguna combinación específica que podría ser aún mejor. Aquí se puede ver que es un algoritmo perezoso, ya que obtiene una solución rápida, pero puede no ser eficaz en encontrar la mejor solución global. 
