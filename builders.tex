@@ -981,17 +981,18 @@ La representación que hemos utilizado del problema es la explicada en la secci�
 
 
 
-El algoritmo presentado (en la figura \ref{alg:enfoqueHC}) implementa una versión del enfoque $Hill Climbing (HC)$ diseñado para encontrar un conjunto óptimo de métodos generadores de objectos en una API. 
+El algoritmo presentado (en la figura \ref{alg:enfoqueHC}) implementa una versión del enfoque $Hill Climbing$ 
+diseñado para encontrar un conjunto óptimo de métodos generadores de objectos en una API. 
 El proceso comienza con la función principal $computeBuilders()$, que se encarga de inicializar el proceso de búsqueda. 
 En esta función se define un estado inicial representado por un vector de ceros, 
 que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing()$, 
-junto con un valor lógico que indica que se deben considerar únicamente constructores. 
-Posteriormente, el algoritmo invoca nuevamente a $hillClimbin())$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
+junto con un valor lógico que indica que se deben considerar únicamente los métodos constructores. 
+Posteriormente, el algoritmo invoca nuevamente a $hillClimbing())$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
 la busqueda anterior (línea 1 a 5).
 
 La función $hillClimbing()$ constituye el núcleo del algoritmo de Hill Climbing. Su ejecución parte del estado inicial recibido por parámetro y, 
 mediante un ciclo iterativo, genera todos los posibles sucesores del estado actual utilizando la función $generarSuccessor()$. 
-Entre estos sucesores se selecciona el que presente el mejor valor según la función de aptitud $f()$. Si dicho sucesor no mejora el valor del estado actual,
+Entre estos sucesores se selecciona el que presente el mejor valor según la función de fitness $f()$. Si dicho sucesor no mejora el valor del estado actual,
 el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mejor sucesor pasa a ser el nuevo estado y el ciclo continúa. (línea 6 a 17)
 
 La generación de sucesores se realiza en la función $successor()$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
@@ -1000,11 +1001,11 @@ En caso de cumplir con esta condición, se genera un clon del estado actual en e
 \cacho{Ver esta parte anterior} (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
 
 Finalmente, la función $mejorSuccesor()$ se encarga de seleccionar el mejor sucesor de la lista proporcionada.
-Para ello, recorre la lista evaluando el valor de la función de aptitud ($f()$)en cada elemento y selecciona aquel que tenga el mayor valor. (línea 30 a 38)
+Para ello, recorre la lista evaluando el valor de la función de fitness ($f()$)en cada elemento y selecciona aquel que tenga el mayor valor. (línea 30 a 38)
 
 Este enfoque de Hill Climbing presenta la ventaja de tener menos parámetros de configuración que los algoritmos genéticos, 
 lo que simplifica su implementación. Sin embargo, este tipo de búsqueda local implica el riesgo de quedar atrapado en óptimos locales, 
-dado que el algoritmo solo avanza hacia soluciones que mejoran directamente la aptitud del estado actual. 
+dado que el algoritmo solo avanza hacia soluciones que mejoran directamente la fitness del estado actual. 
 En cualquier caso, el enfoque propuesto resulta eficiente en contextos donde se requiere una búsqueda controlada y directa, 
 sin la necesidad de manejar múltiples parámetros adicionales.
 
