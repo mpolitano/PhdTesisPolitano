@@ -1,10 +1,7 @@
 \chapter[Identificación de Métodos Generadores de Objetos]{Identificación de Métodos Generadores de Objetos}
 \label{cap:builders}
 
-\cacho{1 - Cambiar puros por observadores en todos lados}
-\cacho{2 - terminar las citas}
-\cacho{1 - }
-\cacho{1 -}
+\cacho{1 - terminar las citas}
 
 % Primera etapa
 \section{Ejemplo Motivador}
@@ -90,10 +87,15 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
 \end{itemize}
 
 \noindent
+\cacho{
 A partir de esta API, los objetos de \emph{NodeCachingLinkedList} pueden construirse utilizando secuencias de operaciones que combinan los métodos constructores y los modificadores. Por ejemplo, una lista inicializada con \texttt{NCL()} puede llenarse mediante llamados consecutivos a \texttt{add(Object)} o \texttt{addAll(Collection)}, mientras que los métodos \texttt{remove(Object)} y \texttt{clear()} permiten vaciar la lista principal y crear elementos en la lista cache, según sea necesario.
+}
 
+\cacho{
 La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de NodeCachingLinkedList que pueden construirse utilizando exactamente dos nodos. A continuación, se presentan las secuencias de métodos generadores que permiten construir cada una de las configuraciones:
+}
 
+\cacho{Lo siguiente de las figuras fue agregado, no lo puedo pintar en rojo. CACHO ELIMINAR ESTE COMENTARIO LUEGO}
 
 \begin{figure}[H]
     \centering
@@ -136,7 +138,6 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
 \end{itemize}
 
 
-\pp{Estaría bueno tener las secuencias de métodos que llevan de una lista a la otra en la figura. Y de paso esto da una idea intuitiva de qué serían los builders}
 
 \section{Métodos Generadores de Objetos y sus Propiedades}
 
@@ -238,7 +239,6 @@ Para facilitar la tarea del desarrollador, en las secciones siguientes proponemo
 
 
 % Intro
-\cacho{Poner las citas}
 En este capítulo, nos enfrentamos al desafío de identificar un conjunto suficiente y mínimo de generadores de objetos a partir de la API de un módulo. 
 Nos enfrentamos a un problema de optimización, donde apuntamos a encontrar el mejor estado según una función objetivo.
 Esta definición es la de los algoritmos de búsqueda local \cite{Russell:2009}.
@@ -407,7 +407,7 @@ En este caso, las posiciones 0, 6 y 16 del vector están establecidas como verda
 % 2- función de valoración
 % también denominada función de aptitud en algoritmos genéticos
 
-Una función objetivo, también conocida como función de costo o función de valoracion, es una función matemática que mide la calidad de una solución candidata dentro del espacio de búsqueda \cacho{ver que puedo citar}\cite{}. Esta función asigna un valor numérico a cada estado, indicando qué tan buena o deseable es el candidato con respecto al objetivo del problema.
+Una función objetivo, también conocida como función de costo o función de valoracion, es una función matemática que mide la calidad de una solución candidata dentro del espacio de búsqueda \cite{Russell:2009}. Esta función asigna un valor numérico a cada estado, indicando qué tan buena o deseable es el candidato con respecto al objetivo del problema.
 
 El propósito de la función objetivo es guiar el proceso de búsqueda hacia la mejor solución posible. Dependiendo del problema, se busca maximizar o minimizar el valor de la función. En problemas de maximización, se priorizan los estados con valores más altos, mientras que en problemas de minimización, se favorecen aquellos con valores más bajos.
 
@@ -424,7 +424,7 @@ Como el conjunto de objetos que se pueden construir con la API de un módulo es 
 Dado un candidato $c$ que representa un subconjunto de métodos $M$ de la API, nuestra función de valuación intenta calcular una aproximación del número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
 
 Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $c$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $c$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos. Más adelante, analizaremos el caso en el que existe más de un subconjunto de generadores de objetos.
-\cacho{referncia del capitlo}
+\cacho{referncia del capitulo}
 
 Nuestro enfoque utiliza un generador exhaustivo acotado eficiente basado en métodos de la API \cite{Politano20}. Este generador se denomina BEAPI y es una de las contribuciones principales de este trabajo (ver Capítulo \ref{cap:beapi}).
 Dado un conjunto de métodos $M$ en un candidato $c$, BEAPI explora todas las secuencias de métodos acotadas que se pueden construir usando métodos de $M$. La cota consiste de un número máximo $m$ de métodos dado por el usuario, y de un conjunto de valores primitivos empleados para instanciar los parámetros de tipo primitivo en los métodos en $M$ (e.g., enteros de \( 0 \) a \( k-1 \)). BEAPI utiliza cada uno de estos valores para instanciar cada parámetro de tipo primitivo (del tipo correspondiente). BEAPI cuenta la cantidad de objetos distintos creados por la ejecución de cada una de las secuencias exploradas. Así, para $M$ (y cotas $m$ y $k$) la función de valuación retorna el número de objetos generados por BEAPI usando $M$.
@@ -564,10 +564,6 @@ Ambos conjuntos generan la misma cantidad de objetos y tienen la misma redundanc
 
 \cacho{Poner el total de parametros que tiene NCL, buscar en experimentos}
 
-\pp{Definir la función P teniendo en cuenta lo siguiente:
-\texttt{o.M(p1: T1, p2: T2, ..., pm: Tm) -> P(M) = w(T1) + w(T2) + ... + w(Tm) = sum i=1..m w(Ti)}?
-}
-
 
 
 %Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en el Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
@@ -579,45 +575,65 @@ Ambos conjuntos generan la misma cantidad de objetos y tienen la misma redundanc
 
 \subsubsection{Cobertura de código}
 \label{sec:fitnessRandoop}
-
-\cacho{secuencias con: builders* + no builders. Explicar esto}
-
-\pp{No me acuerdo como funciona esta fitness. Para mi era correr randoop en 2 etapas, una con los métodos candidatos y después otra con toda la API. Tenemos que charlarlo. Otra cosa que no me cierra es qué devuelve la función. Para mi en teoría debería ser instrucciones cubiertas + ramas cubiertas. Aunque no esté implementado así no importa. Tampoco sé cuánto tiempo se corre Randoop para generar tests razonables.}
-
+\cacho{
 % Mergear con lo de abajo
 La segunda función objetivo se enfoca en crear conjuntos de pruebas (test suites) utilizando los métodos de estado bajo evaluación y medir la cobertura que alcanzan estas test suites. La cobertura se refiere a cuántas líneas de código y cuántas ramas del programa son ejecutadas durante la ejecución de las pruebas. Esta métrica nos da una idea de qué tan bien cubren los conjuntos de pruebas las diferentes partes del programa, lo que nos permite evaluar la calidad y eficacia de los métodos generadores en términos de la cobertura lograda.
-
+}
 Los criterios de evaluación incluyen:
 \begin{itemize}
     \item \textbf{Cobertura de líneas de código:} Porcentaje de líneas de código ejecutadas al correr los test suites.
     \item \textbf{Cobertura de ramas:} Porcentaje de decisiones (\textit{branches}) exploradas en el flujo de ejecución del programa.
 \end{itemize}
 
-Por ejemplo, si el conjunto de métodos seleccionados $M$ genera un test suite que cubre el 100 de las líneas de código y 20 ramas de la API, la función objetivo podría combinar estas métricas en un puntaje compuesto que evalúe la calidad general del conjunto.
-
+\cacho{
+    Por ejemplo, si el conjunto de métodos seleccionados $M$ genera un test suite que cubre el 100 de las líneas de código y 20 ramas de la API, la función objetivo podría combinar estas métricas en un puntaje compuesto que evalúe la calidad general del conjunto.
 Este enfoque es especialmente útil en casos donde el objetivo es garantizar que los métodos seleccionados ejerzan la mayor cantidad posible de rutas de ejecución en la API.
-
 Ambas funciones objetivo son utilizadas como criterios de evaluación en los algoritmos de búsqueda implementados. En algoritmos genéticos, la función objetivo actúa como la métrica de aptitud (\textit{fitness}), guiando la selección de los cromosomas más prometedores. En otros algoritmos de búsqueda, como los basados en escalada de colinas o recocido simulado (\textit{simulated annealing}), la función objetivo orienta el proceso de exploración del espacio de búsqueda.
-
-%En las siguientes subsecciones, detallaremos la implementación y funcionamiento de estas funciones objetivo, explicando cómo son utilizadas en nuestros algoritmos para guiar el proceso de búsqueda y seleccionar conjuntos de métodos generadores óptimos.
-
-% END: Mergear con lo de abajo
-
 En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen} para generar test suite que luego se les medira que tan buenas son con respecto a la cobertura que alcanzan dichas test suite.
-
 Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados. No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
-
-En otras palabras, modificamos Randoop para generar secuencias de llamadas a métodos con la siguiente estructura: 
+En otras palabras, modificamos el algoritmo de Randoop presentado en las seccion  \ref{sec:feedback-directed-test-gen} para generar secuencias de llamadas a métodos con la siguiente estructura: 
+}
 \vspace{10pt} 
 
-$builders^* + no\_builders$. 
+$metodoGenerador^* + metodoNoGenerador$. 
 
-Es decir, primero generamos secuencias compuestas exclusivamente por métodos *builders* y luego, una vez que alcanzamos el tamaño de las secuencias deseadas (\emph{scope}), 
-añadimos un método *no builder* seleccionado al azar.  
+\cacho{TENGO QUE ENTENDER COMO REESCRIBIR ESTE ALGORITMO}
+El algoritmo 
 
-Este método *no builder* es necesario para garantizar la cobertura de líneas y ramas de código en aquellos métodos que no son *builders* pero que, no obstante, resultan clave para evaluar la calidad general de las secuencias generadas y su capacidad para ejercitar la API de manera efectiva.  
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
+    \KwOut{Conjunto de tests generados}
+    
+    Inicializar $tests \leftarrow \emptyset$\;
+    
+    \While{tiempo transcurrido $< S$ \textbf{y} $|tests| < W$}{
+        Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
+        \For{cada parámetro $p_i:T_i$ de $M$}{
+            \If{$T_i$ es primitivo}{
+                $v_i \leftarrow$ valor primitivo aleatorio para $T_i$\;
+            }\Else{
+                $v_i \leftarrow$ secuencia aleatoria de $tests$ que crea objeto de tipo $T_i$\;
+            }
+            Registrar instanciación $S_i \leftarrow v_i$\;
+        }
+        $nuevoTest \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
+        $tests \leftarrow tests \cup \{nuevoTest\}$\;
+    } 
+    \Return{$tests$}\;
+\end{algorithm}
 
-La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, tal como se describe en la sección de preliminares \ref{sec:coverage}.
+
+Es decir, primero generamos secuencias compuestas exclusivamente por métodos generadores y luego, una vez que alcanzamos el tamaño de las secuencias deseadas (\emph{scope}), 
+añadimos un método no generador de objecto seleccionado al azar.  
+
+Este método no generador es necesario para garantizar la cobertura de líneas y ramas de código en aquellos métodos que no son generadores pero que, no obstante, 
+resultan clave para evaluar la calidad general de las secuencias generadas y su capacidad para ejercitar la API de manera efectiva.  
+
+La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API 
+nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. 
+Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, 
+al como se describe en la sección de preliminares \ref{sec:coverage}.
 
 La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se define como una tríupla al igual que la función de la sección anterior:
 
@@ -700,7 +716,8 @@ A medida que el algoritmo avanza, se aplican operadores genéticos como el cruza
 
 \subsubsection{Selección}
 
-La selección en los algoritmos genéticos es el proceso de elegir qué individuos de la población actual participarán en la reproducción y darán lugar a la siguiente generación \cite{Goldberg:1989}. En este proceso, se otorgan mayores probabilidades de selección a los individuos más aptos, es decir, aquellos que tienen un mejor valor de la función objetivo \cite{Goldberg:1989} \pp{No sé si función objetivo es un buen nombre, en este contexto se usa fitness. Hay que ver cuál es la diferencia entre fitness y objetivo en el libro de AI}. \cacho{Llamar funcion objetivo pero aclarar en la seccion de genetico, que se suele llamarse fitness pero que usaremos funcion objetivo para simplificar los conceptos } La idea detrás de la selección es favorecer la transmisión de características deseables de los individuos más aptos a las generaciones futuras, para así mejorar gradualmente la calidad de las soluciones.
+La selección en los algoritmos genéticos es el proceso de elegir qué individuos de la población actual participarán en la reproducción y darán lugar a la siguiente generación \cite{Goldberg:1989}. En este proceso, se otorgan mayores probabilidades de selección a los individuos más aptos, es decir, aquellos que tienen un mejor valor de la función objetivo \cite{Goldberg:1989}
+La idea detrás de la selección es favorecer la transmisión de características deseables de los individuos más aptos a las generaciones futuras, para así mejorar gradualmente la calidad de las soluciones.
 
 En nuestro enfoque, hemos utilizado un operador de selección tipo torneo (\emph{tournament}) \cite{Goldberg:1989}. Este enfoque funciona de la siguiente manera: se selecciona aleatoriamente un grupo de $t$ individuos de la población y se los pone a ``competir'' entre sí. El individuo más apto (con valor de la función objetivo) dentro de este grupo es seleccionado para participar en la reproducción. El tamaño del torneo $t$ (la cantidad de individuos que compiten entre sí) es un hiperparámetro del algoritmo. En nuestro caso, utilizamos un tamaño de torneo de 4, seleccionado empíricamente.
 
@@ -708,17 +725,22 @@ El operador de selección tipo torneo ofrece una forma eficiente de elegir indiv
 
 Nuevamente, elegimos este operador de selección porque dió los mejores resultados en nuestros experimentos (también probamos otros operadores típicos como selección por ruleta, selección por ranking \cite{Goldberg:1989}.
 
-\pp{La biblioteca usada para algoritmos genéticos no está mencionada en ningún lado por ahora. Quizás va al final del capítulo?}
-
 \subsubsection{Operadores Genéticos: Cruzamiento}
+El cruzamiento, también conocido como \emph{crossover}, es uno de los operadores fundamentales en los algoritmos genéticos. 
+Este proceso permite combinar la información genética de dos individuos seleccionados de la población (denominados padres) para generar nuevos individuos (descendientes o hijos), 
+quienes heredan características de ambos progenitores.
+De este modo, el algoritmo explora nuevas combinaciones genéticas y mejora la diversidad de la población.  
 
-El cruzamiento, también conocido como \emph{crossover} en inglés, es uno de los operadores principales de los algoritmos genéticos. Es el proceso mediante el cual dos individuos seleccionados de la población (llamados padres) combinan partes de sus estados para crear nuevos individuos (llamados descendientes o hijos) que heredan características de ambos padres. De esta manera, el algoritmo va generando nuevos estados y explorando diferentes combinaciones genéticas.
-
-En nuestro algoritmo utilizamos el operador de cruzamiento de dos puntos \cite{goldberg1989genetic}. Este operador dió los mejores resultados en nuestros experimentos y se describe a continuación. 
-
-La Figura \ref{fig:crossover} muestra un ejemplo de cruzamiento para dos padres con cromosomas representados como vectores de bits. En este proceso de cruzamiento, se seleccionan dos puntos de cruzamiento aleatoriamente para cada par de padres. En la Figura \ref{fig:crossover}, los puntos de cruzamiento elegidos son  tercer bit y el sexto bit. Luego, se muestran los hijos o descendientes que se crean cruzando los cromosomas de los padres en los puntos de cruzamiento. El primer descendiente toma los primeros tres bits del primer padre, los tres bits siguientes del segundo padre (entre las posiciones tres y seis, sin incluir esta última) y los bits a partir del sexto bit del primer padre (últimos cuatro). En cambio, el segundo descendiente toma los primeros tres bits del segundo padre, los tres bits siguientes del primer padre y los últimos cuatro bits del primer padre.
-\cacho{En nuestro ejemplo, diseñado para detectar los métodos generadores de objetos, este operador de cruzamiento contribuye significativamente a aumentar la diversidad en los conjuntos generados. Gracias a este mecanismo, se crean nuevos individuos (hijos) que presentan combinaciones únicas de métodos activados. Luego, estos nuevos individuos serán evaluados mediante la función de fitness, lo que permite identificar soluciones más variadas y potencialmente mejores }
-%Luego, se toma una parte del cromosoma de un padre hasta el punto de cruzamiento, y se intercambian las secciones entre esos puntos para formar un nuevo cromosoma para el descendiente. Esto crea dos descendientes, uno para cada par de padres.
+\cacho{En nuestro enfoque, empleamos el operador de cruzamiento de dos puntos \cite{goldberg1989genetic}, ya que obtuvo los mejores resultados en nuestros experimentos.  
+La Figura \ref{fig:crossover} ilustra este procedimiento aplicado a dos individuos representados como vectores de bits.  
+En este ejemplo, los puntos de cruzamiento seleccionados son el tercer y el sexto bit.  
+El primer descendiente hereda los primeros tres bits del primer padre, los siguientes tres bits del segundo padre y los bits restantes nuevamente del primer padre.  
+De manera análoga, el segundo descendiente toma los primeros tres bits del segundo padre, intercambia los siguientes tres con el primer padre y conserva los últimos cuatro bits del segundo padre.  
+En nuestro contexto de detección de métodos generadores de objetos, cada posición en el vector representa la presencia ('1') o la ausencia ('0') de un método dentro de la API bajo prueba.  
+Por ejemplo, la posición 0 puede corresponder a $Método_1$, la posición 1 a $Método_2$, y así sucesivamente.  
+Al aplicar el operador de cruzamiento, se intercambian las secuencias de activación de métodos entre los padres, generando nuevas combinaciones en los descendientes.  
+Este mecanismo favorece la exploración del espacio de búsqueda y permite descubrir configuraciones más diversas y potencialmente óptimas. 
+} 
 
 \begin{figure}
   \centering
@@ -727,17 +749,12 @@ La Figura \ref{fig:crossover} muestra un ejemplo de cruzamiento para dos padres 
   \label{fig:crossover}
 \end{figure}
 
-\cacho{Ejemplos de secuencias de metodos}
+\cacho{Poner la flecha al medio}
 
-\pp{Qué significa el crossover para builders?}
 
 En nuestro algoritmo, utilizamos una tasa de cruzamiento de 0.30 (\emph{crossover rate}), lo cual significa que en cada generación aproximadamente el 30 por ciento de los individuos serán seleccionados para cruzarse y crear nuevos descendientes. Este valor fue obtenido a partir de evaluaciones experimentales que hemos realizado para nuestros casos de estudio.
 
-El cruzamiento es una operación fundamental en los algoritmos genéticos, ya que permite combinar información genética de diferentes individuos y crear mayor diversidad en la población, y es esencial para la búsqueda de soluciones más aptas y para acelerar la convergencia del algoritmo.
-
 \subsubsection{Operadores Genéticos: Mutación}
-
-La mutación es otro operador importante en los algoritmos genéticos. Consiste en introducir cambios aleatorios en los cromosomas de los individuos de la población para diversificar la búsqueda. En el proceso de mutación, cada posición del cromosoma de un individuo tiene una pequeña probabilidad de ser modificada. Esto significa que un bit en el cromosoma puede cambiar de valor de manera aleatoria. Por ejemplo, si estamos representando los cromosomas como vectores de bits, una mutación puede implicar cambiar un 0 por un 1 o viceversa. Este operador de mutación es llamado "mutación por inversión de bits", y es adecuado para individuos codificados en binario como nuestro caso. Un ejemplo de mutación por inversión de bits se muestra en la Figura \ref{fig:mutation}. En este ejemplo, las posiciones 2, 4, 5 y 7 del cromosoma fueron seleccionadas para ser mutadas. \cacho{Los individuos con mayor valor de fitness tienen mayor probabilidad de ser seleccionados para mutar.  Esta estrategia busca preservar los mejores individuos y mantener su calidad mientras introduce aleatoriedad en la población.}
 
 \begin{figure}[t]
 \centering
@@ -746,15 +763,24 @@ La mutación es otro operador importante en los algoritmos genéticos. Consiste 
 \label{fig:mutation}
 \end{figure}
 
-\pp{Falta describir como se seleccionan los individuos que se van a mutar.}
-Aunque la mutación es un proceso aleatorio, la probabilidad de mutar cada bit suele ser pequeña, para evitar que los cambios sean demasiado drásticos y permitir que los individuos más aptos dominen la población. En nuestro algoritmo utilizamos una probabilidad de mutación de 0.05. Esto es, dado un individuo hay un 5\% de probabilidad de mutar el valor de cada bit del cromosoma. Nuevamente, este valor fue obtenido luego de un análisis experimental. Esta alteración aleatoria introduce cambios sutiles en la información del cromosoma, y muchas veces permite crear nuevos descendientes que no estaban presentes en la población original.
+\cacho{La mutación es un operador fundamental en los algoritmos genéticos, encargado de introducir cambios aleatorios en los cromosomas de los individuos para aumentar la diversidad en la población.  
+Cada bit del cromosoma tiene una pequeña probabilidad de ser modificado, lo que en una representación binaria implica invertir su valor ('0' a '1' o viceversa).  
+Este mecanismo, denominado \emph{mutación por inversión de bits}, es especialmente adecuado para representaciones binarias como la utilizada en nuestro enfoque. } 
 
-El proceso de mutación es crucial para mantener la diversidad genética en la población y permitir que el algoritmo continúe explorando diferentes regiones del espacio de búsqueda. Sin la mutación, el algoritmo genético podría converger rápidamente hacia una solución subóptima y no ser capaz de encontrar soluciones más prometedoras. La combinación de los operadores de selección, cruzamiento y mutación es lo que permite a los algoritmos genéticos encontrar soluciones óptimas o cercanas a las óptimas en problemas complejos de optimización y búsqueda.
+\cacho{La Figura \ref{fig:mutation} muestra un ejemplo de mutación en el que las posiciones 1, 4, 5 y 7 del cromosoma fueron seleccionadas para ser alteradas.  
+Aunque la mutación es un proceso aleatorio, su probabilidad se mantiene baja para evitar cambios drásticos que puedan comprometer la convergencia del algoritmo.  
+En nuestro caso, utilizamos una probabilidad de mutación de 0.05, es decir, cada bit de un individuo tiene un 5\% de probabilidad de cambiar de estado.  
+Este valor fue determinado experimentalmente para equilibrar la exploración y la preservación de soluciones prometedoras.  }
 
-\pp{Qué significa la mutación para builders?}
+\cacho{El operador de mutación desempeña un papel crucial en la búsqueda de soluciones óptimas, ya que impide la convergencia prematura hacia óptimos locales.  
+En nuestro contexto de detección de métodos generadores de objetos, la mutación introduce variaciones en las secuencias de activación de métodos dentro de la API bajo prueba,  
+permitiendo la exploración de configuraciones y ampliando el espacio de búsqueda.  
+De esta manera, el algoritmo puede descubrir combinaciones más eficientes que no surgirían únicamente mediante cruzamiento. }
 
-\cacho{La mutación en el contexto de los métodos generadores de objetos es un mecanismo que permite introducir variaciones aleatorias en los estados (conjuntos de métodos). Esto es importante ya que fomenta la exploración de nuevas soluciones y evita que el proceso evolutivo quede atrapado en óptimos locales.}
-
+\cacho{Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces
+una mutación en la posición 2 implicaría activar o desactivar la ejecución del método $Método3$.
+Este tipo de variaciones introduce nuevos casos de prueba y permite descubrir combinaciones de métodos que de otra manera no se generarían.  
+De esta manera, el algoritmo no solo optimiza la selección de métodos, sino que también favorece la generación de secuencias más diversificadas. }
 
 \subsubsection{Pseudocódigo del algoritmo genético}
 
@@ -766,41 +792,42 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
   \label{alg:enfoqueGA}
   \begin{algorithmic}[1]
   
-  \STATE $poblacion \gets $ generar población aleatoria
-  \FOR{$i \gets 0$ ; $i \leq numEvoluciones$}
-      \STATE $poblacion \leftarrow $ seleccionar $popSize$ de Cromosomas con mejor aptitud
-      \FOR{$j = 1 \dots tasaC * tamanoPoblacion$}
-          \STATE $C1, C2 \gets $ seleccionar dos Cromosomas con mejor aptitud
-          \STATE cruzar $C1$ y $C2$
+  \STATE $P \gets$ generar población aleatoria
+  \FOR{$i \gets 0$ \TO $numEvoluciones$}
+      \STATE $P \gets$ seleccionar $popSize$ cromosomas con mejor aptitud
+      \FOR{$j \gets 1$ \TO $\text{tasaC} \times |P|$}
+          \STATE $C_1, C_2 \gets$ seleccionar dos cromosomas con mejor aptitud
+          \STATE cruzar($C_1, C_2$)
       \ENDFOR
-      \FOR{todos los Cromosomas}
-          \STATE mutar 1/$tasaMutacion$ de los Genes
+      \FORALL{cromosomas en $P$}
+          \STATE mutar $1/\text{tasaMutacion}$ genes
       \ENDFOR
-  \ENDFOR
   
-  \STATE $C \gets$ mejor Cromosoma de la población
-  \STATE $actual \gets estadoInicial$
+    \STATE $C \gets$ mejor cromosoma de $P$
+    \STATE $actual \gets$ estado inicial
 
-  \STATE detener si la aptitud de $C$ es constante durante $maxIterConst$
-  
+    \IF{la aptitud de $C$ es constante durante $maxIterConst$}
+        \STATE detener algoritmo
+    \ENDIF
+\ENDFOR
+
 \end{algorithmic}
 \end{algorithm}
 
-\cacho{Ver el overfull}
 
-Los elementos descritos anteriormente son las partes constitutivas del algoritmo genético que implementa nuestro enfoque. Un pseudocódigo del algoritmo genético se muestra en el Algoritmo~\ref{alg:enfoqueGA}. 
+\cacho{Los elementos descritos anteriormente son las partes constitutivas del algoritmo genético que implementa nuestro enfoque. Un pseudocódigo del algoritmo genético se muestra en el Algoritmo~\ref{alg:enfoqueGA}. 
 Nótese que el Algoritmo~\ref{alg:enfoqueGA} sigue la estructura general de un algoritmo genético. 
 La población inicial se genera produciendo todos los cromosomas factibles con un único método disponible 
 (vectores con falso en todas las posiciones excepto una, establecida en verdadero) (línea 1). 
 Luego, comienza a evolucionar la población de forma iterativa (líneas 2-14). 
 Al inicio de cada iteración de evolución, el algoritmo descarta algunos individuos para controlar el tamaño de la población, 
-conservando los $popSize$ individuos más aptos de la población actual y eliminando el resto (línea 3). 
+conservando los $popSize$ individuos más aptos de la población actual y eliminando el resto (línea 3). }
 
-Posteriormente, el algoritmo realiza un cruzamiento de dos puntos en individuos seleccionados aleatoriamente (líneas 4-7). 
+\cacho{Posteriormente, el algoritmo realiza un cruzamiento de dos puntos en individuos seleccionados aleatoriamente (líneas 4-7). 
 El cruzamiento se aplica un número de veces proporcional al tamaño de la población $popSize$, 
 determinado por el producto de $popSize$ y la tasa de cruzamiento $cRate$ ($0 \leq cRate \leq 1$). 
 Luego, el algoritmo muta los individuos (líneas 8-10) cambiando el valor de cada uno de sus genes con probabilidad $mRate$ ($0 \leq mRate \leq 1$). 
-Todos los nuevos individuos creados por las operaciones de cruzamiento y mutación se agregan a la población.
+Todos los nuevos individuos creados por las operaciones de cruzamiento y mutación se agregan a la población.}
 
 El algoritmo se detiene después de $numEvo$ evoluciones, donde $numEvo$ es un parámetro del algoritmo. 
 Cabe destacar que no tenemos un valor objetivo para nuestra función de fitness, 
@@ -826,13 +853,6 @@ utivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) po
 
 %En el contexto de nuestro problema, las soluciones candidatas representan conjuntos de métodos de la API del módulo que se está analizando. Empleamos vectores de valores booleanos como representación del cromosoma. Sea $n$ el número de métodos en la API; los cromosomas en nuestro algoritmo serán vectores de tamaño $n$. Para cualquier vector, la posición $i$ será verdadera si y solo si el cromosoma contiene el $i$-ésimo método de la API. Por ejemplo, hay 34 métodos en la API de NCL (Tabla \ref{tab:ncl-api}), y los numeramos del 0 al 33. El conjunto suficiente de constructores en la Figura \ref{fig:NCLbuilders} está caracterizado por el vector con las posiciones 0, 7 y 25 configuradas como verdaderas, y las posiciones restantes configuradas como falsas. En este caso, el espacio de búsqueda completo consta de los $2^{34}$ cromosomas posibles.
 
-\subsection{Función de Aptitud}
-
-Dado un cromosoma que representa un conjunto de métodos $M$,
-nuestra función de aptitud calcula una aproximación del número de objetos limitados que se pueden construir utilizando 
-combinaciones de métodos en $M$. Los cromosomas con valores de aptitud más altos se estiman 
-como capaces de construir más objetos que aquellos con valores de aptitud más pequeños.
-
 % Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$, 
 % que pueden construirse utilizando los métodos del cromosoma actual, es decir, $BE(M, k)$.
 % En otras palabras, necesitamos un generador exhaustivo limitado para el conjunto de métodos. 
@@ -851,35 +871,33 @@ como capaces de construir más objetos que aquellos con valores de aptitud más 
 
 %vieja explicacion
 
-El algoritmo comienza con una población inicial de individuos, que son configuraciones del problema que estamos tratando de resolver. El metedo \emph{new Poblacion()} 
-es el encargado de devolvernos el conjunto de individuos iniciales con el que comenzara la busqueda.
-\pp{Antes se menciona que se genera aleatoriamente, no está en el algoritmo esto. Hay que hacer referencia a las secciones en las que se explica cada componente.}.
-\cacho{Aca comente arriba que inciiamos con una poblacion de singletons, se puede evitar decir esto, para no ensuciar el algoritmo genetico como tal}
-El algoritmo se ejecuta en ciclos repetitivos llamados generaciones. En cada generación, se crea una nueva población a partir de la población anterior mediante una combinación de selección, cruzamiento y mutación.
+% El algoritmo comienza con una población inicial de individuos, que son configuraciones del problema que estamos tratando de resolver. El metedo \emph{new Poblacion()} 
+% es el encargado de devolvernos el conjunto de individuos iniciales con el que comenzara la busqueda.
+% \pp{Antes se menciona que se genera aleatoriamente, no está en el algoritmo esto. Hay que hacer referencia a las secciones en las que se explica cada componente.}.
+% \cacho{Aca comente arriba que inciiamos con una poblacion de singletons, se puede evitar decir esto, para no ensuciar el algoritmo genetico como tal}
+% El algoritmo se ejecuta en ciclos repetitivos llamados generaciones. En cada generación, se crea una nueva población a partir de la población anterior mediante una combinación de selección, cruzamiento y mutación.
 
-En la fase de selección (línea 5 y 6), se eligen los individuos de la población actual que participarán en la reproducción.
-Los individuos más aptos, es decir, aquellos con una mayor adaptación o valor de la función objetivo, tienen más probabilidad de ser seleccionados.
-En la fase de cruzamiento (línea 7), se seleccionan dos individuos padres de la población y se combinan partes de sus genes para crear nuevos individuos hijos, tal cual lo explicamos en la sección de cruzamiento. \pp{No está en crossover rate.}
+% En la fase de selección (línea 5 y 6), se eligen los individuos de la población actual que participarán en la reproducción.
+% Los individuos más aptos, es decir, aquellos con una mayor adaptación o valor de la función objetivo, tienen más probabilidad de ser seleccionados.
+% En la fase de cruzamiento (línea 7), se seleccionan dos individuos padres de la población y se combinan partes de sus genes para crear nuevos individuos hijos, tal cual lo explicamos en la sección de cruzamiento. \pp{No está en crossover rate.}
 
-Luego, en la fase de mutación (Línea 8 y 9), se introducen cambios aleatorios en los genes de algunos individuos para diversificar la población y evitar que el algoritmo quede atrapado en óptimos locales. 
-La probabilidad de mutación suele ser baja, por ende, depende de esta probabilidad para realizar la mutación.
+% Luego, en la fase de mutación (Línea 8 y 9), se introducen cambios aleatorios en los genes de algunos individuos para diversificar la población y evitar que el algoritmo quede atrapado en óptimos locales. 
+% La probabilidad de mutación suele ser baja, por ende, depende de esta probabilidad para realizar la mutación.
 
-Una vez que se ha creado la nueva población (Línea 13), reemplaza a la población anterior y se repite el proceso para generar una nueva generación. 
-El algoritmo se repite durante un número determinado de generaciones o hasta que, durante 7 generaciones, se repita siempre el mejor estado. Esto es lo que refleja la \emph{condicionDeTerminacionCumplida}
-en el algoritmo (linea 14).
+% Una vez que se ha creado la nueva población (Línea 13), reemplaza a la población anterior y se repite el proceso para generar una nueva generación. 
+% El algoritmo se repite durante un número determinado de generaciones o hasta que, durante 7 generaciones, se repita siempre el mejor estado. Esto es lo que refleja la \emph{condicionDeTerminacionCumplida}
+% en el algoritmo (linea 14).
 
-Al final del algoritmo, se selecciona el mejor individuo (de acuerdo a la función de valoración) de la última población como la solución encontrada. (Línea 16)
+% Al final del algoritmo, se selecciona el mejor individuo (de acuerdo a la función de valoración) de la última población como la solución encontrada. (Línea 16)
 
-\pp{Acá habría que describir la biblioteca utilizada y meter una referencia}
-\cacho{Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.}
+% \pp{Acá habría que describir la biblioteca utilizada y meter una referencia}
+% \cacho{Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.}
 
-\cacho{\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
-Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. }
+% \cacho{\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
+% Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. }
 
 \subsection{Algortimo de Escalada}
 \label{alg:approachHC}
-
-\cacho{Revisar todo esto, mejorar, agregar dibujos, y explicacion de algoritmo}
 
 El segundo algoritmo, denominado en inglés \textit{hill climbing},  \cite{Russell:2009, Cormen2009, kleinberg2006}, es un algoritmo de busqueda local basasdo en la escalada de colinas.
 Selecciona en cada paso el estado vecino con mayor valor en la función objetivo sin realizar planificación a largo plazo.
@@ -934,10 +952,10 @@ La representación que hemos utilizado del problema es la explicada en la secci�
     }
     \BlankLine
 
-    \Fn{\hc{$initialState, constructores$}}{
+    \Fn{\hc{$initialState, const$}}{
         $curr \gets initialState$\;
         \While{true}{
-            $successors \gets$ \successor{$curr$, constructores}\;
+            $successors \gets$ \successor{$curr$, const}\;
             $best \gets$ \mejorSuccesor{$successors$}\;
             \If{$f(best) \leq f(curr)$}{
                 \Return $curr$\;
@@ -949,7 +967,7 @@ La representación que hemos utilizado del problema es la explicada en la secci�
     }
     \BlankLine
 
-    \Fn{\successor{$state$, $constructores$}}{
+    \Fn{\successor{$state$, $const$}}{
         $initial \gets []$\;
         \For{$i \gets 0$ \KwTo \#M}{
             \If{$s[i] == 0$}{
@@ -983,25 +1001,32 @@ La representación que hemos utilizado del problema es la explicada en la secci�
 
 El algoritmo presentado (en la figura \ref{alg:enfoqueHC}) implementa una versión del enfoque $Hill Climbing$ 
 diseñado para encontrar un conjunto óptimo de métodos generadores de objectos en una API. 
-El proceso comienza con la función principal $computeBuilders()$, que se encarga de inicializar el proceso de búsqueda. 
+El proceso comienza con la función principal $computeBuilders$, que se encarga de inicializar el proceso de búsqueda. 
 En esta función se define un estado inicial representado por un vector de ceros, 
-que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing()$, 
+que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing$, 
 junto con un valor lógico que indica que se deben considerar únicamente los métodos constructores. 
-Posteriormente, el algoritmo invoca nuevamente a $hillClimbing())$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
+Posteriormente, el algoritmo invoca nuevamente a $hillClimbing$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
 la busqueda anterior (línea 1 a 5).
 
-La función $hillClimbing()$ constituye el núcleo del algoritmo de Hill Climbing. Su ejecución parte del estado inicial recibido por parámetro y, 
-mediante un ciclo iterativo, genera todos los posibles sucesores del estado actual utilizando la función $generarSuccessor()$. 
+La función $hillClimbing$ constituye el núcleo del algoritmo de Hill Climbing. Su ejecución parte del estado inicial recibido por parámetro y, 
+mediante un ciclo iterativo, genera todos los posibles sucesores del estado actual utilizando la función $generarSuccessor$. 
 Entre estos sucesores se selecciona el que presente el mejor valor según la función de fitness $f()$. Si dicho sucesor no mejora el valor del estado actual,
 el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mejor sucesor pasa a ser el nuevo estado y el ciclo continúa. (línea 6 a 17)
 
-La generación de sucesores se realiza en la función $successor()$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
+La generación de sucesores se realiza en la función $successor$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
 (indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando metodos constructores de la API o no. 
 En caso de cumplir con esta condición, se genera un clon del estado actual en el que se activa dicha posición, y este nuevo estado se añade a la lista de sucesores.
 \cacho{Ver esta parte anterior} (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
 
-Finalmente, la función $mejorSuccesor()$ se encarga de seleccionar el mejor sucesor de la lista proporcionada.
-Para ello, recorre la lista evaluando el valor de la función de fitness ($f()$)en cada elemento y selecciona aquel que tenga el mayor valor. (línea 30 a 38)
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/succesores.png}
+    \caption{Sucesores de un estado.}
+    \label{fig:succ-hillClimbing}
+  \end{figure}
+  
+Finalmente, la función $mejorSuccesor$ se encarga de seleccionar el mejor sucesor de la lista proporcionada.
+Para ello, recorre la lista evaluando el valor de la función de fitness ($f$)en cada elemento y selecciona aquel que tenga el mayor valor. (línea 30 a 38)
 
 Este enfoque de Hill Climbing presenta la ventaja de tener menos parámetros de configuración que los algoritmos genéticos, 
 lo que simplifica su implementación. Sin embargo, este tipo de búsqueda local implica el riesgo de quedar atrapado en óptimos locales, 
@@ -1010,21 +1035,6 @@ En cualquier caso, el enfoque propuesto resulta eficiente en contextos donde se 
 sin la necesidad de manejar múltiples parámetros adicionales.
 
 
-%La idea principal detrás del algoritmo \emph{hill climbing} (ver Algortimo \ref{alg:hill_climbing}) es comenzar con un estado inicial y, en cada iteración, generar los sucesores de un estado y realizar un movimiento hacia el que tenga el mejor valor de la función objetivo. Este proceso se repite hasta que no se pueda encontrar una solución vecina que mejore el valor actual. En ese punto, el algoritmo se detiene y devuelve la mejor solución encontrada hasta el momento. \pp{Habría que poner qué líneas del algoritmo se corresponden con cada cosa. Y mergear con el párrafo de abajo.}
-
-
-% El algoritmo \ref{alg:hill_climbing} representa el esquema básico de el \emph{Algoritmo de escalada} \cite{}.
-% Este comienza calculando la función de valoración de todos los \emph{singletons} (Linea 2, \emph{generarEstadoInical}, figura \ref{fig}) solo con los métodos constructores activados (osea con el bit prendido en la posición correspondiente al método constructor de la clase).
-%  \pp{Habría que hacer un algoritmo con esto.}. 
-%  El mejor de los \emph{singletons} (mejor valor de la función objetivo) se establece como el candidato actual $curr$, y \emph{Hill Climbing} inicia un proceso de búsqueda típico e iterativo (Línea 4 a 11). 
-%  \pp{Esto está al revés, hay que explicar esto primero en el algoritmo, y después lo del proceso iterativo que está en el párrafo de arriba.}
-
- \begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{images/succesores.png}
-  \caption{Sucesores de un estado.}
-  \label{fig:succ-hillClimbing}
-\end{figure}
 
 % En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. 
 % Esto, simplemente, genera estados sucesores prendiendo únicamente un bit (poniendo 1) por cada bit apagado (bit en 0). 
