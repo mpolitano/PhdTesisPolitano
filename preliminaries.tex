@@ -177,15 +177,14 @@ Randoop utiliza la API del SUT para generar secuencias de tests, es decir,
 secuencias de invocaciones a métodos de la API. Randoop propone la técnica
 de generación aleatoria con retroalimentación basada en la ejecución, que
 consiste en ejecutar las secuencias de test y observar los resultados para 
-determinar si se debe continuar extendiendo una secuencia de test. 
+determinar si se debe continuar extendiendo o no las secuencias de test. 
 El algoritmo principal de Randoop se describe en la Figura \ref{} \pp{Poner una
-figura para después citarlo más adelante}.
+figura para después citarlo en los próximos capítulos}.
 
 \begin{algorithm}[H]
     \SetAlgoLined
     \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
-    \KwOut{Conjunto de tests de regresión generados}
-    \SetAlgoLined
+    \KwOut{Tests de regresión}
     
     $prev \leftarrow \emptyset$\;
     $tests \leftarrow \emptyset$\;
@@ -194,38 +193,90 @@ figura para después citarlo más adelante}.
         Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
         \For{$p_i:T_i$ de $M$}{
             \If{$T_i$ es primitivo}{
-                $S_i \leftarrow$ valor primitivo aleatorio para $T_i$\;
+                $S_i \leftarrow$ valor primitivo para $T_i$ tomado
+                aleatoriamente de las semillas\;
             }\Else{
                 $S_i \leftarrow$ secuencia aleatoria $\in prev$ que crea objeto de tipo $T_i$\;
             }
         }
-        $nuevoTest \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
-        \If{ejecutar($nuevoTest$) es exitoso}{
-            $prev \leftarrow prev \cup \{nuevoTest\}$\;
+        $test \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
+        $res \leftarrow ejecutar($test$)$\;
+        \If{res = falla} {
+            \Return{$\{ test \}$}\;
+        }   
+        \If{res = exito} {
+            $prev \leftarrow prev \cup \{test\}$\;
         }        
-        $tests \leftarrow tests \cup \{nuevoTest\}$\;
+        \If{res = inválido} {
+            // Ignorar el test 
+        }        
+        $tests \leftarrow tests \cup \{test\}$\;
     }
     \Return{$tests$}\;
     \end{algorithm}
 
-Este proceso iterativo permite generar casos de prueba de manera progresiva, 
-utilizando la retroalimentación obtenida de ejecuciones previas para evitar redundancias e ineficiencias.
-Como se puede observar en el pseudocódigo, en cada iteración se selecciona aleatoriamente un metodo (linea 3), luego se instancia sus parametros eligiendo aleatoriamente de valores primitivos
-o de test (linea 4 a 9) y por ultimo se almacena estas secuencias en un nuevo test (linea 10 y 11 ) 
-La generación de pruebas dirigida por retroalimentación se introdujo por primera vez en el enfoque \textsf{Randoop}\footnote{https://randoop.github.io/randoop/manual/}, basado en la generación aleatoria de pruebas \cite{Pacheco07}. \textsf{Randoop} requiere un conjunto de rutinas de una API y un budget para la generación de pruebas.
+\textsf{Randoop} toma como entradas un conjunto de rutinas (por ejemplo, la API
+de un módulo), y criterios de terminación para la generación de tests, como el tiempo
+máximo de generación \emph{S}, y/o la cantidad máxima de tests a generar \emph{W}.
+Como salida, \textsf{Randoop} produce tests de regresión para el módulo, que
+ejercitan los métodos dados.
 
-\textsf{Randoop} representa las pruebas como secuencias de invocaciones a las rutinas de la API. Por lo tanto, a menudo se llaman \emph{secuencias de prueba}. Comienza con unos pocos valores semilla predeterminados para los tipos primitivos que se utilizarán para instanciar los parámetros de las rutinas de tipos primitivos durante la generación (el usuario también puede proporcionar valores semilla adicionales). \textsf{Randoop} realiza un proceso iterativo. Cada paso consiste en seleccionar aleatoriamente una única rutina \texttt{r(p$_1$,..,p$_k$)} para generar una nueva secuencia de prueba. Para esta rutina, \textsf{Randoop} selecciona aleatoriamente las secuencias \texttt{s$_1$,..,s$_k$} de un conjunto de secuencias de prueba previamente generadas, que se pueden usar para crear valores de los tipos apropiados para instanciar los parámetros \texttt{p$_1$,..,p$_k$} de \texttt{r}, respectivamente. Una nueva prueba \texttt{T} se crea componiendo secuencialmente \texttt{s$_1$,..,s$_k$} y \texttt{r} (y reemplazando los parámetros formales de \texttt{r} por las variables correspondientes en \texttt{s$_1$,..,s$_k$}). \texttt{T} podría ser una prueba ilegal debido al uso no válido de la API y/o fallas en el código en prueba. También podría ser redundante en el sentido de que no produce ninguna estructura para ejercitar el código de manera diferente que las pruebas generadas anteriormente.
+\textsf{Randoop} representa los tests como secuencias de invocaciones a 
+rutinas. Estas se denominan \emph{secuencias de
+test}. \textsf{Randoop} comienza con unos pocos valores ``semilla''
+predeterminados para los tipos primitivos de Java, que se utilizarán para
+instanciar los parámetros de tipos primitivos de las rutinas durante la
+generación. El usuario también puede proporcionar valores semilla adicionales
+para los tipos primitivos. 
+
+Inicialmente, se inicializan dos conjuntos de secuencias de test (líneas 1 y 2). 
+\emph{prev} almacena las secuencias de test generadas en iteraciones previas cuya
+ejecución es exitosa, es decir, las secuencias de test que el algoritmo intentará
+extender con métodos adicionales. \emph{tests} se utiliza para guardar los tests
+de regresión que produce el algoritmo como resultado.
+
+\textsf{Randoop} construye secuencias de test de manera
+iterativa, hasta que se alcance alguno de los criterios de terminación
+provistos por el usuario, en su ciclo principal (líneas 3-18). 
+Cada iteración consiste en seleccionar aleatoriamente una rutina \texttt{M},
+para usarla en la creación de una nueva secuencia de test (línea 4). 
+Para lograr esto, \textsf{Randoop} debe seleccionar secuencias \texttt{S$_1$,..,S$_k$}
+que le permitan crear valores (del tipo correcto) para instanciar los parámetros 
+\texttt{p$_1$,..,p$_m$} de \texttt{M} (lineas 5-25). 
+Si el parámetro \texttt{p$_i$} es de tipo primitivo, el algoritmo simplemente
+crea una secuencia de test que produce un valor primitivo, eligiendo
+aleatoriamente un valor entre las semillas del tipo (líneas 6-8). 
+Por ejemplo, para \texttt{p$_i$} de tipo entero, 
+\textsf{Randoop} puede crear la secuencia \texttt{S$_i$} definida como 
+\texttt{int vi = -1;}.
+En caso de que \texttt{p$_i$} sea de tipo referencia, el algoritmo elige
+aleatoriamente una secuencia \texttt{S$_i$} que sirve para crear un objeto del
+tipo de \texttt{p$_i$}, tomando \texttt{S$_i$} del conjunto de secuencias generadas 
+previamente (\texttt{prev}) (líneas 9-11).
+
+De esta manera, la nueva secuencia de test, \texttt{test}, se crea componiendo
+secuencialmente las secuencias \texttt{S$_1$,..,S$_m$} y \texttt{M},
+reemplazando los parámetros formales de \texttt{M} por las variables
+correspondientes en \texttt{S$_1$,..,S$_m$} (línea 13). 
+
+\pp{TODO: voy por acá}
+\texttt{T} podría ser una prueba ilegal debido al uso no válido de la API y/o fallas en el código en prueba. También podría ser redundante en el sentido de que no produce ninguna estructura para ejercitar el código de manera diferente que las pruebas generadas anteriormente.
+
 La idea principal de la generación de pruebas dirigida por retroalimentación es ejecutar \texttt{T} y observar su comportamiento en tiempo de ejecución. Si \texttt{T} es una prueba legal, es decir, su ejecución termina con éxito,
 y \texttt{T} no es redundante, entonces, \texttt{T} se agrega al conjunto de pruebas generadas previamente. Esto hace que \texttt{T} sea un candidato para su posible extensión para generar nuevas pruebas cuando se seleccione un nuevo método en una iteración futura del algoritmo. De lo contrario, si \texttt{T} es una prueba ilegal, por ejemplo, porque genera una excepción o viola un contrato, o si es redundante (consulte la sección~\ref{sec:state-matching})), entonces \texttt{T} no se considera para su posible extensión. \textsf{Randoop} continúa este proceso iterativo hasta que agota su presupuesto. Las evaluaciones experimentales han encontrado que la generación de pruebas dirigida por retroalimentación funciona significativamente mejor que la generación aleatoria simple de pruebas \cite{Pacheco07,Pacheco08}.
 La principal ventaja de \textsf{Randoop} es su capacidad para generar automáticamente una gran cantidad de casos de prueba que cubren diferentes partes del programa bajo prueba. Esto permite detectar errores y comportamientos inesperados que pueden surgir en situaciones de entrada no contempladas durante el desarrollo manual de pruebas.
-Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \textsf{Randoop}, pero en lugar de la generación aleatoria, tiene como objetivo generar \emph{todas} las secuencias de pruebas factibles (acotadas), dentro de un alcance dado. La retroalimentación de la ejecución permite a \textsf{BEAPI} descartar pruebas ilegales durante el proceso de generación. Además, al estar basado en una generación de pruebas dirigida por retroalimentación, \textsf{BEAPI} genera una secuencia de prueba para cada estructura en el conjunto exhaustivo acotado que construye y solo guarda los conjuntos de secuencias de llamadas a métodos que generan objetos válidos.
 
-Uno de los enfoques que presentamos en esta tesis, BEAPI, toma como base la idea de Randoop pero introduce una diferencia clave: en lugar de generar pruebas de manera aleatoria, 
-BEAPI busca generar todas las secuencias de prueba factibles dentro de un alcance acotado. Es decir, en lugar de depender de la aleatoriedad, 
-BEAPI explora sistemáticamente el espacio de búsqueda, asegurando una mayor cobertura.
-Además, BEAPI aprovecha la retroalimentación de la ejecución para descartar pruebas ilegales de manera eficiente, 
-reduciendo el número de combinaciones a evaluar. También genera una única secuencia de prueba para cada estructura válida, 
-evitando la repetición innecesaria de casos similares.
+\pp{Poner ejemplo de ejecución de Randoop ilustrando el algoritmo acá abajo.}
+
+%Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \textsf{Randoop}, pero en lugar de la generación aleatoria, tiene como objetivo generar \emph{todas} las secuencias de pruebas factibles (acotadas), dentro de un alcance dado. La retroalimentación de la ejecución permite a \textsf{BEAPI} descartar pruebas ilegales durante el proceso de generación. Además, al estar basado en una generación de pruebas dirigida por retroalimentación, \textsf{BEAPI} genera una secuencia de prueba para cada estructura en el conjunto exhaustivo acotado que construye y solo guarda los conjuntos de secuencias de llamadas a métodos que generan objetos válidos.
+%
+
+%Uno de los enfoques que presentamos en esta tesis, BEAPI, toma como base la idea de Randoop pero introduce una diferencia clave: en lugar de generar pruebas de manera aleatoria, 
+%BEAPI busca generar todas las secuencias de prueba factibles dentro de un alcance acotado. Es decir, en lugar de depender de la aleatoriedad, 
+%BEAPI explora sistemáticamente el espacio de búsqueda, asegurando una mayor cobertura.
+%Además, BEAPI aprovecha la retroalimentación de la ejecución para descartar pruebas ilegales de manera eficiente, 
+%reduciendo el número de combinaciones a evaluar. También genera una única secuencia de prueba para cada estructura válida, 
+%evitando la repetición innecesaria de casos similares.
 
 
 
