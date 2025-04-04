@@ -204,11 +204,11 @@ figura para después citarlo en los próximos capítulos}.
         \If{res = falla} {
             \Return{$\{ test \}$}\;
         }   
+        \If{res = inválido} {
+            // No se guarda test para futuras extensiones
+        }       
         \If{res = exito} {
             $prev \leftarrow prev \cup \{test\}$\;
-        }        
-        \If{res = inválido} {
-            // Ignorar el test 
         }        
         $tests \leftarrow tests \cup \{test\}$\;
     }
@@ -259,14 +259,45 @@ secuencialmente las secuencias \texttt{S$_1$,..,S$_m$} y \texttt{M},
 reemplazando los parámetros formales de \texttt{M} por las variables
 correspondientes en \texttt{S$_1$,..,S$_m$} (línea 13). 
 
-\pp{TODO: voy por acá}
-\texttt{T} podría ser una prueba ilegal debido al uso no válido de la API y/o fallas en el código en prueba. También podría ser redundante en el sentido de que no produce ninguna estructura para ejercitar el código de manera diferente que las pruebas generadas anteriormente.
+Las líneas 14-23 del algoritmo implementan la retroalimentación guiada por la ejecución
+de las secuencias de test. La idea principal es ejecutar \texttt{test} (línea
+14), y observar el comportamiento de la ejecución. Si \texttt{test} revela una
+falla el SUT, \textsf{Randoop} termina su ejecución y retorna al usuario el test que
+revela la falla (líneas 15-17). Esto sucede, por ejemplo, cuando el test lanza una excepción 
+que se corresponde con una falla (\texttt{NullPointerException}), cuando viola un contrato implícito 
+de Java, o una especificación dada por el usuario \cite{Pacheco07}.
 
-La idea principal de la generación de pruebas dirigida por retroalimentación es ejecutar \texttt{T} y observar su comportamiento en tiempo de ejecución. Si \texttt{T} es una prueba legal, es decir, su ejecución termina con éxito,
-y \texttt{T} no es redundante, entonces, \texttt{T} se agrega al conjunto de pruebas generadas previamente. Esto hace que \texttt{T} sea un candidato para su posible extensión para generar nuevas pruebas cuando se seleccione un nuevo método en una iteración futura del algoritmo. De lo contrario, si \texttt{T} es una prueba ilegal, por ejemplo, porque genera una excepción o viola un contrato, o si es redundante (consulte la sección~\ref{sec:state-matching})), entonces \texttt{T} no se considera para su posible extensión. \textsf{Randoop} continúa este proceso iterativo hasta que agota su presupuesto. Las evaluaciones experimentales han encontrado que la generación de pruebas dirigida por retroalimentación funciona significativamente mejor que la generación aleatoria simple de pruebas \cite{Pacheco07,Pacheco08}.
-La principal ventaja de \textsf{Randoop} es su capacidad para generar automáticamente una gran cantidad de casos de prueba que cubren diferentes partes del programa bajo prueba. Esto permite detectar errores y comportamientos inesperados que pueden surgir en situaciones de entrada no contempladas durante el desarrollo manual de pruebas.
+En cambio, si el test lanza otros tipos de excepciones que no se corresponden
+con fallas en el SUT, \textsf{Randoop} simplemente descarta el test, y no lo guarda para
+extenderlo en iteraciones futuras del algoritmo (líneas 18-20). Ejemplos de
+estos tipos de excepciones son las que representan un uso inválido de la API,
+como las excepciones correspondientes a la violación de una
+precondición (\texttt{IllegalStateException}).
+
+Por último, si el test termina exitosamente (líneas 21-23), se lo guarda en el
+conjunto \texttt{prev} de secuencias que usarán en el futuro para ser extendidas
+y así generar nuevos tests. 
+
+Notar que tanto los tests que lanzan excepciones (que no representan fallas) como los 
+exitosos se guardan en el conjunto de tests de regresión creados por el
+algoritmo (\texttt{tests} en la línea 24). Cuando el ciclo principal termina,
+\textsf{Randoop} retorna los tests de regresión generados.
+
+Las evaluaciones experimentales han encontrado que la generación aleatoria de tests dirigida 
+por retroalimentación funciona significativamente mejor que la generación
+aleatoria tradicional \cite{Pacheco07,Pacheco08}.
+La principal ventaja de \textsf{Randoop} es su capacidad para generar
+automáticamente una gran cantidad de casos de prueba muy rápidamente, y así 
+detectar fallas que pueden pasar desapercibidas durante el testing
+manual \cite{Pacheco07,Pacheco08}.
 
 \pp{Poner ejemplo de ejecución de Randoop ilustrando el algoritmo acá abajo.}
+
+
+
+
+
+
 
 %Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \textsf{Randoop}, pero en lugar de la generación aleatoria, tiene como objetivo generar \emph{todas} las secuencias de pruebas factibles (acotadas), dentro de un alcance dado. La retroalimentación de la ejecución permite a \textsf{BEAPI} descartar pruebas ilegales durante el proceso de generación. Además, al estar basado en una generación de pruebas dirigida por retroalimentación, \textsf{BEAPI} genera una secuencia de prueba para cada estructura en el conjunto exhaustivo acotado que construye y solo guarda los conjuntos de secuencias de llamadas a métodos que generan objetos válidos.
 %
