@@ -95,8 +95,6 @@ A partir de esta API, los objetos de \emph{NodeCachingLinkedList} pueden constru
 La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de NodeCachingLinkedList que pueden construirse utilizando exactamente dos nodos. A continuación, se presentan las secuencias de métodos generadores que permiten construir cada una de las configuraciones:
 }
 
-\cacho{Lo siguiente de las figuras fue agregado, no lo puedo pintar en rojo. CACHO ELIMINAR ESTE COMENTARIO LUEGO}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{images/NCL-instances.png}
@@ -421,13 +419,11 @@ Como el conjunto de objetos que se pueden construir con la API de un módulo es 
 \subsection{Generación Exhaustiva Acotada}
 \label{sec:fitnessGE}
 
-Dado un candidato $c$ que representa un subconjunto de métodos $M$ de la API, nuestra función de valuación intenta calcular una aproximación del número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
+Dado un candidato $C$ que representa un subconjunto de métodos $M$ de la API, nuestra función de valuación intenta calcular una aproximación del número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
 
-Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $c$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $c$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos. Más adelante, analizaremos el caso en el que existe más de un subconjunto de generadores de objetos.
-\cacho{referncia del capitulo}
-
+Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $C$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $C$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos.
 Nuestro enfoque utiliza un generador exhaustivo acotado eficiente basado en métodos de la API \cite{Politano20}. Este generador se denomina BEAPI y es una de las contribuciones principales de este trabajo (ver Capítulo \ref{cap:beapi}).
-Dado un conjunto de métodos $M$ en un candidato $c$, BEAPI explora todas las secuencias de métodos acotadas que se pueden construir usando métodos de $M$. La cota consiste de un número máximo $m$ de métodos dado por el usuario, y de un conjunto de valores primitivos empleados para instanciar los parámetros de tipo primitivo en los métodos en $M$ (e.g., enteros de \( 0 \) a \( k-1 \)). BEAPI utiliza cada uno de estos valores para instanciar cada parámetro de tipo primitivo (del tipo correspondiente). BEAPI cuenta la cantidad de objetos distintos creados por la ejecución de cada una de las secuencias exploradas. Así, para $M$ (y cotas $m$ y $k$) la función de valuación retorna el número de objetos generados por BEAPI usando $M$.
+Dado un conjunto de métodos $M$ en un candidato $C$, BEAPI explora todas las secuencias de métodos acotadas que se pueden construir usando métodos de $M$. La cota consiste de un número máximo $m$ de métodos dado por el usuario, y de un conjunto de valores primitivos empleados para instanciar los parámetros de tipo primitivo en los métodos en $M$ (e.g., enteros de \( 0 \) a \( k-1 \)). BEAPI utiliza cada uno de estos valores para instanciar cada parámetro de tipo primitivo (del tipo correspondiente). BEAPI cuenta la cantidad de objetos distintos creados por la ejecución de cada una de las secuencias exploradas. Así, para $M$ (y cotas $m$ y $k$) la función de valuación retorna el número de objetos generados por BEAPI usando $M$.
 
 Como la cantidad de secuencias a explorar crece exponencialmente respecto de las cotas, BEAPI implementa distintas técnicas que le permiten podar significativamente el espacio de búsqueda y mejorar la eficiencia de la generación (usar el feedback de la ejecución para descartar secuencias inválidas, coincidencia de estado para evitar volver a generar repetidamente los mismos objetos, descartar secuencias que generen objetos de tamaño mayor al permitido por las cotas). Para obtener más información sobre las mismas y sobre BEAPI invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
 
@@ -441,7 +437,7 @@ Integer,Char,Float,Double,String=2
 Object=4
 \end{lstlisting}
 
-Como ya se discutió en esta Sección, buscamos un conjunto minimal de generadores de objetos, donde los métodos tengan parámetros tan simples como sea posible. Por lo tanto, la cantidad de objetos generados usando BEAPI es sólo un componente de la función objetivo. Dado un conjunto de métodos $M$, representado por un candidato $c$, la función objetivo $f$ devuelve un valor real conformado por tres componentes:
+Como ya se discutió en esta Sección, buscamos un conjunto minimal de generadores de objetos, donde los métodos tengan parámetros tan simples como sea posible. Por lo tanto, la cantidad de objetos generados usando BEAPI es sólo un componente de la función objetivo. Dado un conjunto de métodos $M$, representado por un candidato $C$, la función objetivo $f$ devuelve un valor real conformado por tres componentes:
 
 \[
 f(M) = \langle O(M), R(M), C(M) \rangle
@@ -478,7 +474,9 @@ f(M_1) > f(M_2) \quad \text{si y solo si:}
     \item \( O(M_1) = O(M_2) \), \( R(M_1) = R(M_2) \), y \( P(M_1) > P(M_2) \).
 \end{enumerate}
 
-En otras palabras, se compara primero el número de objetos \( O(M_1) \) con \( O(M_2) \). Si son iguales, se compara la redundancia \( R(M_1) \) con \( R(M_2) \), y si ambos son iguales, se compara la complejidad de los parámetros \( P(M_1) \) con \( P(M_2) \).
+En otras palabras, se compara primero el número de objetos \( O(M_1) \) con \( O(M_2) \). 
+Si son iguales, se compara la redundancia \( R(M_1) \) con \( R(M_2) \), y si ambos son iguales, 
+se compara la complejidad de los parámetros \( P(M_1) \) con \( P(M_2) \).
 
 Para ilustrar este concepto, consideremos los siguientes ejemplos.
 
@@ -503,8 +501,6 @@ Obtenemos las siguientes triplas:
 \[
 f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 4 \rangle
 \]
-
-\cacho{Poner valores de objectos creados sacados de la parte experimental }
 
 Dado que el conjunto \( M_1 \) genera más objetos (15 frente a 12), \( f(M_1) > f(M_2) \). Esto implica que \( M_1 \) es capaz de generar más instancias, mientras que \( M_2 \) no puede generar algunas que requieren métodos para agregar nodos a la lista cache.
 
@@ -577,7 +573,11 @@ Ambos conjuntos generan la misma cantidad de objetos y tienen la misma redundanc
 \label{sec:fitnessRandoop}
 \cacho{
 % Mergear con lo de abajo
-La segunda función objetivo se enfoca en crear conjuntos de pruebas (test suites) utilizando los métodos de estado bajo evaluación y medir la cobertura que alcanzan estas test suites. La cobertura se refiere a cuántas líneas de código y cuántas ramas del programa son ejecutadas durante la ejecución de las pruebas. Esta métrica nos da una idea de qué tan bien cubren los conjuntos de pruebas las diferentes partes del programa, lo que nos permite evaluar la calidad y eficacia de los métodos generadores en términos de la cobertura lograda.
+La segunda función objetivo se enfoca en crear conjuntos de pruebas (test suites) utilizando los métodos de estado bajo evaluación 
+y medir la cobertura que alcanzan estas test suites. 
+La cobertura se refiere a cuántas líneas de código y cuántas ramas del programa son ejecutadas durante la ejecución de las pruebas. 
+Esta métrica nos da una idea de qué tan bien cubren los conjuntos de pruebas las diferentes partes del programa, 
+lo que nos permite evaluar la calidad y eficacia de los métodos generadores en términos de la cobertura lograda.
 }
 Los criterios de evaluación incluyen:
 \begin{itemize}
@@ -585,19 +585,43 @@ Los criterios de evaluación incluyen:
     \item \textbf{Cobertura de ramas:} Porcentaje de decisiones (\textit{branches}) exploradas en el flujo de ejecución del programa.
 \end{itemize}
 
-\cacho{
-    Por ejemplo, si el conjunto de métodos seleccionados $M$ genera un test suite que cubre el 100 de las líneas de código y 20 ramas de la API, la función objetivo podría combinar estas métricas en un puntaje compuesto que evalúe la calidad general del conjunto.
+Por ejemplo, si el conjunto de métodos seleccionado $M$ genera un test suite que cubre 100 líneas de código y 20 ramas de la API, 
+la función objetivo combina estas métricas en un puntaje compuesto. 
+Para ello, se calcula la proporción de líneas y ramas cubiertas respecto del total disponible, 
+y se ponderan según su importancia relativa. Así, la función objetivo puede definirse como:
+
+\[
+\text{Score}(M) = \alpha \cdot \frac{L_M}{L_{\text{total}}} + \beta \cdot \frac{B_M}{B_{\text{total}}}
+\]
+
+donde $\alpha$ y $\beta$ son parámetros ajustables que determinan el peso relativo de la cobertura de líneas y de ramas, respectivamente.
+
+\cacho{ Por ejemplo, si el conjunto de métodos seleccionado $M$ genera un test suite que cubre 100 líneas de código y 20 ramas de la API, 
+la función objetivo combina estas métricas en un puntaje compuesto. 
+Para ello, se calcula la proporción de líneas y ramas cubiertas respecto del total disponible, 
+y se ponderan según su importancia relativa. Así, la función objetivo puede definirse como:}
+
+\[
+\text{Score}(M) = \alpha \cdot \frac{L_M}{L_{\text{total}}} + \beta \cdot \frac{B_M}{B_{\text{total}}}
+\]
+
+donde $\alpha$ es $0.4$ y $\beta$ es $0.6$ para darle un peso mas importante a la cobertura de ramas.
 Este enfoque es especialmente útil en casos donde el objetivo es garantizar que los métodos seleccionados ejerzan la mayor cantidad posible de rutas de ejecución en la API.
-Ambas funciones objetivo son utilizadas como criterios de evaluación en los algoritmos de búsqueda implementados. En algoritmos genéticos, la función objetivo actúa como la métrica de aptitud (\textit{fitness}), guiando la selección de los cromosomas más prometedores. En otros algoritmos de búsqueda, como los basados en escalada de colinas o recocido simulado (\textit{simulated annealing}), la función objetivo orienta el proceso de exploración del espacio de búsqueda.
-En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen} para generar test suite que luego se les medira que tan buenas son con respecto a la cobertura que alcanzan dichas test suite.
-Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, representado en la sección anterior por el conjunto $M$. El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados. No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
-En otras palabras, modificamos el algoritmo de Randoop presentado en las seccion  \ref{sec:feedback-directed-test-gen} para generar secuencias de llamadas a métodos con la siguiente estructura: 
+Ambas funciones objetivo son utilizadas como criterios de evaluación en los algoritmos de búsqueda implementados. 
+En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen} 
+para generar test suite que luego se les medira que tan buenas son con respecto a la cobertura que alcanzan dichas test suite.
+Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, 
+representado en la sección anterior por el conjunto $M$. 
+El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados.
+No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
+En otras palabras, modificamos el algoritmo de Randoop presentado en las seccion  \ref{sec:feedback-directed-test-gen} para generar secuencias de llamadas a 
+métodos con la siguiente estructura: 
 }
 \vspace{10pt} 
 
 $metodoGenerador^* + metodoNoGenerador$. 
 
-\cacho{TENGO QUE ENTENDER COMO REESCRIBIR ESTE ALGORITMO}
+\cacho{Debo cambiar estoy y TENGO QUE ENTENDER COMO REESCRIBIR ESTE ALGORITMO}
 El algoritmo 
 
 \begin{algorithm}[H]
@@ -632,10 +656,10 @@ resultan clave para evaluar la calidad general de las secuencias generadas y su 
 
 La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API 
 nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. 
-Por lo tanto, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas de la API bajo prueba, 
-al como se describe en la sección de preliminares \ref{sec:coverage}.
+Por lo tanto, nuestra función de valoración, tiene como objetivo maximizar la cobertura de ramas y lineas de la API bajo prueba. 
 
-La función de valoración que utilizamos para evaluar la calidad de un candidato, que representa un conjunto de métodos $M$, se define como una tríupla al igual que la función de la sección anterior:
+La función de valoración que utilizamos para evaluar la calidad de un candidato, 
+que representa un conjunto de métodos $M$, se define como una tríupla al igual que la función de la sección anterior:
 
 \[
 f(M) = \langle Cob(M), R(M), C(M) \rangle
@@ -644,15 +668,40 @@ f(M) = \langle Cob(M), R(M), C(M) \rangle
 Donde:
 
 \begin{itemize}
-    \item $Cob(M)$ (Cobertura de Ramas): Es el número de ramas cubiertas por las suites de prueba generadas por \emph{Randoop} utilizando el subconjunto de métodos $M$. Este componente tiene la mayor prioridad, ya que refleja directamente la efectividad de las pruebas al cubrir ramas específicas de la API.
+    \item $Cob(M)$ (Cobertura): Es el número de ramas y lineas cubiertas por las suites de prueba generadas por \emph{Randoop} utilizando el subconjunto de métodos $M$. 
+    Este componente tiene la mayor prioridad, ya que refleja directamente la efectividad de las pruebas al cubrir ramas y lineas mas específicas de la API.
     \item $R(M)$ (Redundancia): Igual a la funcion de valoracion de la seccion de generador exhaustivo
     \item $C(M)$ (Complejidad): Tambien mantuvimos el mismo calculo que la funcion de valoracion del generador exhaustivo
 \end{itemize}
 
-En resumen, nuestras modificaciones en Randoop nos permiten priorizar un subconjunto de métodos durante la generación de secuencias de pruebas, y nuestra función de valoración se encarga de maximizar la cobertura de ramas de la API. Estas adaptaciones nos proporcionan una mejor comprensión de la calidad y efectividad de los subconjuntos de métodos generados.
-
 \pp{Estaría bueno armar un ejemplo de la cobertura que da para dos conjuntos de builders diferentes.} 
-\cacho{TODO: Ver los experimentos y poner algo aca}
+\cacho{
+Volvamos al ejemplo que usamos durante este capitulo. El primer caso tenemos los siguientes métodos:}
+\vspace{5pt} 
+
+\begin{lstlisting}[numbers=none,label=fig:NCLbuilders1, caption=Conjunto de métodos \( M_1 \)]
+  NodeCachingLinkedList()
+  addFirst(Object)
+  removeFirst()
+\end{lstlisting} 
+
+y en el segundo caso tenemos los siguientes metodos:
+
+\begin{lstlisting}[numbers=none,label=fig:NCLbuilders2, caption=Conjunto de métodos \( M_2 \)]
+  NodeCachingLinkedList()
+  addFirst(Object)
+\end{lstlisting}
+
+
+Para estos casos, se ejecuta \emph{Randoop} con la modificacion que realizamos y se obtienen test suites.
+A partir de estas, se ejecutan y se analizan la cobertura que se obtiene se obtiene la siguiente cobertura de ramas:
+
+\[
+f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 4 \rangle
+\]
+
+
+
 
 \section{Algoritmos para la Identificación de Métodos Generadores de Objetos}
 \label{sec:algorithms}
@@ -748,8 +797,6 @@ Este mecanismo favorece la exploración del espacio de búsqueda y permite descu
   \caption{Ejemplo de crossover de dos puntos con dos cromosomas.}
   \label{fig:crossover}
 \end{figure}
-
-\cacho{Poner la flecha al medio}
 
 
 En nuestro algoritmo, utilizamos una tasa de cruzamiento de 0.30 (\emph{crossover rate}), lo cual significa que en cada generación aproximadamente el 30 por ciento de los individuos serán seleccionados para cruzarse y crear nuevos descendientes. Este valor fue obtenido a partir de evaluaciones experimentales que hemos realizado para nuestros casos de estudio.
@@ -1015,8 +1062,7 @@ el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mej
 
 La generación de sucesores se realiza en la función $successor$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
 (indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando metodos constructores de la API o no. 
-En caso de cumplir con esta condición, se genera un clon del estado actual en el que se activa dicha posición, y este nuevo estado se añade a la lista de sucesores.
-\cacho{Ver esta parte anterior} (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
+En caso de cumplir con esta condición, se genera un clon del estado actual en el que se activa dicha posición, y este nuevo estado se añade a la lista de sucesores. (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
 
 \begin{figure}[H]
     \centering
