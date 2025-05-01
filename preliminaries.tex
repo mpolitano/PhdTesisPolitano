@@ -354,20 +354,83 @@ manual \cite{Pacheco07,Pacheco08}.
 
 
 
-\section{Cobertura de Código y Mutación}
+\section{Criterios de Cobertura}
 \label{sec:coverage}
-La evaluación de la calidad y efectividad de las técnicas de generación de pruebas en el campo de la ingeniería de software es un aspecto fundamental para garantizar la confiabilidad y robustez de los sistemas. Dos criterios ampliamente utilizados para evaluar la calidad de las pruebas son la \emph{cobertura de líneas}, la \emph{cobertura de ramas} y \emph{mutacion} (cobertura de mutantes matado. Estas técnicas proporcionan métricas objetivas para medir la exhaustividad de las pruebas y la capacidad para detectar errores en el software.
+La evaluación de técnicas de análisis automático de software (incluyendo las
+técnicas de generación automática de tests), como las presentadas en esta tesis, requieren de métricas que cuantifiquen su capacidad para ejercitar el código y exponer defectos. 
+Los criterios de cobertura tradicionales proveen formas relativamente sencillas de evaluar 
+la calidad de una suite de tests, debido a que típicamente hay una alta correlación entre
+la satisfacción de los criterios y la capacidad de detección de defectos de la
+suite \cite{} \pp{Libros de testing, correlacion entre mutantes y fallas reales
+de Rene Just}.
+En esta sección, describimos tres criterios fundamentales adoptados en esta tesis: 
+cobertura de código (líneas y ramas)\cite{} \pp{Libros de testing} y análisis de mutación 
+\cite{} \pp{Libros de testing, papers de mutación}.
+Estas técnicas proporcionan métricas objetivas para medir la calidad de los
+tests.
 
-La cobertura de líneas es una métrica utilizada para medir qué porcentaje de las líneas de código ha sido ejecutado durante las pruebas. 
-Esta técnica evalúa la exhaustividad de las pruebas al determinar si cada línea de código ha sido ejecutada al menos una vez. 
-Sin embargo, la cobertura de líneas no mide si se han ejecutado todas las rutas posibles en el programa, lo que puede limitar su capacidad para detectar errores en situaciones complejas.
+\subsection{Cobertura de Código}
 
-La cobertura de ramas es una métrica utilizada para medir qué porcentaje de las posibles rutas de ejecución en un programa ha sido cubierto por las pruebas. En otras palabras, se refiere a la medida en que se han ejecutado todas las ramas de decisión (if-else, switch-case, bucles, etc.) en el código fuente durante la ejecución de las pruebas. La cobertura de ramas es especialmente útil para identificar áreas del código que no han sido ejercitadas y que podrían contener errores lógicos o comportamientos no deseados.
-Al lograr una alta cobertura de ramas, se aumenta la confianza en la calidad de las pruebas realizadas, ya que se ha examinado exhaustivamente la lógica del programa en diferentes condiciones de ejecución. Sin embargo, es importante destacar que la cobertura de ramas no garantiza la ausencia de errores, ya que no evalúa la calidad o validez de las pruebas en sí mismas. Es decir, una alta cobertura de ramas indica que se han ejecutado diferentes rutas de ejecución, pero no necesariamente que se hayan utilizado entradas significativas o se hayan probado casos límite relevantes.
+La cobertura de líneas mide el porcentaje de
+líneas de código del SUT (por las siglas de \emph{software under test}) que han sido ejecutadas por los tests. 
+Esta técnica evalúa la exhaustividad de los tests al determinar si cada línea de código ha sido ejecutada al menos una vez. 
+Sin embargo, la cobertura de líneas no mide si se han ejecutado todas las ramas
+posibles en el programa, lo que puede limitar su capacidad para detectar fallas
+en ciertos escenarios.
 
-La mutación es una técnica avanzada de evaluación de pruebas que se utiliza para medir la capacidad de un conjunto de pruebas para detectar cambios sintácticos o semánticos en el código fuente. Consiste en introducir cambios deliberados, llamados mutantes, en el programa original y luego ejecutar el conjunto de pruebas sobre estos mutantes. El objetivo es evaluar si las pruebas son lo suficientemente sensibles como para detectar estos cambios y, por lo tanto, indicar la presencia de posibles errores en el código.
-Cada mutante representa una posible variación o error que podría haberse introducido en el código original. Si una prueba es capaz de detectar un mutante, se considera que la prueba ha "matado" al mutante, lo que indica que el conjunto de pruebas tiene la capacidad de encontrar y reportar posibles errores. Por otro lado, si un mutante no es detectado por ninguna prueba, se considera que el conjunto de pruebas es inadecuado y podría necesitar mejoras para aumentar su capacidad para encontrar errores.
-La evaluación de la capacidad de detección de mutantes proporciona información valiosa sobre la efectividad de las pruebas en términos de su capacidad para encontrar posibles errores. Al identificar los mutantes que no son detectados por las pruebas, se pueden identificar deficiencias en el conjunto de pruebas y se pueden tomar medidas correctivas para mejorar su calidad.
+La cobertura de ramas mide qué porcentaje de las
+decisiones lógicas de un programa ha sido ejercitado por los tests. En otras
+palabras, se refiere a la medida en que se han ejecutado las ramas de decisión
+(if-else, switch-case, ciclos, etc.) en el código fuente durante la ejecución de
+los tests. La cobertura de ramas es especialmente útil para identificar áreas del 
+código que no han sido ejercitadas y que podrían contener errores lógicos o comportamientos no deseados.
+Al lograr una alta cobertura de ramas, se aumenta la confianza en la calidad de
+los tests implementados, ya que se ha examinado exhaustivamente la lógica del programa 
+en diferentes condiciones de ejecución.
 
-Estas técnicas se aplican en esta tesis para evaluar las nuevas técnicas implementadas y poder realizar una comparación con herramientas que se utilizan en el estado de arte, como \emph{Randoop} y \emph{Korat}. Mediante la utilización de estas técnicas, se busca mejorar la confiabilidad y calidad del análisis de software, permitiendo a los investigadores y profesionales tomar decisiones más informadas sobre las técnicas de generación de pruebas a utilizar. Al proporcionar medidas comparativas de cobertura de ramas y evaluación de mutantes, se puede determinar la efectividad de las nuevas herramientas y enfoques propuestos, y se pueden identificar deficiencias en las pruebas existentes. Esto conduce a mejoras en la calidad y confiabilidad de los sistemas de software, lo que es fundamental en el desarrollo de software de alta calidad.
+Cabe destacar que los criterios anteriores no imponen ninguna obligación sobre
+las aserciones que se deben escribir en los tests. Debido a esto, puede que los
+tests no revelen una falla si no tienen las aserciones apropiadas, incluso
+cuando cubren el defecto con la entrada adecuada.  
 
+\subsection{Análisis de Mutación}
+
+El análisis de mutación (mutation testing) es una técnica para medir la
+capacidad de un conjunto de pruebas para detectar cambios sintácticos
+introducidos deliberadamente en el código fuente. Consiste en la creación de versiones 
+alteradas del código original, denominadas mutantes, mediante la realización de
+cambios sintáticos pequeños (ej. reemplazar $>$ por $>=$). Cada mutante representa una 
+posible variación o error que podría haberse introducido en el código original.
+Una vez generados, se ejecutan los tests sobre los mutantes. 
+Si algún test de la suite falla al ejecutar el mutante se considera que ha
+"matado" al mutante. Esto significa que los tests son capaces de detectar el error 
+introducido por el mutante. Un mutante sobrevive si ningún test de la suite 
+detecta el cambio. Esto implica que es posible mejorar la suite para aumentar su capacidad 
+para encontrar errores, por ejemplo, agregando un nuevo test que mate el mutante.
+
+El puntaje de mutación de una suite (mutation score) se define como
+el cociente entre la cantidad de mutantes muertos y el total de mutantes
+generados. Así, un puntaje de mutación alto da una mayor confianza de que la suite 
+de tests tiene una buena capacidad de revelar defectos en el SUT. 
+Por otro lado, al identificar los mutantes que no son detectados por los tests 
+se pueden identificar deficiencias en la suite, y se pueden tomar medidas 
+correctivas para mejorar su calidad.
+
+El análisis de mutación es uno de los criterios más fuertes para evaluar la 
+calidad de los tests, ya que los mutantes generados por las operadores de 
+mutación más usados 
+tienen una alta correlación con las fallas que cometen los desarrolladores 
+(incluso, una mayor correlación que los criterios anteriores) \cite{}. Sin
+embargo, su costo computacional es elevado (requiere generar un
+número usualmente grande de mutantes, y ejecutar los tests para todos ellos). 
+Suele ser el criterio más trabajoso para el desarrollador, ya que usualmente 
+se requiere un número relativamente grande de tests para lograr un buen puntaje 
+de mutación (suele ser significativamente mayor que la cantidad de tests
+    requeridos para lograr buena cobertura de código) \cite{}.
+
+Las técnicas mencionadas anteriormente se aplican en esta tesis para evaluar las 
+nuevas técnicas propuestas, y poder realizar una comparación con herramientas
+relacionadas del estado de arte. Además, se utilizan como base para la
+definición de algunas de las técnicas presentadas. Por ejemplo, la cobertura de
+código se usa como parte de la función objetivo para el cómputo de métodos
+generadores de objetos usando Randoop \ref{} \pp{Referencia a la sección}.
