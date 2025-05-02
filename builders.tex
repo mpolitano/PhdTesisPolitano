@@ -140,7 +140,8 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
 \section{Métodos Generadores de Objetos y sus Propiedades}
 
 %\pp{Definición de generadores de objetos}
-Notar que, a pesar de que la API de NCL es muy compleja, como se observa en la Tabla~\ref{tab:ncl-api}, no todos los métodos son necesarios para construir objetos. Por ejemplo, combinaciones de los métodos mostrados en la Figura~\ref{fig:NCLbuilders}, con los parámetros adecuados, son suficientes para generar cualquier instancia de NCL.
+Se puede observar que, a pesar de que la API de NCL es muy compleja, como se observa en la Tabla~\ref{tab:ncl-api}, no todos los métodos son necesarios para construir objetos. 
+Por ejemplo, combinaciones de los métodos mostrados en la Figura~\ref{fig:NCLbuilders}, con los parámetros adecuados, son suficientes para generar cualquier instancia de NCL.
 \vspace{5pt} 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de métodos generadores de objetos para NCL]
   (0)  NodeCachingLinkedList()
@@ -148,7 +149,7 @@ Notar que, a pesar de que la API de NCL es muy compleja, como se observa en la T
   (25) removeFirst()
 \end{lstlisting}
 
-Una vez inicializada la instancia de NCL con el constructor, se pueden insertar elementos en la lista utilizando el método \texttt{addFirst}. Adicionalmente, el método \texttt{removeFirst} permite crear instancias que posean nodos en la lista caché. 
+Una vez inicializada la instancia de NCL con el constructor, se pueden insertar elementos en la lista utilizando el método \texttt{addFirst}. Adicionalmente, el método \texttt{removeFirst} permite crear instancias que posean nodos en la lista caché (eliminando el nodo de la lista principal). 
 
 De esta manera, los métodos de la Figura~\ref{fig:NCLbuilders} conforman un conjunto \emph{suficiente de métodos generadores de objetos}, es decir, son conjuntos de métodos que permiten generar todos los objetos posibles de NCL. Por simplicidad, llamaremos \emph{generadores de objetos} a estos métodos.
 
@@ -174,7 +175,8 @@ En particular, la Figura~\ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}
 Estamos interesados en conjuntos de métodos generadores de objetos \emph{minimales}, es decir, en conjuntos generadores de objetos suficientes con la menor cantidad posible de métodos. En otras palabras, los generadores de objetos son minimales si la exclusión de cualquiera de los métodos hace imposible la creación de ciertas instancias del módulo.
 Así, las Figuras~\ref{fig:NCLbuilders} y ~\ref{fig:NCLbuilders2} muestran ejemplos de generadores de objetos suficientes y minimales.
 
-Notar que muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos sobre los que operan, ni son útiles para crear nuevos objetos. Notar que debido a esto los métodos observadores siempre son superfluos y nunca deben incluirse en un conjunto de generadores de objetos minimal. Por esta razón, nuestros enfoques de identificación de métodos generadores intentan reconocerlos de antemano y descartarlos.
+Notar que muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos sobre los que operan, ni son útiles para crear nuevos objetos. 
+Debido a que estos métodos observadores siempre son superfluos y nunca deben incluirse en un conjunto de generadores de objetos minimal. Por esta razón, nuestros enfoques de identificación de métodos generadores intentan reconocerlos de antemano y descartarlos.
 
 Por último, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
 la lista principal de NCL (ver Tabla~\ref{tab:ncl-api}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos posibles. En cambio, \texttt{add(Object)}, \texttt{addFirst(Object)}, \texttt{addLast(Object)} toman un único parámetro. Si bien cualquiera de estas rutinas sirve para generar los mismos objetos de NCL, hay más formas de invocar a \texttt{add(int,Object)}. Esto usualmente redunda en una pérdida de eficiencia en la construcción de objetos por parte de un análisis automático de programas. Similarmente, elegiremos métodos con parámetros más simples (por ejemplo, parámetros de tipo primitivo), que otros con parámetros más complejos (por ejemplo, parámetros de tipo referencia) siempre y cuando los métodos permitan construir los mismos objetos.
@@ -187,50 +189,8 @@ como parte de un conjunto suficiente y minimal de generadores de objetos.
 Para concluir esta sección, es importante destacar que identificar manualmente un conjunto suficiente y minimal de métodos generadores de objetos es una tarea difícil y trabajosa, que requiere inspeccionar minuciosamente el código fuente del módulo y las formas en las que los métodos interactúan entre sí para generar objetos. Esto se dificulta aún más cuando los módulos cuentan con APIs ricas, como en nuestro ejemplo motivador (ver Tabla~\ref{tab:ncl-api}). 
 Para facilitar la tarea del desarrollador, en las secciones siguientes proponemos enfoques automáticos para identificar conjuntos de métodos generadores de objetos.
 
-%\pp{Para que servirían los generadores de objetos}
-
-%Los métodos generadores de objetos son aquellos métodos específicos diseñados para crear, modificar y retornar objetos de una clase en particular. Este conjunto de método es capaz de generar cualquier configuración posible de la API. La identificación manual de estos métodos requiere un análisis exhaustivo de la lógica y el código de la API. 
-% 2- Por qué es importante
-
-%En sistemas de software grandes y complejos, los objetos suelen tener múltiples atributos y configuraciones específicas que deben recrearse para realizar pruebas efectivas. Los métodos generadores son especialmente útiles en este contexto, ya que permiten crear objetos mediante una combinacion de métodos que simplifican la generación de configuraciones específicas de una API. Sin estos métodos generadores, el uso directo de todos los métodos de la API puede resultar en la creación de objetos redundantes o configuraciones innecesarias, complicando el análisis y aumentando el costo computacional. Herramientas como \emph{Randoop} o \emph{JPF} (\cacho{ver referencias}) pueden beneficiarse de estos métodos al generar secuencias más eficientes y relevantes.
-
-%Por ejemplo, al recrear configuraciones de la API sin métodos generadores, se puede observar cómo se generan objetos redundantes y combinaciones innecesarias 
-
-%Además, estos subconjuntos de métodos son clave en las pruebas unitarias, ya que permiten crear configuraciones específicas necesarias para probar diferentes escenarios y casos de uso. Dichas configuraciones solo pueden generarse a través de combinaciones específicas de llamadas a los métodos generadores de objetos.
-
-%La priorización de métodos generadores tiene aplicaciones prácticas importantes:
-
-%\begin{enumerate}
-%    \item \textbf{Eliminación de redundancias en \emph{Randoop}:} Al priorizar subconjuntos específicos de métodos, se reducen las redundancias en las secuencias generadas, optimizando el proceso de pruebas y reduciendo el número de casos innecesarios sin comprometer la cobertura.
-
-%    \item \textbf{Drivers para pruebas parametrizadas con \emph{Symbolic PathFinder} (SPF):} Los métodos generadores seleccionados pueden utilizarse para crear \emph{drivers} que exploren rutas en pruebas parametrizadas, proporcionando configuraciones iniciales relevantes y maximizando el análisis simbólico.
-%\end{enumerate}
-
-%En resumen, los métodos generadores no solo simplifican la creación de objetos y configuraciones específicas, sino que también permiten mejorar la eficiencia y efectividad de las pruebas automatizadas en herramientas avanzadas.
-
-
-
-%Es importante destacar que estas configuraciones deben estar limitadas para poder crearlas de manera eficiente y efectiva. Para lograr esto, se introduce el concepto de "scope", que representa el límite en el número de objetos y rangos para los tipos de datos, como se describe en \cite{jackson2006, frias2005dynalloy}.
-%\cacho{Chequear la cita, lo saque del paper de Efficient Bounded Model Checking of Heap-Manipulating Programs using Tight Field Bounds}. La justificación para utilizar conjuntos acotados de objetos es similar a la hipótesis de alcance de la cota pequeña \cite{Andoni:2003}. Si un conjunto de métodos no puede utilizarse para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, es poco probable que estos dos conjuntos puedan distinguirse con objetos más grandes.
-
-% \pp{Características de generadores de objetos: suficientes y minimales}
-% En el contexto de una API, el conjunto de métodos generadores de objetos debe tener las propiedades de ser suficiente y minimalista para garantizar un manejo eficiente y completo de las configuraciones de objetos posibles.
-
-% La propiedad de ``suficiente'' implica que este conjunto de métodos debe ofrecer todas las opciones y parámetros necesarios para configurar completamente un objeto de la API. En otras palabras, con estos métodos, los usuarios deben poder generar cualquier configuración deseada de objetos dentro de la API. Esta característica es fundamental, ya que garantiza que el subconjunto de métodos generadores sea competente y abarque todas las posibilidades que la API puede ofrecer. La ausencia de cualquier método de este conjunto podría significar que exista al menos una configuración de la API que no se pueda recrear o generar.
-
-% Por otro lado, la propiedad de ``minimal'' es igualmente importante que la propiedad de suficiencia. Al referirnos a que los métodos deben ser minimalistas, nos referimos a que deben ser los más simples \cacho{No se si es la palabra acorde} y el conjunto debe tener la menor cantidad posible de métodos. Esto quiere decir, que cada método debe cumplir una función específica y claramente definida, sin redundancia innecesaria. Especialmente en situaciones donde los objetos pueden tener múltiples atributos o propiedades, la falta de la propiedad de minimalismo del subconjunto de métodos puede generar una explosión de combinaciones de los mismos, dificultando el proceso de generación.
-
-
-\pp{Dejarlo para cuando terminemos el resto de este capítulo.}
-\cacho{Agregar un ejemplo visual, Arbolito y explicarlo} \pp{Quizás esto sirva para explicar la explosión de combinaciones de métodos en los análisis de programas? Hay que pensarlo..} 
+\pp{Quizás esto sirva para explicar la explosión de combinaciones de métodos en los análisis de programas? Hay que pensarlo..} 
 \pp{Pablo: Builders usage in program analyses? Now or later? We'll see...}
-% Manually selecting sufficient and minimal builders is not an easy task: it requires a thorough analysis of the available routines and a deep understanding of the program semantics. This is especially hard for programs with rich APIs, where there are many routines and a lot of redundancy in the API (see Section \ref{sec:motivating}). We propose an automated approach for identifying such a sufficient and minimal set of builders, based on an evolutionary algorithm that searches for a minimal set of routines that is capable of generating the maximum number of different (bounded) objects (i.e., $BE(M, k)$). Moreover, our evolutionary approach also takes into account other characteristics of the builders, such as the number and complexity of their parameters, so that ``simpler'' routines are favored in the search. 
-%The goal is to choose builders that can be more easily and more efficiently used by the subsequent program analyses.
-
-
-% Pablo: Scope?
-
-
 
 \section{Definiciones preliminares}
 \label{sec:preliminares}
@@ -411,7 +371,8 @@ El propósito de la función objetivo es guiar el proceso de búsqueda hacia la 
 
 La función objetivo es una parte fundamental de los algoritmos de búsqueda local. Estos algoritmos utilizan la función objetivo para evaluar y comparar diferentes estados candidatos a medida que exploran el espacio de búsqueda en busca de la mejor solución posible.
 
-En nuestros algoritmos, hemos desarrollado dos funciones objetivo distintas para guiar el proceso de búsqueda. Cada una de ellas tiene su enfoque único para evaluar y comparar diferentes configuraciones de métodos generadores de objetos.
+En nuestros algoritmos, hemos desarrollado dos funciones objetivo distintas para guiar el proceso de búsqueda. 
+Cada una de ellas con su enfoque para evaluar y comparar diferentes configuraciones de métodos generadores de objetos.
 
 Como el conjunto de objetos que se pueden construir con la API de un módulo es potencialmente infinito, las funciones objetivo definidas a continuación usan diferentes mecanismos para acotar el espacio de búsqueda.
 
@@ -419,17 +380,22 @@ Como el conjunto de objetos que se pueden construir con la API de un módulo es 
 \subsection{Generación Exhaustiva Acotada}
 \label{sec:fitnessGE}
 
-Dado un candidato $C$ que representa un subconjunto de métodos $M$ de la API, nuestra función de valuación intenta calcular una aproximación del número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
+Dado un candidato $C$ que representa un subconjunto de métodos $M$ de la API, 
+nuestra función de valuación intenta calcular el número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. 
+Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
 
 Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $C$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $C$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos.
 Nuestro enfoque utiliza un generador exhaustivo acotado eficiente basado en métodos de la API \cite{Politano20}. Este generador se denomina BEAPI y es una de las contribuciones principales de este trabajo (ver Capítulo \ref{cap:beapi}).
-Dado un conjunto de métodos $M$ en un candidato $C$, BEAPI explora todas las secuencias de métodos acotadas que se pueden construir usando métodos de $M$. La cota consiste de un número máximo $m$ de métodos dado por el usuario, y de un conjunto de valores primitivos empleados para instanciar los parámetros de tipo primitivo en los métodos en $M$ (e.g., enteros de \( 0 \) a \( k-1 \)). BEAPI utiliza cada uno de estos valores para instanciar cada parámetro de tipo primitivo (del tipo correspondiente). BEAPI cuenta la cantidad de objetos distintos creados por la ejecución de cada una de las secuencias exploradas. Así, para $M$ (y cotas $m$ y $k$) la función de valuación retorna el número de objetos generados por BEAPI usando $M$.
+Dado un conjunto de métodos $M$ en un candidato $C$, BEAPI explora todas las secuencias de métodos acotadas que se pueden construir usando métodos de $M$. La cota consiste de un número máximo $m$ de métodos dado por el usuario, y de un conjunto de valores primitivos empleados para instanciar los parámetros de tipo primitivo en los métodos en $M$ (e.g., enteros de \( 0 \) a \( k-1 \)).
+BEAPI utiliza cada uno de estos valores para instanciar cada parámetro del tipo correspondiente. 
+BEAPI cuenta la cantidad de objetos distintos creados por la ejecución de cada una de las secuencias exploradas. 
+Así, para $M$ (y cotas $m$ y $k$) la función de valuación retorna el número de objetos generados por BEAPI usando $M$.
 
 Como la cantidad de secuencias a explorar crece exponencialmente respecto de las cotas, BEAPI implementa distintas técnicas que le permiten podar significativamente el espacio de búsqueda y mejorar la eficiencia de la generación (usar el feedback de la ejecución para descartar secuencias inválidas, coincidencia de estado para evitar volver a generar repetidamente los mismos objetos, descartar secuencias que generen objetos de tamaño mayor al permitido por las cotas). Para obtener más información sobre las mismas y sobre BEAPI invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
 
-Notar que nuestra técnica se basa en una variante de la \emph{hipótesis de la cota pequeña}, ampliamente reconocida en el testing de software \cite{Andoni:2003,jackson2006, Abad13}. La hipótesis de la cota pequeña indica que la mayoría de las fallas pueden revelarse ejercitando el software bajo test con entradas de tamaño relativamente pequeño. Nuestra hipótesis es que si dos conjuntos de métodos $M_1$ y $M_2$ generan los mismos objetos acotados (para una cota relativamente pequeña), entonces es altamente probable $M_1$ y $M_2$ sirvan para generar los mismos objetos en un contexto no acotado. Esto fue validado empíricamente en todos nuestros casos de estudio.
+Nuestra técnica se basa en una variante de la \emph{hipótesis de la cota pequeña}, ampliamente reconocida en el testing de software \cite{Andoni:2003,jackson2006, Abad13}. La hipótesis de la cota pequeña indica que la mayoría de las fallas pueden revelarse ejercitando el software bajo test con entradas de tamaño relativamente pequeño. Nuestra hipótesis es que si dos conjuntos de métodos $M_1$ y $M_2$ generan los mismos objetos acotados (para una cota relativamente pequeña), entonces es altamente probable $M_1$ y $M_2$ sirvan para generar los mismos objetos en un contexto no acotado. Esto fue validado empíricamente en todos nuestros casos de estudio.
 
-\cacho{Pablo ver luego. Pensar en ejecucion simbolica que string es mas dificil que generar un int}
+\cacho{Ver con Pablo luego. Pensar en ejecucion simbolica. String es mas dificil que generar un Int, ver tabla de pesos}
 
 \begin{lstlisting}[label=fig:rankParameters,caption=Ranking con los tipos de parametros, captionpos=b,frame=tb, float=t]
 Boolean=1
@@ -569,7 +535,7 @@ Ambos conjuntos generan la misma cantidad de objetos y tienen la misma redundanc
 %En tercer lugar, ampliamos esta generación con coincidencia de estado. Esto se debe a que, en la generación de pruebas, a menudo hay muchas secuencias de pruebas que producen el mismo objeto. Por ejemplo, insertar en una colección y luego eliminar el mismo elemento resulta en muchos casos en exactamente la misma estructura antes de la inserción. Nuestro enfoque asume que las ejecuciones de rutinas son deterministas con respecto a sus entradas. Bajo esta suposición, se deduce que, para generar un conjunto exhaustivo acotado de estructuras, solo necesitamos guardar una secuencia de prueba para crear cada estructura diferente en el conjunto, y que todas las siguientes secuencias de prueba que generen la misma estructura se pueden descartar.
 
 
-\subsubsection{Cobertura de código}
+\subsection{Cobertura de código}
 \label{sec:fitnessRandoop}
 \cacho{
 % Mergear con lo de abajo
@@ -585,21 +551,13 @@ Los criterios de evaluación incluyen:
     \item \textbf{Cobertura de ramas:} Porcentaje de decisiones (\textit{branches}) exploradas en el flujo de ejecución del programa.
 \end{itemize}
 
+/cacho{Esta seccion es nueva, hay que revisarla}
+
+
 Por ejemplo, si el conjunto de métodos seleccionado $M$ genera un test suite que cubre 100 líneas de código y 20 ramas de la API, 
 la función objetivo combina estas métricas en un puntaje compuesto. 
 Para ello, se calcula la proporción de líneas y ramas cubiertas respecto del total disponible, 
 y se ponderan según su importancia relativa. Así, la función objetivo puede definirse como:
-
-\[
-\text{Score}(M) = \alpha \cdot \frac{L_M}{L_{\text{total}}} + \beta \cdot \frac{B_M}{B_{\text{total}}}
-\]
-
-donde $\alpha$ y $\beta$ son parámetros ajustables que determinan el peso relativo de la cobertura de líneas y de ramas, respectivamente.
-
-\cacho{ Por ejemplo, si el conjunto de métodos seleccionado $M$ genera un test suite que cubre 100 líneas de código y 20 ramas de la API, 
-la función objetivo combina estas métricas en un puntaje compuesto. 
-Para ello, se calcula la proporción de líneas y ramas cubiertas respecto del total disponible, 
-y se ponderan según su importancia relativa. Así, la función objetivo puede definirse como:}
 
 \[
 \text{Score}(M) = \alpha \cdot \frac{L_M}{L_{\text{total}}} + \beta \cdot \frac{B_M}{B_{\text{total}}}
@@ -616,7 +574,7 @@ El objetivo de esta modificación es generar secuencias de pruebas que enfaticen
 No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
 En otras palabras, modificamos el algoritmo de Randoop presentado en las seccion  \ref{sec:feedback-directed-test-gen} para generar secuencias de llamadas a 
 métodos con la siguiente estructura: 
-}
+
 \vspace{10pt} 
 
 $metodoGenerador^* + metodoNoGenerador$. 
@@ -674,7 +632,6 @@ Donde:
     \item $C(M)$ (Complejidad): Tambien mantuvimos el mismo calculo que la funcion de valoracion del generador exhaustivo
 \end{itemize}
 
-\pp{Estaría bueno armar un ejemplo de la cobertura que da para dos conjuntos de builders diferentes.} 
 \cacho{
 Volvamos al ejemplo que usamos durante este capitulo. El primer caso tenemos los siguientes métodos:}
 \vspace{5pt} 
@@ -707,7 +664,7 @@ f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18,
 \label{sec:algorithms}
 
 \pp{En algún lugar habría que meter un gráfico de cómo funciona la técnica a alto nivel. Creo que en alguna de las slides teníamos algo así.} 
-\cacho{Poner algo de dibujitos algo sobre el flujo de la tecnicas}
+\cacho{Poner algo de dibujitos algo sobre el flujo de la tecnicas. Pedir a Vale el de BEAPI y adaptarlo aca, asi quedan del mismo formato}
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
@@ -803,12 +760,7 @@ En nuestro algoritmo, utilizamos una tasa de cruzamiento de 0.30 (\emph{crossove
 
 \subsubsection{Operadores Genéticos: Mutación}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\textwidth]{images/mutation.png}
-\caption{Ejemplo de mutación por inversión de bits.}
-\label{fig:mutation}
-\end{figure}
+
 
 \cacho{La mutación es un operador fundamental en los algoritmos genéticos, encargado de introducir cambios aleatorios en los cromosomas de los individuos para aumentar la diversidad en la población.  
 Cada bit del cromosoma tiene una pequeña probabilidad de ser modificado, lo que en una representación binaria implica invertir su valor ('0' a '1' o viceversa).  
@@ -824,11 +776,19 @@ En nuestro contexto de detección de métodos generadores de objetos, la mutaci�
 permitiendo la exploración de configuraciones y ampliando el espacio de búsqueda.  
 De esta manera, el algoritmo puede descubrir combinaciones más eficientes que no surgirían únicamente mediante cruzamiento. }
 
-\cacho{Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces
+\cacho{Esto es nuevo}
+
+Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces
 una mutación en la posición 2 implicaría activar o desactivar la ejecución del método $Método3$.
 Este tipo de variaciones introduce nuevos casos de prueba y permite descubrir combinaciones de métodos que de otra manera no se generarían.  
-De esta manera, el algoritmo no solo optimiza la selección de métodos, sino que también favorece la generación de secuencias más diversificadas. }
+De esta manera, el algoritmo no solo optimiza la selección de métodos, sino que también favorece la generación de secuencias más diversificadas.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/mutation.png}
+    \caption{Ejemplo de mutación por inversión de bits.}
+    \label{fig:mutation}
+    \end{figure}
 \subsubsection{Pseudocódigo del algoritmo genético}
 
 El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que definimos para la búsqueda de métodos generadores de objetos.
