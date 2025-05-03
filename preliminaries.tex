@@ -178,42 +178,47 @@ secuencias de invocaciones a métodos de la API. Randoop propone la técnica
 de generación aleatoria con retroalimentación basada en la ejecución, que
 consiste en ejecutar las secuencias de test y observar los resultados para 
 determinar si se debe continuar extendiendo o no las secuencias de test. 
-El algoritmo principal de Randoop se describe en la Figura \ref{} \pp{Poner una
-figura para después citarlo en los próximos capítulos}.
+El algoritmo principal de Randoop se describe en la Figura \ref{fig:randoop-algorithm}.
 
-\begin{algorithm}[H]
-    \SetAlgoLined
-    \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
-    \KwOut{Tests de regresión}
-    
-    $prev \leftarrow \emptyset$\;
-    $tests \leftarrow \emptyset$\;
-    
-    \While{tiempo transcurrido $< S$ \textbf{y} $|tests| < W$}{
-        Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
-        \For{$p_i:T_i$ de $M$}{
-            \If{$T_i$ es primitivo}{
-                $S_i \leftarrow$ valor primitivo para $T_i$ tomado
-                aleatoriamente de las semillas\;
-            }\Else{
-                $S_i \leftarrow$ secuencia aleatoria $\in prev$ que crea objeto de tipo $T_i$\;
+\begin{figure}[H]
+    \centering
+    \begin{algorithm}[H]
+        \SetAlgoLined
+        \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
+        \KwOut{Tests de regresión}
+        
+        $prev \leftarrow \emptyset$\;
+        $tests \leftarrow \emptyset$\;
+        
+        \While{tiempo transcurrido $< S$ \textbf{y} $|tests| < W$}{
+            Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
+            \For{$p_i:T_i$ de $M$}{
+                \If{$T_i$ es primitivo}{
+                    $S_i \leftarrow$ valor primitivo para $T_i$ tomado
+                    aleatoriamente de las semillas\;
+                }\Else{
+                    $S_i \leftarrow$ secuencia aleatoria $\in prev$ que crea objeto de tipo $T_i$\;
+                }
             }
+            $test \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
+            $res \leftarrow ejecutar($test$)$\;
+            \If{res = falla} {
+                \Return{$\{ test \}$}\;
+            }   
+            \If{res = inválido} {
+                // No se guarda test para futuras extensiones
+            }       
+            \If{res = exito} {
+                $prev \leftarrow prev \cup \{test\}$\;
+            }        
+            $tests \leftarrow tests \cup \{test\}$\;
         }
-        $test \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
-        $res \leftarrow ejecutar($test$)$\;
-        \If{res = falla} {
-            \Return{$\{ test \}$}\;
-        }   
-        \If{res = inválido} {
-            // No se guarda test para futuras extensiones
-        }       
-        \If{res = exito} {
-            $prev \leftarrow prev \cup \{test\}$\;
-        }        
-        $tests \leftarrow tests \cup \{test\}$\;
-    }
-    \Return{$tests$}\;
+        \Return{$tests$}\;
     \end{algorithm}
+    \caption{Algoritmo de Randoop}
+    \label{fig:randoop-algorithm}
+\end{figure}
+
 
 \textsf{Randoop} toma como entradas un conjunto de rutinas (por ejemplo, la API
 de un módulo), y criterios de terminación para la generación de tests, como el tiempo
@@ -433,4 +438,4 @@ nuevas técnicas propuestas, y poder realizar una comparación con herramientas
 relacionadas del estado de arte. Además, se utilizan como base para la
 definición de algunas de las técnicas presentadas. Por ejemplo, la cobertura de
 código se usa como parte de la función objetivo para el cómputo de métodos
-generadores de objetos usando Randoop \ref{} \pp{Referencia a la sección}.
+generadores de objetos usando Randoop \ref{sec:fitnessRandoop}.

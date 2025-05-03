@@ -351,10 +351,10 @@ Por ejemplo, un estado posible puede representarse como un vector de la siguient
   \label{fig:cromosoma}
 \end{figure}
 
-En este caso, las posiciones 0, 6 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjuto de métodos:
+En este caso, las posiciones 0, 7 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjuto de métodos:
 \vspace{5pt} 
 
-\begin{lstlisting}[numbers=none,label=fig:NCLnoMin1, caption=Métodos generadores de objetos que representa el cromosoma de la Figura 2, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
+\begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos que representa el cromosoma de la Figura 2, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (16) removeFirst()
@@ -449,14 +449,14 @@ Para ilustrar este concepto, consideremos los siguientes ejemplos.
 En el primer caso, tenemos dos conjuntos de métodos:
 \vspace{5pt} 
 
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders1, caption=Conjunto de métodos \( M_1 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_1 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
 \end{lstlisting} 
 
 
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders2, caption=Conjunto de métodos \( M_2 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_2 \)]
   NodeCachingLinkedList()
   addFirst(Object)
 \end{lstlisting}
@@ -572,50 +572,90 @@ Nuestras modificaciones se centran en dar prioridad a un subconjunto específico
 representado en la sección anterior por el conjunto $M$. 
 El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados.
 No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
-En otras palabras, modificamos el algoritmo de Randoop presentado en las seccion  \ref{sec:feedback-directed-test-gen} para generar secuencias de llamadas a 
+En otras palabras, modificamos el algoritmo de Randoop presentado en las seccion \ref{sec:feedback-directed-test-gen} para generar secuencias de llamadas a 
 métodos con la siguiente estructura: 
 
 \vspace{10pt} 
-
+\cacho{Esto no se si nos dice algo, creo que con el algortimo ya esta. Y agrego state matching en este algoritmo, o lo dejo para BEAPI?}
 $metodoGenerador^* + metodoNoGenerador$. 
 
 \cacho{Debo entender como modificar el algoritmo basandonos en la estructura de arriba y que se entienda. Explicar linea por linea.}
-El algoritmo 
 
 \begin{algorithm}[H]
     \SetAlgoLined
-    \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
-    \KwOut{Conjunto de tests generados}
+    \KwIn{Conjunto de métodos $M$, tiempo total $S$, número deseado de tests $W$}
+    \KwOut{Conjunto final de tests generados}
     
-    Inicializar $tests \leftarrow \emptyset$\;
+    \SetKwFunction{FMain}{GenerarTests}
+    \SetKwFunction{FGen}{GenerarNuevasSecuencias}
+    \SetKwProg{Fn}{Function}{:}{}
+    \BlankLine
+
+
+    \Fn{\FMain{$M$, $S$, $W$}}{
     
-    \While{tiempo transcurrido $< S$ \textbf{y} $|tests| < W$}{
-        Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
-        \For{cada parámetro $p_i:T_i$ de $M$}{
+        $S_1 \leftarrow 0.4 \cdot S$\;
+        $S_2 \leftarrow 0.6 \cdot S$\;
+    
+        $M_{gen} \leftarrow$ métodos generadores de $M$\;
+        $M_{nogen} \leftarrow$ métodos no generadores de $M$\;
+    
+        $tests_1 \leftarrow$ \FGen{$M_{gen}$, $S_1$, $W$, $\emptyset$}\;
+        $tests_2 \leftarrow$ \FGen{$M_{nogen}$, $S_2$, $W$, $tests_1$}\;
+    
+        \Return{$tests_2$}\;
+    }
+    
+    \BlankLine
+
+    \Fn{\FGen{$M'$, $S'$, $W'$, $T_0$}}{
+
+    Inicializar $tests \leftarrow T_0$\;
+
+    \While{tiempo transcurrido $< S'$ \textbf{y} $|tests| < W'$}{
+        Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M'_1,\ldots,M'_n\}$\;
+        \For{$p_i:T_i$ de $M'$}{
             \If{$T_i$ es primitivo}{
-                $v_i \leftarrow$ valor primitivo aleatorio para $T_i$\;
+                $S_i \leftarrow$ valor primitivo para $T_i$ tomado
+                aleatoriamente de las semillas\;
             }\Else{
-                $v_i \leftarrow$ secuencia aleatoria de $tests$ que crea objeto de tipo $T_i$\;
+                $S_i \leftarrow$ secuencia aleatoria $\in prev$ que crea objeto de tipo $T_i$\;
             }
-            Registrar instanciación $S_i \leftarrow v_i$\;
         }
-        $nuevoTest \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
-        $tests \leftarrow tests \cup \{nuevoTest\}$\;
-    } 
+        $test \leftarrow S_1; \ldots; S_m; M'(v_1,\ldots,v_m)$\;
+        $res \leftarrow ejecutar($test$)$\;
+        \If{res = falla} {
+            \Return{$\{ test \}$}\;
+        }   
+        \If{res = inválido} {
+            // No se guarda test para futuras extensiones
+        }       
+        \If{res = exito} {
+            $prev \leftarrow prev \cup \{test\}$\;
+        }        
+        $tests \leftarrow tests \cup \{test\}$\;
+    }
     \Return{$tests$}\;
-\end{algorithm}
+    }
+    
+    \caption{GenerarTests}
+    \end{algorithm}
+    
+Es decir, primero generamos secuencias compuestas exclusivamente por métodos generadores (línea 6). 
+Vale aclarar que estos métodos generadores son aquellos seleccionados previamente por el algoritmo de búsqueda local. 
+Esta generación se realiza utilizando el 60\% del tiempo total disponible para la generación de secuencias (\emph{S}). 
+Con el 40\% restante del tiempo, generamos secuencias que pueden incluir tanto métodos generadores como no generadores (línea 7). 
+La función \texttt{GenerarNuevasSecuencias} es la encargada de producir estas secuencias de prueba. 
+Esta función realiza su tarea utilizando la estrategia de generación aleatoria descripta en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
 
+La generación de tests con métodos no generadores resulta necesaria para garantizar la cobertura de líneas y ramas en aquellos métodos 
+que, si bien no construyen nuevos objetos, son fundamentales para evaluar la calidad general de las secuencias y su capacidad para ejercitar efectivamente la API bajo prueba. 
 
-Es decir, primero generamos secuencias compuestas exclusivamente por métodos generadores y luego, una vez que alcanzamos el tamaño de las secuencias deseadas (\emph{scope}), 
-añadimos un método no generador de objecto seleccionado al azar.  
+La motivación detrás de esta estrategia radica en que los subconjuntos de métodos que logren mayor cobertura de la API 
+proporcionan indicios valiosos sobre la calidad del conjunto. 
 
-Este método no generador es necesario para garantizar la cobertura de líneas y ramas de código en aquellos métodos que no son generadores pero que, no obstante, 
-resultan clave para evaluar la calidad general de las secuencias generadas y su capacidad para ejercitar la API de manera efectiva.  
-
-La motivación detrás de esta modificación radica en que los subconjuntos de métodos que obtienen una mayor cobertura de la API 
-nos proporcionarán indicios valiosos sobre la calidad de dicho subconjunto. 
-Por lo tanto, nuestra función de valoración, tiene como objetivo maximizar la cobertura de ramas y lineas de la API bajo prueba. 
-
+En consecuencia, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas y líneas alcanzadas durante la ejecución de las secuencias.
+    
 La función de valoración que utilizamos para evaluar la calidad de un candidato, 
 que representa un conjunto de métodos $M$, se define como una tríupla al igual que la función de la sección anterior:
 
@@ -636,7 +676,7 @@ Donde:
 Volvamos al ejemplo que usamos durante este capitulo. El primer caso tenemos los siguientes métodos:}
 \vspace{5pt} 
 
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders1, caption=Conjunto de métodos \( M_1 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_1 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
@@ -644,7 +684,7 @@ Volvamos al ejemplo que usamos durante este capitulo. El primer caso tenemos los
 
 y en el segundo caso tenemos los siguientes metodos:
 
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders2, caption=Conjunto de métodos \( M_2 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_2 \)]
   NodeCachingLinkedList()
   addFirst(Object)
 \end{lstlisting}
@@ -743,7 +783,7 @@ En este ejemplo, los puntos de cruzamiento seleccionados son el tercer y el sext
 El primer descendiente hereda los primeros tres bits del primer padre, los siguientes tres bits del segundo padre y los bits restantes nuevamente del primer padre.  
 De manera análoga, el segundo descendiente toma los primeros tres bits del segundo padre, intercambia los siguientes tres con el primer padre y conserva los últimos cuatro bits del segundo padre.  
 En nuestro contexto de detección de métodos generadores de objetos, cada posición en el vector representa la presencia ('1') o la ausencia ('0') de un método dentro de la API bajo prueba.  
-Por ejemplo, la posición 0 puede corresponder a $Método_1$, la posición 1 a $Método_2$, y así sucesivamente.  
+Por ejemplo, la posición 0 puede corresponder a $\text{Método}_2$, la posición 1 a $\text{Método}_2$, y así sucesivamente.  
 Al aplicar el operador de cruzamiento, se intercambian las secuencias de activación de métodos entre los padres, generando nuevas combinaciones en los descendientes.  
 Este mecanismo favorece la exploración del espacio de búsqueda y permite descubrir configuraciones más diversas y potencialmente óptimas. 
 } 
@@ -777,7 +817,7 @@ permitiendo la exploración de configuraciones y ampliando el espacio de búsque
 De esta manera, el algoritmo puede descubrir combinaciones más eficientes que no surgirían únicamente mediante cruzamiento. }
 
 Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces
-una mutación en la posición 2 implicaría activar o desactivar la ejecución del método $Método3$.
+una mutación en la posición 2 implicaría activar o desactivar la ejecución del método \textit{Método3}.
 Este tipo de variaciones introduce nuevos casos de prueba y permite descubrir combinaciones de métodos que de otra manera no se generarían.  
 De esta manera, el algoritmo no solo optimiza la selección de métodos, sino que también favorece la generación de secuencias más diversificadas.
 
@@ -799,9 +839,9 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
   
   \STATE $P \gets$ generar población aleatoria
   \FOR{$i \gets 0$ \TO $numEvoluciones$}
-      \STATE $P \gets$ seleccionar $popSize$ cromosomas con mejor aptitud
+      \STATE $P \gets$ $popSize$ cromosomas con mejor aptitud
       \FOR{$j \gets 1$ \TO $\text{tasaC} \times |P|$}
-          \STATE $C_1, C_2 \gets$ seleccionar dos cromosomas con mejor aptitud
+          \STATE $C_1, C_2 \gets$ dos cromosomas con mejor aptitud
           \STATE cruzar($C_1, C_2$)
       \ENDFOR
       \FORALL{cromosomas en $P$}
@@ -811,7 +851,7 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
     \STATE $C \gets$ mejor cromosoma de $P$
     \STATE $actual \gets$ estado inicial
 
-    \IF{la aptitud de $C$ es constante durante $maxIterConst$}
+    \IF{aptitud de $C$ es constante durante $maxIter$}
         \STATE detener algoritmo
     \ENDIF
 \ENDFOR
@@ -842,7 +882,7 @@ mientras que un número menor lo hace más rápido pero podría no encontrar el 
 
 Como es habitual, determinamos valores para los parámetros del algoritmo que funcionan bien en la práctica. 
 En nuestra evaluación experimental, establecimos $numEvo=20$, $popSize=30$, $cRate=0.35$, $mRate=0.08$ 
-y $maxIterConst=5$. Estos valores se eligieron después de realizar experimentos en varios casos de estudios
+y $maxIter=5$. Estos valores se eligieron después de realizar experimentos en varios casos de estudios
 
 Cabe destacar que, si quitamos la complejidad de la función de aptitud, nuestro algoritmo evolutivo es bastante estándar, por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos. Por supuesto, realizar mejoras en el algoritmo evolutivo y ajustar sus parámetros (como las tasas de cruce y mutación) podría acelerar los tiempos de ejecución.
 
