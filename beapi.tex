@@ -1,10 +1,25 @@
 \chapter{Generacion Exhaustiva acotada desde API de los programas}
 \label{cap:beapi}
 
-En adelante, se presenta la técnica desarrollada llamada BEAPI, que tiene como objetivo mejorar la generación exhaustiva acotada (BEG, por sus siglas en inglés, \emph{Bounded Exhaustive Generation}). \ref{sec:be}. \cacho{Agregar en preliminar? ampliar?}
-La generación exhaustiva acotada se refiere a un enfoque en pruebas de software y análisis de sistemas en el cual se generan y evalúan todas las posibles combinaciones o instancias de entrada dentro de un conjunto acotado. Esto significa que se examinan todas las combinaciones posibles de entrada dentro de un límite especificado. Es un enfoque efectivo para revelar fallas en el sofware. Este enfoque se utiliza a menudo en sistemas donde el espacio de entrada es manejable y finito. 
-Existen varios enfoques de BEG que requieren una especificación precisa de que entradas son válidas en el contexto del sistema. Esta especificación comúnmente se llaman \emph{RepOK} y debe ser brindada por el usuario.
-En este capítulo, introduciremos BEAPI, un enfoque eficiente que genera un conjunto exhaustivo acotado de objetos realizando únicamente llamadas a la API de un módulo. Discutiremos las principales ideas de nuestros enfoques para generar de manera eficiente. Este capítulo está organizado de la siguiente manera: en la Sección \ref{sec:motivating-example}, se presenta un ejemplo que ilustra el problema que se aborda con la técnica propuesta, la cual se explica en la Sección \ref{sec:beapiIntro}. Luego, en las Secciones \ref{sec:scope}, \ref{sec:stateMatching} y \ref{sec:builders}, se describen las optimizaciones implementadas en BEAPI. Estas optimizaciones son de vital importancia a la hora de trabajar con BE, ya que necesitamos acortar el espacio de búsqueda para poder generar suites exhaustivas acotadas con un rendimiento comparable al de las técnicas basada en especificaciones, una de ellas es \emph{Korat}\cite{Boyapati02} 
+En adelante, se presenta la técnica desarrollada llamada BEAPI, que tiene como objetivo mejorar la generación exhaustiva acotada (BEG, por sus siglas en inglés, \emph{Bounded Exhaustive Generation}). \cacho{Agregar en preliminar? o referencia a book?}
+La generación exhaustiva acotada se refiere a un enfoque en pruebas de software
+y análisis de sistemas en el cual se generan y evalúan todas las posibles combinaciones o instancias de entrada dentro de un conjunto acotado. 
+Esto significa que se examinan todas las combinaciones posibles de entrada dentro de un límite especificado. 
+Es un enfoque efectivo para revelar fallas en el sofware. Además, se utiliza a menudo en sistemas donde el espacio de entrada es manejable y finito. 
+
+Existen varios enfoques de BEG que requieren una especificación precisa de que entradas son válidas en el contexto del sistema. 
+Esta especificación comúnmente se llaman \emph{RepOK} y debe ser brindada por el usuario.
+En este capítulo, introduciremos BEAPI, un enfoque eficiente que genera un conjunto exhaustivo acotado de objetos realizando únicamente llamadas a la API de un módulo. 
+Discutiremos las principales ideas de nuestros enfoques para generar de manera eficiente. 
+
+\cacho{No se si es necesario, lo tenia hecho de antes}
+Este capítulo está organizado de la siguiente manera: en la Sección \ref{sec:motivating-example}, 
+se presenta un ejemplo que ilustra el problema que se aborda con la técnica propuesta, 
+la cual se explica en la Sección \ref{sec:beapiIntro}. Luego, en las Secciones \ref{sec:scope}, \ref{sec:stateMatching} y
+ \ref{sec:buildersOptimization}, se describen las optimizaciones implementadas en BEAPI. 
+ Estas optimizaciones son de vital importancia a la hora de trabajar con BE, 
+ ya que necesitamos acortar el espacio de búsqueda para poder generar suites exhaustivas acotadas con un 
+ rendimiento comparable al de las técnicas basada en especificaciones, una de ellas es \emph{Korat}\cite{Boyapati02} 
 
 
 \section[Motivación]{Motivación}
@@ -53,7 +68,20 @@ public boolean repOK() {
 \label{fig:NCL-repOK}
 \end{figure}
 
-Para ilustrar las dificultades de escribir especificaciones formales para la generación exhaustiva acotada de estructuras, consideremos el invariante de representación (comúnmente llamado \emph{repOK}) de la clase \emph{NodeCachingLinkedList} (NCL) de Apache, que se muestra en la Figura \ref{fig:NCL-repOK}. Este es un \emph{repOK} del benchmark \emph{ROOPS}. Los NCL se componen de una lista principal circular doblemente enlazada con un nodo ficticio al comienzo de la estructura. Esta estructura se utiliza para el almacenamiento de datos y una caché de nodos previamente utilizados, implementada como una lista enlazada simple. Los nodos eliminados de la lista principal se mueven a la caché, cambiando su valor a \emph{null}, donde se guardan para su uso futuro. De esta manera, cuando se requiere un nodo para una operación de inserción, se reutiliza un nodo de la caché (si existe) en lugar de asignar un nuevo nodo. El objetivo es evitar la sobrecarga de recolección de basura para las aplicaciones que realizan una gran cantidad de inserciones y eliminaciones en la lista. El \emph{repOK} devuelve \texttt{true} si y solo si la estructura de entrada satisface las propiedades estructurales de NCL \cite{Liskov00}. En la Figura \ref{fig:nclInstanceRepOK} se pueden observar instancias válidas de la estructura.
+Para ilustrar las dificultades de escribir especificaciones formales para la generación exhaustiva acotada de estructuras, 
+consideremos el invariante de representación (comúnmente llamado \emph{repOK}) de la clase \emph{NodeCachingLinkedList} (NCL) de Apache, que se muestra en la Figura \ref{fig:NCL-repOK}.
+Este es un \emph{repOK} del benchmark \emph{ROOPS}. 
+
+\cacho{Lo explique antes, pero creo que hace falta como una introducción a lo que es el repOK}
+Los NCL, tal cual lo explicamos en el capitulo anterior se componen de una lista principal circular doblemente enlazada con un nodo ficticio al comienzo de la estructura. 
+Esta estructura se utiliza para el almacenamiento de datos y una caché de nodos previamente utilizados, 
+implementada como una lista enlazada simple. Los nodos eliminados de la lista principal se mueven a la caché, 
+cambiando su valor a \emph{null}, donde se guardan para su uso futuro. 
+De esta manera, cuando se requiere un nodo para una operación de inserción, se reutiliza un nodo de la caché (si existe) 
+en lugar de asignar un nuevo nodo. 
+El objetivo es evitar la sobrecarga de recolección de basura para las aplicaciones que realizan una gran cantidad de inserciones y
+eliminaciones en la lista. El \emph{repOK} devuelve \texttt{true} si y solo si la estructura de entrada satisface las propiedades estructurales de NCL \cite{Liskov00}. 
+En la Figura \ref{fig:nclInstanceRepOK} se pueden observar instancias válidas de la estructura.
 
 \begin{figure}[H]
     \centering
@@ -62,7 +90,11 @@ Para ilustrar las dificultades de escribir especificaciones formales para la gen
     \label{fig:nclInstanceRepOK}
 \end{figure}
 
-Las restricciones impuestas en el método Java que abarcan las líneas 2 a 11 se refieren a la verificación de la estructura general de \emph{NodeCachingLinkedList}, como por ejemplo la existencia de un nodo ficticio en la lista principal. Este nodo ficticio es generalmente un nodo especial que no contiene datos reales (debería contener \emph{null} como valor del nodo), pero se utiliza como una especie de marcador de inicio que simplifica la manipulación de la lista. La idea es que este nodo ficticio tiene un enlace que apunta al primer elemento real de la lista. Por ejemplo, la Figura \ref{fig:repOK1} nos muestra dos instancias de NCL. La lista de la parte superior es la lista principal y la lista de la parte inferior es la representación de la lista caché. En la figura, la instancia del lado derecho es válida, la del izquierdo es inválida debido a que no cumple la especificación de poseer un nodo ficticio. El \emph{repOK} en la línea 6 controla esta situación y el método retorna \texttt{false}.
+Las restricciones impuestas en el método Java que abarcan las líneas 2 a 10 se refieren a la verificación de la estructura general de \emph{NodeCachingLinkedList},
+como por ejemplo la existencia de un nodo ficticio en la lista principal. 
+Este nodo ficticio es generalmente un nodo especial que no contiene datos reales (debería contener \emph{null} como valor del nodo), pero se utiliza como una especie de marcador de inicio que simplifica la manipulación de la lista. La idea es que este nodo ficticio tiene un enlace que apunta al primer elemento real de la lista. Por ejemplo, la Figura \ref{fig:repOK1} nos muestra dos instancias de NCL. La lista de la parte superior es la lista principal y la lista de la parte inferior es la representación de la lista caché. 
+En la figura, la instancia del lado izquierdo es válida, la del derecho es inválida debido a que no cumple la especificación de poseer un nodo ficticio. 
+El \emph{repOK} en la línea 5 y 6 controla esta situación y el método retorna \texttt{false}.
 
 \begin{figure}[H]
   \centering
@@ -71,12 +103,17 @@ Las restricciones impuestas en el método Java que abarcan las líneas 2 a 11 se
   \label{fig:repOK1}
 \end{figure}
 
-Siguiendo con el análisis del \emph{repOK} de la Figura \ref{fig:NCL-repOK}, las líneas 12 a 21 del método verifican que la lista principal sea una lista circular doblemente enlazada. Veamos en detalle lo que esto significa:
-\begin{itemize}
-    \item \textbf{Lista Circular:} Una lista circular es aquella en la que el último elemento de la lista está enlazado al primer elemento, formando un ciclo. En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al último elemento y luego volveremos al primer elemento.
-    \item \textbf{Doblemente Enlazada:} En una lista doblemente enlazada, cada nodo tiene dos enlaces, uno que apunta al nodo anterior y otro que apunta al nodo siguiente. Esto permite recorrer la lista en ambas direcciones: desde el primer nodo hasta el último y viceversa.
-\end{itemize}
-El método Java, que especifica la estructura entre las líneas 12 a 21, realiza un recorrido sobre la lista principal. En la Figura \ref{fig:repok2} se pueden observar ejemplos de instancias que pasan o no esta sección de restricciones del método. La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha tiene el error de que la lista principal no es cíclica, característica que poseen las listas principales (donde se guardan los datos) de NCL. El campo \emph{next} del nodo \textbf{NO} apunta a \emph{null}, lo que rompe la propiedad de ciclicidad. Esta restricción se contempla en la línea 16 del \emph{repOK}.
+Siguiendo con el análisis del \emph{repOK} de la Figura \ref{fig:NCL-repOK}, las líneas 11 a 20 del método verifican que la lista principal 
+sea una lista circular doblemente enlazada. Una lista circular es aquella en la que el último elemento de la lista está enlazado al primer elemento, formando un ciclo. 
+En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al último elemento y luego volveremos al primer elemento.
+Una lista doblemente enlazada, cada nodo tiene dos enlaces, uno que apunta al nodo anterior y otro que apunta al nodo siguiente. 
+Esto permite recorrer la lista en ambas direcciones: desde el primer nodo hasta el último y viceversa.
+
+En la Figura \ref{fig:repok2} se pueden observar ejemplos de instancias que pasan o no esta sección de restricciones del método. 
+La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha tiene el error de que la lista principal no es cíclica, 
+característica que poseen las listas principales (donde se guardan los datos) de NCL. 
+El campo \emph{next} del nodo no apunta a \emph{null}, lo que rompe la propiedad de ciclicidad. 
+Esta restricción se contempla en la línea 16 del \emph{repOK}.
 
 \begin{figure}[H]
   \centering
@@ -85,7 +122,15 @@ El método Java, que especifica la estructura entre las líneas 12 a 21, realiza
   \label{fig:repok2}
 \end{figure}
 
-Por último, el método \emph{repOK} de la Figura \ref{fig:NCL-repOK}, en las líneas 22 a 37 verifica propiedades sobre la lista caché. Esta debe ser una lista simplemente enlazada terminada en un valor nulo (y se verifica la consistencia de los campos de tamaño en el proceso). Como ejemplo de esta situación, mostramos dos nuevas instancias en la Figura \ref{fig:repok3}. La primera es una instancia válida de la lista caché y el \emph{repOK} nos devuelve \texttt{true}. La segunda instancia en la figura nos muestra una instancia inválida de acuerdo a la especificación. Esto se debe a que la lista caché (la lista de la parte inferior de la estructura) es cíclica. La insatisfacción de la propiedad se da cuando el método vuelve a insertar el mismo nodo al conjunto \emph{visited}. Este conjunto recorre la lista y chequea en la línea 33 si vuelve a pasar por un nodo ya visitado. En caso de que esto suceda, retorna \texttt{false}. Esto es lo que sucede en la instancia de la Figura \ref{fig:repok3}.
+Por último, el método \emph{repOK} de la Figura \ref{fig:NCL-repOK}, en las líneas 21 a 35 verifica propiedades sobre la lista caché. 
+Esta debe ser una lista simplemente enlazada terminada en un valor nulo (y se verifica la consistencia de los campos de tamaño en el proceso). 
+Como ejemplo de esta situación, mostramos dos nuevas instancias en la Figura \ref{fig:repok3}. 
+La primera es una instancia válida de la lista caché y el \emph{repOK} nos devuelve \texttt{true}. 
+La segunda instancia en la figura nos muestra una instancia inválida de acuerdo a la especificación. 
+Esto se debe a que la lista caché (la lista de la parte inferior de la estructura) es cíclica. 
+La insatisfacción de la propiedad se da cuando el método vuelve a insertar el mismo nodo al conjunto \emph{visited}. 
+Este conjunto recorre la lista y chequea en la línea 31 si vuelve a pasar por un nodo ya visitado. 
+En caso de que esto suceda, retorna \texttt{false}. Esto es lo que sucede en la instancia de la Figura \ref{fig:repok3}.
 
 \begin{figure}[H]
   \centering
@@ -94,15 +139,30 @@ Por último, el método \emph{repOK} de la Figura \ref{fig:NCL-repOK}, en las l�
   \label{fig:repok3}
 \end{figure}
 
-Este método \emph{repOK} está implementado siguiendo las recomendaciones de los autores del enfoque de generación exhaustiva acotada de BEAPI, utilizando la herramienta \textsf{Korat} \cite{Boyapati02}. La función devuelve \emph{falso} tan pronto como detecta una violación en alguna propiedad esperada de la estructura actual. En caso contrario, devuelve \emph{verdadero} al finalizar el método. Este enfoque permite a \textsf{Korat} podar eficientemente grandes porciones del espacio de búsqueda al encontrar restricciones incumplidas, mejorando así significativamente su eficiencia.
+Este método \emph{repOK} está implementado siguiendo las recomendaciones de los autores del enfoque de generación exhaustiva acotada de BEAPI, utilizando la herramienta \textsf{Korat} \cite{Boyapati02}. 
+La función devuelve \emph{falso} tan pronto como detecta una violación en alguna propiedad esperada de la estructura actual. 
+En caso contrario, devuelve \emph{verdadero} al finalizar el método. 
+Este enfoque permite a \textsf{Korat} podar eficientemente grandes porciones del espacio de búsqueda al encontrar restricciones incumplidas, mejorando así significativamente su eficiencia.
 
-Sin embargo, en el \emph{repOK} que se presenta en la figura \ref{fig:NCL-repOK}, se puede observar que algunas restricciones están comentadas, lo que indica la ausencia de validaciones cruciales. Estas restricciones no estaban presentes en la versión original del \emph{repOK} que tomamos de Roops; las incorporamos después de analizar las estructuras generadas para las pruebas que resultaron incorrectas.
+Sin embargo, en el \emph{repOK} que se presenta en la figura \ref{fig:NCL-repOK}, 
+se puede observar que algunas restricciones están comentadas, 
+lo que indica la ausencia de validaciones cruciales. 
+Estas restricciones no estaban presentes en la versión original del \emph{repOK} que tomamos de Roops; 
+las incorporamos después de analizar las estructuras generadas para las pruebas que resultaron incorrectas.
 
-La omisión de restricciones en el \emph{repOK} tiene un impacto directo y considerable en la cantidad de estructuras que \textsf{Korat} genera. Esta falta de precisión no solo aumenta exponencialmente el número de estructuras generadas, sino que también complica la tarea de identificar cuáles son válidas y cuáles no. Por ejemplo, cuando se ejecuta \textsf{Korat} con el \emph{repOK} sin las restricciones comentadas, se generan 54.5 millones de estructuras para un \emph{scope} de 8. Al incluir las restricciones faltantes, la cantidad de estructuras generadas se reduce drásticamente a solo 2.8 millones para el mismo \emph{scope}.
+La omisión de restricciones en el \emph{repOK} tiene un impacto directo y considerable en la cantidad de estructuras que \textsf{Korat} genera. 
+Esta falta de precisión no solo aumenta exponencialmente el número de estructuras generadas, 
+sino que también complica la tarea de identificar cuáles son válidas y cuáles no. 
+Por ejemplo, cuando se ejecuta \textsf{Korat} con el \emph{repOK} sin las restricciones comentadas, 
+se generan 54.5 millones de estructuras para un \emph{scope} de 8. Al incluir las restricciones faltantes, 
+la cantidad de estructuras generadas se reduce drásticamente a solo 2.8 millones para el mismo \emph{scope}.
 
-Este incremento masivo en la generación de estructuras debido a la omisión de restricciones tiene implicaciones graves para el proceso de testing. Aumenta la probabilidad de que se generen falsos positivos, es decir, estructuras que cumplen con las propiedades básicas pero que no son representativas de casos válidos. Estos falsos positivos pueden llevar a realizar pruebas innecesarias o a interpretar incorrectamente los resultados del testing, comprometiendo la calidad del software.
+Este incremento masivo en la generación de estructuras debido a la omisión de restricciones tiene implicaciones graves para el proceso de testing. 
+Aumenta la probabilidad de que se generen falsos positivos, es decir, estructuras que cumplen con las propiedades básicas pero que no son representativas de casos válidos. 
+Estos falsos positivos pueden llevar a realizar pruebas innecesarias o a interpretar incorrectamente los resultados del testing, comprometiendo la calidad del software.
 
-Motivados por estos desafíos y la complejidad inherente a la escritura de métodos \emph{repOK} precisos para la generación exhaustiva acotada, hemos desarrollado una técnica que hemos denominado BEAPI. Esta técnica será detallada en las siguientes secciones, y busca ofrecer una solución más robusta y precisa para la generación y validación de estructuras en el contexto de pruebas exhaustivas.
+Motivados por estos desafíos y la complejidad inherente a la escritura de métodos \emph{repOK} precisos para la generación exhaustiva acotada, hemos desarrollado una técnica que hemos denominado BEAPI. 
+Esta técnica será detallada en las siguientes secciones, y busca ofrecer una solución más robusta y precisa para la generación y validación de estructuras en el contexto de pruebas exhaustivas.
 
 
 \section[BEAPI]{BEAPI}
@@ -145,34 +205,10 @@ Es importante destacar que el enfoque \textsf{BEAPI} aborda las dificultades de 
 
 A continuación, explicaremos en detalle cada una de estas optimizaciones.
 
-% \cacho{TODO: no se si agregar arbolitos de exploracion para explicarlos}
-% \begin{tikzpicture}
-%     [level 1/.style={sibling distance=27mm},
-%    level 2/.style={sibling distance=25mm},
-%    every node/.style={rectangle,draw,fill=white,minimum size=10mm,align=center,font=\tiny},
-%    edge from parent/.style={draw}]
-   
-%   % Raíz
-%   \node {n = new NCL()}
-%     % Hijos
-%     child {node {n = new NCL() \\
-%                 n.add(int)}
-%       child {node {n = new NCL() \\
-%                     n.method()}}
-%       child {node {n = new NCL() \\
-%                     n.anotherMethod()}}
-%     }
-%    child {node {n = new NCL() \\
-%                 n.addFirst()}}
-%    child {node {n = new NCL() \\
-%                 n.remove()}}
-%     child {node {...}}
-%     % child {node {Método N}};
-% \end{tikzpicture}
 
+\section{Optimizaciones}
+\subsection{Scope}
 
-
-\section{Scope}
 \label{sec:scope}
 
 \begin{figure}[H]
@@ -225,11 +261,14 @@ Tras la canonización, todas las versiones del conjunto resultan idénticas, lo 
 
 En el contexto de estructuras de datos, este proceso podría implicar reorganizar los nodos, normalizar los valores de ciertos campos, o eliminar detalles que no son relevantes para la comparación, como el \emph{modCount} mencionado anteriormente. Al canonizar, se asegura que dos estructuras de datos se comparen en términos de su contenido esencial, ignorando diferencias superficiales o de implementación.
 
-% (Normalmente, las técnicas basada en generación por retroalimentación guardaría los valores primitivos que son devueltos por la ejecución de las pruebas y reutilizaría estos valores en pruebas futuras). También nuestra técnica descartar secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo), para evitar que se construyan objetos más grandes de lo necesario. 
+% (Normalmente, las técnicas basada en generación por retroalimentación guardaría los valores primitivos que son devueltos por la ejecución de las pruebas y reutilizaría estos valores en pruebas futuras). 
+% También nuestra técnica descartar secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo), para evitar que se construyan objetos más grandes de lo necesario. 
 
 
 % \cacho{VER BIEN ESTO DE NO EXTENDERSE, porq para crear estrucutras de 3 nodos a veces necesito crear previamente una de 4 nodos}
-% Esto asegura que se generen solo \texttt{NCL} con no más de k nodos. Por ejemplo, la figura \ref{fig:scope}, se puede observar que cuando genera una estructura con mas nodos que el especificado en el archivo de configuración, este no sigue extiendo el arbol de búsqueda. En la figura el scope especificado es 3 (vale aclarar, que el nodo ficticio cuanta como nodo de la estructura.)
+% Esto asegura que se generen solo \texttt{NCL} con no más de k nodos. 
+% Por ejemplo, la figura \ref{fig:scope}, se puede observar que cuando genera una estructura con mas nodos que el especificado en el archivo de configuración, 
+% este no sigue extiendo el arbol de búsqueda. En la figura el scope especificado es 3 (vale aclarar, que el nodo ficticio cuanta como nodo de la estructura.)
 
 \begin{figure}[H]
     \centering
@@ -244,109 +283,100 @@ En el contexto de estructuras de datos, este proceso podría implicar reorganiza
 % La configuración mostrada en la Figura~\ref{fig:NCL-fin-BEAPI} es suficiente para que \emph{BEAPI} genere NCL con un máximo de 3 nodos, que contienen enteros del 0 al 2 como valores. 
 
 
-\section{State Matching}
+\subsection{State Matching}
 \label{sec:stateMatching}
 
-Para introducirno en el tema veamos algunos ejemplos de secuencias de test en estructuras de datos:
+Para introducirnos en el tema, veamos algunos ejemplos de secuencias de test en estructuras de datos:
 
 Estos sos algunos ejemplos de secuencia de test: 
-\begin{itemize}
-    \item \textbf{Ejemplo 1: Operaciones en una Lista}
 
-    \begin{itemize}
-        \item \textbf{Secuencia 1}:
+\bigskip
+\begin{lstlisting}[numbers=none, caption={Crear una lista vacía}, label={lst:emptylist}, captionpos=b, frame=tb, basicstyle=\scriptsize]
+  List<Integer> lista = new ArrayList<>();
 
-        
-\begin{lstlisting}[numbers=none,label=fig:NCLadds, caption= Crear una lista vacía y agregar un elemento, captionpos=b, frame=tb , basicstyle=\scriptsize]
-        List<Integer> lista = new ArrayList<>();
-        lista.add(5);
+  // Estado resultante:
+  // Lista: [5]
 \end{lstlisting}
 
+\vspace{1em}
 
-        \item \textbf{Secuencia 2}:
-        \begin{verbatim}
-        // Crear una lista vacía, agregar y eliminar un elemento, luego agregarlo nuevamente
-        List<Integer> lista = new ArrayList<>();
-        lista.add(5);
-        lista.remove(0);
-        lista.add(5);
-        \end{verbatim}
+\begin{lstlisting}[numbers=none, caption={Crear una lista vacía, agregar y eliminar un elemento, luego agregarlo nuevamente}, label={lst:add-remove-add}, captionpos=b, frame=tb, basicstyle=\scriptsize]
+  List<Integer> lista = new ArrayList<>();
+  lista.add(5);
+  lista.remove(0);
+  lista.add(5);
 
-        \textbf{Estado resultante}:
-        \begin{verbatim}
-        Lista: [5]
-        \end{verbatim}
-    \end{itemize}
+  // Estado resultante:
+  // Lista: [5]
+\end{lstlisting}
+  
+\vspace{1em}
 
-    \item \textbf{Ejemplo 2: Eliminación de Elementos en una Lista Vacía}
+\begin{lstlisting}[language=Java, caption={Crear una lista vacía}, label={lst:remove-empty}, captionpos=b, frame=tb, basicstyle=\scriptsize]
+  List<Integer> lista = new ArrayList<>();
+  
+  // Estado resultante:
+  // Lista: []
+\end{lstlisting}
 
-    \begin{itemize}
-        \item \textbf{Secuencia 1}:
-        \begin{verbatim}
-        // Crear una lista vacía
-        List<Integer> lista = new ArrayList<>();
-        \end{verbatim}
+\vspace{1em}
+ 
+\begin{lstlisting}[numbers=none, caption={Intentar eliminar un elemento en una lista vacía}, label={lst:remove-empty}, captionpos=b, frame=tb, basicstyle=\scriptsize]
+  List<Integer> lista = new ArrayList<>();
+  lista.remove(new Integer(5)); 
+  // Estado resultante:
+  // Lista: []
+\end{lstlisting}
+  
+\vspace{1em}
 
-        \textbf{Estado resultante}:
-        \begin{verbatim}
-        Lista: []
-        \end{verbatim}
+\begin{lstlisting}[numbers=none, caption={Crear una pila y apilar un elemento}, label={lst:push}, captionpos=b, frame=tb, basicstyle=\scriptsize]
+  // Crear una pila y apilar un elemento
+  Stack<Integer> pila = new Stack<>();
+  pila.push(10);
 
-        \item \textbf{Secuencia 2}:
-        \begin{verbatim}
-        // Crear una lista vacía e intentar eliminar un elemento (sin efecto)
-        List<Integer> lista = new ArrayList<>();
-        lista.remove(new Integer(5)); // No tiene efecto ya que la lista está vacía
-        \end{verbatim}
+  // Estado resultante:
+  // Pila: [10]
+\end{lstlisting}
 
-        \textbf{Estado resultante}:
-        \begin{verbatim}
-        Lista: []
-        \end{verbatim}
-    \end{itemize}
+\vspace{1em}
 
-    \item \textbf{Ejemplo 3: Agregar y Remover en una Pila (Stack)}
+\begin{lstlisting}[numbers=none, caption={Push, pop y nuevo push en una pila}, label={lst:push-pop-push}, captionpos=b, frame=tb, basicstyle=\scriptsize]
+  // Crear una pila, apilar un elemento, desapilarlo y volver a apilar el mismo elemento
+  Stack<Integer> pila = new Stack<>();
+  pila.push(10);
+  pila.pop();
+  pila.push(10);
 
-    \begin{itemize}
-        \item \textbf{Secuencia 1}:
-        \begin{verbatim}
-        // Crear una pila y apilar un elemento
-        Stack<Integer> pila = new Stack<>();
-        pila.push(10);
-        \end{verbatim}
+  // Estado resultante:
+  // Pila: [10]
+\end{lstlisting}  
 
-        \textbf{Estado resultante}:
-        \begin{verbatim}
-        Pila: [10]
-        \end{verbatim}
+Los ejemplos presentados ilustran cómo distintas secuencias de llamadas a métodos pueden conducir al mismo estado observable de una estructura de datos. 
+Por ejemplo, crear una lista vacía, agregar un elemento, eliminarlo y luego volver a agregarlo, resulta en el mismo estado final que simplemente agregar ese elemento a una lista vacía. 
+De manera similar, intentar eliminar un elemento de una lista vacía no altera su estado, lo que genera un resultado equivalente al de una lista recién creada.
+En el caso de estructuras como pilas, realizar una operación de \texttt{push}, seguida de un \texttt{pop} y un nuevo \texttt{push} del mismo valor, 
+produce una configuración indistinguible de aquella que resulta de realizar únicamente el último \texttt{push}. 
+Este tipo de situaciones es relevante para herramientas como \textsf{BEAPI}, 
+que identifican y descartan caminos redundantes al detectar estados equivalentes durante la exploración exhaustiva del espacio de ejecuciones posibles.
 
-        \item \textbf{Secuencia 2}:
-        \begin{verbatim}
-        // Crear una pila, apilar un elemento, desapilarlo y volver a apilar el mismo elemento
-        Stack<Integer> pila = new Stack<>();
-        pila.push(10);
-        pila.pop();
-        pila.push(10);
-        \end{verbatim}
+En la figura \ref{fig:stateMatching}, se puede observar de manera mas clara, la explosion de estados.
+\textsf{BEAPI} asume que las ejecuciones de métodos son deterministas, es decir, cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. 
+Observamos que para cada estructura distinta $s$, solo necesitamos guardar la primera secuencia de prueba que genera $s$ (y la estructura en sí).
+Todas las secuencias de prueba generadas posteriormente que también crean $s$ pueden ser descartadas. 
+Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, 
+lo que resultaría tener que realizar un cómputo de las secuencias que sería innecesario ya que producen un estado que ya hemos computado y que hemos extendido.  
 
-        \textbf{Estado resultante}:
-        \begin{verbatim}
-        Pila: [10]
-        \end{verbatim}
-    \end{itemize}
-\end{itemize}
-
-En la generación de objetos con \textsf{BEAPI}, a menudo muchas secuencias de prueba producen la misma estructura. Por ejemplo, en la figura \ref{fig:stateMatching}, insertar un elemento en una lista, luego eliminar y volver a agregarlo a la lista principal, produce un estado que ya fue analizado con solo la secuencia que crea la lista y agrega el elemento. Lo mismo sucede en el caso que se quiera eliminar un objecto de la lista cuando la misma es vacia. Esto va a provocar un nuevo estado que es igual al estado utilizando solo el metodo constructor de la clase. \textsf{BEAPI} asume que las ejecuciones de métodos son deterministas, es decir, cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. Observamos que para cada estructura distinta $s$, solo necesitamos guardar la primera secuencia de prueba que genera $s$ (y la estructura en sí). Todas las secuencias de prueba generadas posteriormente que también crean $s$ pueden ser descartadas. Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, lo que resultaría tener que realizar un cómputo de las secuencias que sería innecesario ya que producen un estado que ya hemos computado y que hemos extendido.  
-
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{images/stateMatching1.jpg}
+  \caption{Representación con scope 3 para NCL}
+  \label{fig:stateMatching}
+\end{figure}
 
 Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{images/stateMatching1.jpg}
-    \caption{Representación con scope 3 para NCL}
-    \label{fig:stateMatching}
-\end{figure}
+
 
 Almacenamos todas las estructuras producidas hasta ahora por \textsf{BEAPI} en una forma canónica (ver más abajo). Después de ejecutar la última rutina \texttt{r(p$_1$, ..., p$_k$)} de una nueva secuencia de prueba generada \texttt{T}, comprobamos si alguno de los parámetros de \texttt{r} tiene una estructura no vista antes (no almacenada). Si \texttt{T} no crea ninguna estructura nueva, se descarta. De lo contrario, \texttt{T} y las nuevas estructuras que genera son almacenadas por \textsf{BEAPI}.
 
@@ -419,8 +449,8 @@ Para omitir dichos campos, se implementa la función \texttt{sortByField} (líne
 Cabe destacar que la linearización proporciona una forma eficiente de comparar objetos: dos objetos se consideran iguales si y solo si las secuencias correspondientes generadas por la función \texttt{linearize} son iguales.
 
 
-\section{Uso de Builders en BEAPI}
-\label{sec:builders}
+\subsection{Uso de Builders en BEAPI}
+\label{sec:buildersOptimization}
 En esta sección, utilizaremos una optimización que hemos desarrollado y que es una parte importante de esta tesis \ref{cap:builders}. Estos métodos builders nos permiten generar cualquier configuración posible que se puede construir con la API (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
 Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos, es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, utilizamos el enfoque de identificación automática de métodos builders que se describe en el capítulo (Capítulo \ref{cap:builders}). Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. 
 El uso de métodos \textit{builders} permite generar estados complejos sin necesidad de ejecutar múltiples pasos individuales. Esto reduce significativamente la cantidad de secuencias que BEAPI necesita explorar, optimizando el análisis. 
