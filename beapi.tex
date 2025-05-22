@@ -376,9 +376,7 @@ lo que resultaría tener que realizar un cómputo de las secuencias que sería i
 
 Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera.
 
-
-
-Almacenamos todas las estructuras producidas hasta ahora por \textsf{BEAPI} en una forma canónica (ver más abajo). Después de ejecutar la última rutina \texttt{r(p$_1$, ..., p$_k$)} de una nueva secuencia de prueba generada \texttt{T}, comprobamos si alguno de los parámetros de \texttt{r} tiene una estructura no vista antes (no almacenada). Si \texttt{T} no crea ninguna estructura nueva, se descarta. De lo contrario, \texttt{T} y las nuevas estructuras que genera son almacenadas por \textsf{BEAPI}.
+Almacenamos todas las estructuras producidas hasta ahora por \textsf{BEAPI} en una forma canónica. Después de ejecutar la última rutina \texttt{r(p$_1$, ..., p$_k$)} de una nueva secuencia de prueba generada \texttt{T}, comprobamos si alguno de los parámetros de \texttt{r} tiene una estructura no vista antes (no almacenada). Si \texttt{T} no crea ninguna estructura nueva, se descarta. De lo contrario, \texttt{T} y las nuevas estructuras que genera son almacenadas por \textsf{BEAPI}.
 
 Representamos las estructuras asignadas en el heap como grafos etiquetados. Después de la ejecución de un método, un parámetro $p$ (de tipo no primitivo) contiene una referencia al objeto raíz $r$ de un \emph{heap} con raíz (es decir, $p=r$), definido a continuación.
 
@@ -444,38 +442,62 @@ Al final del ciclo, la secuencia \texttt{seq} contiene la representación canón
 
 Si hay más de \texttt{scope} objetos alcanzables desde la raiz del \emph{heap}, lo cual significa que se ha superado el límite establecido en los alcances, el algoritmo \texttt{linearize} devuelve una excepción para informar esta situación (líneas 9-10). Además, el parámetro \texttt{linearize} también acepta una expresión regular llamada \texttt{omitFields}, que se utiliza para coincidir con los nombres de los campos que deben ser omitidos durante la canonización del \emph{heap}.
 
-Para omitir dichos campos, se implementa la función \texttt{sortByField} (línea 13) de manera que no se devuelven las aristas correspondientes a los campos cuyos nombres coinciden con \texttt{omitFields}. Es importante destacar que este comportamiento es específico de nuestro enfoque, ya que la excepción será utilizada por \textsf{BEAPI} para descartar secuencias de prueba que generen objetos que excedan los alcances permitidos.
+Para omitir dichos campos, se implementa la función \\
+\texttt{sortByField} (línea 13), de manera que no se devuelven las aristas correspondientes a los campos cuyos nombres coinciden con \texttt{omitFields}. 
+Es importante destacar que este comportamiento es específico de nuestro enfoque, ya que la excepción será utilizada por \textsf{BEAPI} para descartar secuencias de prueba que generen objetos que excedan los alcances permitidos.
 
 Cabe destacar que la linearización proporciona una forma eficiente de comparar objetos: dos objetos se consideran iguales si y solo si las secuencias correspondientes generadas por la función \texttt{linearize} son iguales.
 
 
-\subsection{Uso de Builders en BEAPI}
+\subsection{Uso de m\'etodos generadores de objectos en BEAPI}
 \label{sec:buildersOptimization}
-En esta sección, utilizaremos una optimización que hemos desarrollado y que es una parte importante de esta tesis \ref{cap:builders}. Estos métodos builders nos permiten generar cualquier configuración posible que se puede construir con la API (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
-Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos, es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, utilizamos el enfoque de identificación automática de métodos builders que se describe en el capítulo (Capítulo \ref{cap:builders}). Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. 
-El uso de métodos \textit{builders} permite generar estados complejos sin necesidad de ejecutar múltiples pasos individuales. Esto reduce significativamente la cantidad de secuencias que BEAPI necesita explorar, optimizando el análisis. 
+En esta sección, utilizaremos una optimización que hemos desarrollado y que es una parte importante de esta tesis \ref{cap:builders}. 
+Estos métodos generadores nos permiten generar cualquier configuración posible que se puede construir con la API (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
+Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos,
+es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, 
+utilizamos el enfoque de identificación automática de métodos generadores que se describe en el Capítulo \ref{cap:builders}.
+Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. 
+El uso de métodos generadores permite generar estados complejos sin necesidad de ejecutar múltiples pasos individuales. Esto reduce significativamente la cantidad de secuencias que BEAPI necesita explorar, optimizando el análisis. 
 
-Por ejemplo, consideremos una clase \texttt{NodeCachingLinkedList (NCL)}. Sin \textit{builders}, para generar una lista con un solo elemento, se necesitarían las siguientes operaciones:
-
-
-Esto implica ejecutar al menos dos pasos para construir el estado deseado. Sin embargo, con un método \textit{builder} predefinido, se puede simplificar a:
-
+Por ejemplo, consideremos la clase \texttt{NodeCachingLinkedList (NCL)}. 
+Sin estos m\'etodos generadores, para generar una lista con un solo elemento, se necesitarían las siguientes operaciones:
+\vspace{1em}
 \begin{lstlisting}
-ncl.NodeCachingLinkedList.<init>(42) // Crear lista con un elemento directamente
+  ncl.NodeCachingLinkedList.<init>() // Crear lista
+  ncl.add(42) // Agrega el nodo con el valor 42
 \end{lstlisting}
 
-De esta manera, los metodos \textit{builders} permite construir un estado equivalente sin necesidad de explorar todas las combinaciones posibles de pasos intermedios.
+\vspace{1em}
 
-En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de métodos generadores.El enfoque está basado en el algoritmo de optimización \emph{Hill Climbing} que logra un mejor rendimiento. Aunque \emph{Hill Climbing} puede ser menos preciso, ya que puede incluir algunos métodos que no son necesarios para producir un conjunto acotado y exhaustivo de estructuras, en nuestros experimentos, \emph{Hill Climbing}  funcionó muy bien y calculó consistentemente conjuntos sufientes de métodos generadores (verificamos que coincidieran con los métodos que identificados manualmente y que son generadores en cada caso de estudio). 
+Esto implica ejecutar al menos dos pasos para construir el estado deseado. Sin embargo, con un método generador predefinido, se puede simplificar a:
+\vspace{1em}
+
+\begin{lstlisting}
+ncl.NodeCachingLinkedList.<init>(42) // Crear lista con un elemento
+\end{lstlisting}
+
+De esta manera, los metodos generadores permite construir un estado equivalente sin necesidad de explorar todas las combinaciones posibles de pasos intermedios.
+
+En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de métodos generadores.
+El enfoque está basado en el algoritmo de optimización \emph{Escalada de colinas} que logra un mejor rendimiento. 
+Aunque \emph{Escalada de colinas} puede ser menos preciso, ya que puede incluir algunos métodos que no son necesarios para producir un conjunto acotado y exhaustivo de estructuras, 
+en nuestros experimentos, el algoritmo de \emph{escalada de colinas}  funcionó muy bien y calculó consistentemente conjuntos sufientes de métodos generadores (verificamos que coincidieran con los métodos que identificados manualmente y que son generadores en cada caso de estudio). 
 % Nuestro objetivo aquí es evaluar el impacto de utilizar builders para la generación exhaustiva acotada (BEG) a partir de una API.
 
-Para la identificación de métodos generadores, utilizamos como función de evaluación un generador exhaustivo para crear objetos de la API (ver sección \ref{sec:fitness}). Este generador es precisamente BEAPI que estamos desarrollando en esta sección. 
-La idea clave que hace factible la identificación de los métodos generadores es que a menudo los generadores identificados para un \emph{scope} relativamente pequeño utilizan el mismo conjunto de métodos que se necesitan para crear estructuras de cualquier tamaño. En otras palabras, una vez que el alcance para el cálculo de los métodos generadores es lo suficientemente grande, aumentar el alcance producirá como resultado el mismo conjunto de constructores. Este resultado se asemeja a la hipótesis de la cota pequeña para la detección de errores[\cite{Andoni02} (a la técnica de \emph{transcoping} \cite{Rosner13}).
+Para la identificación de métodos generadores, utilizamos como función de evaluación un generador exhaustivo para crear objetos de la API (ver sección \ref{sec:fitness}). 
+Este generador es precisamente BEAPI que estamos desarrollando en esta sección. 
+La idea clave que hace factible la identificación de los métodos generadores es que a menudo los generadores identificados para un \emph{scope} relativamente pequeño 
+utilizan el mismo conjunto de métodos que se necesitan para crear estructuras de cualquier tamaño.
+En otras palabras, una vez que el alcance para el cálculo de los métodos generadores es lo suficientemente grande, aumentar el alcance producirá como resultado el mismo conjunto de constructores. 
+Este resultado se asemeja a la hipótesis de la cota pequeña para la detección de errores[\cite{Andoni02} (a la técnica de \emph{transcoping} \cite{Rosner13}).
 En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para calcular los métodos generadores de objetos. 
-Después de identificar eficientemente los métodos generadores con un alcance pequeño, podemos ejecutar \textsf{BEAPI}, utilizando los métodos generadores identificados y, con un alcance mayor. Esto nos permite generar objetos más grandes y utilizarlos para probar el software bajo prueba.
+Después de identificar eficientemente los métodos generadores con un alcance pequeño, podemos ejecutar \textsf{BEAPI}, utilizando los métodos generadores identificados y,
+con un alcance mayor. Esto nos permite generar objetos más grandes y utilizarlos para probar el software bajo prueba.
 
-En la mayoría de nuestros casos de estudio, los métodos generadores de objetos consisten en un constructor y un solo método para agregar elementos a la estructura. Como por ejemplo en el caso de listas simplemente enlazadas. 
-Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores mostró que, en el caso de los árboles Rojo-Negro (ver figura \ref{fig:redBlack1}), también se requería un método de eliminación (para alcances mayores que 3). 
+En la mayoría de nuestros casos de estudio, los métodos generadores de objetos consisten en un constructor y un solo método para agregar elementos a la estructura. 
+Como por ejemplo en el caso de listas simplemente enlazadas. 
+Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores mostró que, 
+en el caso de los árboles Rojo-Negro (ver figura \ref{fig:redBlack1}), también se requería un método de eliminación (para alcances mayores que 3). 
 
 \begin{figure}
   \centering
@@ -484,9 +506,14 @@ Sin embargo, nuestro enfoque automatizado de identificación de métodos generad
   \label{fig:redBlack1}
 \end{figure}
 
-Esto se debe a que estos tipos de árboles necesitan una configuración específica de equilibrio (coloreando los nodos en rojo y negro) que no se pueden construir solo agregando elementos al árbol. En contraste, los árboles AVL (figura \ref{fig:avl}), que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
-Los árboles AVL están siempre equilibrados, de tal modo que para todos los nodos, la altura de la rama izquierda no debe diferir en más de una unidad de la altura de la rama derecha o viceversa. Gracias a esta forma de equilibrio (o balanceo), la complejidad de una búsqueda en uno de estos árboles se mantiene siempre en orden de complejidad O(log n). 
-Para este caso de árboles, solo el constructor de la clase y una rutina de adición son suficientes. Esto demuestra que la identificación de métodos generadores no es trivial de realizar manualmente.
+Esto se debe a que estos tipos de árboles necesitan una configuración específica de equilibrio (coloreando los nodos en rojo y negro) 
+que no se pueden construir solo agregando elementos al árbol. En contraste, los árboles AVL (figura \ref{fig:avl}), 
+que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
+Los árboles AVL están siempre equilibrados, 
+de tal modo que para todos los nodos, la altura de la rama izquierda no debe diferir en más de una unidad de la altura de la rama derecha o viceversa. 
+Gracias a esta forma de equilibrio (o balanceo), la complejidad de una búsqueda en uno de estos árboles se mantiene siempre en orden de complejidad O(log n). 
+Para este caso de árboles, solo el constructor de la clase y una rutina de adición son suficientes. 
+Esto demuestra que la identificación de métodos generadores no es trivial de realizar manualmente.
 
 
 
@@ -497,71 +524,245 @@ Para este caso de árboles, solo el constructor de la clase y una rutina de adic
   \label{fig:avl}
 \end{figure}
 
-
-Para obtener más información sobre esta sección, invitamos al lector a leer el siguiente capítulo donde se explica en detalle el desarrollo de esta técnica (Capítulo \ref{cap:builders}).
-
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
 
-A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{alg:beapi}. \emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. Estos métodos pueden ser la API completa o un subconjuntos de métodos de la misma. En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos \emph{builders} previamente identificados. Ademas, el algoritmo recibe de parámetro, el alcance (\emph{scope}) de objetos para la generación; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance, \texttt{primitives} (creados automáticamente a partir de las opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); y una expresión regular que coincide con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI}, por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. La estructura de datos de tipo Map, \texttt{currSeqs} de \emph{BEAPI}  almacena, para cada tipo, la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. El \cacho{check}\texttt{currSeqs} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 3-4). En cada iteración del bucle principal (líneas 6-39), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 9), explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{currSeqs} (líneas 10-35). Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 7). Se puede observar que todas las secuencias generadas se agregan a \texttt{currSeqs} al final de la iteración principal (línea 40). Si no se producen nuevas estructuras en la iteración actual (\texttt{newStrs} es falso en la línea 36), el bucle principal del algoritmo de  \textsf{BEAPI}  termina su ejecución y se devuelve la lista de todas las secuencias en \texttt{currSeqs} (línea 40).
+A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{alg:beapi}. 
+\emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. 
+Estos métodos pueden ser la API completa o un subconjuntos de métodos de la misma. 
+En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos generadores previamente identificados. 
+Además, el algoritmo recibe de parámetro, el alcance (\emph{scope}) de objetos para la generación; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance,
+\texttt{primitives} (creados automáticamente a partir de las opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); 
+y una expresión regular que coincide con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. 
+Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI},
+por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. 
+La estructura de datos de tipo Map, \texttt{secuenciasActuales} de \emph{BEAPI}  almacena, para cada tipo, 
+la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. 
+
+El map \texttt{secuenciasActuales} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 1). 
+En cada iteración del bucle principal (líneas 3-33), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 6), 
+explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{secuenciasActuales} (líneas 7-28).
+Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{nuevasSecuencias} (inicializado vacío en la línea 4). 
+Se puede observar que todas las secuencias generadas se agregan a \texttt{secuenciasActuales} al final de la iteración principal (línea 32).
+Si no se producen nuevas estructuras en la iteración actual (\texttt{hayNuevas} es falso en la línea 29), el bucle principal del algoritmo de \textsf{BEAPI} termina su ejecución 
+y se devuelve la lista de todas las secuencias en \texttt{secuenciasActuales} (línea 34).
 
 
-\begin{figure}[t!]
+\begin{figure}[H]
+  \centering
+  \begin{algorithm}[H]
+      \SetAlgoLined
+      \KwIn{Lista de métodos \textit{methods}, alcance máximo \textit{scope}, mapa de tipos primitivos textit \textit{primitives}, campos a omitir \textit{omitFields}}
+      \KwOut{Lista de secuencias generadas}
+      
+      $secuenciasActuales \leftarrow$ copia de las primitivas\;
+      $canónicos \leftarrow \emptyset$\;
+      
+      \While{\textbf{true}}{
+          $nuevasSecuencias \leftarrow \emptyset$\;
+          $hayNuevas \leftarrow$ \textbf{falso}\;
+          
+          \For{$m(T_1,\ldots,T_n):T_r$ en métodos}{
+            $seqs_{T_1} \leftarrow secuenciasActuales$ para tipo $T_1$\;
+            \ldots\;
+            $seqs_{T_n} \leftarrow secuenciasActuales$ para tipo $T_n$\;
 
-\begin{lstlisting}[language=Java]
-public BEAPI(List methods, int scope, Map<Type, List<Seq>> primitives, 
-Regex omitFields) {
-    Map<Type, List<Seq>> currSeqs = new Map();
-    currSeqs.addAll({ T->L | T->L in primitives });
-    Set canonicalStrs = new Set();
-    for (int it=0; true; it++) {
-      Map<Type, List<Seq>> newSeqs = new Map();
-      boolean newStrs = false;
-      for (m(T1,...,Tn):Tr: methods) {
-        Map<Type, List<Seq>> seqsT1 = currSeqs.getSequencesForType(T1);
-        ...
-        Map<Type, List<Seq>> seqsTn = currSeqs.getSequencesForType(Tn);
-        for ((s1,...,sn): seqsT1 x ... x seqsTn) {
-          Seq newSeq = createNewSeq(s1,...,sn,m);
-          o1,...,on,or,failure,exception = execute(newSeq);
-          if (failure) 
-            throw new ExecutionFailedException(newSeq);
-          if (exception) 
-            continue;
-          c1,...,cn,cr,outOfScope = makeCanonical(o1,...,on,scope,omitFields);
-          if (outOfScope) 
-            continue;
-          if (isReferenceType(T1) and !canonicalStrs.contains(c1)) {
-                canonicalStrs.add(c1);
-                newSeqs.addSeqForType(T1, newSeq);
-                newStrs = true;
+            \For{$(s_1,\ldots,s_n) \in seqs_{T_1} \times \ldots \times seqs_{T_n}$}{
+              $nuevaSec \leftarrow$ crearSecuencia($s_1,\ldots,s_n,m$)\;
+              $(o_1,\ldots,o_n,o_r, fallo, excepción) \leftarrow$ ejecutar($nuevaSec$)\;                
+              \If{fallo}{
+                  \Return{\texttt{ExcepciónEjecuciónFallida}($nuevaSec$)}\;
+              }
+              \If{excepción}{
+                  \textbf{continuar}\;
+              }
+              
+              $(c_1,\ldots,c_n,c_r,\ fueraDeRango) \leftarrow$ canonizar($o_1,\ldots,o_n,o_r$, \textit{scope}, \textit{omitFields})\;
+              
+              \If{fueraDeRango}{
+                  \textbf{continuar}\;
+              }
+              
+              \For{\textbf{cada} tipo $T_i$ en $\{T_1,\ldots,T_n,T_r\}$}{
+                  \If{$T_i$ es de referencia \textbf{y} $c_i \notin canónicos$}{
+                      $canónicos \leftarrow canónicos \cup \{c_i\}$\;
+                      agregar $nuevaSec$ a $nuevasSecuencias$ para el tipo $T_i$\;
+                      $hayNuevas \leftarrow$ \textbf{verdadero}\;
+                  }
+              }
+            }
           }
-          ...
-          if (isReferenceType(Tr) and !canonicalStrs.contains(cr)) {
-                canonicalStrs.add(cr);
-                newSeqs.addSeqForType(Tr, newSeq);
-                newStrs = true;
+          
+          \If{\textbf{no} $hayNuevas$}{
+              \textbf{salir del ciclo}\;
           }
+          
+          $secuenciasActuales \leftarrow secuenciasActuales \cup nuevasSecuencias$\;
         }
-      }
-      if (!newStrs) 
-        break;
-      currSeqs.addAll(newSeqs);
-    }
-    return currSeqs.getAllSeqsAsList();
-}
-\end{lstlisting}
-\caption{\textsf{BEAPI} algorithm}
-\label{alg:beapi}
+    \Return{todas las secuencias en $secuenciasActuales$}\;
+  \end{algorithm}
+  \caption{Algoritmo de \textsf{BEAPI}}
+  \label{fig:beapi-algorithm}
 \end{figure}
 
-A continuación, comentaré los detalles del bucle for en las líneas 9-35. En primer lugar, se obtienen todas las secuencias que se pueden utilizar para construir entradas para \texttt{m} en \texttt{seqsT$_1$}, ..., \texttt{seqsT$_n$}. \textsf{BEAPI} explora cada tupla \texttt{(s$_1$}, ..., \texttt{s$_n$)} de entradas factibles para \texttt{m}. A continuación, se ejecuta \texttt{createNewSeq} (línea 14), que construye una nueva secuencia de prueba \texttt{newSeq} realizando la composición secuencial de las secuencias de prueba \texttt{s$_1$}, ..., \texttt{s$_n$} y la rutina \texttt{m}, y reemplazando los parámetros formales de \texttt{m} por las variables que crean los objetos requeridos en \texttt{s$_1$}, ..., \texttt{s$_n$}. Luego, se ejecuta \texttt{newSeq} (línea 15) y como resultado podemos tener que, produzca un fallo (\texttt{failure} se establece en verdadero), genera una excepción que representa un uso no válido de la API (\texttt{exception} se establece en verdadero) o su ejecución tiene éxito y crea nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$}. En caso de fallo, se lanza una excepción y \texttt{newSeq} se presenta al usuario como evidencia del fallo (línea 17). Si se lanza un tipo diferente de excepción, \textsf{BEAPI} asume que corresponde a un mal uso de la API (ver más abajo), descarta la secuencia de prueba (línea 19) y continúa con la siguiente secuencia candidata. De lo contrario, la ejecución de \texttt{newSeq} genera nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$} (o valores de tipos primitivos) que se canonizan mediante \texttt{makeCanonical} (línea 20) --ejecutando \texttt{linearize} de la Figura~\ref{alg:linearization} en cada estructura. Si alguna de las estructuras producidas por \texttt{newSeq} excede el scope, \texttt{makeCanonical} establece \texttt{outOfScope} en verdadero, \textsf{BEAPI} descarta \texttt{newSeq} y continúa con la siguiente (línea 22).
+
+A continuación, comentaré los detalles del bucle for en las líneas 6-28. 
+En primer lugar, se obtienen todas las secuencias que se pueden utilizar para construir entradas para \texttt{m} en \texttt{seqsT$_1$}, ..., \texttt{seqsT$_n$}. \textsf{BEAPI} explora cada tupla \texttt{(s$_1$}, ..., \texttt{s$_n$)} de entradas factibles para \texttt{m}.
+A continuación, se ejecuta \texttt{crearNuevaSecuencias} (línea 8), que construye una nueva secuencia de prueba \texttt{nuevaSec} realizando la composición secuencial de las secuencias de prueba \texttt{s$_1$}, ..., \texttt{s$_n$} y la rutina \texttt{m}, 
+y reemplazando los parámetros formales de \texttt{m} por las variables que crean los objetos requeridos en \texttt{s$_1$}, ..., \texttt{s$_n$}. 
+Luego, se ejecuta \texttt{nuevaSec} (línea 9) y como resultado podemos tener que, produzca un fallo (\texttt{fallo} se establece en verdadero), genera una excepción que representa un uso no válido de la API (\texttt{excepci\'on} se establece en verdadero) 
+o su ejecución tiene éxito y crea nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$}. 
+En caso de fallo, se lanza una excepción y \texttt{nuevaSec} se presenta al usuario como evidencia del fallo (línea 11). 
+Si se lanza un tipo diferente de excepción, \textsf{BEAPI} asume que corresponde a un mal uso de la API (ver más abajo), descarta la secuencia de prueba (línea 14) y continúa con la siguiente secuencia candidata. 
+De lo contrario, la ejecución de \texttt{nuevaSec} genera nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$} (o valores de tipos primitivos) 
+que se canonizan mediante \texttt{canonizar} (línea 16) --ejecutando \texttt{linearizar} de la Figura~\ref{alg:linearization} en cada estructura. 
+Si alguna de las estructuras producidas por \texttt{nuevaSec} excede el scope, \texttt{canonizar} establece \texttt{fueraDeRango} en verdadero, \textsf{BEAPI} descarta \texttt{newSeq} 
+y continúa con la siguiente (línea 18).
 Esto garantiza que \textsf{BEAPI} nunca crea objetos más grandes que lo permitidio por el alcance.
-Si ninguna de las situaciones anteriores ocurre, quiere decir que ha pasado todos los chequeos la secuencia corriente y, \texttt{makeCanonical} devuelve versiones canónicas de \texttt{o$_1$,$\ldots$,o$_n$} en las variables \texttt{c$_1$,$\ldots$,c$_n$}, respectivamente. A continuación, \textsf{BEAPI} realiza una coincidencia de estado comprobando que la estructura canónica \texttt{c$_1$} sea de tipo de referencia y que no haya sido creada por ninguna secuencia de prueba anterior (línea 23). Observa que \texttt{canonicalStrs} almacena todas las estructuras ya visitadas. Si \texttt{c$_1$} es una nueva estructura, se agrega a \texttt{canonicalStrs} (línea 24) y se agrega la secuencia que crea \texttt{c$_1$}, \texttt{newSeq}, al conjunto de secuencias de prueba que producen estructuras de tipo \texttt{T$_1$} (\texttt{newSeqs} en la línea 27). Además, se establece \texttt{newStrs} en verdadero para indicar que al menos se ha creado un nuevo objeto en la iteración actual (línea 26). Este proceso se repite para los objetos canónicos \texttt{c$_2$,$\ldots$,c$_n$,c$_r$} (líneas 29-32).
-\cacho{Un for aqui}
+Si ninguna de las situaciones anteriores ocurre, quiere decir que ha pasado todos los chequeos la secuencia corriente y, 
+\texttt{canonizar} devuelve versiones canónicas de \texttt{o$_1$,$\ldots$,o$_n$} en las variables \texttt{c$_1$,$\ldots$,c$_n$}, respectivamente. 
+A continuación, \textsf{BEAPI} realiza una coincidencia de estado comprobando que la estructura canónica \texttt{c$_1$} sea de tipo de referencia 
+y que no haya sido creada por ninguna secuencia de prueba anterior (ciclo de la línea 20). 
+Observa que \texttt{canónicos} almacena todas las estructuras ya visitadas. 
+Si \texttt{c$_1$} es una nueva estructura, se agrega a \texttt{canónicos} (línea 22) y se agrega la secuencia que crea \texttt{c$_i$}, 
+\texttt{nuevaSec}, al conjunto de secuencias de prueba que producen estructuras de tipo \texttt{T$_i$} (\texttt{nuevaSec} en la línea 24).
+Además, se establece \texttt{hayNuevas} en verdadero para indicar que al menos se ha creado un nuevo objeto en la iteración actual (línea 24). 
+Este proceso se repite para los objetos canónicos \texttt{c$_2$,$\ldots$,c$_n$,c$_r$} (líneas 20-25).
 
-\textsf{BEAPI} distingue los fallos del mal uso de la API en función del tipo de excepción (similarmente a las técnicas anteriores de generación de pruebas basadas en API \cite{Pacheco07}). Por ejemplo,\\
-\texttt{IllegalArgumentException} y \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos de manera predeterminada. La implementación de \textsf{BEAPI} permite al usuario seleccionar las excepciones que corresponden a fallos y aquellas que no, configurando los parámetros correspondientes. Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no se pueden ejecutar con entradas inválidas. Sostenemos que esta es una práctica común, llamada programación defensiva \cite{Liskov00}, que todos los programadores deberían seguir, ya que resulta en un código más robusto y mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de pruebas automatizadas). También argumentamos en la Sección~\ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que escribir \texttt{repOK}s precisos (y eficientes) para BEG, y esto era cierto después de inspeccionar manualmente el código fuente de nuestros casos de estudio. Por otro lado, ten en cuenta que \textsf{BEAPI} puede utilizar especificaciones formales para revelar errores en la API, por ejemplo, ejecutando \texttt{repOK} y comprobando que devuelve verdadero en cada objeto generado del tipo correspondiente (como en Randoop \cite{Pacheco07}). Sin embargo, las especificaciones utilizadas para encontrar errores no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} subespecificado de \texttt{NCL} de la Sección~\ref{sec:motivating-example} es válido para encontrar errores), ni estar escritas de una manera particular (como lo requiere \textsf{Korat}). \textsf{BEAPI} también puede utilizar otros tipos de especificaciones más débiles y más simples de escribir para revelar errores, como violaciones de contratos específicos del lenguaje (por ejemplo, \texttt{equals} es una relación de equivalencia en Java), propiedades metamórficas \cite{Chen19}, afirmaciones proporcionadas por el usuario (\texttt{assert}), etc.
 
-Otra ventaja de \textsf{BEAPI} es que, para cada objeto generado, proporciona una secuencia de prueba que se puede ejecutar para crear el objeto. Esto contrasta con los enfoques basados en especificaciones (que generan un conjunto de objetos a partir de \texttt{repOK}). Encontrar una secuencia de invocaciones a métodos de la API que creen una estructura específica es un problema difícil en sí mismo, que puede ser bastante costoso computacionalmente \cite{Braione17} o requerir un esfuerzo significativo para realizarlo manualmente. Por lo tanto, a menudo los objetos generados por enfoques basados en especificaciones están "incrustados" cuando se utilizan para probar un SUT (por ejemplo, mediante el uso de reflexión en Java), lo que hace que las pruebas sean muy difíciles de entender y mantener, ya que dependen de los detalles de implementación de bajo nivel de las estructuras \cite{Braione17}.
+\textsf{BEAPI} distingue los fallos del mal uso de la API en función del tipo de excepción (similarmente a las técnicas anteriores de generación de pruebas basadas en API \cite{Pacheco07}). 
+Por ejemplo, \\
+\texttt{IllegalArgumentException} y \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos de manera predeterminada. 
+La implementación de \textsf{BEAPI} permite al usuario seleccionar las excepciones que corresponden a fallos y aquellas que no, configurando los parámetros correspondientes. 
+Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no se pueden ejecutar con entradas inválidas. 
+Sostenemos que esta es una práctica común, llamada programación defensiva \cite{Liskov00}, 
+que todos los programadores deberían seguir, ya que resulta en un código más robusto y 
+mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de pruebas automatizadas). 
+También argumentamos en la Sección~\ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que escribir \texttt{repOK}s precisos (y eficientes) para BEG, 
+y esto era cierto después de inspeccionar manualmente el código fuente de nuestros casos de estudio. 
+Por otro lado, ten en cuenta que \textsf{BEAPI} puede utilizar especificaciones formales para revelar errores en la API, por ejemplo, 
+ejecutando \texttt{repOK} y comprobando que devuelve verdadero en cada objeto generado del tipo correspondiente (como en Randoop \cite{Pacheco07}). 
+Sin embargo, las especificaciones utilizadas para encontrar errores no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} subespecificado de \texttt{NCL} de la Sección~\ref{sec:motivating-example} 
+es válido para encontrar errores), ni estar escritas de una manera particular (como lo requiere \textsf{Korat}). 
+\textsf{BEAPI} también puede utilizar otros tipos de especificaciones más débiles y 
+más simples de escribir para revelar errores, como violaciones de contratos específicos del lenguaje 
+(por ejemplo, \texttt{equals} es una relación de equivalencia en Java), propiedades metamórficas \cite{Chen19}, afirmaciones proporcionadas por el usuario (\texttt{assert}), etc.
 
+Otra ventaja de \textsf{BEAPI} es que, para cada objeto generado, proporciona una secuencia de prueba que se puede ejecutar para crear el objeto. 
+Esto contrasta con los enfoques basados en especificaciones (que generan un conjunto de objetos a partir de \texttt{repOK}). 
+Encontrar una secuencia de invocaciones a métodos de la API que creen una estructura específica es un problema difícil en sí mismo, 
+que puede ser bastante costoso computacionalmente \cite{Braione17} o requerir un esfuerzo significativo para realizarlo manualmente. 
+Por lo tanto, a menudo los objetos generados por enfoques basados en especificaciones están "incrustados" cuando se utilizan para probar un SUT 
+(por ejemplo, mediante el uso de reflexión en Java), lo que hace que las pruebas sean muy difíciles de entender y mantener, ya que dependen de los detalles de implementación de bajo nivel de las estructuras \cite{Braione17}.
+
+
+
+\section{Visión general de BEAPI}
+
+La Figura~\ref{fig:beapi-overview} muestra una visión general de la herramienta BEAPI. 
+Como entradas, BEAPI recibe la clase (o clases) objetivo para la generación de casos de prueba, 
+archivos de configuración que definen los límites (también llamados \emph{scopes de objectos}) 
+y un archivo los métodos de la clase objetivo que serán utilizados para la generación (\emph{métodos generadores de objectos}).
+
+
+Como salidas, BEAPI produce, un conjunto acotado y exhaustivo de objetos generados, 
+un conjunto de pruebas \texttt{JUnit}~\cite{junit} con las secuencias de métodos utilizadas para generar cada objeto,
+y otro conjunto de pruebas que revelan errores (si los hubiera) en los métodos utilizados para la generación.
+
+
+\cacho{Hace falta poner como se corre, no lo veo, es de tool paper eso}
+
+% \subsection{Entradas de BEAPI}
+
+% \paragraph{Clase objetivo.}  
+% El código fuente de la clase objetivo debe compilarse previamente, 
+% y se debe configurar la opción \texttt{-cp} para indicar la ubicación de los archivos bytecode (\texttt{.class}).
+%  La opción \texttt{-c} se utiliza para especificar el nombre completamente calificado de la clase. 
+%  Por ejemplo, el código fuente de la clase NCL usada como ejemplo se encuentra en el directorio \texttt{examples} del repositorio de BEAPI, 
+%  y su nombre completo es: \texttt{org.apache.commons.collections4.list.NodeCachingLinkedList}. 
+%  Para generar pruebas sobre varias clases relacionadas, la opción \texttt{-c} puede repetirse una vez por clase.
+
+% \paragraph{Scopes.}  
+% Los límites se definen en dos archivos de configuración que se pasan con las opciones \texttt{-b} y \texttt{-l}. 
+% El archivo de referencia (opción \texttt{-b}) especifica, por ejemplo, el número máximo de objetos mediante el parámetro \texttt{max.objects}. 
+% En el caso del ejemplo de NCL, este valor se establece en 3, 
+% lo que significa que secuencias que generen listas con más de 3 nodos serán descartadas. 
+% l parámetro \texttt{omit.fields} es una expresión regular de Java que permite omitir ciertos campos durante la canonización de objetos 
+% (mecanismo de comparación de estados). Este parámetro es opcional.
+
+% El archivo de primitivas (opción \texttt{-l}) define los valores que BEAPI puede usar como argumentos al invocar métodos. 
+% Se pueden especificar valores para tipos como \texttt{int}, \texttt{float}, \texttt{double} y \texttt{String}. 
+% El formato de este archivo proviene de Randoop~\cite{randoop}.
+
+% \paragraph{Métodos constructores.}  
+% Dado que la cantidad de combinaciones posibles de secuencias crece exponencialmente con el número de métodos disponibles, 
+% BEAPI permite restringir el conjunto de métodos mediante un archivo que se pasa con la opción \texttt{-m}. 
+% Si no se especifica, se utilizará toda la API de la clase objetivo. Es importante proveer un conjunto \emph{suficiente} de métodos constructores, 
+% es decir, aquellos que permiten generar todos los objetos factibles de la clase. 
+% Estos conjuntos pueden calcularse automáticamente con herramientas externas~\cite{builder}, 
+% y BEAPI ya incluye ejemplos precomputados para los casos de estudio utilizados en su evaluación empírica.
+
+
+BEAPI emplea los métodos generadores de objectos de la clase objetivo 
+y los valores primitivos provistos en los archivos de configuración para generar secuencias de estos métodos, 
+las cuales constituyen los casos de prueba y conducen a la creación de objetos de prueba.
+Esta tarea es llevada a cabo por el módulo \emph{generador de secuencia de test}, mostrado en la Figura~\ref{fig:beapi-architecture}.
+
+A grandes rasgos, el generador comienza produciendo todas las secuencias de prueba posibles de longitud 1 (es decir, con una sola invocación de método). 
+Los valores primitivos definidos en los archivos de configuración son utilizados para instanciar los parámetros requeridos por los métodos durante su invocación.
+Luego, las secuencias se ejecutan y aquellas cuya ejecución da lugar a nuevos objetos 
+(es decir, diferentes de los generados previamente) se retroalimentan al generador de secuencias.
+A partir de estas, se construyen secuencias de longitud 2, agregando una invocación adicional. 
+Este proceso se repite iterativamente, generando secuencias de longitud 3, 4, y así sucesivamente.
+
+El proceso continúa hasta que las secuencias de longitud $k$ ya no generan nuevos objetos dentro del alcance definido por los \emph{scopes}. 
+En ese punto, el generador de secuencias detiene su ejecución y BEAPI devuelve la suite de pruebas generada junto con el conjunto de objetos producidos.
+
+A continuación, se describe cómo BEAPI procesa los distintos resultados que puede arrojar la ejecución de una secuencia de prueba.
+El módulo \emph{clasificador}, también ilustrado en la Figura~\ref{fig:beapi-architecture}, 
+observa el resultado de la ejecución y clasifica la secuencia en una de las siguientes categorías:
+
+\begin{enumerate}
+    \item La secuencia revela un error en algún método.
+    \item La secuencia viola una precondición de un método.
+    \item La secuencia genera un objeto que excede los límites permitidos por el alcance, o bien genera objetos que ya fueron producidos por secuencias anteriores.
+    \item La secuencia genera al menos un nuevo objeto válido dentro del alcance permitido.
+\end{enumerate}
+
+Los casos (3) y (4) corresponden a ejecuciones exitosas, es decir, secuencias que finalizan sin lanzar excepciones. 
+En estos casos, los objetos almacenados en las variables al finalizar la ejecución son \emph{canonizados}~\cite{Politano20} 
+y se verifica si ya han sido generados o si exceden los límites permitidos. 
+Si esto ocurre (caso 3), tanto la secuencia como los objetos son descartados. 
+En cambio, si la secuencia produce al menos un nuevo objeto válido (caso 4), 
+entonces se retroalimenta al generador de secuencias, 
+se almacena como caso de test en la suite resultante,
+y los objetos generados se agregan al conjunto acotado y exhaustivo de salida.
+
+Los casos (1) y (2) corresponden a ejecuciones que no finalizan correctamente y lanzan excepciones. 
+Siguiendo la propuesta de Randoop~\cite{Pacheco07}, el tipo de excepción permite distinguir entre lo que BEAPI considera errores (o \emph{bugs}) 
+y violaciones de precondiciones. 
+Por defecto, BEAPI interpreta las excepciones \texttt{IllegalArgumentException} y \texttt{IllegalStateException} 
+como violaciones de precondiciones, mientras que considera el resto de las excepciones como errores reveladores.
+
+El comportamiento ante excepciones puede ser modificado mediante parámetros de configuración. 
+Las secuencias que violan precondiciones (caso 2) son descartadas, 
+mientras que las secuencias que revelan errores (caso 1) 
+son reportadas y retornadas al usuario. De forma similar a Randoop, 
+es posible mejorar la capacidad de detección de errores mediante la especificación adicional de invariantes, 
+como el predicado \texttt{repOK}.
+
+BEAPI puede configurarse para habilitar o deshabilitar dos optimizaciones clave: 
+la coincidencia de estados y el uso de métodos generadores predefinidos. 
+Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy ineficiente 
+y ser capaz de generar entradas únicamente para alcances pequeños (por ejemplo, de tamaño 3) en tiempos razonables~\cite{Politano20}. 
+En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
+
+El resultado de la ejecución de BEAPI es una suite de pruebas en formato \texttt{JUnit}. 
+Cada prueba en la suite corresponde a una secuencia de métodos que construye uno de los objetos del conjunto exhaustivo resultante.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/beapi-arquitecture.jpeg}
+  \caption{Framework de BEAPI}
+  \label{fig:beapi-architecture}
+\end{figure}
