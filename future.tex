@@ -2,14 +2,33 @@
 \chapter{Trabajo Futuro}
 \label{cap:future}
 
+\chapter{Trabajo Futuro}
 
-Mejora analizador estatico
-\\
+Creemos que una dirección de investigación prometedora, que planeamos explorar más a fondo en trabajos futuros, 
+es adaptar nuestro enfoque para la generación exhaustiva acotada de pruebas, buscando mejorar su eficiencia, aplicabilidad y capacidad de integración con otras técnicas de prueba automatizadas.
 
-Mejorar dependendecias de clases
-\\
+Una primera línea relevante consiste en ampliar las capacidades del análisis estático en el proceso de identificación de métodos constructores. 
+Actualmente, el análisis se basa en información superficial sobre el tipo de retorno y los argumentos de los métodos. 
+Sin embargo, una extensión que incorpore información sobre el flujo de datos, el uso de variables internas y los efectos colaterales permitiría una caracterización más precisa, 
+especialmente en casos donde existen inicializaciones indirectas o dependencias implícitas.
 
-Dependecia de variables o constantes seteadas, tanto para cobertura como para beapi
-\\
-Crear un algortimo genetico especifico para este caso
-\\
+En paralelo, algunos aspectos del algoritmo evolutivo desarrollado pueden mejorarse de manera sustancial. 
+Planeamos explorar nuevas heurísticas que tengan en cuenta métricas estáticas del código para guiar mejor la selección y combinación de métodos en el proceso evolutivo. 
+Actualmente, nuestra implementación se basa principalmente en una configuración básica de la librería Jenetics para Java \cite{jenetics}. 
+Como parte del trabajo futuro, prevemos diseñar un algoritmo genético específico, adaptado a las particularidades del problema de identificación de constructores a partir de una API. 
+Esto incluiría una representación más adecuada de los individuos, así como operadores de cruce y mutación que preserven estructuras válidas en el espacio de soluciones. 
+Además, la sintonización de parámetros evolutivos, como las tasas de cruce y mutación, constituye otra línea de trabajo que puede contribuir significativamente a mejorar la eficiencia del proceso.
+
+Asimismo, resulta fundamental mejorar el manejo de dependencias entre clases en el proceso de generación, 
+ya que en muchos módulos las estructuras de interés dependen fuertemente de la colaboración entre múltiples clases. 
+El tratamiento explícito de estas dependencias permitiría una generación más completa y representativa de los posibles estados del sistema. 
+Además, se deben considerar las dependencias de variables o constantes seteadas en el código, tanto en el análisis de cobertura como en el proceso de generación de entradas con BEAPI. 
+Estas dependencias influyen directamente en los caminos ejecutables del software y, por lo tanto, en la capacidad de los tests generados para alcanzar comportamientos relevantes.
+
+Finalmente, planeamos evaluar el desempeño de BEAPI frente a herramientas de generación de pruebas no exhaustivas, como Randoop, 
+utilizando benchmarks modernos propuestos en la literatura. Esta evaluación permitirá comparar las capacidades de nuestra técnica con las de enfoques alternativos más ampliamente difundidos, 
+poniendo en perspectiva las ventajas y limitaciones de la generación exhaustiva acotada frente a otras estrategias de prueba automatizada.
+
+En conjunto, estas líneas de trabajo futuro apuntan a consolidar y extender las capacidades de BEAPI, 
+tanto desde el punto de vista de su eficiencia como de su aplicabilidad en contextos reales. 
+La evolución de estas técnicas contribuirá a la construcción de herramientas más potentes y versátiles para el aseguramiento de la calidad del software.
