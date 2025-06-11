@@ -2,8 +2,6 @@
 \chapter{Conclusiones}
 \label{cap:conclutions}
 
-\section*{Conclusión}
-
 La garantía de calidad del software puede mejorar considerablemente gracias a las técnicas modernas de análisis, 
 entre las cuales las técnicas de generación automática de tests juegan un papel destacado \cite{Cadar08, Luckow14, Fraser11, Pacheco07, Ma15, goGodefroid05, Marinov01, Boyapati02,Godefroid12}. 
 Los enfoques aleatorios y basados en búsqueda han demostrado gran éxito en la generación automática de suites de prueba con excelentes métricas de cobertura y mutación. 
@@ -66,73 +64,6 @@ partiendo únicamente de la API pública de un módulo, permite construir conjun
 Las contribuciones desarrolladas en esta tesis aportan significativamente al aseguramiento de la calidad del software, 
 y abren nuevas perspectivas para la investigación y el desarrollo de herramientas de prueba automatizadas, 
 más efectivas y confiables en contextos reales.
-
-
-
-La garantía de calidad del software puede mejorar considerablemente gracias a las técnicas modernas de análisis de software, 
-entre las cuales las técnicas de generación automática de tests juegan un papel destacado \cite{Cadar08, Luckow14, Fraser11, Pacheco07, Ma15, goGodefroid05, Marinov01, Boyapati02,Godefroid12}. 
-Los enfoques aleatorios y basados en búsqueda han demostrado un gran éxito en la generación automática de suites de tests con muy buenas métricas de cobertura y mutación, 
-pero su naturaleza aleatoria no permite que estas técnicas caractericen con precisión las familias de comportamientos de software 
-que cubren los tests generados. Las técnicas sistemáticas, como las basadas en \emph{model checking}, ejecución simbólica 
-o generación exhaustiva acotada, cubren un conjunto preciso de comportamientos, y por lo tanto pueden proporcionar garantías de corrección específicas.
-
-En esta tesis, abordamos el desafío de la generación automática de datos de prueba de forma exhaustiva y sistemática, 
-especialmente en contextos donde no se dispone de especificaciones formales de las estructuras de datos que se deben probar. 
-Nuestro objetivo principal fue diseñar y desarrollar técnicas que permitan generar entradas de prueba exhaustivas a partir de la API pública de un módulo, reduciendo 
-así la necesidad de intervención manual y maximizando la cobertura de comportamientos relevantes del software bajo prueba.
-
-Para lograr este objectivo, se desarrollaron dos tecnicas,
-la primera presentada en el capitulo \ref{cap:builders} donde presentamos un algoritmo evolutivo y un algoritmo greddy para detectar automáticamente conjuntos de métodos constructores a partir de la API de un módulo. 
-Evaluamos estos algoritmos en varios estudios de caso tomados de la literatura, 
-y encontramos que es capaz de identificar de manera precisa conjuntos de métodos constructores que son suficientes y mínimos, 
-en tiempos de ejecución razonables. Hasta donde sabemos, este es el primer trabajo que aborda este problema, el cual suele resolverse de manera manual.
-Asimismo, mostramos que las técnicas de generación de pruebas y de verificación formal, como model checking, pueden beneficiarse de esta identificación automática para construir drivers más eficientes, 
-y que este enfoque resulta prometedor para la generación de objetos de prueba más grandes y diversos. 
-Estos hallazgos confirman que BEAPI y su algoritmo evolutivo representan un paso significativo hacia la automatización de la generación de entradas de prueba a partir de la API pública.
-También mostramos resultados preliminares que indican que nuestro enfoque puede ser aprovechado por herramientas de generación de casos de prueba para producir objetos más grandes y diversos. 
-Otras técnicas, como el \emph{software model checking}, también pueden beneficiarse al usar el conjunto identificado de constructores para construir automáticamente drivers eficientes.
-
-Uno de los mayores desafíos de este capítulo fue la construcción de una herramienta que nos permitiera generar todas las estructuras acotadas, 
-para un número máximo $k$ de objetos, a partir de los métodos de la API del programa. La solución propuesta funcionó lo suficientemente bien para nuestros estudios de caso, 
-pero sería deseable evitar la aleatoriedad en el proceso. El uso de herramientas de generación exhaustiva acotada en lugar de generación aleatoria se ajustaría mejor a nuestros propósitos \cite{Boyapati02}, 
-pero desafortunadamente ninguna de las herramientas para generación exhaustiva acotada de tests produce entradas a partir de la API de un módulo.
-
-La segunda técnica, presentada en el capitulo \ref{cap:beapi}, se centra en la generación exhaustiva acotada de entradas de prueba a partir de la API pública del software bajo prueba (SUT).
-BEAPI es una técnica que busca facilitar la aplicación de una técnica sistemática, la generación exhaustiva acotada de entradas, produciendo estructuras únicamente a partir de la API de un componente, 
-sin necesidad de una especificación formal de las propiedades de las estructuras. BEAPI puede generar suites exhaustivas acotadas 
-a partir de componentes con invariantes implícitos, y reduce la carga de proporcionar especificaciones formales y de ajustar 
-las especificaciones para mejorar la generación. 
-
-Uno de los desafíos más relevantes de este trabajo fue diseñar un mecanismo que permita generar todas las estructuras acotadas posibles, 
-hasta un tamaño máximo \( k \), a partir de los métodos disponibles en la API. Si bien la solución propuesta fue efectiva en los casos de estudio analizados, sería deseable evitar la aleatoriedad en el proceso para lograr una cobertura más exhaustiva. 
-Aunque existen herramientas de generación exhaustiva acotada basadas en especificaciones, ninguna de ellas opera directamente a partir de la API de un módulo, lo que hace que BEAPI llene un vacío importante en el área.
-
-BEAPI puede generar suites exhaustivas acotadas con 
-un rendimiento comparable al de la técnica basada en especificaciones más rápida, Korat \cite{Boyapati02}. También hemos identificado las
-características de un componente que pueden hacerlo más adecuado para una generación basada en especificaciones o para una generación basada en API.
-Al ejercitar directamente la API del software bajo prueba, BEAPI resulta fácil de usar y habilita la generación exhaustiva acotada para software que carece de especificaciones formales de entradas válidas. 
-Al mismo tiempo, la herramienta necesariamente genera entradas positivas verdaderas, en el sentido de que cada entrada producida es efectivamente construible a partir de los métodos públicos del SUT.
-
-Gracias a una serie de optimizaciones, incluyendo la identificación automática de 
-rutinas de construcción y un mecanismo de canonización/igualación de estados, BEAPI puede generar suites exhaustivas acotadas con 
-un rendimiento comparable al de la técnica basada en especificaciones más rápida, Korat \cite{Boyapati02}. También hemos identificado las
-características de un componente que pueden hacerlo más adecuado para una generación basada en especificaciones o para una generación basada en API.
-
-A pesar de que la generación exhaustiva acotada de pruebas es intrínsecamente combinatoria, 
-el proceso de generación puede hacerse eficiente gracias a diversas optimizaciones en el algoritmo de generación exhaustiva acotada de BEAPI, que hemos propuesto e implementado. 
-Estas optimizaciones incluyen la generación de secuencias de métodos basada en retroalimentación, la eliminación de estados redundantes mediante comparación de estados, y la identificación y posterior uso de los métodos constructores, para reducir la explosión de secuencias de métodos. 
-Mostramos experimentalmente que las optimizaciones propuestas son cruciales para la eficiencia y escalabilidad de la herramienta, y que permiten a BEAPI alcanzar una eficiencia comparable a la de los enfoques exhaustivos acotados más eficientes basados en especificaciones existentes (Korat \cite{Boyapati02}.).
-
-Finalmente, hemos mostrado cómo los enfoques basados en especificaciones y BEAPI pueden complementarse entre sí, 
-ilustrando cómo BEAPI puede ser utilizado para evaluar implementaciones de \texttt{repOK}. Utilizando este enfoque, 
-encontramos una serie de errores sutiles en especificaciones \texttt{repOK} tomadas de la literatura. Por lo tanto, 
-las técnicas que requieren especificaciones \texttt{repOK} (por ejemplo, \cite{Rosner15}), así como las técnicas que requieren 
-suites exhaustivas acotadas (por ejemplo, \cite{Molina+2021}), pueden beneficiarse de nuestra técnica de generación presentada.
-
-En conclusión, este trabajo sienta las bases para una generación exhaustiva acotada de entradas de prueba que, partiendo únicamente de la API pública de un módulo, 
-permite construir conjuntos de pruebas completos y representativos, contribuyendo significativamente al aseguramiento de la calidad del software. 
-Las contribuciones desarrolladas en esta tesis abren nuevas perspectivas de investigación y desarrollo de herramientas de prueba automatizadas, 
-que podrán facilitar la verificación y validación de software en contextos reales de manera más efectiva y confiable.
 
 
 \cacho{Traduccion del paper Efficient Bounded Exhaustive Input Generationfrom Program APIs }
