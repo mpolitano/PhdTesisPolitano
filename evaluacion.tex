@@ -3,32 +3,84 @@
 \label{cap:experimental}
 
 
+En los capítulos \ref{cap:builders} y \ref{cap:beapi} presentamos enfoques para
+identificar automáticamente un conjunto de métodos generadores de objetos, y una
+técnica novedosa de generación exhaustiva acotada basada en la API. 
+En este capítulo, realizamos una evaluación experimental de las técnicas
+mencionadas. La sección XXX analiza experimentalmente los
+algoritmos de identificación de generadores de objetos, mientras que en la
+sección YYY se evalúa la generación exhaustiva acotada basada en la API.
 
-En los capítulos \ref{cap:builders} y \ref{cap:beapi} presentamos varios enfoques para mejorar la generación exhaustiva acotada:
+
+\section{Algoritmos de identificación de métodos generadores de objetos}
+
+Con respecto a estas técnicas, las siguientes preguntas de investigación guían esta experimentación:
 
 \begin{itemize}
-\item Identificación de métodos generadores para construir todos los objetos disponibles hasta una cota en una API. En este sentido, presentamos los siguientes algoritmos para encontrar estos métodos:
-\begin{itemize}
-\item Algoritmo Genético.
-\item Algoritmo Perezoso.
-\item Algoritmo basado en clases de equivalencia.
-\end{itemize}
-\item Generación exhaustiva acotada a partir de métodos de la API.
+\item \emph{RQ1}: ¿Qué tan eficientes son los algoritmos propuestos para
+    identificar conjuntos de métodos generadores de objetos?
+\item \emph{RQ2}: ¿Qué tan precisos son los algoritmos presentados para identificar métodos generadores de objetos?
+\item \emph{RQ3}: ¿Cuál es el impacto de utilizar métodos generadores de objetos
+    en el contexto del análisis automático de software?
 \end{itemize}
 
-En este capítulo, realizamos una evaluación experimental de estas técnicas con el objetivo de analizar la eficiencia y efectividad de las suites producidas en comparación con la generación exhaustiva acotada. En otras palabras, las siguientes preguntas de investigación guían esta experimentación:
+\subsection{Configuración experimental}
 
-\cacho{TODO: pensar mejor las RQ}
-\begin{itemize}
-\item \emph{RQ1}: ¿Qué tan eficientes son los algoritmos (Algoritmo Genético, \emph{Hill Climbing}, Clases de Equivalencia) para identificar conjuntos de métodos suficientes? 
-\item \emph{RQ2}: ¿Qué tan efectivos son los algoritmos presentados para identificar conjuntos de métodos generadores de objectos suficientes de cada API?
-¿Cuánto tiempo computacional requiere cada enfoque?
-\item \emph{RQ3}: ¿Cuál es el impacto de utilizar métodos Builders identificados en comparación con el uso de todos los métodos de la API en el contexto de verificación de software?
-\item \emph{RQ4}: ¿Puede realizarse eficientemente la generación exhaustiva utilizando métodos de la API (BEAPI)?
-\item\emph{RQ4}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEG a partir de la API?
-\item\emph{RQ6}: ¿Puede BEAPI ayudar a encontrar discrepancias entre las especificaciones repOK y la capacidad de generación de objetos de la API?
-\item\emph{RQ7}: ¿Qué tan efectivas son las suites de prueba reducidas en comparación con la generación exhaustiva acotada?
+Casos de estudio, técnicas a evaluar, métricas, parámetros usados, ground truth, etc..
+
+
+
+\subsection{RQ1: Eficiencia del cómputo de generadores de objetos}
+
+
+
+\subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
+
+
+
+\subsection{RQ3: Impacto de los generadores de objetos en el análisis de
+software}
+
+\section{Generación exhaustiva acotada basada en la API}
+
+En la evaluación de BEAPI buscaremos responder a las siguientes preguntas de
+investigación:
+
 \end{itemize}
+\item \emph{RQ4}: ¿Qué tan eficiente es BEAPI para la generación exhaustiva
+    acotada de objetos?
+\item\emph{RQ5}: ¿Cuál es el impacto de las optimizaciones propuestas en el
+    rendimiento de BEAPI?
+\item\emph{RQ6}: ¿Puede BEAPI ayudar a encontrar discrepancias entre
+    especificaciones de invariantes de clase (repOK) y la capacidad de generación de objetos de la API?
+\item\emph{RQ7}: ¿Qué tan efectivos son los objetos producidos por BEAPI para el
+    testing parametrizado?  
+\end{itemize}
+
+\subsection{Configuración experimental}
+
+Casos de estudio, técnicas a evaluar, métricas, parámetros usados, ground truth, etc..
+
+
+
+\subsection{RQ4: Eficiencia de BEAPI}
+
+
+
+\subsection{RQ5: Optimizaciones de BEAPI}
+
+
+
+\subsection{RQ6: BEAPI para analizar invariantes de representación}
+
+
+
+\subsection{RQ7: Usando BEAPI para el testing parametrizado}
+
+
+
+
+
 
 % \section{Algoritmos de Identificacion de metodos builders}
 
