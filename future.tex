@@ -5,12 +5,12 @@
 Creemos que una dirección de investigación prometedora, que planeamos explorar más a fondo en trabajos futuros, 
 es adaptar nuestro enfoque para la generación exhaustiva acotada de pruebas, buscando mejorar su eficiencia, aplicabilidad y capacidad de integración con otras técnicas de prueba automatizadas.
 
-Una primera línea relevante consiste en ampliar las capacidades del análisis estático en el proceso de identificación de métodos constructores. 
+Una primera línea relevante consiste en ampliar las capacidades del análisis estático en el proceso de identificación de métodos observadores. 
 Actualmente, el análisis se basa en información superficial sobre el tipo de retorno y los argumentos de los métodos. 
 Sin embargo, una extensión que incorpore información sobre el flujo de datos, el uso de variables internas y los efectos colaterales permitiría una caracterización más precisa, 
 especialmente en casos donde existen inicializaciones indirectas o dependencias implícitas.
 
-En paralelo, algunos aspectos del algoritmo evolutivo desarrollado pueden mejorarse de manera sustancial. 
+También, algunos aspectos del algoritmo evolutivo desarrollado pueden mejorarse de manera sustancial. 
 Planeamos explorar nuevas heurísticas que tengan en cuenta métricas estáticas del código para guiar mejor la selección y combinación de métodos en el proceso evolutivo. 
 Actualmente, nuestra implementación se basa principalmente en una configuración básica de la librería Jenetics para Java \cite{jenetics}. 
 Como parte del trabajo futuro, prevemos diseñar un algoritmo genético específico, adaptado a las particularidades del problema de identificación de constructores a partir de una API. 

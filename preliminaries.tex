@@ -1,14 +1,47 @@
 \chapter[Preliminares]{Preliminares}
 \label{cap:preliminares.BE}
 
+\section{Testing}
+El testing constituye una de las estrategias más directas y ampliamente utilizadas para verificar el comportamiento de un programa.
+Esta técnica consiste en ejecutar el software bajo distintas condiciones específicas, observando si los resultados obtenidos se corresponden con los resultados esperados. 
+Dado que no es factible analizar el comportamiento de un programa frente a todas las posibles entradas (debido a que este conjunto puede ser extremadamente grande o incluso infinito, como sucede en programas que procesan números enteros arbitrarios), 
+se recurre a la selección de un subconjunto representativo de casos de prueba, comúnmente denominado \emph{suite de tests}.
+
+El objetivo de esta suite es brindar un nivel de confianza suficiente sobre la corrección funcional del software, 
+incluso en escenarios que no han sido ejercitados directamente. 
+El testing es una etapa fundamental en los procesos modernos de desarrollo de software. 
+Tradicionalmente, se realiza después de la fase de implementación, pero en metodologías de desarrollo ágiles está integrado de manera más continua, 
+acompañando activamente el ciclo de desarrollo e incluso guiando decisiones de diseño e implementación.
 
 
 %\section{Generacion Exhaustiva Acotada}
 %\label{sec:be}
 %
-%\section{Korat: Generación exhaustiva acotada de entradas basada en especificaciones}
-%\label{sec:korat}
-%
+\section{Korat: Generación exhaustiva acotada basada en especificaciones}
+\label{sec:korat}
+
+
+Korat es una herramienta para la generación automática de estructuras de datos que cumplen con una especificación, dentro de un dominio acotado. 
+Esta herramienta fue desarrollada para el lenguaje Java y está orientada a la creación sistemática de instancias de clases que satisfacen ciertas condiciones de validez definidas por el programador. 
+Estas condiciones se expresan mediante un método booleano denominado \texttt{repOK}, que determina si una estructura de datos es válida desde el punto de vista de su invariante de representación.
+
+El objetivo de Korat es explorar de manera exhaustiva el espacio de todas las posibles instancias de una clase hasta cierto tamaño (por ejemplo, listas de hasta $k$ nodos), 
+generando únicamente aquellas que satisfacen el invariante especificado. 
+El espacio de búsqueda queda así acotado tanto por el tamaño máximo de las estructuras como por el predicado de validez.
+
+La eficiencia de Korat radica en su estrategia de exploración dirigida, 
+que evita examinar múltiples configuraciones que se sabe, por construcciones previas, que no conducen a estructuras válidas. 
+Para lograr esto, Korat realiza una exploración sistemática del espacio de posibles asignaciones de campo (por ejemplo, referencias entre nodos) utilizando una técnica basada en el seguimiento de las ubicaciones leídas por \texttt{repOK}.
+Cada vez que una estructura es evaluada por el método \texttt{repOK}, Korat registra qué campos han sido accedidos (conocidos como \emph{field accesses}). Esta información se utiliza para podar el espacio de búsqueda: si una configuración parcial de campos no puede dar lugar a una estructura válida, 
+todas sus extensiones también serán descartadas.
+
+De esta forma, el algoritmo de Korat combina una búsqueda por retroceso con poda guiada por la ejecución de \texttt{repOK}, permitiendo explorar exhaustivamente el dominio acotado sin redundancias innecesarias. El proceso continúa hasta haber generado todas las instancias válidas dentro del límite especificado.
+
+Korat ha demostrado ser eficaz en la generación de estructuras complejas como listas doblemente enlazadas, árboles binarios y montículos binomiales, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de pruebas. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
+
+
+
+
 %La \textit{generación exhaustiva de entradas} para probar APIs es una tarea crítica en la prueba de software, ya que permite identificar errores y garantizar que los programas funcionen correctamente bajo diversas condiciones. Sin embargo, el número potencialmente enorme de valores de entrada genera una explosión combinatoria, lo que hace inviable probar todas las posibles combinaciones.
 %
 %Para abordar este problema, se utiliza la \textit{generación exhaustiva acotada de entradas} (\textit{Bounded Exhaustive Testing, BE}), que consiste en generar todas las combinaciones posibles dentro de un rango predefinido. Este enfoque equilibra cobertura y factibilidad al reducir el espacio de prueba a un subconjunto manejable, sin dejar de incluir casos críticos que podrían pasar desapercibidos con métodos menos sistemáticos, como la \textit{generación aleatoria de pruebas}. Si bien la generación aleatoria es menos costosa computacionalmente, puede omitir casos límite relevantes, afectando la detección de errores.
