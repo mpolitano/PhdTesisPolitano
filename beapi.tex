@@ -1,11 +1,11 @@
-\chapter{Generacion Exhaustiva acotada desde API de los programas}
+\chapter{Generaci'on Exhaustiva acotada desde API de los programas}
 \label{cap:beapi}
 
 En adelante, se presenta la técnica desarrollada llamada BEAPI, que tiene como objetivo mejorar la generación exhaustiva acotada (BEG, por sus siglas en inglés, \emph{Bounded Exhaustive Generation}). \cacho{Agregar en preliminar? o referencia a book?}
 La generación exhaustiva acotada se refiere a un enfoque en pruebas de software
 y análisis de sistemas en el cual se generan y evalúan todas las posibles combinaciones o instancias de entrada dentro de un conjunto acotado. 
 Esto significa que se examinan todas las combinaciones posibles de entrada dentro de un límite especificado. 
-Es un enfoque efectivo para revelar fallas en el sofware. Además, se utiliza a menudo en sistemas donde el espacio de entrada es manejable y finito. 
+Es un enfoque efectivo para revelar fallas en el software. Además, se utiliza a menudo en sistemas donde el espacio de entrada es manejable y finito. 
 
 Existen varios enfoques de BEG que requieren una especificación precisa de que entradas son válidas en el contexto del sistema. 
 Esta especificación comúnmente se llaman \emph{RepOK} y debe ser brindada por el usuario.
@@ -112,7 +112,7 @@ Esto permite recorrer la lista en ambas direcciones: desde el primer nodo hasta 
 En la Figura \ref{fig:repok2} se pueden observar ejemplos de instancias que pasan o no esta sección de restricciones del método. 
 La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha tiene el error de que la lista principal no es cíclica, 
 característica que poseen las listas principales (donde se guardan los datos) de NCL. 
-El campo \emph{next} del nodo no apunta a \emph{null}, lo que rompe la propiedad de ciclicidad. 
+El campo \emph{next} del nodo no apunta a \emph{null}, lo que rompe la propiedad de callicidas. 
 Esta restricción se contempla en la línea 16 del \emph{repOK}.
 
 \begin{figure}[H]
@@ -180,7 +180,7 @@ Para hacer esto
 \begin{figure}[!thb]
 \begin{lstlisting}
 public Object removeIndex(int index) {
-  // Check precondicion
+  // Check precondic\'on
   if(index < 0 || index >= size)
       throws new IllegalArgumentException();  
   . . .
@@ -268,7 +268,7 @@ En el contexto de estructuras de datos, este proceso podría implicar reorganiza
 % \cacho{VER BIEN ESTO DE NO EXTENDERSE, porq para crear estrucutras de 3 nodos a veces necesito crear previamente una de 4 nodos}
 % Esto asegura que se generen solo \texttt{NCL} con no más de k nodos. 
 % Por ejemplo, la figura \ref{fig:scope}, se puede observar que cuando genera una estructura con mas nodos que el especificado en el archivo de configuración, 
-% este no sigue extiendo el arbol de búsqueda. En la figura el scope especificado es 3 (vale aclarar, que el nodo ficticio cuanta como nodo de la estructura.)
+% este no sigue extiendo el árbol de búsqueda. En la figura el scope especificado es 3 (vale aclarar, que el nodo ficticio cuanta como nodo de la estructura.)
 
 \begin{figure}[H]
     \centering
@@ -279,7 +279,7 @@ En el contexto de estructuras de datos, este proceso podría implicar reorganiza
 
 
 % Siguiendo el análisis del archivo de configuración de la figura \ref{fig:NCL-fin-BEAPI},
-% y el número de valores primitivos disponibles, en nuestro ejemplo de la figura, se especifica enteros del 0 a $k-1$ y cadenas de caracteres: str1, str2, str3. Ademas, se pueden especificar otros valores primitivos como floats, doubles, etc. Esto serán los dominios de datos para los tipos primitivos que necesiten los métodos que serán utilizados. Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de canonización de objetos, que se lleva a cabo en la ejecución de las secuencias de métodos de la API. Esto permite al usuario controlar qué partes de la estructura del objeto son relevantes para la coincidencia de estados (ver más adelante en la sección \ref{sec:stateMatching}). Por ejemplo,  la línea 4 haría que \emph{BEAPI} omita el tamaño máximo predeterminado de la caché en la coincidencia de estados, que en la API de \emph{NCL} es una constante inicializada en 20 en el constructor de la clase. Es importante que aqui se omitan campos que puede afectar la coincidencia de estados, como el caso del campo \emph{modCount}. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada. 
+% y el número de valores primitivos disponibles, en nuestro ejemplo de la figura, se especifica enteros del 0 a $k-1$ y cadenas de caracteres: str1, str2, str3. Ademas, se pueden especificar otros valores primitivos como floats, doubles, etc. Esto serán los dominios de datos para los tipos primitivos que necesiten los métodos que serán utilizados. Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de canonización de objetos, que se lleva a cabo en la ejecución de las secuencias de métodos de la API. Esto permite al usuario controlar qué partes de la estructura del objeto son relevantes para la coincidencia de estados (ver más adelante en la sección \ref{sec:stateMatching}). Por ejemplo,  la línea 4 haría que \emph{BEAPI} omita el tamaño máximo predeterminado de la caché en la coincidencia de estados, que en la API de \emph{NCL} es una constante inicializada en 20 en el constructor de la clase. Es importante que aquí se omitan campos que puede afectar la coincidencia de estados, como el caso del campo \emph{modCount}. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada. 
 % La configuración mostrada en la Figura~\ref{fig:NCL-fin-BEAPI} es suficiente para que \emph{BEAPI} genere NCL con un máximo de 3 nodos, que contienen enteros del 0 al 2 como valores. 
 
 
@@ -402,7 +402,7 @@ int[] lin(O raiz, Heap<O, E> heap, int alcance, Map ids, Regex omitirCampos) {
     if (ids.containsKey(raiz))
         return secuenciaUnica(ids.get(raiz));
     if (ids.size() == alcance)
-        throw new ExcepcionAlcanceSuperado();
+        throw new excepcionAlcanceSuperado();
     int id = ids.size() + 1;
     ids.put(raiz, id);
     int[] seq = secuenciaUnica(id);
@@ -527,7 +527,7 @@ Esto demuestra que la identificación de métodos generadores no es trivial de r
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
 
-A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{alg:beapi}. 
+A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{fig:beapi-algorithm}. 
 \emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. 
 Estos métodos pueden ser la API completa o un subconjuntos de métodos de la misma. 
 En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos generadores previamente identificados. 
@@ -556,20 +556,20 @@ y se devuelve la lista de todas las secuencias en \texttt{secuenciasActuales} (l
       \KwOut{Lista de secuencias generadas}
       
       $secuenciasActuales \leftarrow$ copia de las primitivas\;
-      $canónicos \leftarrow \emptyset$\;
+      $canonicos \leftarrow \emptyset$\;
       
       \While{\textbf{true}}{
           $nuevasSecuencias \leftarrow \emptyset$\;
           $hayNuevas \leftarrow$ \textbf{falso}\;
           
-          \For{$m(T_1,\ldots,T_n):T_r$ en métodos}{
+          \For{$m(T_1,\ldots,T_n):T_r$ en metodos}{
             $seqs_{T_1} \leftarrow secuenciasActuales$ para tipo $T_1$\;
             \ldots\;
             $seqs_{T_n} \leftarrow secuenciasActuales$ para tipo $T_n$\;
 
             \For{$(s_1,\ldots,s_n) \in seqs_{T_1} \times \ldots \times seqs_{T_n}$}{
               $nuevaSec \leftarrow$ crearSecuencia($s_1,\ldots,s_n,m$)\;
-              $(o_1,\ldots,o_n,o_r, fallo, excepción) \leftarrow$ ejecutar($nuevaSec$)\;                
+              $(o_1,\ldots,o_n,o_r, fallo, excepcion) \leftarrow$ ejecutar($nuevaSec$)\;                
               \If{fallo}{
                   \Return{\texttt{ExcepciónEjecuciónFallida}($nuevaSec$)}\;
               }
@@ -584,8 +584,8 @@ y se devuelve la lista de todas las secuencias en \texttt{secuenciasActuales} (l
               }
               
               \For{\textbf{cada} tipo $T_i$ en $\{T_1,\ldots,T_n,T_r\}$}{
-                  \If{$T_i$ es de referencia \textbf{y} $c_i \notin canónicos$}{
-                      $canónicos \leftarrow canónicos \cup \{c_i\}$\;
+                  \If{$T_i$ es de referencia \textbf{y} $c_i \notin canonicos$}{
+                      $canonicos \leftarrow canonicos \cup \{c_i\}$\;
                       agregar $nuevaSec$ a $nuevasSecuencias$ para el tipo $T_i$\;
                       $hayNuevas \leftarrow$ \textbf{verdadero}\;
                   }
@@ -670,7 +670,7 @@ un conjunto de pruebas \texttt{JUnit}~\cite{junit} con las secuencias de método
 y otro conjunto de pruebas que revelan errores (si los hubiera) en los métodos utilizados para la generación.
 
 
-\cacho{Hace falta poner como se corre, no lo veo, es de tool paper eso}
+\cacho{Hace falta poner como se corre, no la veo, es mas de tool paper eso}
 
 % \subsection{Entradas de BEAPI}
 
@@ -706,7 +706,7 @@ y otro conjunto de pruebas que revelan errores (si los hubiera) en los métodos 
 BEAPI emplea los métodos generadores de objectos de la clase objetivo 
 y los valores primitivos provistos en los archivos de configuración para generar secuencias de estos métodos, 
 las cuales constituyen los casos de prueba y conducen a la creación de objetos de prueba.
-Esta tarea es llevada a cabo por el módulo \emph{generador de secuencia de test}, mostrado en la Figura~\ref{fig:beapi-architecture}.
+Esta tarea es llevada a cabo por el módulo \emph{generador de secuencia de test}, mostrado en la Figura~\ref{fig:beapi-overview}.
 
 A grandes rasgos, el generador comienza produciendo todas las secuencias de prueba posibles de longitud 1 (es decir, con una sola invocación de método). 
 Los valores primitivos definidos en los archivos de configuración son utilizados para instanciar los parámetros requeridos por los métodos durante su invocación.
@@ -719,7 +719,7 @@ El proceso continúa hasta que las secuencias de longitud $k$ ya no generan nuev
 En ese punto, el generador de secuencias detiene su ejecución y BEAPI devuelve la suite de pruebas generada junto con el conjunto de objetos producidos.
 
 A continuación, se describe cómo BEAPI procesa los distintos resultados que puede arrojar la ejecución de una secuencia de prueba.
-El módulo \emph{clasificador}, también ilustrado en la Figura~\ref{fig:beapi-architecture}, 
+El módulo \emph{clasificador}, también ilustrado en la Figura~\ref{fig:beapi-overview}, 
 observa el resultado de la ejecución y clasifica la secuencia en una de las siguientes categorías:
 
 \begin{enumerate}
@@ -764,5 +764,5 @@ Cada prueba en la suite corresponde a una secuencia de métodos que construye un
   \centering
   \includegraphics[width=0.8\textwidth]{images/beapi-arquitecture.jpeg}
   \caption{Framework de BEAPI}
-  \label{fig:beapi-architecture}
+  \label{fig:beapi-overview}
 \end{figure}
