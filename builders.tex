@@ -593,37 +593,54 @@ calcularlo a mano, no es difícil.}
 
 \subsection{Cobertura de código}
 \label{sec:fitnessRandoop}
-\cacho{
-% Mergear con lo de abajo
-La segunda función objetivo se enfoca en crear conjuntos de pruebas (test suites) utilizando los métodos de estado bajo evaluación 
-y medir la cobertura que alcanzan estas test suites. 
-La cobertura se refiere a cuántas líneas de código y cuántas ramas del programa son ejecutadas durante la ejecución de las pruebas. 
-Esta métrica nos da una idea de qué tan bien cubren los conjuntos de pruebas las diferentes partes del programa, 
-lo que nos permite evaluar la calidad y eficacia de los métodos generadores en términos de la cobertura lograda.
-}
-Los criterios de evaluación incluyen:
-\begin{itemize}
-    \item \textbf{Cobertura de líneas de código:} Porcentaje de líneas de código ejecutadas al correr los test suites.
-    \item \textbf{Cobertura de ramas:} Porcentaje de decisiones (\textit{branches}) exploradas en el flujo de ejecución del programa.
-\end{itemize}
 
-/cacho{Esta seccion es nueva, hay que revisarla}
+\pp{Como la generación exhuastiva acotada puede ser costosa computacionalmente,
+    proponemos aquí una heurística para computar la función objetivo que debería
+    dar lugar a una mejor eficiencia en los algoritmos de cómputo de métodos
+generadores.} Así, la segunda función objetivo se basa en generar test suites
+de manera automática (aleatoria) utilizando un suconjunto candidato de métodos,  
+y medir la cobertura de código que alcanzan estas test suites. 
+La cobertura se mide en términos de las líneas de código y las ramas del
+programa que son ejercitadas por los tests \pp{hacer referencia a la sección
+correspondiente de background y mirar que matcheen los términos usados}.
+Esta métrica nos da una idea de qué tan bien los tests generados usando el
+subconjunto de métodos pueden cubrir las diferentes partes del programa, 
+lo que nos permite evaluar un aspecto importante de la calidad de las test
+suites generadas por los métodos.
+% PABLO: Esto está en background
+%Los criterios de evaluación incluyen:
+%\begin{itemize}
+%    \item \textbf{Cobertura de líneas de código:} Porcentaje de líneas de código ejecutadas al correr los test suites.
+%    \item \textbf{Cobertura de ramas:} Porcentaje de decisiones (\textit{branches}) exploradas en el flujo de ejecución del programa.
+%\end{itemize}
+Por ejemplo, si se genera una test suite que cubre 100 líneas de código y 20 ramas de la API, 
+la función objetivo combina estas métricas en un puntaje compuesto.
 
-
-Por ejemplo, si el conjunto de métodos seleccionado $M$ genera un test suite que cubre 100 líneas de código y 20 ramas de la API, 
-la función objetivo combina estas métricas en un puntaje compuesto. 
 Para ello, se calcula la proporción de líneas y ramas cubiertas respecto del total disponible, 
-y se ponderan según su importancia relativa. Así, la función objetivo puede definirse como:
+y se ponderan según su importancia relativa. Así, la cobertura alcanzada por una
+test suite puede definirse como:
 
 \[
-\text{Score}(M) = \alpha \cdot \frac{L_M}{L_{\text{total}}} + \beta \cdot \frac{B_M}{B_{\text{total}}}
+\text{Cob}(M) = \alpha \cdot \frac{L_M}{L_{\text{total}}} + \beta \cdot \frac{B_M}{B_{\text{total}}}
 \]
 
 donde $\alpha$ es $0.4$ y $\beta$ es $0.6$ para darle un peso mas importante a la cobertura de ramas.
-Este enfoque es especialmente útil en casos donde el objetivo es garantizar que los métodos seleccionados ejerzan la mayor cantidad posible de rutas de ejecución en la API.
-Ambas funciones objetivo son utilizadas como criterios de evaluación en los algoritmos de búsqueda implementados. 
-En el contexto de nuestra tesis, hemos realizado modificaciones en la herramienta \emph{Randoop} descrita en la sección \ref{sec:feedback-directed-test-gen} 
-para generar test suite que luego se les medira que tan buenas son con respecto a la cobertura que alcanzan dichas test suite.
+Este enfoque es especialmente útil en casos donde el objetivo es favorecer
+métodos que sean útiles para generar tests que ejerciten la mayor cantidad
+posible de ramas del código.
+En el contexto de nuestra tesis, hemos realizado modificaciones en la
+herramienta \emph{Randoop} (descrita en la sección
+\ref{sec:feedback-directed-test-gen})
+de manera que las test suites generadas sean de utilidad para averiguar si un conjunto de 
+métodos dados es un buen conjunto de métodos generadores.
+Luego, usamos esta versión de Randoop para computar $Cov$ de la siguiente manera.
+Primero, se genera una test suite usando los métodos dados con un tiempo límite
+de generación fijo (determinado experimentalmente). Luego, se mide  
+ la cobertura de líneas y de ramas obtenida por la test suite, y se computa $Cov$ con
+estos valores.
+
+
+
 Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, 
 representado en la sección anterior por el conjunto $M$. 
 El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados.
@@ -635,11 +652,18 @@ métodos con la siguiente estructura:
 \cacho{Esto no se si nos dice algo, creo que con el algortimo ya esta. Y agrego state matching en este algoritmo, o lo dejo para BEAPI?}
 $metodoGenerador^* + metodoNoGenerador$. 
 
-\cacho{Debo entender como modificar el algoritmo basandonos en la estructura de arriba y que se entienda. Explicar linea por linea.}
+\cacho{Debo entender como modificar el algoritmo basandonos en la estructura de
+arriba y que se entienda. Explicar linea por linea.} \pp{???}
+
+\pp{Hace falta el número máximo de tests W en el algoritmo o lo podemos sacar? Me suena raro
+pero podría estar comiéndome algún caso.}
+
+
 
 \begin{algorithm}[H]
     \SetAlgoLined
-    \KwIn{Conjunto de métodos $M$, tiempo total $S$, número deseado de tests $W$}
+    \KwIn{Métodos de la API $API$, subconjunto de métodos $M \subseteq API$,
+    tiempo total $S$, número máximo de tests $W$}
     \KwOut{Conjunto final de tests generados}
     
     \SetKwFunction{FMain}{GenerarTests}
@@ -648,13 +672,13 @@ $metodoGenerador^* + metodoNoGenerador$.
     \BlankLine
 
 
-    \Fn{\FMain{$M$, $S$, $W$}}{
+    \Fn{\FMain{$API$, $M$, $S$, $W$}}{
     
         $S_1 \leftarrow 0.4 \cdot S$\;
         $S_2 \leftarrow 0.6 \cdot S$\;
     
-        $M_{gen} \leftarrow$ métodos generadores de $M$\;
-        $M_{nogen} \leftarrow$ métodos no generadores de $M$\;
+        $M_{gen} \leftarrow$ $M$\;
+        $M_{nogen} \leftarrow$ $API - M$\;
     
         $tests_1 \leftarrow$ \FGen{$M_{gen}$, $S_1$, $W$, $\emptyset$}\;
         $tests_2 \leftarrow$ \FGen{$M_{nogen}$, $S_2$, $W$, $tests_1$}\;
@@ -666,11 +690,11 @@ $metodoGenerador^* + metodoNoGenerador$.
 
     \Fn{\FGen{$M'$, $S'$, $W'$, $T_0$}}{
 
-    Inicializar $tests \leftarrow T_0$\;
+    $tests \leftarrow T_0$\;
 
     \While{tiempo transcurrido $< S'$ \textbf{y} $|tests| < W'$}{
-        Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M'_1,\ldots,M'_n\}$\;
-        \For{$p_i:T_i$ de $M'$}{
+        Seleccionar aleatoriamente $m(p_1:T_1, \ldots, p_m:T_m) \in M'$\;
+        \For{$p_i:T_i$ de $m$}{
             \If{$T_i$ es primitivo}{
                 $S_i \leftarrow$ valor primitivo para $T_i$ tomado
                 aleatoriamente de las semillas\;
@@ -678,7 +702,7 @@ $metodoGenerador^* + metodoNoGenerador$.
                 $S_i \leftarrow$ secuencia aleatoria $\in prev$ que crea objeto de tipo $T_i$\;
             }
         }
-        $test \leftarrow S_1; \ldots; S_m; M'(v_1,\ldots,v_m)$\;
+        $test \leftarrow S_1; \ldots; S_m; m(v_1,\ldots,v_m)$\;
         $res \leftarrow ejecutar($test$)$\;
         \If{res = falla} {
             \Return{$\{ test \}$}\;
@@ -712,12 +736,13 @@ proporcionan indicios valiosos sobre la calidad del conjunto.
 
 En consecuencia, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas y líneas alcanzadas durante la ejecución de las secuencias.
     
-La función de valoración que utilizamos para evaluar la calidad de un candidato, 
-que representa un conjunto de métodos $M$, se define como una tríupla al igual que la función de la sección anterior:
+La función objetivo que utilizamos para evaluar la calidad de un candidato, 
+que representa un conjunto de métodos $M$, se define como una tripla, al igual que la función de la sección anterior:
 
 \[
 f(M) = \langle Cob(M), R(M), C(M) \rangle
 \]
+\pp{Cambiar $f$ por $f'$, sino parece que fuera la misma función}
 
 Donde:
 
@@ -727,6 +752,9 @@ Donde:
     \item $R(M)$ (Redundancia): Igual a la funcion de valoracion de la seccion de generador exhaustivo
     \item $C(M)$ (Complejidad): Tambien mantuvimos el mismo calculo que la funcion de valoracion del generador exhaustivo
 \end{itemize}
+
+
+
 
 \cacho{
 Volvamos al ejemplo que usamos durante este capitulo. El primer caso tenemos los siguientes métodos:}
@@ -753,8 +781,13 @@ A partir de estas, se ejecutan y se analizan la cobertura que se obtiene se obti
 f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 4 \rangle
 \]
 
+\pp{El ejemplo está incompleto??? Hay que arreglar todo lo que había que arreglar
+    en la sección previa también (ej. valuaciones para los parámetros.}
 
 
+En nuestra evaluación experimental, ambas funciones objetivo son utilizadas como
+parte de los algoritmos de búsqueda implementados, para analizar sus ventajas y
+desventajas en la práctica. 
 
 \section{Algoritmos para la Identificación de Métodos Generadores de Objetos}
 \label{sec:algorithms}
