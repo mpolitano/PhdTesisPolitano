@@ -64,16 +64,21 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
     Los métodos constructores (líneas 0-2 en la Tabla~\ref{tab:ncl-api}) permiten crear nuevos objetos del tipo. Estos son:
     \begin{itemize}
         \item \texttt{NCL()}: Crea una lista vacía.
-        \item \texttt{NCL(int)}: \cacho{Define el tamaño máximo permitido para la lista caché}
+        \item \texttt{NCL(int)}: Crea una lista vacía. El parámetro define el
+            tamaño máximo permitido para la lista caché.
         \item \texttt{NCL(Collection)}: Crea una lista nueva que contiene todos los elementos de una colección dada.
     \end{itemize}
     \item \textbf{Métodos modificadores:}
     Estos métodos permiten agregar, eliminar o modificar elementos de la lista. Algunos ejemplos son:
     \begin{itemize}
-        \item \texttt{add(Object)}: Agrega un elemento al final de la lista principal \cacho{y no se modifica la lista cache }
-        \item \texttt{addFirst(Object)} y \texttt{addLast(Object)}: Insertan elementos al principio o al final de la lista principal \cacho{y no se modifica la lista cache}
+        \item \texttt{add(Object)}: Agrega un elemento al final de la lista
+            principal \cacho{y no se modifica la lista cache }\pp{No puede ser,
+            la cache estaría al pedo si fuera así porque no se reusan los nodos. Revisar}
+        \item \texttt{addFirst(Object)} y \texttt{addLast(Object)}: Insertan elementos al principio o al final de la lista principal \cacho{y no se modifica la lista cache}\pp{No puede ser,
+            la cache estaría al pedo si fuera así porque no se reusan los nodos. Revisar}
         \item \texttt{remove(int)} y \texttt{remove(Object)}: Eliminan elementos de la lista por índice o por valor. El nodo eliminado se inserta en la lista cache de la estructura.
-        \item \texttt{clear()}: Vacía la lista principal y  \cacho{se insertan los nodos en la lista cache}
+        \item \texttt{clear()}: Vacía la lista principal y se insertan los nodos
+            eliminados en la lista cache.
         \item \texttt{set(int, Object)}: Modifica el elemento en una posición específica de la lista.
     \end{itemize}
     \item \textbf{Métodos observadores:}  
@@ -87,13 +92,15 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
 \end{itemize}
 
 \noindent
-\cacho{
-A partir de esta API, los objetos de \emph{NodeCachingLinkedList} pueden construirse utilizando secuencias de operaciones que combinan los métodos constructores y los modificadores. Por ejemplo, una lista inicializada con \texttt{NCL()} puede llenarse mediante llamados consecutivos a \texttt{add(Object)} o \texttt{addAll(Collection)}, mientras que los métodos \texttt{remove(Object)} y \texttt{clear()} permiten vaciar la lista principal y crear elementos en la lista cache, según sea necesario.
-}
+A partir de esta API, los objetos de \emph{NodeCachingLinkedList} pueden
+construirse utilizando secuencias de operaciones que combinan los métodos
+constructores y los modificadores. Por ejemplo, una lista inicializada con
+\texttt{NCL()} puede llenarse mediante llamados consecutivos a
+\texttt{add(Object)} o \texttt{addAll(Collection)}, mientras que los métodos
+\texttt{remove(Object)} y \texttt{clear()} permiten mover nodos de la lista
+principal a la lista cache.
 
-\cacho{
-La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de NodeCachingLinkedList que pueden construirse utilizando exactamente dos nodos. A continuación, se presentan las secuencias de métodos generadores que permiten construir cada una de las configuraciones:
-}
+La Figura~\ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLinkedList. A continuación, se presentan las secuencias de métodos generadores que permiten construir cada una de las configuraciones:
 
 \begin{figure}[H]
     \centering
@@ -103,36 +110,41 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres posibles instancias de Node
 \end{figure}
 
 \begin{itemize}
-\item Figura (a): Esta instancia se construye mediante la adición secuencial de dos nodos a la lista principal:
+\item Figura (a): Esta instancia se construye agregando dos elementos a la lista
+    principal, por ejemplo, ejecutando la siguiente secuencia de test:
 \vspace{5pt} 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_a,xleftmargin=0pt]
-    (0)  NodeCachingLinkedList()
-    (7)  addFirst(Object)
-    (7)  addFirst(Object)
+    (0)  NodeCachingLinkedList();
+    (7)  addFirst(3);
+    (7)  addFirst(-1);
     \end{lstlisting}
+    \pp{Modificar la figura para que contenga elementos (N0, N1 y L0 están al
+            pedo, sino las listas no son concretas y las operaciones con object 
+        no son ejecuciones válidas.}
 
-\item Figura (b):  
-    Esta instancia se logra agregando un nodo a la lista principal y luego eliminarlo para que sea insertado en la cache:
+\item Figura (b):
+    Esta instancia se logra agregando un nodo \pp{No. hay que agregar dos nodos
+    y luego eliminar uno.} a la lista principal y luego eliminarlo para que sea insertado en la cache:
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_b, xleftmargin=0pt]
-    (0)  NodeCachingLinkedList()
-    (7)  addFirst(Object)
-    (25) removeFirst()
+    (0)  NodeCachingLinkedList();
+    (7)  addFirst(Object);
+    (25) removeFirst();
     \end{lstlisting}
 
 \item Figura (c): 
-    Esta instancia se genera añadiendo dos nodos al inicio y luego eliminándolos secuencialmente para que se inserten en la lista cache:
+    Esta instancia se genera añadiendo dos nodos al inicio y luego eliminándolos
+    para pasarlos a la lista cache \pp{Poner valores concretos}:
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_c, xleftmargin=0pt]
-    (0)  NodeCachingLinkedList()
-    (7)  addFirst(Object)
-    (7)  addFirst(Object)  
-    (25) removeFirst()
-    (25) removeFirst()
+    (0)  NodeCachingLinkedList();
+    (7)  addFirst(Object); 
+    (7)  addFirst(Object); 
+    (25) removeFirst();
+    (25) removeFirst();
     \end{lstlisting}
-
 \end{itemize}
 
 
@@ -258,7 +270,6 @@ desarrollada por Facebook. \emph{Infer} ofrece funcionalidades avanzadas que per
 Si bien el análisis de \emph{Infer} puede ser impreciso en algunos casos y generar falsos negativos (clasificar métodos como no observadores cuando si lo son), 
 en nuestros experimentos \emph{Infer}  identifica una buena proporción de los observadores de las APIs, lo que reduce significativamente el espacio de búsqueda de nuestros algoritmos.
 
-
 % Entre las ventajas de utilizar \emph{Infer} se incluyen:
 
 % \begin{itemize}
@@ -267,8 +278,16 @@ en nuestros experimentos \emph{Infer}  identifica una buena proporción de los o
 % \item \textbf{Compatibilidad:} Es compatible con varios lenguajes de programación y puede integrarse en flujos de desarrollo modernos.
 % \end{itemize}
 
-
-\cacho{Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que obtenemos es el que se encuentra en la columna \emph{Observador?}  de la tabla \ref{tab:ncl-api}}
+Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que
+obtenemos es el que se encuentra en la columna \emph{Observador?} de la tabla
+\ref{tab:ncl-api}. \pp{hay métodos mal clasificados por Infer. Como iterator.
+    Hay que ver bien si no hay algún otro. Habría que reportar los observadores
+    reales analizados a mano por un lado en la Tabla I, y después acá poner una
+tabla II que sea una copia de Tabla I y agregue una columna Infer que muestre
+también los resultados de Infer. Y decir que Infer hace análisis estático y 
+sobreaproxima los observadores. Pero es muy
+rápido y suficientemente bueno para descartar muchos métodos para nuestros
+algoritmos}  
 
 De esta manera, \emph{Infer} es utilizado como paso previo a la ejecución de nuestros algoritmos. Los métodos reportados como observadores por \emph{Infer} se descartan antes de comenzar la búsqueda de métodos generadores de objetos.
 
@@ -326,8 +345,6 @@ No. & Nombre del Método \\
 \caption{API de NodeCachingLinkedList de Apache}
 \label{tab:ncl-api-infer}
 \end{table}
-
-\pp{Acá hay que listar de nuevo los métodos de NCL en una tabla y enumerarlos. Así después se puede entender el vector. Sino no se sabe a qué posición corresponde cada cosa.}
 
 La representación de los estados en nuestros algoritmos se realiza mediante vectores booleanos. Cada posición $i$ en el vector representa el $i$-ésimo método de la API:
 
@@ -395,13 +412,16 @@ Como la cantidad de secuencias a explorar crece exponencialmente respecto de las
 
 Nuestra técnica se basa en una variante de la \emph{hipótesis de la cota pequeña}, ampliamente reconocida en el testing de software \cite{Andoni:2003,jackson2006, Abad13}. La hipótesis de la cota pequeña indica que la mayoría de las fallas pueden revelarse ejercitando el software bajo test con entradas de tamaño relativamente pequeño. Nuestra hipótesis es que si dos conjuntos de métodos $M_1$ y $M_2$ generan los mismos objetos acotados (para una cota relativamente pequeña), entonces es altamente probable $M_1$ y $M_2$ sirvan para generar los mismos objetos en un contexto no acotado. Esto fue validado empíricamente en todos nuestros casos de estudio.
 
-\cacho{Ver con Pablo luego. Pensar en ejecucion simbolica. String es mas dificil que generar un Int, ver tabla de pesos}
+%\cacho{Ver con Pablo luego. Pensar en ejecucion simbolica. String es mas dificil que generar un Int, ver tabla de pesos}
 
 \begin{lstlisting}[label=fig:rankParameters,caption=Ranking con los tipos de parametros, captionpos=b,frame=tb, float=t]
 Boolean=1
-Integer,Char,Float,Double,String=2
-Object=4
+Integer,Char=2
+Float,Double,String=4
+Object=6
 \end{lstlisting}
+\pp{Cambié los pesos. Quizás hay que cambiar algún cálculo en base a estos
+    nuevos pesos (eran 1,2,3 y 4, pasaron a ser 1,2,4 y 6.}
 
 Como ya se discutió en esta Sección, buscamos un conjunto minimal de generadores de objetos, donde los métodos tengan parámetros tan simples como sea posible. Por lo tanto, la cantidad de objetos generados usando BEAPI es sólo un componente de la función objetivo. Dado un conjunto de métodos $M$, representado por un candidato $C$, la función objetivo $f$ devuelve un valor real conformado por tres componentes:
 
@@ -413,22 +433,43 @@ Donde:
 \begin{itemize}
     \item $O(M)$ (Objetos): Es el número de objetos generados por el conjunto de métodos $M$ usando generación exhaustiva acotada, para un scope fijo. Este componente es el más importante, ya que los siguientes componentes sólo se usan para decidir en caso de empate respecto de $O(M)$. Recordemos que los generadores de objetos a identificar deben ser siempre suficientes, por lo que la función objetivo siempre prioriza los métodos que generen un mayor número de objetos.
     \item $R(M)$ (Redundancia): Representa la diferencia entre el número total de métodos de la API ($M_t$) y la cantidad de métodos en $M$. Esto se utiliza para desempatar entre conjuntos de métodos que generan la misma cantidad de objetos, dando preferencia a aquellos conjuntos que contengan menos métodos. En otras palabras, este componente de la función busca identificar generadores de objetos minimales.
-    \item $P(M)$ (Parámetros): 
-    \cacho{Es una medida ponderada de la simplicidad de los parámetros de los métodos en $M$, definida como $w_1 \cdot PP(M)$, donde $w_1$ es un peso configurable (ver Tabla \ref{fig:rankParameters}). La función $PP(M)$ calcula la cantidad y el tipo de parámetros que contienen los métodos en $M$, asignando un peso específico a cada tipo.  
-    Para obtener este valor, se recorre toda la API y se calcula el número total de parámetros disponibles en todos los métodos. Luego, se toma la diferencia entre este total y la cantidad de parámetros del subconjunto de métodos considerado.
-    Este componente de $f(M)$ se utiliza para desempatar entre conjuntos de métodos que generan la misma cantidad de objetos y tienen la misma cantidad de métodos, favoreciendo subconjuntos con una menor complejidad en sus parámetros.
-    }
+    \item $P(M)$ (Parámetros): Es una medida ponderada de la complejidad de los
+        parámetros de los métodos en $M$. \pp{Sea $m_l$ un método con parámetros $p_1: T_1,
+            p2: T_2, \ldots, p_k: T_j$, la función $W(m_l)$ define el peso de los
+            parámetros de $m_l$ de acuerdo al tipo de los mismos. $W$ se
+            define como: $W(m_l) = \sum_{i=1}^j = T(T_i)$, donde $T$ es la función
+            definida en la Tabla \ref{fig:rankParameters}, que asigna a cada
+            tipo un valor predefinido. $T$ es una función definida de manera heurística, 
+            que asigna un mayor peso a tipos más complejos. $T$ se definió 
+            considerando pesos para los tipos que dieron buenos resultados en
+            nuestra evaluación experimental, y podría reemplazarse de manera
+            directa por mejores heurísticas en el futuro. Extendemos la
+            definición de $W$ para conjuntos de métodos de la siguiente manera.
+            Sea $M'$ un subconjunto de métodos, $W(M') = \sum_{m \in M'} W(m)$.
+            Si $API$ es el conjunto total de métodos, $W(API)$ representa
+            el peso máximo que podría tener un subconjunto (el conjunto que
+            incluye todos los métodos). 
+            Ahora estamos listos para definir $P$. Como buscamos maximizar $P$, 
+            primero computaremos $W(API)$ y le restaremos el valor de $W(M)$. 
+            Esto es, $P(M) = W(API) - W(M)$. Esta componente de $f(M)$ se
+            utiliza para desempatar entre conjuntos de métodos que generan la
+            misma cantidad de objetos y tienen la misma cantidad de métodos,
+            favoreciendo subconjuntos con una menor complejidad en sus
+        parámetros.}
+
+
 \end{itemize}
 
 
-A partir de esto, podemos definir un orden sobre esta función: 
+A partir de esto, podemos definir un orden sobre esta función $f$, sean dos
+métodos $M_1$ y $M_2$ tales que: 
 
 \( f(M_1) = \langle O(M_1), R(M_1), P(M_1) \rangle \) y
 
 \( f(M_2) = \langle O(M_2), R(M_2), P(M_2) \rangle \) 
 \vspace{5pt} 
 
-de la siguiente forma:
+el orden se define de la siguiente forma:
 
 \[
 f(M_1) > f(M_2) \quad \text{si y solo si:}
@@ -467,8 +508,12 @@ Obtenemos las siguientes triplas:
 \[
 f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 4 \rangle
 \]
+\pp{4 no puede ser para el tercer componente. Porque está definido como la suma
+de la API - el peso de los métodos. Debería dar un número bastante grande.}
+\pp{Por qué el segundo componente da esos valores? Explicarlo.}
 
-Dado que el conjunto \( M_1 \) genera más objetos (15 frente a 12), \( f(M_1) > f(M_2) \). Esto implica que \( M_1 \) es capaz de generar más instancias, mientras que \( M_2 \) no puede generar algunas que requieren métodos para agregar nodos a la lista cache.
+Dado que el conjunto \( M_1 \) genera más objetos (15 frente a 12) \pp{15? Es
+demasiado chico, cuál es el scope de esto?}, \( f(M_1) > f(M_2) \). Esto implica que \( M_1 \) es capaz de generar más instancias, mientras que \( M_2 \) no puede generar algunas que requieren métodos para agregar nodos a la lista cache.
 
 En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), pero \( M_4 \) tiene un método adicional:
 \vspace{10pt} 
@@ -494,6 +539,9 @@ Las triplas resultantes son:
 \[
 f(M_3) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_4) = \langle 15, 16, 4 \rangle
 \]
+\pp{4 no puede ser para el tercer componente. Porque está definido como la suma
+de la API - el peso de los métodos. Debería dar un número bastante grande.}
+\pp{Por qué el segundo componente da esos valores? Explicarlo.}
 
 Aunque ambos conjuntos generan la misma cantidad de objetos, \( M_3 \) tiene una redundancia menor (16 frente a 17). Esto significa que \( f(M_3) > f(M_4) \), ya que \( M_3 \) contiene menos métodos redundantes.
 
@@ -521,11 +569,19 @@ Obtenemos las siguientes triplas:
 \[
 f(M_5) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_6) = \langle 15, 17, 6 \rangle
 \]
+\pp{4 no puede ser para el tercer componente. Porque está definido como la suma
+de la API - el peso de los métodos. Debería dar un número bastante grande.}
+\pp{Por qué el segundo componente da esos valores? Explicarlo.}
 
-Ambos conjuntos generan la misma cantidad de objetos y tienen la misma redundancia, pero \( M_6 \) tiene mas parámetros (el método \( add(int, Object) \) tiene un parámetro adicional). Como resultado, \( f(M_6) > f(M_5) \), debido a que preferimos una menor complejidad en los parámetros.
+Ambos conjuntos generan la misma cantidad de objetos y tienen la misma
+redundancia, pero \( M_6 \) tiene mas parámetros \pp{No importa el número de
+    parámetros sino su complejidad. Hay que calcular bien el tercer componente
+para este caso}. (el método \( add(int, Object)
+\) tiene un parámetro adicional). Como resultado, \( f(M_6) > f(M_5) \), debido
+a que preferimos una menor complejidad en los parámetros. 
 
-\cacho{Poner el total de parametros que tiene NCL, buscar en experimentos}
-
+\cacho{Poner el total de parametros que tiene NCL, buscar en experimentos}\pp{O
+calcularlo a mano, no es difícil.}
 
 
 %Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en el Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
