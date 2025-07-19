@@ -183,11 +183,8 @@ diferentes valores dependiendo de la semilla inicial.
 En el caso de la estructura \emph{NCL}, el algoritmo \emph{HC} utilizando la función de valoración \emph{GE} logra encontrar el 
 conjunto mínimo exacto de métodos generadores en todas las ejecuciones. Sin embargo, cuando se utiliza la función \emph{RC}, 
 el mismo algoritmo encuentra en promedio un conjunto con 3.80 métodos, lo que indica que en tres de las cinco ejecuciones se incluyó 
-un método adicional no necesario. Por su parte, el algoritmo evolutivo (\emph{GA}) encuentra en todas las ejecuciones un método de 
-más con la función de cobertura, y en cuatro de cinco ejecuciones también lo hace con la función \emph{GE}. Esto se debe a la 
-sensibilidad del algoritmo genético a sus parámetros (tasa de mutación, cruce, población, etc.), así como al número de generaciones 
-y tiempo de ejecución asignado. Si se le otorgara tiempo suficiente y una adecuada calibración de parámetros, este algoritmo 
-eventualmente convergería hacia el conjunto mínimo.
+un método adicional no necesario. Por su parte, el algoritmo evolutivo (\emph{GA}) encuentra en todas las ejecuciones los metodos correctos
+con ambas funciones de valoracion.
 
 En estructuras como \emph{UnionFind}, \emph{FibonacciHeap}, \emph{BTree}, \emph{BinomialHeap} y \emph{Scheduler}, todos los 
 algoritmos evaluados lograron encontrar el conjunto mínimo exacto de métodos \emph{builders}. Esto puede atribuirse a que estas 
@@ -205,22 +202,35 @@ estructuras sin agregarlos. Si se incrementa el \emph{scope} o se modifica la cl
 se logra encontrar el conjunto mínimo real. En contraste, la función \emph{RC} encuentra siempre el conjunto mínimo, dado que su 
 evaluación no depende del \emph{scope}, sino de la cobertura lograda en ejecución.
 
-En las estructuras de \emph{java.util}, como \emph{TreeMap}, \emph{TreeSet}, \emph{HashMap}, \emph{HashSet} y \emph{LinkedList}, 
-el comportamiento de los algoritmos varía según el tamaño y complejidad de la API. El algoritmo genético evaluado con la función 
-\emph{RC} es más sensible a los parámetros y al tiempo de ejecución, y no siempre logra encontrar el conjunto mínimo debido a la 
-combinatoria involucrada. En la mayoría de estas estructuras, la función \emph{GE} permite encontrar el conjunto mínimo en casi 
-todas las ejecuciones, con la excepción de \emph{HashMap}, donde suele incluirse un método adicional necesario para construir una 
-estructura particular que no es alcanzable con los otros métodos bajo el \emph{scope} configurado. Finalmente, como aún queda por 
-afinar el análisis de cobertura alcanzada con Randoop, es posible que en ciertos casos esta función de valoración tampoco logre 
-guiar al algoritmo hacia un conjunto suficiente de constructores debido a una saturación prematura de cobertura en los primeros 
-métodos explorados.
+En las estructuras pertenecientes al paquete \emph{java.util}, como \emph{TreeMap}, \emph{TreeSet}, \emph{HashMap}, \emph{HashSet} y \emph{LinkedList}, 
+el comportamiento de los algoritmos evaluados varía significativamente en función de la complejidad de la estructura, 
+el tamaño de la API y la función de valoración utilizada.
 
-En resumen, la precisión de los algoritmos depende tanto de la estructura de datos bajo análisis como de la función de valoración 
-utilizada. Mientras que en muchos casos se logra identificar el conjunto mínimo exacto de métodos \emph{builders}, en otros la 
-limitación impuesta por los parámetros de generación, el \emph{scope} o la aleatoriedad introducida por las herramientas utilizadas 
-pueden conducir a la inclusión de métodos adicionales. Estas observaciones destacan la importancia de elegir cuidadosamente tanto 
-el algoritmo como la función de evaluación en función del dominio y la clase objetivo.
+El algoritmo genético (\emph{GA}), en combinación con la función de cobertura (\emph{RC}), muestra una mayor tendencia a incluir métodos 
+adicionales en el conjunto resultante, especialmente en estructuras donde existen muchas formas alternativas de construir una instancia válida. 
+Por ejemplo, en \emph{TreeMap} y \emph{TreeSet}, el promedio de métodos identificados es de 5.6 y 3.2 respectivamente, 
+frente al mínimo esperado de 3. Este comportamiento puede atribuirse a la naturaleza estocástica del algoritmo genético,
+que depende de la exploración guiada por operadores evolutivos (selección, cruce y mutación) y de la presión de la función de aptitud. 
+En escenarios donde múltiples combinaciones conducen a configuraciones aceptables, pero no óptimas, el algoritmo puede converger 
+hacia soluciones suficientes pero redundantes, incluyendo métodos no esenciales.
 
+Además, la propia función \emph{RC}, basada en cobertura alcanzada mediante herramientas como \emph{Randoop}, 
+puede inducir una saturación temprana al favorecer métodos que rápidamente maximizan cobertura parcial, 
+aunque no necesariamente contribuyan a una construcción mínima. Esto puede explicar, por ejemplo, los resultados observados en \emph{HashSet} y \emph{HashMap}, 
+donde se identifican más métodos de los requeridos para generar la estructura objetivo. 
+En el caso específico de \emph{HashMap}, incluso la función \emph{GE} tiende a incluir el método \texttt{keySet()}, 
+necesario para construir configuraciones específicas que de otro modo no serían alcanzables bajo el \emph{scope} definido.
+
+En contraste, el algoritmo \emph{HC} muestra mayor estabilidad en la precisión, 
+logrando identificar el conjunto mínimo en la mayoría de los casos, 
+independientemente de la función de valoración empleada. Su comportamiento determinista y 
+su foco en mejoras incrementales lo hacen menos propenso a incluir métodos redundantes, 
+aunque esto también puede limitar su capacidad de escape ante óptimos locales.
+
+En resumen, la precisión alcanzada por los algoritmos depende fuertemente tanto de la estrategia de búsqueda como de la función de valoración. 
+La exploración estocástica de \emph{GA} le permite descubrir soluciones diversas, 
+pero también lo expone a converger en conjuntos sobredimensionados si la presión selectiva o la función de evaluación no están cuidadosamente diseñadas. 
+Estos resultados destacan la necesidad de calibrar adecuadamente los parámetros y de considerar cuidadosamente la métrica de evaluación para lograr una identificación eficiente y precisa de métodos generadores.
 \input{tables/eficaciaBuilders.tex}
 
 \subsection{RQ3: Impacto de los generadores de objetos en el análisis de
