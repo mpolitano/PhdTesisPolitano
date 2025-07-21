@@ -633,33 +633,44 @@ herramienta \emph{Randoop} (descrita en la sección
 \ref{sec:feedback-directed-test-gen})
 de manera que las test suites generadas sean de utilidad para averiguar si un conjunto de 
 métodos dados es un buen conjunto de métodos generadores.
-Luego, usamos esta versión de Randoop para computar $Cov$ de la siguiente manera.
-Primero, se genera una test suite usando los métodos dados con un tiempo límite
-de generación fijo (determinado experimentalmente). Luego, se mide  
- la cobertura de líneas y de ramas obtenida por la test suite, y se computa $Cov$ con
-estos valores.
 
+La heurística para averiguar si un
+subconjunto de métodos $M$ es un buen conjunto de generadores se basa en
+realizar una primera ejecución de Randoop utilizando sólo los métodos en $M$ para
+generar un conjunto de secuencias de test que generen objetos $tests_{obj}$. En
+otras palabras, se asume que los métodos en $M$ son generadores de objetos (y
+en la segunda etapa se busca evaluar si efectivamente lo son).
+Luego, estas secuencias se extienden en una ejecución de Randoop subsiguiente,
+pero esta vez usando los métodos restantes de la API. El objetivo de esta
+segunda ejecución es maximizar la cobertura de código obtenida por la suite. 
+De esta manera, si los métodos en $M$ son un buen conjunto de generadores de objetos
+la cobertura obtenida por la suite final será alta; en caso contrario será baja. 
+Por ejemplo, si la primera ejecución no puede construir muchos objetos, extender 
+$tests_{obj}$ no dará lugar a buena cobertura.
 
+El algoritmo de Randoop modificado para la detección de métodos generadores se muestra 
+en la Figura \ref{}. \pp{Poner una referencia al algoritmo}
+Primero, se realiza una ejecución de Randoop sólo con los métodos de $M$ para
+generar secuencias de test, $tests_{obj}$ (línea 6), que usan estos métodos para construir objetos \pp{Tiene state
+matching activado esto?}. Esta ejecución utiliza un 40\% del tiempo total
+asignado, \texttt{S} (ver $S_1$ en la línea 2). 
+La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
+producir estas secuencias de test. Esta función realiza su tarea utilizando 
+la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
 
-Nuestras modificaciones se centran en dar prioridad a un subconjunto específico de métodos, 
-representado en la sección anterior por el conjunto $M$. 
-El objetivo de esta modificación es generar secuencias de pruebas que enfaticen la ejecución de estos métodos seleccionados.
-No obstante, esto no implica la exclusión completa de otros métodos, ya que seguimos buscando ejercitar la API en su totalidad para lograr una buena cobertura.
-En otras palabras, modificamos el algoritmo de Randoop presentado en las seccion \ref{sec:feedback-directed-test-gen} para generar secuencias de llamadas a 
-métodos con la siguiente estructura: 
+Más adelante, se realiza una segunda ejecución
+de Randoop usando las secuencias de test $tests_{obj}$ como punto de partida para
+generar otras secuencias nuevas, utilizando los restantes métodos de la API
+($API - M$; ver línea 5). El resultado de esta ejecución es la suite de tests final
+$tests_2$ (línea 7), retornada por el algoritmo (línea 8).
+La segunda ejecución usa un 60\% del tiempo
+asignado \texttt{S} (ver $S_2$ en la línea 3). 
+Nuevamente, la producción de secuencias de test se hace invocando a
+\texttt{GenerarNuevasSecuencias}.
+
+\pp{Meter el algoritmo en un float para que encaje bien? el vspace no funciona}
 
 \vspace{10pt} 
-\cacho{Esto no se si nos dice algo, creo que con el algortimo ya esta. Y agrego state matching en este algoritmo, o lo dejo para BEAPI?}
-$metodoGenerador^* + metodoNoGenerador$. 
-
-\cacho{Debo entender como modificar el algoritmo basandonos en la estructura de
-arriba y que se entienda. Explicar linea por linea.} \pp{???}
-
-\pp{Hace falta el número máximo de tests W en el algoritmo o lo podemos sacar? Me suena raro
-pero podría estar comiéndome algún caso.}
-
-
-
 \begin{algorithm}[H]
     \SetAlgoLined
     \KwIn{Métodos de la API $API$, subconjunto de métodos $M \subseteq API$,
@@ -680,8 +691,8 @@ pero podría estar comiéndome algún caso.}
         $M_{gen} \leftarrow$ $M$\;
         $M_{nogen} \leftarrow$ $API - M$\;
     
-        $tests_1 \leftarrow$ \FGen{$M_{gen}$, $S_1$, $W$, $\emptyset$}\;
-        $tests_2 \leftarrow$ \FGen{$M_{nogen}$, $S_2$, $W$, $tests_1$}\;
+        $tests_{obj}, tests_1 \leftarrow$ \FGen{$M_{gen}$, $S_1$, $W$, $\emptyset$}\;
+        $prev_2, tests_2 \leftarrow$ \FGen{$M_{nogen}$, $S_2$, $W$, $tests_{obj}$}\;
     
         \Return{$tests_2$}\;
     }
@@ -690,7 +701,8 @@ pero podría estar comiéndome algún caso.}
 
     \Fn{\FGen{$M'$, $S'$, $W'$, $T_0$}}{
 
-    $tests \leftarrow T_0$\;
+    $tests \leftarrow \emptyset$\;
+    $prev \leftarrow T_0$\;
 
     \While{tiempo transcurrido $< S'$ \textbf{y} $|tests| < W'$}{
         Seleccionar aleatoriamente $m(p_1:T_1, \ldots, p_m:T_m) \in M'$\;
@@ -721,21 +733,21 @@ pero podría estar comiéndome algún caso.}
     \caption{GenerarTests}
     \end{algorithm}
     
-Es decir, primero generamos secuencias compuestas exclusivamente por métodos generadores (línea 6). 
-Vale aclarar que estos métodos generadores son aquellos seleccionados previamente por el algoritmo de búsqueda local. 
-Esta generación se realiza utilizando el 60\% del tiempo total disponible para la generación de secuencias (\emph{S}). 
-Con el 40\% restante del tiempo, generamos secuencias que pueden incluir tanto métodos generadores como no generadores (línea 7). 
-La función \texttt{GenerarNuevasSecuencias} es la encargada de producir estas secuencias de prueba. 
-Esta función realiza su tarea utilizando la estrategia de generación aleatoria descripta en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
+Usamos el algoritmo \ref{} para computar $Cob$ de la siguiente manera.
+Primero, se genera una test suite para un conjuto de métodos dado $M$, con un tiempo límite
+de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
+ la cobertura de líneas y de ramas obtenida por la test suite, y se computa
+ $Cob$ aplicando la fórmula \ref{} \pp{poner fórmula} con estos valores.
 
-La generación de tests con métodos no generadores resulta necesaria para garantizar la cobertura de líneas y ramas en aquellos métodos 
-que, si bien no construyen nuevos objetos, son fundamentales para evaluar la calidad general de las secuencias y su capacidad para ejercitar efectivamente la API bajo prueba. 
 
-La motivación detrás de esta estrategia radica en que los subconjuntos de métodos que logren mayor cobertura de la API 
-proporcionan indicios valiosos sobre la calidad del conjunto. 
+\cacho{Debo entender como modificar el algoritmo basandonos en la estructura de
+arriba y que se entienda. Explicar linea por linea.} \pp{???}
 
-En consecuencia, nuestra función de valoración tiene como objetivo maximizar la cobertura de ramas y líneas alcanzadas durante la ejecución de las secuencias.
-    
+\pp{Hace falta el número máximo de tests W en el algoritmo o lo podemos sacar? Me suena raro
+pero podría estar comiéndome algún caso.}
+
+
+
 La función objetivo que utilizamos para evaluar la calidad de un candidato, 
 que representa un conjunto de métodos $M$, se define como una tripla, al igual que la función de la sección anterior:
 
