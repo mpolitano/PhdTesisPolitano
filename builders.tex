@@ -733,11 +733,7 @@ Nuevamente, la producción de secuencias de test se hace invocando a
     \caption{GenerarTests}
     \end{algorithm}
     
-Usamos el algoritmo \ref{} para computar $Cob$ de la siguiente manera.
-Primero, se genera una test suite para un conjuto de métodos dado $M$, con un tiempo límite
-de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
- la cobertura de líneas y de ramas obtenida por la test suite, y se computa
- $Cob$ aplicando la fórmula \ref{} \pp{poner fórmula} con estos valores.
+
 
 
 \cacho{Debo entender como modificar el algoritmo basandonos en la estructura de
@@ -745,11 +741,18 @@ arriba y que se entienda. Explicar linea por linea.} \pp{???}
 
 \pp{Hace falta el número máximo de tests W en el algoritmo o lo podemos sacar? Me suena raro
 pero podría estar comiéndome algún caso.}
+\pp{Muchos errores de ortografía había en esta y en otras secciones! Instalar un spell
+checker para latex.}
 
-
+Usamos el algoritmo \ref{} para computar $Cob$ de la siguiente manera.
+Primero, se genera una test suite para un conjuto de métodos dado $M$, con un tiempo límite
+de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
+ la cobertura de líneas y de ramas obtenida por la test suite, y se computa
+ $Cob$ aplicando la fórmula \ref{} \pp{poner fórmula} con estos valores.
 
 La función objetivo que utilizamos para evaluar la calidad de un candidato, 
-que representa un conjunto de métodos $M$, se define como una tripla, al igual que la función de la sección anterior:
+representado por un conjunto de métodos $M$, se define como una tripla al igual 
+que la función de la sección \ref{} \pp{Ref.}:
 
 \[
 f(M) = \langle Cob(M), R(M), C(M) \rangle
@@ -759,17 +762,21 @@ f(M) = \langle Cob(M), R(M), C(M) \rangle
 Donde:
 
 \begin{itemize}
-    \item $Cob(M)$ (Cobertura): Es el número de ramas y lineas cubiertas por las suites de prueba generadas por \emph{Randoop} utilizando el subconjunto de métodos $M$. 
-    Este componente tiene la mayor prioridad, ya que refleja directamente la efectividad de las pruebas al cubrir ramas y lineas mas específicas de la API.
-    \item $R(M)$ (Redundancia): Igual a la funcion de valoracion de la seccion de generador exhaustivo
-    \item $C(M)$ (Complejidad): Tambien mantuvimos el mismo calculo que la funcion de valoracion del generador exhaustivo
+    \item $Cob(M)$ (Cobertura): Es el número de ramas y lineas cubiertas
+        (\pp{ref a la fórmula de Cob}) por la
+        suite generada por el algoritmo \ref{} \pp{Ref.}, utilizando $M$ como
+        entrada. 
+    Este componente tiene la mayor importancia, ya que refleja directamente la
+    efectividad de los tests al cubrir líneas y ramas de la API.
+\item $R(M)$ (Redundancia): Diferencia entre el número total de métodos de la
+    API ($M_t$) y la cantidad de métodos en $M$. Se define igual que para la
+    función objetivo basada en generación exhuastiva acotada de la sección \ref{} \pp{Ref.}.
+    \item $P(M)$ (Parámetros): Medida ponderada de la complejidad de los
+        parámetros de los métodos en $M$. También mantuvimos el mismo cálculo
+        que para la función objetivo basada en generación exhaustiva acotada.
 \end{itemize}
 
-
-
-
-\cacho{
-Volvamos al ejemplo que usamos durante este capitulo. El primer caso tenemos los siguientes métodos:}
+Volvamos al ejemplo que usamos durante este capítulo. En el primer caso tenemos los siguientes métodos:
 \vspace{5pt} 
 
 \begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_1 \)]
@@ -778,7 +785,7 @@ Volvamos al ejemplo que usamos durante este capitulo. El primer caso tenemos los
   removeFirst()
 \end{lstlisting} 
 
-y en el segundo caso tenemos los siguientes metodos:
+y en el segundo caso tenemos:
 
 \begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_2 \)]
   NodeCachingLinkedList()
@@ -786,16 +793,17 @@ y en el segundo caso tenemos los siguientes metodos:
 \end{lstlisting}
 
 
-Para estos casos, se ejecuta \emph{Randoop} con la modificacion que realizamos y se obtienen test suites.
-A partir de estas, se ejecutan y se analizan la cobertura que se obtiene se obtiene la siguiente cobertura de ramas:
+Para estos casos, se ejecuta el algoritmo \ref{} \pp{Ref.} y se obtienen test suites.
+A partir de estas, se ejecutan y se analiza la cobertura que se obtiene, cuyo
+resultado se muestra a continuación:
 
 \[
 f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 4 \rangle
 \]
 
-\pp{El ejemplo está incompleto??? Hay que arreglar todo lo que había que arreglar
-    en la sección previa también (ej. valuaciones para los parámetros.}
-
+\pp{El ejemplo está incompleto. 15 no sé qué es, habría que decir más o menos
+    que cobertura obtuvo, por qué un conjunto de métodos obtiene más cobertura
+    que el otro, etc.. Sino así como está no aclara mucho. Hay que arreglar todo lo que había que arreglar en la sección previa también (ej. valuaciones para los parámetros.}
 
 En nuestra evaluación experimental, ambas funciones objetivo son utilizadas como
 parte de los algoritmos de búsqueda implementados, para analizar sus ventajas y
@@ -829,7 +837,7 @@ se representan como vectores de genes que capturan sus características. Esta id
 con la forma en que se construyen los nuevos individuos: al representar a los candidatos como vectores de 
 características independientes, se pueden construir nuevos candidatos combinando parte de las características 
 de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de 
-un individuo dado. Estas dos formas de evolución se llaman cruce y mutación, respectivamente, y son el 
+un individuo dado. Estas dos formas de evolución se llaman cruzamiento y mutación, respectivamente, y son el 
 mecanismo tradicional para construir nuevos candidatos a partir de los existentes en los algoritmos genéticos. 
 %Para más detalles, remito al lector a \cite{Michalewicz:1996}.
 
@@ -878,16 +886,16 @@ Este proceso permite combinar la información genética de dos individuos selecc
 quienes heredan características de ambos progenitores.
 De este modo, el algoritmo explora nuevas combinaciones genéticas y mejora la diversidad de la población.  
 
-\cacho{En nuestro enfoque, empleamos el operador de cruzamiento de dos puntos \cite{goldberg1989genetic}, ya que obtuvo los mejores resultados en nuestros experimentos.  
+En nuestro enfoque, empleamos el operador de cruzamiento de dos puntos \cite{goldberg1989genetic}, ya que obtuvo los mejores resultados en nuestros experimentos.  
 La Figura \ref{fig:crossover} ilustra este procedimiento aplicado a dos individuos representados como vectores de bits.  
 En este ejemplo, los puntos de cruzamiento seleccionados son el tercer y el sexto bit.  
 El primer descendiente hereda los primeros tres bits del primer padre, los siguientes tres bits del segundo padre y los bits restantes nuevamente del primer padre.  
 De manera análoga, el segundo descendiente toma los primeros tres bits del segundo padre, intercambia los siguientes tres con el primer padre y conserva los últimos cuatro bits del segundo padre.  
-En nuestro contexto de detección de métodos generadores de objetos, cada posición en el vector representa la presencia ('1') o la ausencia ('0') de un método dentro de la API bajo prueba.  
-Por ejemplo, la posición 0 puede corresponder a $\text{Método}_2$, la posición 1 a $\text{Método}_2$, y así sucesivamente.  
-Al aplicar el operador de cruzamiento, se intercambian las secuencias de activación de métodos entre los padres, generando nuevas combinaciones en los descendientes.  
-Este mecanismo favorece la exploración del espacio de búsqueda y permite descubrir configuraciones más diversas y potencialmente óptimas. 
-} 
+En nuestro contexto de detección de métodos generadores de objetos, cada posición en el vector representa la presencia ('1') o la ausencia ('0') de un método de la API.  
+Por ejemplo, la posición 0 puede corresponder a un constructor de listas, la
+posición 1 a un método de inserción, etc.  
+Al aplicar el operador de cruzamiento, los hijos heredan distintas subsecuencias de métodos
+de los padres. Este mecanismo favorece la exploración del espacio de búsqueda y permite descubrir configuraciones más diversas y potencialmente óptimas. 
 
 \begin{figure}
   \centering
@@ -901,26 +909,19 @@ En nuestro algoritmo, utilizamos una tasa de cruzamiento de 0.30 (\emph{crossove
 
 \subsubsection{Operadores Genéticos: Mutación}
 
-
-
-\cacho{La mutación es un operador fundamental en los algoritmos genéticos, encargado de introducir cambios aleatorios en los cromosomas de los individuos para aumentar la diversidad en la población.  
+La mutación es un operador fundamental en los algoritmos genéticos, encargado de introducir cambios aleatorios en los cromosomas para aumentar la diversidad en la población.  
 Cada bit del cromosoma tiene una pequeña probabilidad de ser modificado, lo que en una representación binaria implica invertir su valor ('0' a '1' o viceversa).  
-Este mecanismo, denominado \emph{mutación por inversión de bits}, es especialmente adecuado para representaciones binarias como la utilizada en nuestro enfoque. } 
+Este mecanismo, denominado \emph{mutación por inversión de bits}, es especialmente adecuado para representaciones binarias como la utilizada en nuestro enfoque. 
 
-\cacho{La Figura \ref{fig:mutation} muestra un ejemplo de mutación en el que las posiciones 1, 4, 5 y 7 del cromosoma fueron seleccionadas para ser alteradas.  
+La Figura \ref{fig:mutation} muestra un ejemplo de mutación en el que las posiciones 1, 4, 5 y 7 del cromosoma fueron seleccionadas para ser alteradas.  
 Aunque la mutación es un proceso aleatorio, su probabilidad se mantiene baja para evitar cambios drásticos que puedan comprometer la convergencia del algoritmo.  
-En nuestro caso, utilizamos una probabilidad de mutación de 0.05, es decir, cada bit de un individuo tiene un 5\% de probabilidad de cambiar de estado.  
-Este valor fue determinado experimentalmente para equilibrar la exploración y la preservación de soluciones prometedoras.  }
+En nuestro caso, utilizamos una probabilidad de mutación de 0.05 \pp{más
+adelante dice otra cosa distinta, 0,08}, es decir, cada bit de un individuo tiene un 5\% de probabilidad de cambiar de estado.  
+Este valor fue determinado experimentalmente para equilibrar la exploración y la preservación de soluciones prometedoras.
 
-\cacho{El operador de mutación desempeña un papel crucial en la búsqueda de soluciones óptimas, ya que impide la convergencia prematura hacia óptimos locales.  
-En nuestro contexto de detección de métodos generadores de objetos, la mutación introduce variaciones en las secuencias de activación de métodos dentro de la API bajo prueba,  
-permitiendo la exploración de configuraciones y ampliando el espacio de búsqueda.  
-De esta manera, el algoritmo puede descubrir combinaciones más eficientes que no surgirían únicamente mediante cruzamiento. }
-
-Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces
-una mutación en la posición 2 implicaría activar o desactivar la ejecución del método \textit{Método3}.
-Este tipo de variaciones introduce nuevos casos de prueba y permite descubrir combinaciones de métodos que de otra manera no se generarían.  
-De esta manera, el algoritmo no solo optimiza la selección de métodos, sino que también favorece la generación de secuencias más diversificadas.
+Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces una mutación en la posición 2 implicaría activar o desactivar el método
+correspondiente en el individuo.
+Este tipo de variaciones permite explorar diferentes combinaciones de subconjuntos de métodos que de otra manera no se generarían.  
 
 \begin{figure}
     \centering
@@ -930,19 +931,20 @@ De esta manera, el algoritmo no solo optimiza la selección de métodos, sino qu
     \end{figure}
 \subsubsection{Pseudocódigo del algoritmo genético}
 
-El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que definimos para la búsqueda de métodos generadores de objetos.
+El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que definimos para la búsqueda de métodos generadores de objetos.
 
 
 \begin{algorithm}
-  \caption{Algoritmo Genético implementando nuestro enfoque}
+  \caption{Algoritmo genético para la identificación de métodos generadores de
+  objetos}
   \label{alg:enfoqueGA}
   \begin{algorithmic}[1]
   
   \STATE $P \gets$ generar población aleatoria
   \FOR{$i \gets 0$ \TO $numEvoluciones$}
-      \STATE $P \gets$ $popSize$ cromosomas con mejor aptitud
+      \STATE $P \gets$ $popSize$ cromosomas más aptos de $P$
       \FOR{$j \gets 1$ \TO $\text{tasaC} \times |P|$}
-          \STATE $C_1, C_2 \gets$ dos cromosomas con mejor aptitud
+          \STATE $C_1, C_2 \gets$ dos cromosomas más aptos 
           \STATE cruzar($C_1, C_2$)
       \ENDFOR
       \FORALL{cromosomas en $P$}
@@ -961,33 +963,65 @@ El ~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que def
 \end{algorithm}
 
 
-\cacho{Los elementos descritos anteriormente son las partes constitutivas del algoritmo genético que implementa nuestro enfoque. Un pseudocódigo del algoritmo genético se muestra en el Algoritmo~\ref{alg:enfoqueGA}. 
-Nótese que el Algoritmo~\ref{alg:enfoqueGA} sigue la estructura general de un algoritmo genético. 
-La población inicial se genera produciendo todos los cromosomas factibles con un único método disponible 
-(vectores con falso en todas las posiciones excepto una, establecida en verdadero) (línea 1). 
+Los elementos descritos anteriormente son las partes constitutivas del algoritmo genético que implementa nuestro enfoque. 
+Nótese que el algoritmo~\ref{alg:enfoqueGA} sigue la estructura típica de un algoritmo genético. 
+
+La población inicial se genera produciendo todos los cromosomas factibles con un
+único método disponible (vectores con falso en todas las posiciones excepto una,
+establecida en verdadero) (línea 1) \pp{esto no coincide con el pseudocódigo}. 
 Luego, comienza a evolucionar la población de forma iterativa (líneas 2-14). 
-Al inicio de cada iteración de evolución, el algoritmo descarta algunos individuos para controlar el tamaño de la población, 
-conservando los $popSize$ individuos más aptos de la población actual y eliminando el resto (línea 3). }
+Al inicio de cada iteración, el algoritmo descarta algunos individuos para controlar el tamaño de la población, conservando los $popSize$ individuos más aptos de la población actual y eliminando el resto (línea 3).
 
-\cacho{Posteriormente, el algoritmo realiza un cruzamiento de dos puntos en individuos seleccionados aleatoriamente (líneas 4-7). 
+\pp{Cuál es la función objetivo del algoritmo genético?}
+
+Posteriormente, el algoritmo realiza un cruzamiento de dos puntos en individuos
+seleccionados aleatoriamente (líneas 4-7). \pp{No. Debería usar tournament para
+hacer selección. Tournament selection no aparece en ningún lado del
+pseudocódigo, está incompleto o es otra cosa diferente al algoritmo real.
+Tenemos que juntarnos a ver esto.}
 El cruzamiento se aplica un número de veces proporcional al tamaño de la población $popSize$, 
-determinado por el producto de $popSize$ y la tasa de cruzamiento $cRate$ ($0 \leq cRate \leq 1$). 
-Luego, el algoritmo muta los individuos (líneas 8-10) cambiando el valor de cada uno de sus genes con probabilidad $mRate$ ($0 \leq mRate \leq 1$). 
-Todos los nuevos individuos creados por las operaciones de cruzamiento y mutación se agregan a la población.}
+determinado por el producto de $popSize$ y la tasa de cruzamiento $cRate$ ($0
+\leq cRate \leq 1$). \pp{cRate no está en el algoritmo}. \pp{El resultado del
+cruzamiento no se sabe a qué población va a parar, parece que se tirara de la
+forma en que está el pseudocódigo.}
+Luego, el algoritmo muta los individuos (líneas 8-10) cambiando el valor de cada
+uno de sus genes con probabilidad $mRate$ ($0 \leq mRate \leq 1$) \pp{mRate no
+está en el algoritmo. El resultado de mutar tampoco se sabe dónde se guarda.}. 
+Todos los nuevos individuos creados por las operaciones de cruzamiento y
+mutación se agregan a la población \pp{dónde en el pseudocódigo?}.
 
-El algoritmo se detiene después de $numEvo$ evoluciones, donde $numEvo$ es un parámetro del algoritmo. 
-Cabe destacar que no tenemos un valor objetivo para nuestra función de fitness, 
-ya que un conjunto no probado de métodos podría producir más extensiones de campo que las observadas hasta el momento. 
+El algoritmo se detiene después de $numEvo$ \pp{No está en el algoritmo}
+evoluciones, donde $numEvo$ es un parámetro del algoritmo \pp{No están
+declarados los parámetros del algoritmo, habría que declararlos al inicio para
+que queden más claros}. 
+%Cabe destacar que no tenemos un valor objetivo para nuestra función de fitness, 
+%ya que un conjunto no probado de métodos podría producir más  que las observadas hasta el momento. 
 Nuevamente, existe un compromiso al elegir un buen valor para $numEvo$: un número mayor aumenta la precisión del algoritmo pero incrementa su tiempo de ejecución, 
-mientras que un número menor lo hace más rápido pero podría no encontrar el mejor conjunto de constructores.
+mientras que un número menor lo hace más rápido pero podría no encontrar el
+mejor conjunto de generadores de objetos.
 
-Como es habitual, determinamos valores para los parámetros del algoritmo que funcionan bien en la práctica. 
-En nuestra evaluación experimental, establecimos $numEvo=20$, $popSize=30$, $cRate=0.35$, $mRate=0.08$ 
-y $maxIter=5$. Estos valores se eligieron después de realizar experimentos en varios casos de estudios
+\pp{Qué hacen las líneas 11, 12, 13-15? No están en el texto.}
 
-Cabe destacar que, si quitamos la complejidad de la función de aptitud, nuestro algoritmo evolutivo es bastante estándar, por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos. Por supuesto, realizar mejoras en el algoritmo evolutivo y ajustar sus parámetros (como las tasas de cruce y mutación) podría acelerar los tiempos de ejecución.
+Como es habitual, determinamos valores para los parámetros del algoritmo que
+funcionan bien de manera experimental. Luego de realizar experimentos en
+varios casos de estudios y con diferentes valores para los párametros 
+elegimos $numEvo=20$, $popSize=30$ \pp{Esto no es lo que dice en la sección
+correspondiente, que menciona 100. Tener en cuenta todas las secciones
+globalmente a la hora de redactar!}, $cRate=0.35$, $mRate=0.08$ 
+y $maxIter=5$. 
 
-También implementamos una versión simple de nuestro enfoque que utiliza múltiples hilos (multi-threading), lo que ayuda a mejorar el rendimiento. Básicamente, en cada iteración se crean t copias de la población actual, donde t es el número de hilos disponibles. Luego, cada réplica de la población evoluciona de forma independiente. Cuando todos los hilos terminan, se conservan los 100/t individuos más aptos de la población evolucionada por cada hilo, y estos se utilizan para construir la población de la siguiente iteración del algoritmo.
+%Cabe destacar que, si quitamos la complejidad de la función de aptitud, nuestro algoritmo evolutivo es bastante estándar, por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos. Por supuesto, realizar mejoras en el algoritmo evolutivo y ajustar sus parámetros (como las tasas de cruce y mutación) podría acelerar los tiempos de ejecución.
+
+También implementamos una versión simple de nuestro enfoque que utiliza
+múltiples hilos (multi-threading), lo que ayuda a mejorar el rendimiento.
+Básicamente, en cada iteración se crean t copias de la población actual, donde t
+es el número de hilos disponibles. Luego, cada réplica de la población
+evoluciona de forma independiente. Cuando todos los hilos terminan, se conservan
+los 100/t individuos más aptos de la población evolucionada por cada hilo, y
+estos se utilizan para construir la población de la siguiente iteración del
+algoritmo. \pp{No estoy seguro que nos convenga mantener este párrafo. Jenetics quizás
+maneje los hilos solo? O los implementaste vos? Un jurado que sepa de genéticos nos puede pegar por
+todos lados.}
 
 Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
 \emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
@@ -1042,39 +1076,26 @@ utivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) po
 % \cacho{\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
 % Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. }
 
-\subsection{Algortimo de Escalada}
+\subsection{Algortimo de Escalada de Colinas}
 \label{alg:approachHC}
 
-El segundo algoritmo, denominado en inglés \textit{hill climbing},  \cite{Russell:2009, Cormen2009, kleinberg2006}, es un algoritmo de busqueda local basasdo en la escalada de colinas.
-Selecciona en cada paso el estado vecino con mayor valor en la función objetivo sin realizar planificación a largo plazo.
-Parte de un estado inicial no óptimo y lo mejora sucesivamente hasta alcanzar un estado que no puede ser mejorado (estado pico). 
-Para guiar este proceso se emplea una función heurística () que evalúa la calidad de cada estado.
+El segundo algoritmo, denominado en inglés \textit{hill climbing},
+\cite{Russell:2009, Cormen2009, kleinberg2006}, es un algoritmo de búsqueda local basado en la escalada de colinas.
+Es un algoritmo greedy que selecciona en cada paso el estado vecino con mayor
+valor en la función objetivo. 
+Así, el algoritmo de escalada de colinas parte de un estado inicial y lo mejora sucesivamente hasta alcanzar un estado que no puede ser mejorado (estado pico). 
+Para guiar este proceso se emplea una función heurística que evalúa la calidad de cada estado.
+Por sus características, el algoritmo de escalada de colinas suele encontrar soluciones
+con rapidez. Sin embargo, puede quedarse atrapado en óptimos locales donde
+ningún vecino inmediato es mejor, pero existen mejores soluciones en el espacio
+de búsqueda. Esto es, el algoritmo no siempre encuentra una solución óptima.
 
 Su principal diferencia con los algoritmos genéticos radica en el mecanismo de selección. Mientras que en la escalada de colinas se generan y evalúan todos los vecinos del estado actual seleccionando el óptimo inmediato, 
 los algoritmos genéticos operan mediante recombinación y mutación de una población de soluciones. 
 En nuestra implementación, tanto los candidatos como la función objetivo son idénticos para ambos algoritmos.
 
-Como limitaciones principales, este algoritmo puede quedar atrapado en óptimos locales donde ningún vecino inmediato es mejor, 
-pero existan soluciones superiores en regiones no adyacentes del espacio de búsqueda. 
-También puede estancarse en mesetas (candidatos vecinos con valores idénticos de la función objetivo), 
-impidiendo su progreso hacia soluciones mejores.
 
-% La búsqueda de escalada a menudo avanza rápidamente hacia una solución porque generalmente es bastante fácil mejorar un estado malo.
-% Pero desafortunadamente, la búsqueda de escalada a menudo queda atrapada por las siguientes razones:
-% \begin{itemize}
-% \item Máximos locales: un máximo local es una cumbre que es más alta que cada uno de sus estados vecinos, pero más baja que el máximo global. Los algoritmos de búsqueda de escalada que llegan a la cercanía de un máximo local serán atraídos hacia la cumbre pero luego se quedarán sin otro lugar adónde ir. 
-% \item Crestas: resultan en una secuencia de máximos locales que es muy difícil de navegar para los algoritmos codiciosos.
-
-% \item Mesetas: una meseta es una zona plana del paisaje del espacio de estados. Puede ser un máximo local plano, desde el cual no existe una salida ascendente, desde el cual es posible el progreso. Una búsqueda de escalada puede perderse en la meseta.
-% \end{itemize}
-
-
-
-\subsubsection{Pseudocódigo}
-
-En esta sección, presentamos un enfoque para la identificación de métodos generadores de objetos basado en un algoritmo de escalada. El pseudocódigo de este enfoque se muestra en la Figura~\ref{alg:enfoqueHC}.
-La representación que hemos utilizado del problema es la explicada en la sección \ref{sec:estados}. Esto quiere decir que utilizamos vectores de bits para representar los estados. 
-
+\pp{El algoritmo debería ir en un float también porque sino quedan mal los espacios.}
 
 \SetKwFunction{Compute}{Compute} 
 \SetKwFunction{fBuilders}{computeBuilders}
@@ -1087,10 +1108,12 @@ La representación que hemos utilizado del problema es la explicada en la secci�
 \SetKwProg{Fn}{Function}{:}{}
 
 \begin{algorithm}[H]
-    \caption{Algoritmo Genético implementando nuestro enfoque}
+    \caption{Algoritmo hill-climbing para la identificación de métodos
+    generadores de objetos}
     \label{alg:enfoqueHC}
 
     \Fn{\fBuilders{}}{
+        \pp{resultado???}\;
         $resultado \gets x + y$\;
         $initial \gets [0,0,\ldots,0]$\;
         $cons \gets$ \hc{initial, true}\;
@@ -1117,6 +1140,7 @@ La representación que hemos utilizado del problema es la explicada en la secci�
         $initial \gets []$\;
         \For{$i \gets 0$ \KwTo \#M}{
             \If{$s[i] == 0$}{
+                \pp{qué es builders? No se entiende la condición}\;
                 \If{($builders$ \textbf{and} $isConstructor(i)$) || (!$builders$ \textbf{and} !$isConstructor(i)$)}{
                     $successor \gets clone(s)$\;
                     $successor[i] \gets 1$\;
@@ -1133,7 +1157,9 @@ La representación que hemos utilizado del problema es la explicada en la secci�
         $curr \gets -INF$\;
         \For{$i \gets 0$ \KwTo \#successors}{
             \If{$s[i] > bestVal$}{
+                \pp{Error de tipos!}\;
                 $bestVal \gets f(s)$\;
+                \pp{Error de tipos!}\;
                 $best \gets s$\;
             }
         }
@@ -1143,20 +1169,20 @@ La representación que hemos utilizado del problema es la explicada en la secci�
 
 \end{algorithm}
 
-
-
-El algoritmo presentado (en la figura \ref{alg:enfoqueHC}) implementa una versión del enfoque $Hill Climbing$ 
-diseñado para encontrar un conjunto óptimo de métodos generadores de objectos en una API. 
-El proceso comienza con la función principal $computeBuilders$, que se encarga de inicializar el proceso de búsqueda. 
-En esta función se define un estado inicial representado por un vector de ceros, 
-que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing$, 
-junto con un valor lógico que indica que se deben considerar únicamente los métodos constructores. 
+La Figura~\ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos . 
+La representación que hemos utilizado del problema es la explicada en la sección
+\ref{sec:estados}. Esto quiere decir que utilizamos vectores de bits para
+representar los estados. \pp{Y las funciones objetivo?}
+El proceso comienza con la función principal $computeBuilders$, que implementa
+la búsqueda. 
+La inicialización consiste en definir un estado inicial representado por un vector de ceros, 
+que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing$, junto con un valor lógico que indica que se deben considerar únicamente los métodos constructores. 
 Posteriormente, el algoritmo invoca nuevamente a $hillClimbing$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
 la busqueda anterior (línea 1 a 5).
 
 La función $hillClimbing$ constituye el núcleo del algoritmo de Hill Climbing. Su ejecución parte del estado inicial recibido por parámetro y, 
 mediante un ciclo iterativo, genera todos los posibles sucesores del estado actual utilizando la función $generarSuccessor$. 
-Entre estos sucesores se selecciona el que presente el mejor valor según la función de fitness $f()$. Si dicho sucesor no mejora el valor del estado actual,
+Entre estos sucesores se selecciona el que presente el mejor valor según la función de fitness $f$. Si dicho sucesor no mejora el valor del estado actual,
 el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mejor sucesor pasa a ser el nuevo estado y el ciclo continúa. (línea 6 a 17)
 
 La generación de sucesores se realiza en la función $successor$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
@@ -1171,14 +1197,17 @@ En caso de cumplir con esta condición, se genera un clon del estado actual en e
   \end{figure}
   
 Finalmente, la función $mejorSuccesor$ se encarga de seleccionar el mejor sucesor de la lista proporcionada.
-Para ello, recorre la lista evaluando el valor de la función de fitness ($f$)en cada elemento y selecciona aquel que tenga el mayor valor. (línea 30 a 38)
+Para ello, recorre la lista evaluando el valor de la función objetivo $f$ en
+cada sucesor y selecciona aquel que tenga el mayor valor (líneas 30 a 38).
 
-Este enfoque de Hill Climbing presenta la ventaja de tener menos parámetros de configuración que los algoritmos genéticos, 
-lo que simplifica su implementación. Sin embargo, este tipo de búsqueda local implica el riesgo de quedar atrapado en óptimos locales, 
-dado que el algoritmo solo avanza hacia soluciones que mejoran directamente la fitness del estado actual. 
-En cualquier caso, el enfoque propuesto resulta eficiente en contextos donde se requiere una búsqueda controlada y directa, 
-sin la necesidad de manejar múltiples parámetros adicionales.
 
+%Este enfoque de Hill Climbing presenta la ventaja de tener menos parámetros de configuración que los algoritmos genéticos, 
+%lo que simplifica su implementación. Sin embargo, este tipo de búsqueda local implica el riesgo de quedar atrapado en óptimos locales, 
+%dado que el algoritmo solo avanza hacia soluciones que mejoran directamente el estado actual. 
+%
+%En cualquier caso, el enfoque propuesto resulta eficiente en contextos donde se requiere una búsqueda controlada y directa, 
+%sin la necesidad de manejar múltiples parámetros adicionales.
+%
 
 
 % En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. 
