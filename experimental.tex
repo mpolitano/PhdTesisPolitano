@@ -164,7 +164,7 @@ algoritmo Hill Climbing con una función de valoración que cuente los objetos g
 \input{tables/eficienciaBuilders}
 
 \subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
-
+\label{sec:experimentalIdentificacionPrecision}
 La efectividad de nuestros algoritmos se mide en función de cuán cercanos están a identificar el conjunto mínimo de métodos 
 generadores de objectos de una API necesario para generar estructuras de datos válidas. 
 Cabe destacar que en todos los casos, nuestros algoritmos 
@@ -179,7 +179,6 @@ Es importante señalar que la función de valoración basada en Randoop depende 
 variabilidad en los resultados. Esta función mide la cobertura alcanzada durante la ejecución de la suite generada, y puede arrojar 
 diferentes valores dependiendo de la semilla inicial.
 
-\cacho{chequear esto}
 En el caso de la estructura \emph{NCL}, el algoritmo \emph{HC} utilizando la función de valoración \emph{GE} logra encontrar el 
 conjunto mínimo exacto de métodos generadores en todas las ejecuciones. Sin embargo, cuando se utiliza la función \emph{RC}, 
 el mismo algoritmo encuentra en promedio un conjunto con 3.80 métodos, lo que indica que en tres de las cinco ejecuciones se incluyó 
@@ -236,6 +235,147 @@ Estos resultados destacan la necesidad de calibrar adecuadamente los parámetros
 \subsection{RQ3: Impacto de los generadores de objetos en el análisis de
 software}
 
+En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos (\emph{builders}) 
+identificados previamente, en el contexto de la generación automatizada de casos de prueba. 
+Estos métodos permiten crear instancias válidas de estructuras de datos, que pueden ser utilizadas como 
+entradas en pruebas unitarias o pruebas basadas en propiedades.
+
+Para aquellos casos de estudio cuyas clases permiten medir el tamaño de los objetos generados 
+(mediante el método \texttt{size()}) y comparar objetos por igualdad (a través de \texttt{equals()}), 
+realizamos un experimento con la herramienta \emph{Randoop}. Generamos casos de prueba en dos 
+configuraciones distintas: (i) utilizando toda la API disponible de la clase bajo análisis 
+(denominada \texttt{}{AllMethods}), y (ii) utilizando únicamente los métodos generadores de objetos
+(\texttt{Builders}) identificados por nuestro enfoque en el experimento anterior 
+(ver Tabla~\ref{tab:results-obj}).
+
+Para ambas configuraciones, medimos la \textit{cantidad de objetos distintos 
+generados} (\textit{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
+pruebas: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la Tabla~\ref{tab:results-obj}.
+
+Los resultados muestran de forma consistente que el uso exclusivo de los métodos generadores 
+permite generar una cantidad significativamente mayor de objetos válidos en comparación con el uso 
+de la API completa. En promedio, se observa que la cantidad de objetos generados con \texttt{Builders} 
+es hasta cinco veces superior a la obtenida con \texttt{AllMethods} en el mismo presupuesto de tiempo. 
+
+Estos hallazgos ponen de manifiesto el impacto positivo de identificar automáticamente métodos 
+generadores adecuados. Su utilización en herramientas de prueba como \emph{Randoop} mejora sustancialmente 
+la calidad y diversidad de los objetos generados, lo cual es especialmente relevante para clases con 
+estado interno complejo. Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
+constituye una estrategia efectiva y valiosa para potenciar la generación automatizada de pruebas.
+\input{tables/objectsBuilders.tex}
+
+\vspace{10pt}
+En un segundo experimento, evaluamos el impacto del uso de métodos \emph{builders} en la eficiencia 
+del análisis de programas mediante verificación formal. Para ello, utilizamos \emph{Java PathFinder} 
+(JPF)~\cite{Visser:2005}, una herramienta de verificación de modelos con exploración explícita del 
+espacio de estados para programas Java.\footnote{\url{https://github.com/javapathfinder/jpf-core}}. 
+Este experimento lo evaluamos en los casos de estudio del paquete \texttt{java.util}.
+
+Las técnicas de verificación de modelos requieren definir \emph{controladores de prueba}, es decir, 
+secuencias de métodos que permitan construir las entradas sobre las que se analizará el programa. 
+Idealmente, estas secuencias deberían generarse a partir del conjunto mínimo de métodos que permitan 
+construir todas las instancias posibles dentro de un alcance definido (\emph{scope}). Sin embargo, 
+la selección manual de estos métodos representa una barrera significativa para el uso de herramientas 
+como JPF, ya que requiere un análisis exhaustivo de la API y una comprensión detallada de la 
+semántica del módulo.
+
+JPF permite definir controladores no deterministas que generan todas las secuencias posibles de 
+llamadas a métodos de la API hasta una longitud determinada. Internamente, JPF explora todas las 
+ejecuciones posibles, almacenando los estados visitados y retrocediendo ante duplicados. Para ello, 
+utiliza puntos de elección no determinista definidos a través de métodos especiales como 
+\verb|Verify.getInt(int lo, int hi)| y \verb|Verify.random(int n)|, los cuales introducen bifurcaciones 
+en la ejecución.
+
+Para ilustrar este mecanismo, consideramos el análisis del método \texttt{put} de \texttt{TreeMap}. 
+La generación de entradas puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverAPI}, que incluye todos los métodos disponibles en la API de \texttt{TreeMap}. 
+Este enfoque asegura cobertura, pero introduce un crecimiento exponencial en el número de ejecuciones 
+a explorar, ya que cada paso del controlador puede seleccionar cualquier método de forma no 
+determinista.
+
+\begin{lstlisting}[caption={Controlador con todos los métodos},label={lst:driverAPI},language=Java,captionpos=b]
+    private static TreeMap generateStructure(int scope) {
+       int maxLength = Verify.getInt(0, scope);
+       TreeMap t = new TreeMap();
+       for (int i = 1; i <= maxLength; i++) {
+          switch (Verify.random(n_methods)) {
+             case 0:
+                t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+                break;
+             case 1:
+                t.remove(Verify.getInt(0,scope));
+                break;						
+             case 2:
+                t.clear();
+                break;
+             case 3:
+                t.containsValue(Verify.getInt(0,scope));
+                break;
+             ...
+             case 11: 
+                t.putAll(l);
+                break;
+          }
+       }
+       return t;
+    }
+    \end{lstlisting}
+
+Para mitigar esta explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
+detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion de valoracion de \emph{RC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
+Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
+\texttt{TreeMap} selecciona sólo dos métodos, suficientes y mínimos, para generar todas las instancias 
+válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
+de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
+
+\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:label},language=Java,captionpos=b]
+    public static void main(String[] args) {
+       int scope = 3;
+       TreeMap t = generateStructure(scope);
+       t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+       assert t.repOK();
+    }
+\end{lstlisting}
+
+Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-jpf1} y 
+\ref{tab:results-jpf2}, demuestran que los controladores construidos a partir de nuestros 
+métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad. Se observa una 
+reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
+comprometer la cobertura de las estructuras objetivo. Esta evidencia refuerza la utilidad práctica 
+de nuestra técnica en entornos de verificación formal, donde el costo computacional de la exploración 
+del espacio de estados es un factor crítico.
+
+El patrón se mantiene de forma consistente a través de múltiples estructuras de datos de 
+\texttt{java.util}, incluyendo \texttt{HashMap}, \texttt{HashSet}, \texttt{LinkedList}, 
+\texttt{TreeMap} y \texttt{TreeSet}. Por ejemplo, en el análisis del método \texttt{remove} 
+en \texttt{HashMap}, al aumentar el \textit{scope} de 4 a 6, el número de estados explorados 
+con el controlador basado en la API completa crece de 627361 a más de 22 millones, con tiempos 
+de ejecución que alcanzan los 3011 segundos (aproximadamente 50 minutos). En cambio, utilizando únicamente los métodos generadores de objetos, 
+se recorren menos de 2.3 millones de estados, en un tiempo de análisis significativamente menor.
+
+Este mismo comportamiento se replica en otras estructuras. En el caso de \texttt{LinkedList}, 
+el uso de todos los métodos de la API lleva a una explosión de estados (más de 39 millones en 
+\textit{scope} 6), mientras que con \emph{builders}, el número de estados se reduce a aproximadamente 
+1.1 millones para el mismo scope. En términos de tiempo, esta diferencia se traduce en 2771 segundos contra apenas 221. 
+Asimismo, para \texttt{TreeMap} con el método \texttt{put}, el uso de \emph{builders} en 
+\textit{scope} 5 permite mantener el análisis por debajo de los 3100 segundos, mientras que 
+la versión con todos los métodos alcanza el límite de tiempo (TO que es igual a 5000 segundos).
+
+Además de la reducción en el tiempo de verificación y en los estados explorados, la comparación 
+entre ambos controladores confirma que el conjunto reducido de métodos \emph{builders} es suficiente 
+para generar todas las configuraciones relevantes de entrada que permiten evaluar correctamente 
+las propiedades del programa. Esto implica que, en la práctica, los métodos adicionales disponibles 
+en la API no contribuyen a la diversidad estructural de las entradas, sino que solo introducen 
+complejidad innecesaria en el espacio de búsqueda.
+
+En resumen, estos resultados evidencian que la identificación automática de métodos generadores no 
+solo mejora la calidad de las entradas en contextos como la generación de pruebas, sino que también 
+es una estrategia efectiva para escalar técnicas de verificación formal a estructuras de datos más 
+complejas. Al eliminar métodos superfluos y reducir el espacio de búsqueda, se mejora significativamente 
+el rendimiento de herramientas como JPF, sin sacrificar precisión ni completitud en el análisis.
+
+\input{tables/tableJPFBuilders}
+\input{tables/tableJPFBuilders1}
+
 \section{Generación exhaustiva acotada basada en la API}
 \label{sec:experimentalBeapi}
 
@@ -258,20 +398,327 @@ investigación:
 Casos de estudio, técnicas a evaluar, métricas, parámetros usados, ground truth, etc..
 
 
+\subsection{Configuración experimental}
+
+Como estudios de caso, utilizamos implementaciones de estructuras de datos tomadas de cuatro bancos 
+de pruebas reconocidos: \textsf{Korat}~\cite{Boyapati02}, \textsf{Kiasan}~\cite{Deng06}, 
+\textsf{FAJITA}~\cite{Abad13}, \textsf{ROOPS}~\cite{??} y un conjunto de clases de proyectos reales de software que la denominamos \textsf{realWorld}
+donde incluyen clases de \emph{java.util} (TreeMap, TreeSet, LinkedList, Hasmap), de \emph{Apache Commons Collections} (NodeCachingLinkedList) y un Scheduler de SIR
+
+Estos bancos cubren una amplia variedad de estructuras de datos complejas, tales como listas doblemente enlazadas, árboles binarios de búsqueda, 
+árboles rojo-negro, montículos binomiales, heaps de Fibonacci, entre otras. Una característica clave 
+de estos bancos es que incluyen especificaciones explícitas de invariante de clase (métodos 
+\texttt{repOK}) escritas por sus propios autores, lo que garantiza una base confiable para evaluar 
+algoritmos de generación de estructuras válidas.
+
+Los experimentos se llevaron a cabo en una computadora con procesador Intel Core i7-8700 
+(3.2 GHz) y 16 GB de RAM, ejecutando Ubuntu Linux 20.04. Para cada ejecución individual se estableció 
+un tiempo máximo de espera de 60 minutos. Todos los experimentos fueron diseñados para ser reproducibles, 
+y el artefacto experimental con el código fuente se encuentra disponible en: ???.
+
+Cada técnica evaluada se ejecutó sobre los mismos casos de estudio, con parámetros estandarizados 
+en términos de alcance (\textit{scope}), número de métodos disponibles, y criterios de generación. 
+Para la comparación con \textsf{Korat}, se emplearon los \texttt{repOK}s provistos por los autores 
+de cada benchmark, sin modificaciones, a fin de preservar la equivalencia semántica entre enfoques 
+y evitar sesgos en la evaluación del rendimiento. En los casos donde se identificaron errores o 
+especificaciones incompletas en los \texttt{repOK}s, estos se señalan de forma explícita en los 
+resultados y se analizan en la Sección~\ref{sec:existing-specs-analysis}.
+
+\cacho{los parametros usados en GA}
+
 
 \subsection{RQ4: Eficiencia de BEAPI}
 
+Esta pregunta busca evaluar si \emph{BEAPI} es lo suficientemente eficiente como para ser una 
+alternativa viable frente a otras técnicas de generación exhaustiva acotada, en particular 
+\textsf{Korat}. Para ello, comparamos el desempeño de ambas herramientas en términos de tiempo 
+de ejecución, número de estructuras generadas y exploradas, y escalabilidad con respecto al 
+\emph{scope} de entrada.
+
+Los resultados experimentales, presentados en la Tabla~\ref{table:korat-beapi}, cubren una muestra 
+representativa de casos tomados de los bancos de pruebas \textsf{Korat}, \textsf{FAJITA}, 
+\textsf{ROOPS} y \textsf{Kiasan}. Para cada clase evaluada, informamos los tiempos de generación 
+(en segundos), la cantidad de estructuras válidas generadas y el total de estructuras exploradas 
+por cada técnica. Incluimos, para cada enfoque, el mayor \emph{scope} alcanzado exitosamente dentro 
+del tiempo límite de 60 minutos, indicando en negrita los tiempos correspondientes a los límites 
+de escalabilidad. Vale aclarar que no se utilizo el benchamarks \textsf{realWorld} en esta sección, ya que
+no se dispone de \texttt{repOK}s para estas clases, lo que impide una comparación justa con \textsf{Korat}.
+
+En estos experimentos, se aseguraron condiciones comparables: los \texttt{repOK}s utilizados con 
+\textsf{Korat} fueron los provistos originalmente por los autores de cada benchmark y no se 
+modificaron para este estudio, evitando así alterar la eficiencia inherente a la técnica. 
+Para \emph{BEAPI}, se probó exhaustivamente que los métodos de la API empleados fueran correctos 
+y suficientes para el análisis. Como era de esperarse, pueden existir diferencias en los conjuntos 
+de estructuras exploradas por cada técnica, debido a los distintos espacios de búsqueda que inducen. 
+Sin embargo, para un mismo caso y alcance, ambas herramientas deberían generar la misma cantidad 
+de estructuras válidas, salvo en casos donde hay errores en los \texttt{repOK}s o diferencias sutiles 
+en la definición de \emph{scope}.
+
+Los resultados muestran un comportamiento mixto. En estructuras con restricciones fuertes —como los 
+árboles rojo-negro (\texttt{RBT}) y los árboles binarios de búsqueda (\texttt{BST})— \emph{BEAPI} 
+supera a \textsf{Korat}, al explorar menos estados y terminar en menos tiempo. Esto ocurre porque 
+en estas estructuras el número de configuraciones válidas es más bajo, lo que permite a \emph{BEAPI} 
+recorrer el espacio de soluciones de forma eficiente. Por el contrario, en estructuras más permisivas, 
+como listas doblemente enlazadas (\texttt{DLList}) o montículos binomiales (\texttt{BinHeap}), 
+\textsf{Korat} logra un mejor rendimiento gracias a su estrategia de poda temprana basada en 
+\texttt{repOK}.
+
+Cabe destacar dos tipos de excepciones en los resultados. En primer lugar, algunos casos incluyen 
+\texttt{repOK}s con errores, que impactan negativamente en la eficiencia de \textsf{Korat}; estos 
+casos están sombreados en la tabla y se analizan más en detalle en la Sección~\ref{sec:existing-specs-analysis}. 
+En segundo lugar, en estructuras como \texttt{RBT} y \texttt{FibHeap}, la diferencia semántica en la 
+noción de \emph{scope} entre ambas técnicas produce discrepancias. Por ejemplo, hay estructuras de 
+tamaño $n$ que solo pueden obtenerse mediante secuencias que superan temporalmente dicho tamaño 
+(inserciones seguidas de eliminaciones y nuevas inserciones para provocar reordenamientos de balanceo). 
+Como \emph{BEAPI} descarta automáticamente las secuencias que exceden el \emph{scope} máximo, no puede 
+llegar a estas configuraciones, mientras que \textsf{Korat} sí lo logra.
+
+Un aspecto clave que influye en la eficiencia de \emph{BEAPI} es la cantidad de estructuras válidas 
+generables para un determinado alcance. A medida que crece esta cardinalidad, aumenta también el 
+número de secuencias que \emph{BEAPI} debe evaluar, lo cual impacta directamente en su tiempo de 
+ejecución. Sin embargo, un punto a favor de \emph{BEAPI} es que no depende de la eficiencia del 
+\texttt{repOK}; esto lo hace más robusto ante especificaciones incorrectas o mal escritas, mientras 
+que \textsf{Korat} puede verse severamente afectado por ellas.
+
+En cuanto al rendimiento observado, \textsf{Korat} muestra mejor desempeño en 4 de los 6 casos 
+pertenecientes a su propio banco de pruebas. En el benchmark \textsf{FAJITA}, \emph{BEAPI} supera 
+a \textsf{Korat} en 3 de 4 casos, mientras que en \textsf{ROOPS} lo hace en 5 de 7. Finalmente, 
+en el banco \textsf{Kiasan}, \textsf{Korat} resulta más rápido en 6 de 7 casos. Esta tendencia confirma 
+que \emph{BEAPI} ofrece un mejor rendimiento en estructuras altamente restringidas —donde el número 
+de configuraciones válidas es reducido— mientras que \textsf{Korat} mantiene la ventaja en dominios 
+más amplios, donde la cantidad de estructuras válidas crece de forma acelerada. Esto se debe a que 
+en tales escenarios, \emph{BEAPI} debe generar y evaluar muchas más secuencias de entrada en cada 
+iteración, lo cual penaliza su desempeño.
+
+Un caso ilustrativo es el de \texttt{BinHeap}, donde \textsf{Korat} alcanza el \emph{scope} 8 utilizando 
+el \texttt{repOK} de \texttt{ROOPS}, el \emph{scope} 10 con el de \texttt{FAJITA}, y el \emph{scope} 11 
+con su propia especificación, todas ellas equivalentes en términos de estructuras generadas. Esto evidencia 
+la sensibilidad de \textsf{Korat} a la forma en que se escriben los \texttt{repOK}s, los cuales, si están 
+ajustados específicamente para su motor de búsqueda, pueden mejorar significativamente su rendimiento. 
+No obstante, cuando los \texttt{repOK}s presentan errores o están mal diseñados, su impacto negativo 
+puede ser severo, como se analiza en profundidad en la Sección~\ref{sec:existing-specs-analysis}.
+
+En conclusión, \emph{BEAPI} es una herramienta eficiente para la generación exhaustiva acotada. 
+Ofrece tiempos competitivos y, en varios casos, mejores que \textsf{Korat}, especialmente cuando 
+se trata de estructuras con invariantes complejas o bajo número de soluciones. Su independencia 
+respecto al \texttt{repOK} lo vuelve una alternativa robusta y complementaria para contextos donde 
+la calidad de la especificación no está garantizada.
 
 
 \subsection{RQ5: Optimizaciones de BEAPI}
+\label{sec:optimizations}
+\subsection{RQ5: Impacto de las optimizaciones propuestas}
 
+En esta pregunta de investigación evaluamos el impacto que tienen las optimizaciones propuestas 
+de \emph{BEAPI} en su rendimiento general frente al enfoque de generación exhaustiva tradicional. 
+Concretamente, analizamos cuatro configuraciones de la herramienta: \textsf{SM/BLD}, que habilita tanto 
+la coincidencia de estados (State Matching) como la identificación de constructores (\emph{builders}); 
+\textsf{SM}, que activa únicamente la coincidencia de estados; \textsf{BLD}, que habilita únicamente 
+la identificación de constructores; y \textsf{NoOPT}, que desactiva ambas optimizaciones, funcionando 
+como un enfoque de fuerza bruta.
+
+Para este análisis, nos enfocamos en el benchmark \texttt{Real World}, que incluye seis 
+implementaciones reales de estructuras de datos ampliamente utilizadas: \texttt{LinkedList} 
+(67 métodos en la API), \texttt{TreeSet} (34), \texttt{TreeMap} (61), \texttt{HashMap} (45), \texttt{NCL} (34) y 
+\texttt{Schedule} (12). La Tabla~\ref{tab:results-realWorld} 
+resume los resultados obtenidos. Cabe mencionar que se realizaron experimentos equivalentes para 
+el resto de los benchmarks utilizados en este capítulo, pero se omiten en las tablas en esta tesis por motivos de espacio.
+El conjunto \texttt{Real World} representa adecuadamente el comportamiento observado en los demás casos, 
+y resulta suficiente para sustentar las conclusiones extraídas en esta sección.
+
+Los resultados muestran de forma contundente que la configuración sin optimizaciones (\textsf{NoOPT}) 
+tiene un rendimiento deficiente incluso en los estudios de caso más simples y con alcances bajos. 
+Estos \emph{scopes}, si bien pequeños, ya resultan inadecuados para generar conjuntos de prueba de 
+calidad y revelan de inmediato la falta de escalabilidad del enfoque de fuerza bruta. Esta limitación 
+es representativa de la problemática general que enfrentan las técnicas de generación exhaustiva en 
+presencia de APIs amplias y estructuras complejas.
+
+Entre las optimizaciones propuestas, la coincidencia de estados (\textsf{SM}) demuestra ser la más 
+impactante a nivel general. Por sí sola, permite escalar a alcances considerablemente mayores y reduce 
+los tiempos de ejecución en varios órdenes de magnitud respecto a \textsf{NoOPT}. Su efecto se vuelve 
+crítico en aquellas estructuras donde múltiples secuencias de llamadas a métodos pueden generar el mismo estado 
+intermedio, lo que genera redundancia innecesaria si no se cuenta con un mecanismo de detección y poda 
+de estados previamente explorados.
+
+La segunda optimización, la identificación previa de métodos \emph{builders} (\textsf{BLD}), adquiere 
+mayor relevancia a medida que se incrementa la cantidad de métodos disponibles en la API. En 
+estructuras reales como \texttt{TreeMap}, \texttt{LinkedList} o \texttt{HashMap}, donde existen 
+docenas de métodos públicos con efectos variados, limitar la generación de secuencias a combinaciones 
+de constructores válidos tiene un impacto significativo en la eficiencia del proceso de generación. 
+Aunque por sí sola esta optimización no siempre permite escalar a scopes altos, su combinación con la 
+coincidencia de estados resulta esencial para lograr tiempos razonables de ejecución.
+
+El mayor beneficio se observa en la configuración \textsf{SM/BLD}, donde ambas optimizaciones están 
+habilitadas. En esta configuración, \emph{BEAPI} escala significativamente mejor, alcanzando scopes 
+mucho mayores en todos los casos analizados, con tiempos de ejecución hasta cientos de veces menores 
+que con las demás configuraciones. Por ejemplo, para \texttt{NCL}, se logra alcanzar \textit{scope} 6 
+en 73.78 segundos con \textsf{SM/BLD}, mientras que con \textsf{SM} apenas se alcanza \textit{scope} 4 
+en más de 3 segundos, y \textsf{NoOPT} no logra ejecutar siquiera scopes bajos. Para \texttt{TreeSet}, 
+el contraste es aún más pronunciado: \textsf{SM/BLD} alcanza \textit{scope} 13 en 226 segundos, mientras 
+que \textsf{SM} requiere casi 900 segundos para el mismo alcance.
+
+Estos resultados evidencian que las optimizaciones propuestas no solo reducen tiempos de ejecución, 
+sino que amplían sustancialmente los límites de escalabilidad de la herramienta. Sin estas mejoras, 
+\emph{BEAPI} se comporta como un generador exhaustivo tradicional, enfrentando rápidamente la explosión 
+combinatoria del espacio de búsqueda al aumentar el número de métodos o el tamaño de las secuencias. 
+En cambio, con las optimizaciones activadas, la técnica logra mantener el proceso dentro de márgenes 
+computacionalmente viables incluso en contextos realistas y exigentes.
+
+En conclusión, la activación conjunta de coincidencia de estados e identificación de \emph{builders} 
+resulta crucial para obtener un rendimiento competitivo. Estas optimizaciones transforman a \emph{BEAPI} 
+en una herramienta capaz de escalar a scopes altos sin sacrificar exhaustividad ni precisión, 
+permitiendo su aplicación efectiva en casos de uso reales.
+
+\vspace{8pt}
+\noindent
+\textbf{Sobre el costo de la identificación de métodos \emph{builders}.} Si bien esta optimización aporta 
+beneficios sustanciales en eficiencia, es importante destacar que su costo computacional es relativamente 
+bajo en comparación con el proceso completo de generación. La identificación se realiza como una etapa 
+preprocesamiento independiente y solo una vez por clase analizada. Además, como se muestra en los experimentos 
+previos de RQ1 y RQ2, los métodos seleccionados no solo mejoran el tiempo de ejecución, sino que también 
+favorecen la precisión del conjunto generado, al evitar combinaciones innecesarias y preservar la 
+suficiencia para construir todos los objetos válidos bajo el \emph{scope} definido.
+
+\input{tables/optimizaciones}
 
 
 \subsection{RQ6: BEAPI para analizar invariantes de representación}
+\label{sec:existing-specs-analysis}
+\subsection{RQ6: BEAPI para analizar invariantes de representación}
 
+Esta pregunta de investigación evalúa si \textsf{BEAPI} puede ser útil para asistir a los usuarios 
+en la detección de fallas en los métodos \texttt{repOK}, a través de la comparación entre el conjunto 
+de objetos que se pueden generar mediante la API y aquellos que se pueden generar a partir del 
+invariante de representación.
 
+Para ello, diseñamos un procedimiento automatizado en tres pasos. En primer lugar, ejecutamos 
+\emph{BEAPI} para generar un conjunto de estructuras, denominado \texttt{SA}, utilizando únicamente 
+la API de la clase, y ejecutamos \emph{Korat} para generar un segundo conjunto, \texttt{SR}, 
+utilizando únicamente el método \texttt{repOK}. Ambas ejecuciones se realizaron con el mismo 
+\emph{scope}. En segundo lugar, canonizamos todas las estructuras de ambos conjuntos utilizando el 
+proceso de linearización (Sección~\ref{sec:stateMatching}), de modo que estructuras isomorfas puedan 
+compararse de forma directa. Finalmente, comparamos los conjuntos \texttt{SA} y \texttt{SR} para 
+identificar diferencias que indiquen discrepancias semánticas entre la definición operativa de la 
+clase (la API) y su especificación declarativa (\texttt{repOK}).
+
+El procedimiento puede producir tres resultados distintos. Cuando \texttt{SA} $\subset$ \texttt{SR}, 
+puede deberse a que la API genera un subconjunto de las estructuras válidas, que \texttt{repOK} 
+sufre de subespecificación (es decir, permite estructuras que no deberían ser válidas), o ambos. 
+En estos casos, las estructuras que están en \texttt{SR} pero no en \texttt{SA} son evidencia potencial 
+de errores, y fueron inspeccionadas manualmente para confirmar si se trataba efectivamente de fallas 
+en \texttt{repOK}. Clasificamos estos errores como \texttt{under}, ya que el invariante permite más 
+de lo que debería.
+
+Por el contrario, cuando \texttt{SR} $\subset$ \texttt{SA}, puede indicar que \texttt{repOK} es demasiado 
+restrictivo (sobreespecificado), que la API permite estructuras no válidas, o ambas cosas. En este 
+caso, se analizan las estructuras que aparecen en \texttt{SA} pero no en \texttt{SR}. Los errores 
+confirmados manualmente en esta categoría se etiquetan como \texttt{over}.
+
+En algunos casos, se encontraron diferencias en ambas direcciones: estructuras válidas generadas por 
+\textsf{Korat} que no están presentes en \texttt{SA}, y estructuras generadas por \emph{BEAPI} que 
+no son aceptadas por \texttt{repOK}. Estas diferencias simultáneas pueden deberse a fallas en ambas 
+fuentes (API y \texttt{repOK}), o a errores más profundos de especificación. En estos casos, cuando se 
+confirma una falla manualmente, la clasificamos como \texttt{error}.
+
+Cabe destacar que diferencias menores en la definición de \emph{scope} entre los enfoques pueden 
+producir "falsos positivos" en esta comparación. Esto ocurrió solamente en las estructuras 
+\texttt{RBT} y \texttt{FibHeap}, donde \emph{BEAPI} no generó ciertas estructuras válidas dentro del 
+alcance debido a restricciones de balanceo interno que requieren secuencias más largas que el 
+\emph{scope} establecido. Estos casos se identificaron y descartaron manualmente, observando que al 
+aumentar el \emph{scope}, las estructuras de \textsf{Korat} sí aparecen en la salida de \emph{BEAPI}.
+
+Los resultados del experimento se resumen en la Tabla~\ref{table:bugs}. Encontramos errores en 9 de 
+los 26 métodos \texttt{repOK} analizados. Esta proporción evidencia la dificultad de escribir 
+invariantes de representación correctos, incluso en bibliotecas diseñadas por expertos, y pone de 
+manifiesto el valor de \textsf{BEAPI} como herramienta de apoyo para detectar inconsistencias.
+
+En particular, se detectaron errores de subespecificación en clases como \texttt{RBTree}, \texttt{AVL}, 
+\texttt{BinTree}, \texttt{FibHeap} y \texttt{NCL}, donde \texttt{repOK} permite estructuras 
+incompletas, con campos nulos o claves no válidas, que no pueden ser generadas mediante la API 
+original. También se identificaron casos de sobreespecificación, como en \texttt{FibHeap}, donde 
+el método \texttt{repOK} rechaza heaps válidos cuyo nodo mínimo es nulo de forma transitoria. 
+Finalmente, se confirmaron errores estructurales en las definiciones de altura y ordenamiento en 
+clases como \texttt{AVL}, donde las hojas están mal inicializadas o los cálculos son inconsistentes 
+con la implementación.
+
+En conclusión, \emph{BEAPI} no solo es útil para generar estructuras exhaustivamente, sino que 
+también actúa como un verificador complementario de especificaciones de invariante, permitiendo 
+descubrir errores difíciles de detectar mediante revisión manual o prueba dinámica convencional. 
+Este enfoque ofrece una vía práctica y automatizada para mejorar la calidad de las especificaciones 
+de clase, lo que redunda en mayor confiabilidad del software verificado.
+
+\input{tables/bugRepOk}
 
 \subsection{RQ7: Usando BEAPI para el testing parametrizado}
+\subsection{RQ7: Usando BEAPI para el testing parametrizado}
+
+En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
+utilidad de los métodos \emph{builders} identificados mediante nuestro enfoque, particularmente 
+en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 
+objetos que pueden utilizarse como entradas en test suites parametrizadas.
+
+Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en pruebas 
+automatizadas. En lugar de definir casos de prueba específicos para cada configuración, se 
+establece una única prueba que se ejecuta múltiples veces con distintos parámetros. En nuestro 
+contexto, dichos parámetros son objetos generados por distintas técnicas, los cuales sirven como 
+entrada a los métodos de la clase bajo prueba.
+
+Para llevar a cabo este experimento, diseñamos una test suite parametrizada en la que cada método 
+público de la clase bajo análisis es ejercitado con objetos generados por distintas técnicas. Las 
+herramientas utilizadas para generar estos objetos fueron: la versión estándar de Randoop, que 
+genera directamente una suite de pruebas sin reutilizar objetos previos; una variante de Randoop 
+denominada \texttt{R-Serialize}, que serializa los objetos construidos durante la generación de 
+tests, permitiendo su reutilización como entrada en tests parametrizados; una versión modificada 
+de Randoop que prioriza el uso de métodos \emph{builders} identificados previamente mediante 
+nuestro enfoque (denominada \texttt{R-Builders}); y por último, la herramienta \texttt{BEAPI}, que 
+produce directamente un conjunto reducido pero válido de objetos a partir de su propia lógica de 
+exploración exhaustiva acotada.
+
+A fin de evaluar y comparar el impacto de cada enfoque, se utilizó un benchmark basado en clases 
+del paquete \texttt{java.util}: \texttt{HashSet}, \texttt{HashMap}, \texttt{TreeMap}, 
+\texttt{TreeSet} y \texttt{LinkedList}. Para cada clase se definió un invariante que permite 
+distinguir objetos válidos de inválidos, permitiendo así evaluar la calidad de los generadores.
+
+Las métricas consideradas fueron: la cantidad de objetos válidos e inválidos generados, el tiempo 
+de generación (\texttt{GTime}), la cantidad de casos de prueba ejecutados (\texttt{Test}), el 
+tiempo total de ejecución de la test suite (\texttt{T(Seg)}), la cobertura de ramas alcanzada 
+(\texttt{Ramas}) y la cantidad de mutantes eliminados (\texttt{Mutacion}). Es importante destacar 
+que la test suite parametrizada es común a los enfoques \texttt{R-Serialize}, \texttt{R-Builders} 
+y \texttt{BEAPI}, permitiendo así una comparación justa sobre los objetos generados. En el caso de 
+\texttt{Randoop}, la herramienta genera su propia test suite, por lo que los resultados deben 
+interpretarse con cautela.
+
+\input{tables/randoopvsBeapi}
+
+La Tabla~\ref{tab:hashSetTools} muestra una comparativa de diferentes técnicas aplicadas sobre 
+\texttt{HashSet}. Se observa que al priorizar métodos \emph{builders} en Randoop, la cantidad de 
+objetos generados se incrementa significativamente (más de 300\% en comparación con la versión 
+estándar), lo cual impacta positivamente en la cobertura.
+
+En contraste, \textsf{BEAPI} genera sólo 32 objetos válidos, pero logra una cobertura de ramas y 
+mutación equivalente a \texttt{R-Builders}, y superior a la alcanzada por \texttt{R-Serialize} y 
+\texttt{Randoop} en lapsos de tiempo cortos. Esta eficiencia evidencia que BEAPI puede generar un 
+conjunto reducido de objetos, pero de alta calidad para testing, en muy poco tiempo (menos de 5 
+segundos).
+
+En términos de ejecución, mientras \texttt{R-Builders} y \texttt{R-Serialize} requieren ejecutar 
+millones de tests para alcanzar altos niveles de cobertura, \texttt{BEAPI} logra el mismo nivel 
+ejecutando apenas unos pocos miles. Esto indica que los objetos generados por \textsf{BEAPI} son 
+altamente efectivos como entradas, permitiendo detectar fallas y explorar el espacio de estados 
+de manera eficiente.
+
+Los resultados obtenidos permiten concluir que los objetos generados por \textsf{BEAPI} son 
+efectivos y eficientes para ser utilizados en tests parametrizados. Aunque la cantidad total de 
+objetos generados es menor, su calidad y representatividad permiten alcanzar los máximos niveles 
+de cobertura con una mínima ejecución. Además, se observa que guiar a generadores aleatorios como 
+Randoop mediante la identificación previa de métodos \emph{builders} también mejora significativamente 
+la cobertura. Sin embargo, \textsf{BEAPI} logra estos mismos resultados sin depender de técnicas 
+aleatorias ni ejecutar millones de pruebas.
+
+En contextos donde el tiempo de ejecución es un factor crítico, o donde se necesita eficiencia sin 
+sacrificar cobertura, \textsf{BEAPI} se posiciona como una herramienta valiosa para la generación 
+de objetos de prueba. Estos resultados también reafirman la importancia de identificar y utilizar 
+adecuadamente los métodos \emph{builders} para mejorar la calidad de los tests automatizados.
 
 
 
@@ -294,50 +741,6 @@ Para implementar el algoritmo genético, utilizamos una biblioteca muy popular e
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. 
 
 
-
-\subsection{Efectividad}
-\cacho{Poner que beapi va hasta el scope o haste el tiempo dado. Pero casi siempre es scope porq es pequeno}
-
-La efectividad de nuestros algoritmos se basa en qué tan cerca están de encontrar el conjunto mínimo de métodos \emph{builders} para las diferentes estructuras de datos. Es importante tener en cuenta que siempre encontramos al menos un subconjunto de métodos \emph{builders} que es suficiente para su utilización. Sin embargo, cuanto más mínimo sea este subconjunto, mejores resultados obtendremos en términos de generación de inputs para testing.
-
-Realizamos experimentos utilizando las estructuras de datos especificadas en nuestra primera sección de este capítulo. Evaluamos tres algoritmos: Hill Climbing (\emph{HC}). Para cada algoritmo, utilizamos dos funciones de valoración: una basada en el generador exhaustivo (\emph{BE}) y otra basada en la cobertura de ramas (\emph{RC}).
-Es importante destacar que la función de valoración que utiliza la test suite generada por Randoop, la cual hemos modificado para medir la cobertura de ramas, produce resultados variables según la semilla utilizada. La semilla tiene importancia en la aleatoriedad que posee Randoop, lo que puede afectar los resultados de la función de valoración.
-
-Para la estructura \emph{NCL}, el algoritmo \emph{HC} con la función de valoración que cuenta objectos de nuestro generador exhaustivo, \emph{BE} encuentra un subconjunto de métodos \emph{builders} que coincide con el conjunto mínimo, es decir, no agrega métodos adicionales. Sin embargo, al utilizar la función de valoración \emph{RC}, el algoritmo \emph{HC} encuentra un subconjunto con 3.40 numeros de métodos en promedio. Esto indica que en 2 de las 5 ejecuciones se agrega un método extra.
-El algoritmo evolutivo, en las 5 ejecuciones, encuentra un método de más con la función de valoración que utiliza cobertura, mientras que la función de valoración con el generador exhaustivo en 4 de las 5 ejecuciones encuentra un método de más. Esto se debe a que el algoritmo genético es muy sensible a los parámetros que se utiliza y puede depender de cada caso. Si se le da el tiempo, los parámetros y las evoluciones necesarias, este algoritmo siempre encontraría el mínimo sin ningún método extra. Así mismo con la función de valoración, tiene un método de más en todas las ejecuciones.
-
-
-En el caso de las estructuras \emph{UnionFind, FibonacciHeap, BTree, BinomialHeap y Scheduler}, todos los algoritmos logran encontrar el conjunto mínimo de métodos \emph{builders}, ya que no se encuentran métodos adicionales en ninguno de los casos. Esto también tiene que ver con que tienen menos cantidad de métodos en sus API y la complejidad de los mismos es diferente al resto de las clases que forman parte de nuestro benchmarks.
-
-En la estructura \emph{Lits}, la función de valoración basada en el generador exhaustivo siempre encuentra al menos un método adicional. Esto se debe a que el generador exhaustivo depende de los valores con los que están inicializados los arreglos en la API de List, lo que puede generar un método adicional en el conjunto mínimo de métodos \emph{builders}. 
-En la API de \emph{List}, la cual, es una biblioteca Java para resolver problemas booleanos de satisfacibilidad (SAT). Esta contiene una colección de arreglos que almacena los literales utilizados en un problema SAT. Proporciona métodos para manipular y acceder a literales, como agregar literales a la estructura, recuperar literales por sus índices, negar literales, etc. Nuestro generador exhaustivo depende de con que valores estén inicializados estos arreglos, y el scope que le hemos pasado. Es por esto que agrega un método para crear arreglos que no tiene posibilidad de hacerlo con los métodos builders y el scope que se le dio. Esto no quiere decir que sea builders el método que se agrega, solo que con el scope dado, no tiene posibilidad de crearlo con métodos alternativos. Si aumentamos el scope y modificamos la clase, nos encuentra siempre el subconjunto mínimo.
-En cambio, la función de valoración basada en la cobertura de ramas no depende del scope dado y nos encuentra siempre el mismo subconjunto de métodos que es el mínimo y suficiente.
-
-Para las estructuras de \emph{java.util}, el algoritmo evolutivo evaluado a través de la cobertura de ramas depende mucho del tiempo y los parámetros utilizados. Esto se debe a que estas estructuras tienen una mayor cantidad de métodos en su API, lo que hace más desafiante encontrar el conjunto mínimo de métodos \emph{builders}. Por un lado, la función de valoración basada en el generador exhaustivo encuentra el conjunto mínimo en la mayoría de las ejecuciones, con la excepción de HashSet, que agrega un método adicional que es un constructor de la clase que permite generar estructuras que no son posibles con los otros métodos hasta el scope dado.
-Por otro lado, la función de valoración de de randoop \cacho{TODO, puede no encontrar el suficiente porq satura coverage.}
-
-
-En resumen, la efectividad de nuestros algoritmos varía dependiendo de la estructura de datos y la función de valoración utilizada. Algunos algoritmos y funciones de valoración logran encontrar el conjunto mínimo de métodos \emph{builders}, mientras que otros pueden agregar métodos adicionales en ciertos casos.
-
-
-% La efectividad de nuestros algoritmos se basa en qué tan cerca están de encontrar el conjunto mínimo de métodos \emph{builders}. Es importante destacar que nuestros algoritmos siempre encuentran al menos un subconjunto de métodos \emph{builders} que es suficiente. Sin embargo, cuanto más mínimo sea este subconjunto, mejores resultados obtendremos al utilizarlo, por ejemplo, durante la generación de inputs para testing.
-
-\input{tables/eficaciaBuilders}
-
-
-% Además de analizar la eficiencia, también investigamos la sensibilidad de algunos parámetros del GA. Ajustamos parámetros como el tamaño de la población, la tasa de mutación y el número de generaciones, y observamos cómo estos cambios afectaron el rendimiento del algoritmo y los resultados obtenidos. Esto nos permitió identificar las configuraciones óptimas de los parámetros y entender cómo influyen en el proceso de búsqueda.
-
-Adicionalmente, examinamos los usos de los builders generados por nuestra técnica. Analizamos las características y las funcionalidades de los builders aprendidos y evaluamos su utilidad en diferentes tareas. Estudiamos cómo los builders pueden ser aplicados en el análisis y la manipulación de datos, y evaluamos su efectividad en términos de rendimiento y calidad de los resultados obtenidos.
-
-
-
-% \paragraph{Randoop Objects}
-% \label{sec:randoopObjectsExp}
-% \paragraph{Bounded Exhuastive}
-% \label{sec:BEExp}
-
-
-
 % \subsubsection{Variacion de acuerdo a los Parametros}
 
 % Ademas, examinamos la sensibilidad de los parámetros del Algoritmo Genético y exploramos los usos de los builders generados. Los resultados obtenidos proporcionaron información valiosa sobre el rendimiento y la utilidad de nuestra técnica en la generación de builders y su aplicación en diversas tareas.
@@ -348,149 +751,6 @@ Adicionalmente, examinamos los usos de los builders generados por nuestra técni
 % En la tabla \ref{tab:CrossOverGA} se puede observar como se comporta el algoritmo cuando se utiliza diferente rate para el operador de CrossOver. 
 
 
-
-
-
-% \input{tables/tableMutation}
-\subsection{Uso de Builders para generar inputs de programas}
-En esta parte de la evaluación nos referimos a cuán útiles son los métodos \emph{builders} identificados en el contexto de un análisis de programa, en particular, la generación automatizada de casos de prueba. Estos objetos podrían utilizarse, por ejemplo, como entradas en pruebas unitarias parametrizadas. Para los estudios de caso que proporcionan mecanismos para medir el tamaño de los objetos y comparar objetos por igualdad (es decir, los métodos size y equals de las estructuras de datos), generamos pruebas con Randoop utilizando todos los métodos disponibles en la API (API), y luego generamos pruebas con Randoop utilizando solo los métodos \emph{builders} (BLD) identificados por nuestro enfoque en el experimento anterior (Tabla \ref{tab:results-compute-bld}). Luego, comparamos el número de objetos diferentes (No. of Objs.) y el tamaño del objeto más grande (Max Obj. Size) creado por las pruebas generadas a partir de la API, en comparación con las pruebas generadas utilizando solo los métodos de BLD. Configuramos tres presupuestos diferentes para la generación de pruebas: 60, 120 y 180 segundos (Budget). Los resultados se resumen en la Tabla \ref{tab:results-obj}. Los resultados muestran que, en el mismo presupuesto de pruebas, BLD genera en promedio un 500 porciento más de objetos que API. En todos los casos, BLD también genera objetos significativamente más grandes que API. A la luz de estos resultados, queda claro que la identificación automatizada de \emph{builders} vale la pena para la generación automatizada de estructuras para clases con estado.
-\input{tables/objectsBuilders}
-
-
-\subsection{Uso de Builders en Verificación}
-
-En el ultimo experimento sobre la identificación de \emph{builders}, utilicé Java PathFinder \cite{Visser:2005} (JPF) para realizar pruebas de generación de entradas de software para estructuras de datos de \emph{java.util}. JPF \footnote{https://github.com/javapathfinder/jpf-core}  es un verificador de modelos de estado explícito para programas escritos en Java. Para realizar la verificación, las técnicas de versificación de modelos de software se basan en la definición de controladores de métodos: combinaciones de métodos que permiten construir las entradas con las que se ejecutará el programa. Intuitivamente, es deseable seleccionar el menor conjunto de métodos posible, cuyas combinaciones permitan construir todas las estructuras acotadas para el módulo (para analizar el software con todas las entradas posibles). La dificultad de escribir controladores de pruebas es un obstáculo importante para el uso de un verificador de modelos. Esta selección de métodos, que generalmente se realiza manualmente, no es una tarea fácil: requiere un análisis exhaustivo de las rutinas disponibles en el módulo y una comprensión profunda de su semántica.
-Es posible construir un método no determinista (harness de test) que genere todas las secuencias de llamadas a métodos de la API hasta un tamaño especificado por el usuario (scope). JPF se utiliza para enumerar todas estas secuencias. JPF almacena todos los estados explorados y retrocede cuando visita un estado previamente explorado.
-
-JPF admite anotaciones de programa que se agregan a los programas a través de llamadas a métodos de una clase especial Verify.
-Utilizamos los siguientes métodos de la biblioteca JPF \verb"Verify":
-\vspace{5pt} 
-
-\begin{itemize}
-\item El método \verb"Verify.getInt(int lo, int hi)" devuelve un valor entre \verb"lo" y \verb"hi", inclusive. Crea un punto de elección no determinista: JPF necesita explorar las ejecuciones para todos los valores en el rango.
-\item \verb"random(int n)" devuelve valores de 0 a \verb"n", de manera no determinista.
-\end{itemize}
-
-Si se desea verificar que el método \emph{put}  de TreeMap cumple con el repOK (predicado imperativo que verifica las invariantes de clase) de la estructura de datos, es necesario escribir algo como: 
-\vspace{5pt} 
-
-
-\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:label},language=Java,captionpos=b]
-public static void main(String[] args) {
-   int scope = 3;
-   TreeMap t = generateStructure(scope);
-   t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
-   assert t.repOK();
-}
-\end{lstlisting}
-
-Para realizar el análisis de esta propiedad, es necesario proporcionar a JPF los mecanismos para generar todo el árbol de entrada (\textit{generateStructure}). 
-En el siguiente ejemplo, mostramos un controlador de prueba construido con todos los métodos de la estructura de datos \textit{TreeMap}:
-\vspace{5pt} 
-
-\begin{lstlisting}[caption={Controlador con todos los métodos},label={lst:driverAPI},language=Java,captionpos=b]
-private static TreeMap generateStructure(int scope) {
-   int maxLength = Verify.getInt(0, scope);
-   TreeMap t = new TreeMap();
-   for (int i = 1; i <= maxLength; i++) {
-      switch (Verify.random(n_methods)) {
-         case 0:
-            t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
-            break;
-         case 1:
-            t.remove(Verify.getInt(0,scope));
-            break;						
-         case 2:
-            t.clear();
-            break;
-         case 3:
-            t.containsValue(Verify.getInt(0,scope));
-            break;
-         ...
-         case 11: 
-            t.putAll(l);
-            break;
-      }
-   }
-   return t;
-}
-\end{lstlisting}
-
-El método controlador anterior, en primer lugar, selecciona el número de métodos a ejecutar, \textit{maxLength}, un número entre 0 y \textit{scope}. (Linea 2). Cada iteración del ciclo (Linea 4 a 23) corresponde a la ejecución de un solo método, seleccionado de manera no determinista entre todos los disponibles. En el caso de que el usuario no conozca el conjunto de métodos builders (y no quiera hacer el complicado trabajo de seleccionarlos manualmente), la solución más segura para evitar descartar métodos importantes es utilizar todos los métodos disponibles en el módulo, como se muestra en el método controlador descrito anteriormente. En el cuerpo del bucle, a cada método se le asigna un número entero entre 0 y \textit{n\_methods}. Se elige de manera no determinista el método a ejecutar en el ciclo actual. Por ejemplo, si \textit{n\_methods}=1, se ejecuta el método \textit{remove}. Es fácil ver que el número de ejecuciones posibles que se deben explorar por JPF crece exponencialmente con el número de métodos disponibles.
-
-%(for every method that is executed in one iteration, there are \textit{n_methods} possible methods to execute in the next iteration).
-
-Para evitar este crecimiento exponencial en este experimento, se propone utilizar únicamente los constructores detectados por nuestro enfoque explicado en la sección \ref{sec:builders}.
-\vspace{5pt} 
-
-\begin{figure}
-
-\begin{lstlisting}[caption={Controlador con métodos constructores},label={lst:driverBLD},language=Java,captionpos=b]
-private static TreeMap generateStructure(int scope) {
-   int maxLength = Verify.getInt(0,scope);
-   TreeMap t = new TreeMap();
-   for (int i = 1; i <= maxLength; i++) {
-      switch (Verify.random(11)) {
-         case 0:
-            t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
-            break;
-         case 1:
-            t.remove(Verify.getInt(0,scope));
-            break;						
-      }
-   }
-   return t;
-}
-\end{lstlisting}
-\end{figure}
-
-Como se muestra en el controlador anterior, solo 2 métodos componen un conjunto mínimo y suficiente para construir controladores para TreeMap de \textit{java.util}. Utilizando solo esos métodos, generamos exactamente los mismos objetos TreeMap que antes (porque los constructores son suficientes y mínimos), y por lo tanto JPF explora las mismas ejecuciones de propiedades con ambos controladores.
-
-Los resultados de la tabla \ref{tab:results-jpf1} y \ref{tab:results-jpf2} muestran que la construcción del controlador a partir de nuestro enfoque presentado permite aumentar la eficiencia y escalabilidad a estructuras más grandes en el análisis utilizando JPF. Esto se debe a la reducción de los métodos utilizados en los controladores (evitando métodos superfluos) y manteniendo la capacidad de construir todos los objetos acotados posibles (debido a la suficiencia de los métodos elegidos) en menos tiempo.
-
-\input{tables/tableJPFBuilders}
-\input{tables/tableJPFBuilders1}
-
-
-\section{BEAPI}
-En esta sección, evaluamos experimentalmente \textsf{BEAPI} en comparación con enfoques relacionados. La evaluación se organiza en torno a las siguientes preguntas de investigación:
-
-\begin{description}
-\item[RQ1] \emph{¿Se puede realizar una generación exhaustiva acotada de manera eficiente utilizando rutinas de la API?}
-\item[RQ2] \emph{¿Cuánto impactan las optimizaciones propuestas en el rendimiento de la generación exhaustiva acotada a través de la API?}
-\item[RQ3] \emph{¿Puede \textsf{BEAPI} ayudar a encontrar discrepancias entre las especificaciones \texttt{repOK} y la capacidad de generación de objetos de la API?}
-\end{description}
-
-Como estudios de caso, utilizamos implementaciones de estructuras de datos de cuatro bancos de pruebas: tres empleados en la evaluación de herramientas de prueba existentes (\textsf{Korat} \cite{Boyapati02}, \textsf{Kiasan} \cite{Deng06}, \textsf{FAJITA} \cite{Abad13}) y \textsf{ROOPS}. Estos bancos de pruebas cubren implementaciones diversas de estructuras de datos complejas, que son un buen objetivo para la generación exhaustiva acotada. Elegimos estos como estudios de caso porque las implementaciones vienen equipadas con \texttt{repOK}s escritos por los autores de los bancos de pruebas. Los experimentos se ejecutaron en una estación de trabajo con un procesador Intel Core i7-8700 (3.2 GHz) y 16 GB de RAM. Establecimos un tiempo de espera de 60 minutos para cada ejecución individual. Para replicar los experimentos, remitimos al lector al artefacto del artículo \cite{artifact}.
-\subsection{Eficiencia}
-
-En esta sección, evaluamos experimentalmente \textsf{BEAPI} en comparación con enfoques relacionados. La evaluación se organiza en torno a las siguientes preguntas de investigación:
-\begin{description}
-\item[RQ1] \emph{¿Puede realizarse BEG de manera eficiente utilizando rutinas de API?}
-\item[RQ2] \emph{¿Cuánto impactan las optimizaciones propuestas en el rendimiento de BEG a partir de la API?}
-\item[RQ3] \emph{¿Puede \textsf{BEAPI} ayudar a encontrar discrepancias entre las especificaciones \texttt{repOK} y la capacidad de generación de objetos de la API?}
-\end{description}
-
-Como casos de estudio, utilizamos implementaciones de estructuras de datos de cuatro bancos de pruebas: tres empleados en la evaluación de herramientas de prueba existentes (\textsf{Korat} \cite{Boyapati02}, \textsf{Kiasan} \cite{Deng06}, \textsf{FAJITA} \cite{Abad13}) y \textsf{ROOPS}. Estos bancos de pruebas cubren diversas implementaciones de estructuras de datos complejas, que son un buen objetivo para BEG. Elegimos estos casos de estudio porque las implementaciones vienen equipadas con \texttt{repOK}s escritos por los autores de los bancos de pruebas. Los experimentos se ejecutaron en una estación de trabajo con un procesador Intel Core i7-8700 (3.2 GHz) y 16 GB de RAM. Establecimos un tiempo límite de 60 minutos para cada ejecución individual. Para replicar los experimentos, remitimos al lector al artefacto del artículo \cite{artifact}.
-
-\subsection{Eficiencia de la Generación Exhaustiva Acotada a partir de APIs}\label{sec:evaluation-vs-korat}
-\input{tables/tableEficienciaBEAPI}
-
-Para la RQ1, evaluamos si \emph{BEAPI} es lo suficientemente rápido como para ser un enfoque de BEG útil, comparándolo con el enfoque de BEG popularemente utilizado en el estado del arte, \textsf{Korat} \cite{Siddiqui09}. Los resultados de la comparación se resumen en la Tabla~\ref{table:korat-beapi}. Para cada técnica, informamos los tiempos de generación (en segundos), el número de estructuras generadas y exploradas, para distintos tipos de scopes. 
-Aquí mostramos una muestra representativa de los resultados (tratamos de mantener la misma proporción de casos buenos y malos para cada técnica en los datos que informamos). 
-Incluimos hasta el scope exitoso más grande para cada técnica; los tiempos de ejecución para los alcances más grandes se muestran en negrita en la tabla. De esta manera, si surgen problemas de escalabilidad, se pueden identificar fácilmente. Para obtener resultados de rendimiento adecuados para \textsf{BEAPI}, probamos exhaustivamente los métodos de la API de las clases para asegurarnos de que fueran correctos para este experimento. No intentamos cambiar los \texttt{repOK}s de ninguna manera, porque eso cambiaría el rendimiento de \textsf{Korat}, y uno de nuestros objetivos aquí es evaluar el rendimiento de \textsf{Korat} utilizando \texttt{repOK}s escritos por diferentes programadores. Se esperan diferencias en las estructuras exploradas, ya que los espacios de búsqueda correspondientes para \textsf{Korat} y \textsf{BEAPI} son diferentes. Sin embargo, para el mismo caso de estudio y alcance, se espera que ambos enfoques generen la misma cantidad de estructuras válidas. Esto es cierto en la mayoría de los experimentos, con excepciones notables de dos tipos diferentes. En primer lugar, hay casos en los que \texttt{repOK} tiene errores; estos casos están sombreados en las tablas. En segundo lugar, la noción ligeramente diferente de \emph{alcance} en cada técnica puede causar discrepancias. Esto solo ocurre para Árboles Rojo-Negro (\texttt{RBT}) y en los casos de Fibonacci (\texttt{FibHeap}), que se muestran en negrita. En estos casos, ciertas estructuras de tamaño $n$ solo se pueden generar a partir de estructuras más grandes, con inserciones seguidas de eliminaciones y luego inserciones nuevamente para activar reordenamientos de equilibrio específicos. \textsf{BEAPI} descarta las secuencias generadas tan pronto como exceden el tamaño máximo de la estructura, por lo que no puede generar estas estructuras.
-
-En cuanto al rendimiento, tenemos resultados mixtos. En el banco de pruebas de \emph{Korat}, \emph{Korat} muestra un mejor rendimiento en 4 de 6 casos. En el banco de pruebas de \textsf{FAJITA}, \emph{BEAPI} es mejor en 3 de 4 casos. En el banco de pruebas de \textsf{ROOPS}, \emph{BEAPI} es mejor en 5 de 7 casos. En el banco de pruebas de \textsf{Kiasan}, \emph{Korat} es más rápido en 6 de los 7 casos. Observamos que \emph{BEAPI} muestra un mejor rendimiento en estructuras con restricciones más restrictivas, como \texttt{RBT} y Árboles de Búsqueda Binaria (\texttt{BST}); a menudo, estos casos tienen un número menor de estructuras válidas. Los casos en los que el número de estructuras válidas crece más rápido con respecto al alcance, como listas doblemente enlazadas (\texttt{DLList}), son más adecuados para \emph{Korat}. Más estructuras significa que \emph{BEAPI} tiene que crear más secuencias de prueba en cada iteración sucesiva, lo que hace que su rendimiento sufra más en tales casos. Como era de esperar, la forma en que se escriben los \texttt{repOK}s tiene un impacto significativo en el rendimiento de \emph{Korat}. Por ejemplo, para heaps binomiales (\texttt{BinHeap}), \emph{Korat} alcanza el alcance 8 con el \texttt{repOK} de \texttt{Roops}, el alcance 10 con el \texttt{repOK} de \texttt{FAJITA} y el alcance 11 con el \texttt{repOK} de \emph{Korat} (todos equivalentes en términos de estructuras generadas). En la mayoría de los casos, los \texttt{repOK}s del banco de pruebas de \emph{Korat} resultan en un mejor rendimiento, ya que están ajustados para su uso con \emph{Korat}. Los casos de estudio con errores en los \texttt{repOK}s están sombreados en la tabla y se discuten más en la Sección~\ref{sec:existing-specs-analysis}. Tenga en cuenta que los errores en los \texttt{repOK}s pueden afectar gravemente el rendimiento de \emph{Korat}.
-
-\subsection{Impacto de las Optimizaciones realizas en BEAPI}
-En la RQ2 evaluamos el impacto que cada una de las optimizaciones propuestas de \textsf{BEAPI} tiene en la generación exhaustiva acotada. Para esto, evaluamos el rendimiento de cuatro configuraciones diferentes de \emph{BEAPI}: \textsf{SM/BLD} es \emph{BEAPI} con coincidencia de estados (SM) y identificación de constructores (BLD) habilitados; \textsf{SM} es \emph{BEAPI} con solo coincidencia de estados (SM) habilitada; \textsf{BLD} es \emph{BEAPI} con solo identificación de constructores (BLD) habilitada; \textsf{NoOPT} tiene ambas optimizaciones deshabilitadas. En esta sección, solo mostraremos como afectan las optimizaciones de \emph{BEAPI} para el benchmark \texttt{Real World}; son cinco implementaciones "reales" de estructuras de datos: \texttt{LinkedList} (67 métodos de la API), \texttt{TreeSet} (34 métodos), \texttt{TreeMap} (61 métodos) y \texttt{HashMap} (45 métodos) de \texttt{java.util}, y \texttt{NCL} de Apache Collections (34 métodos).
-La Tabla~\ref{tab:results-realWorld} resume los resultados de este experimento.
-Vale aclarar, que hemos realizado el mismo experimento para el resto de los benchamarks utilizado en esta capitulo, pero por simplicidad para la lectura del lector, solo incluimos este benchmarks que es representativo para el analisis deseado.
-
-El enfoque de fuerza bruta (\textsf{NoOPT}) tiene un rendimiento deficiente incluso para los estudios de caso más fáciles y con scopes muy pequeños. Estos scopes son demasiado pequeños y a menudo insuficientes si se desea generar conjuntos de pruebas de alta calidad. La coincidencia de estados es la optimización más impactante, mejorando considerablemente por sí sola el rendimiento y la escalabilidad en general (comparar los resultados de \textsf{NoOPT} y \textsf{SM}). Como se esperaba, la identificación de constructores es mucho más relevante en los casos en que el número de métodos en la API es grande (más de 10), y especialmente en las estructuras de datos del mundo real (con 34 o más métodos de la API). En las estructuras de datos del mundo real, el uso de metodos builders precalculados permitió que \textsf{SM/BLD} se escalara a ámbitos significativamente más grandes en todos los casos, excepto en \texttt{TreeMap} y \texttt{TreeSet}, donde mejoró significativamente los tiempos de ejecución. En general, las optimizaciones propuestas tienen un impacto crucial en el rendimiento y la escalabilidad de \emph{BEAPI}, y ambas deben habilitarse para obtener buenos resultados.
-
-Aqui podemos concluir que es muy importante activar las optimizaciones que hemos desarollado, para que \emph{BEAPI} sea escalable a scopes mas altos.
-Sin estas optimizaciones, (solo con fuerza bruta) se observa la problemática que tienen las técnicas de generación exhaustiva para poder escalar dada la gran cantidad de combinaciones de métodos para poder generar secuencias.
 
 \emph{Sobre el costo de la identificación de métodos builders.} 
 
