@@ -32,7 +32,7 @@ Con respecto a esta técnica, las siguientes preguntas de investigación guían 
     en el contexto del análisis automático de software?
 \end{itemize}
 
-\subsection{Configuración experimental}
+\subsection{Configuraci\'on experimental}
 La evaluación se llevó a cabo sobre un conjunto de implementaciones de
 estructuras de datos que sirven como casos de estudio de referencia,
 incluyendo: \verb"NCL" de Apache Commons Collections~\cite{apache};
@@ -125,10 +125,6 @@ generación exhaustiva, no fue necesario realizar múltiples repeticiones, dado
 que dicha evaluación es determinística bajo una misma configuración.
 
 
-%Casos de estudio, técnicas a evaluar, métricas, parámetros usados, ground truth, etc..
-
-
-
 \subsection{RQ1: Eficiencia del cómputo de generadores de objetos}
 
 La eficiencia de nuestros algoritmos es la cantidad de segundos que le lleva a cada uno de nuestros algoritmos con cada función de 
@@ -143,8 +139,7 @@ de su API), mientras que el algoritmo genético puede tardar mas de una hora en 
 de Hill Climbing comienzan desde abajo hacia arriba, considerando menos métodos antes de considerar más métodos, a diferencia de los 
 algoritmos genéticos, que generan sucesores mediante operadores de cruce y mutación. Esta estrategia favorece al algoritmo Hill Climbing 
 para encontrar los métodos mínimos en tiempos más cortos. Cabe mencionar que en casos de estudio donde el algoritmo genético supera al 
-Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más 
-rápidamente que el algoritmo Hill Climbing.
+Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más rápidamente que el algoritmo Hill Climbing.
 
 
 En relaci\'on con las funciones de valoraci\'on, observamos que la función de valoración basada en el generador exhaustivo (GE) logra 
@@ -325,7 +320,7 @@ Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador ba
 válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
 de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
 
-\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:label},language=Java,captionpos=b]
+\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:driverBLD},language=Java,captionpos=b]
     public static void main(String[] args) {
        int scope = 3;
        TreeMap t = generateStructure(scope);
@@ -390,11 +385,6 @@ investigación:
 \item\emph{RQ7}: ¿Qué tan efectivos son los objetos producidos por BEAPI para el
     testing parametrizado?  
 \end{itemize}
-
-\subsection{Configuración experimental}
-
-Casos de estudio, técnicas a evaluar, métricas, parámetros usados, ground truth, etc..
-
 
 \subsection{Configuración experimental}
 
@@ -501,11 +491,10 @@ Ofrece tiempos competitivos y, en varios casos, mejores que \textsf{Korat}, espe
 se trata de estructuras con invariantes complejas o bajo número de soluciones. Su independencia 
 respecto al \texttt{repOK} lo vuelve una alternativa robusta y complementaria para contextos donde 
 la calidad de la especificación no está garantizada.
+\input{tables/tableEficienciaBEAPI.tex}
 
-
-\subsection{RQ5: Optimizaciones de BEAPI}
-\label{sec:optimizations}
 \subsection{RQ5: Impacto de las optimizaciones propuestas}
+\label{sec:optimizations}
 
 En esta pregunta de investigación evaluamos el impacto que tienen las optimizaciones propuestas 
 de \emph{BEAPI} en su rendimiento general frente al enfoque de generación exhaustiva tradicional. 
