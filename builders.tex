@@ -72,9 +72,10 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
     Estos métodos permiten agregar, eliminar o modificar elementos de la lista. Algunos ejemplos son:
     \begin{itemize}
         \item \texttt{add(Object)}: Agrega un elemento al final de la lista
-            principal \cacho{y no se modifica la lista cache }\pp{No puede ser,
+            principal. \cacho{Si hay nodos disponibles en la lista cache, se reutiliza uno de ellos.}\pp{No puede ser,
             la cache estaría al pedo si fuera así porque no se reusan los nodos. Revisar}
-        \item \texttt{addFirst(Object)} y \texttt{addLast(Object)}: Insertan elementos al principio o al final de la lista principal \cacho{y no se modifica la lista cache}\pp{No puede ser,
+        \item \texttt{addFirst(Object)} y \texttt{addLast(Object)}: Insertan elementos al principio o al final de la lista principal 
+        \cacho{En ambos casos, si existen nodos disponibles en la cache, se reutilizan para evitar la creación de nuevos nodos.}\pp{No puede ser,
             la cache estaría al pedo si fuera así porque no se reusan los nodos. Revisar}
         \item \texttt{remove(int)} y \texttt{remove(Object)}: Eliminan elementos de la lista por índice o por valor. El nodo eliminado se inserta en la lista cache de la estructura.
         \item \texttt{clear()}: Vacía la lista principal y se insertan los nodos
@@ -104,7 +105,7 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{images/NCL-instances.png}
+    \includegraphics[width=1.0\textwidth]{images/ncl_instancias.png}
     \caption{Tres instancias de NodeCachingLinkedList con exactamente dos nodos.}
     \label{fig:ncl-instances-intro}
 \end{figure}
@@ -118,30 +119,28 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
     (7)  addFirst(3);
     (7)  addFirst(-1);
     \end{lstlisting}
-    \pp{Modificar la figura para que contenga elementos (N0, N1 y L0 están al
-            pedo, sino las listas no son concretas y las operaciones con object 
-        no son ejecuciones válidas.}
 
 \item Figura (b):
-    Esta instancia se logra agregando un nodo \pp{No. hay que agregar dos nodos
-    y luego eliminar uno.} a la lista principal y luego eliminarlo para que sea insertado en la cache:
+    \cacho{Esta instancia se logra agregando dos nodos a la lista principal y luego eliminar uno de ellos. En este caso el primero en agregar a la lista principal
+    y se mueve el nodo a la lista cache}
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_b, xleftmargin=0pt]
     (0)  NodeCachingLinkedList();
-    (7)  addFirst(Object);
+    (7)  addFirst(3);
+    (7)  addFirst(-1);
     (25) removeFirst();
     \end{lstlisting}
 
 \item Figura (c): 
     Esta instancia se genera añadiendo dos nodos al inicio y luego eliminándolos
-    para pasarlos a la lista cache \pp{Poner valores concretos}:
+    para pasarlos a la lista cache
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_c, xleftmargin=0pt]
     (0)  NodeCachingLinkedList();
-    (7)  addFirst(Object); 
-    (7)  addFirst(Object); 
+    (7)  addFirst(3); 
+    (7)  addFirst(-11); 
     (25) removeFirst();
     (25) removeFirst();
     \end{lstlisting}
@@ -649,7 +648,7 @@ Por ejemplo, si la primera ejecución no puede construir muchos objetos, extende
 $tests_{obj}$ no dará lugar a buena cobertura.
 
 El algoritmo de Randoop modificado para la detección de métodos generadores se muestra 
-en la Figura \ref{}. \pp{Poner una referencia al algoritmo}
+en la Figura \ref{alg:fitnessRandoop}.
 Primero, se realiza una ejecución de Randoop sólo con los métodos de $M$ para
 generar secuencias de test, $tests_{obj}$ (línea 6), que usan estos métodos para construir objetos \pp{Tiene state
 matching activado esto?}. Esta ejecución utiliza un 40\% del tiempo total
@@ -658,23 +657,12 @@ La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
 producir estas secuencias de test. Esta función realiza su tarea utilizando 
 la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
 
-Más adelante, se realiza una segunda ejecución
-de Randoop usando las secuencias de test $tests_{obj}$ como punto de partida para
-generar otras secuencias nuevas, utilizando los restantes métodos de la API
-($API - M$; ver línea 5). El resultado de esta ejecución es la suite de tests final
-$tests_2$ (línea 7), retornada por el algoritmo (línea 8).
-La segunda ejecución usa un 60\% del tiempo
-asignado \texttt{S} (ver $S_2$ en la línea 3). 
-Nuevamente, la producción de secuencias de test se hace invocando a
-\texttt{GenerarNuevasSecuencias}.
-
 \pp{Meter el algoritmo en un float para que encaje bien? el vspace no funciona}
 
-\vspace{10pt} 
-\begin{algorithm}[H]
+\begin{algorithm}[htbp]
     \SetAlgoLined
     \KwIn{Métodos de la API $API$, subconjunto de métodos $M \subseteq API$,
-    tiempo total $S$, número máximo de tests $W$}
+    tiempo total $S$}
     \KwOut{Conjunto final de tests generados}
     
     \SetKwFunction{FMain}{GenerarTests}
@@ -683,7 +671,7 @@ Nuevamente, la producción de secuencias de test se hace invocando a
     \BlankLine
 
 
-    \Fn{\FMain{$API$, $M$, $S$, $W$}}{
+    \Fn{\FMain{$API$, $M$, $S$}}{
     
         $S_1 \leftarrow 0.4 \cdot S$\;
         $S_2 \leftarrow 0.6 \cdot S$\;
@@ -691,20 +679,20 @@ Nuevamente, la producción de secuencias de test se hace invocando a
         $M_{gen} \leftarrow$ $M$\;
         $M_{nogen} \leftarrow$ $API - M$\;
     
-        $tests_{obj}, tests_1 \leftarrow$ \FGen{$M_{gen}$, $S_1$, $W$, $\emptyset$}\;
-        $prev_2, tests_2 \leftarrow$ \FGen{$M_{nogen}$, $S_2$, $W$, $tests_{obj}$}\;
+        $tests_{obj}, tests_1 \leftarrow$ \FGen{$M_{gen}$, $S_1$}\;
+        $prev_2, tests_2 \leftarrow$ \FGen{$M_{nogen}$, $S_2$, $tests_{obj}$}\;
     
         \Return{$tests_2$}\;
     }
     
     \BlankLine
 
-    \Fn{\FGen{$M'$, $S'$, $W'$, $T_0$}}{
+    \Fn{\FGen{$M'$, $S'$, $T_0$}}{
 
     $tests \leftarrow \emptyset$\;
     $prev \leftarrow T_0$\;
 
-    \While{tiempo transcurrido $< S'$ \textbf{y} $|tests| < W'$}{
+    \While{tiempo transcurrido $< S'$}{
         Seleccionar aleatoriamente $m(p_1:T_1, \ldots, p_m:T_m) \in M'$\;
         \For{$p_i:T_i$ de $m$}{
             \If{$T_i$ es primitivo}{
@@ -731,20 +719,27 @@ Nuevamente, la producción de secuencias de test se hace invocando a
     }
     
     \caption{GenerarTests}
+    \label{alg:fitnessRandoop}
     \end{algorithm}
     
 
-
-
-\cacho{Debo entender como modificar el algoritmo basandonos en la estructura de
-arriba y que se entienda. Explicar linea por linea.} \pp{???}
-
 \pp{Hace falta el número máximo de tests W en el algoritmo o lo podemos sacar? Me suena raro
-pero podría estar comiéndome algún caso.}
+pero podría estar comiéndome algún caso.} \cacho{Hecho, no hace falta}
+
+Más adelante, se realiza una segunda ejecución
+de Randoop usando las secuencias de test $tests_{obj}$ como punto de partida para
+generar otras secuencias nuevas, utilizando los restantes métodos de la API
+($API - M$; ver línea 5). El resultado de esta ejecución es la suite de tests final
+$tests_2$ (línea 7), retornada por el algoritmo (línea 8).
+La segunda ejecución usa un 60\% del tiempo
+asignado \texttt{S} (ver $S_2$ en la línea 3). 
+Nuevamente, la producción de secuencias de test se hace invocando a
+\texttt{GenerarNuevasSecuencias}.
+
 \pp{Muchos errores de ortografía había en esta y en otras secciones! Instalar un spell
 checker para latex.}
 
-Usamos el algoritmo \ref{} para computar $Cob$ de la siguiente manera.
+Usamos el algoritmo \ref{alg:fitnessRandoop} para computar $Cob$ de la siguiente manera.
 Primero, se genera una test suite para un conjuto de métodos dado $M$, con un tiempo límite
 de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
  la cobertura de líneas y de ramas obtenida por la test suite, y se computa
@@ -861,10 +856,10 @@ En cada iteración del algoritmo, los individuos más aptos tienen más probabil
 y así crear nuevos individuos que a su vez formarán parte de la población de la siguiente generación. Con el tiempo, se espera que la población evolucione y
 mejore su aptitud en función del criterio de optimización establecido por la función objetivo.
 
-En nuestro caso, la población está limitada a un tamaño de 100 individuos a lo largo del proceso evolutivo. Como es típico en los algoritmos genéticos, 
+En nuestro caso, la población está limitada a un tamaño de 50 individuos a lo largo del proceso evolutivo. Como es típico en los algoritmos genéticos, 
 el tamaño de la población fue determinado empíricamente, probando distintos valores y eligiendo aquel que mejor rendimiento obtuvo en nuestros experimentos.
 
-En nuestro algoritmo, tenemos una población inicial de 100 individuos. Durante todo el proceso evolutivo, la población está limitada a un tamaño de 100 individuos. Cómo es típico para los hiperparámetros de los algoritmos genéticos determinamos el tamaño de la población empíricamente, probando distintos valores y utilizando el que mejor funcionaba en nuestros experimentos. 
+En nuestro algoritmo, tenemos una población inicial de 50 individuos. Durante todo el proceso evolutivo, la población está limitada a un tamaño de 100 individuos. Cómo es típico para los hiperparámetros de los algoritmos genéticos determinamos el tamaño de la población empíricamente, probando distintos valores y utilizando el que mejor funcionaba en nuestros experimentos. 
 %El método de prueba y error es comúnmente utilizado en computación evolutiva para definir los parámetros de búsqueda de manera adecuada. Es importante mencionar que si bien elegimos estos valores basándonos en los resultados de experimentos en un solo caso de estudio, luego utilizamos los mismos valores para el resto de los casos de estudio.
 
 A medida que el algoritmo avanza, se aplican operadores genéticos como el cruzamiento y la mutación para crear nuevos individuos a partir de la población actual.
@@ -915,8 +910,7 @@ Este mecanismo, denominado \emph{mutación por inversión de bits}, es especialm
 
 La Figura \ref{fig:mutation} muestra un ejemplo de mutación en el que las posiciones 1, 4, 5 y 7 del cromosoma fueron seleccionadas para ser alteradas.  
 Aunque la mutación es un proceso aleatorio, su probabilidad se mantiene baja para evitar cambios drásticos que puedan comprometer la convergencia del algoritmo.  
-En nuestro caso, utilizamos una probabilidad de mutación de 0.05 \pp{más
-adelante dice otra cosa distinta, 0,08}, es decir, cada bit de un individuo tiene un 5\% de probabilidad de cambiar de estado.  
+En nuestro caso, utilizamos una probabilidad de mutación de 0.08, es decir, cada bit de un individuo tiene un 5\% de probabilidad de cambiar de estado.  
 Este valor fue determinado experimentalmente para equilibrar la exploración y la preservación de soluciones prometedoras.
 
 Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces una mutación en la posición 2 implicaría activar o desactivar el método
@@ -1005,9 +999,7 @@ mejor conjunto de generadores de objetos.
 Como es habitual, determinamos valores para los parámetros del algoritmo que
 funcionan bien de manera experimental. Luego de realizar experimentos en
 varios casos de estudios y con diferentes valores para los párametros 
-elegimos $numEvo=20$, $popSize=30$ \pp{Esto no es lo que dice en la sección
-correspondiente, que menciona 100. Tener en cuenta todas las secciones
-globalmente a la hora de redactar!}, $cRate=0.35$, $mRate=0.08$ 
+elegimos $numEvo=20$, $popSize=50$, $cRate=0.35$, $mRate=0.08$ 
 y $maxIter=5$. 
 
 %Cabe destacar que, si quitamos la complejidad de la función de aptitud, nuestro algoritmo evolutivo es bastante estándar, por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos. Por supuesto, realizar mejoras en el algoritmo evolutivo y ajustar sus parámetros (como las tasas de cruce y mutación) podría acelerar los tiempos de ejecución.
@@ -1017,7 +1009,7 @@ múltiples hilos (multi-threading), lo que ayuda a mejorar el rendimiento.
 Básicamente, en cada iteración se crean t copias de la población actual, donde t
 es el número de hilos disponibles. Luego, cada réplica de la población
 evoluciona de forma independiente. Cuando todos los hilos terminan, se conservan
-los 100/t individuos más aptos de la población evolucionada por cada hilo, y
+los 50/t individuos más aptos de la población evolucionada por cada hilo, y
 estos se utilizan para construir la población de la siguiente iteración del
 algoritmo. \pp{No estoy seguro que nos convenga mantener este párrafo. Jenetics quizás
 maneje los hilos solo? O los implementaste vos? Un jurado que sepa de genéticos nos puede pegar por
@@ -1113,8 +1105,6 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
     \label{alg:enfoqueHC}
 
     \Fn{\fBuilders{}}{
-        \pp{resultado???}\;
-        $resultado \gets x + y$\;
         $initial \gets [0,0,\ldots,0]$\;
         $cons \gets$ \hc{initial, true}\;
         \Return \hc{cons, false}\;
@@ -1141,7 +1131,7 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
         \For{$i \gets 0$ \KwTo \#M}{
             \If{$s[i] == 0$}{
                 \pp{qué es builders? No se entiende la condición}\;
-                \If{($builders$ \textbf{and} $isConstructor(i)$) || (!$builders$ \textbf{and} !$isConstructor(i)$)}{
+                \If{($const$ \textbf{and} $isConstructor(i)$) || (!$const$ \textbf{and} !$isConstructor(i)$)}{
                     $successor \gets clone(s)$\;
                     $successor[i] \gets 1$\;
                     $successors.add(successor)$\;
@@ -1157,10 +1147,8 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
         $curr \gets -INF$\;
         \For{$i \gets 0$ \KwTo \#successors}{
             \If{$s[i] > bestVal$}{
-                \pp{Error de tipos!}\;
-                $bestVal \gets f(s)$\;
-                \pp{Error de tipos!}\;
-                $best \gets s$\;
+                $bestVal \gets f(s[i])$\;
+                $best \gets s[i]$\;
             }
         }
         \Return $best$\;
@@ -1185,7 +1173,7 @@ mediante un ciclo iterativo, genera todos los posibles sucesores del estado actu
 Entre estos sucesores se selecciona el que presente el mejor valor según la función de fitness $f$. Si dicho sucesor no mejora el valor del estado actual,
 el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mejor sucesor pasa a ser el nuevo estado y el ciclo continúa. (línea 6 a 17)
 
-La generación de sucesores se realiza en la función $successor$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
+La generación de sucesores se realiza en la función $generarSucesores$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
 (indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando metodos constructores de la API o no. 
 En caso de cumplir con esta condición, se genera un clon del estado actual en el que se activa dicha posición, y este nuevo estado se añade a la lista de sucesores. (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
 
