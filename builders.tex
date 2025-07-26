@@ -260,14 +260,14 @@ public class NodeCachingLinkedList {
 \end{lstlisting}
 
 
-En el ejemplo motivador presentado en la sección anterior y en la Tabla \ref{tab:ncl-api} se puede ver que existen muchos métodos clasificados como observadores. 
-Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental identificar los métodos observadores. La razón principal es que estos métodos no contribuyen en la creación de nuevos objetos, ya que no sirven para construir objetos ni para modificar el estado de los objetos existentes. Por ende, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de generadores de objetos.
+% En el ejemplo motivador presentado en la sección anterior y en la Tabla \ref{tab:ncl-api} se puede ver que existen muchos métodos clasificados como observadores. 
+% Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental identificar los métodos observadores. La razón principal es que estos métodos no contribuyen en la creación de nuevos objetos, ya que no sirven para construir objetos ni para modificar el estado de los objetos existentes. Por ende, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de generadores de objetos.
 
-Para automatizar la identificación de métodos observadores, hemos utilizado una herramienta de análisis estático, \emph{Infer} \footnote{https://fbinfer.com/}, 
-desarrollada por Facebook. \emph{Infer} ofrece funcionalidades avanzadas que permiten analizar código fuente y clasificar métodos como observadores \cite{Huang:2012} (también denominados métodos puros en la bibliografía \cite{Huang:2012}).
-\emph{Infer} implementa la identificación de observadores mediante un análisis estático del código de los métodos \cite{Huang:2012,Salcianu:2005}. 
-Si bien el análisis de \emph{Infer} puede ser impreciso en algunos casos y generar falsos negativos (clasificar métodos como no observadores cuando si lo son), 
-en nuestros experimentos \emph{Infer}  identifica una buena proporción de los observadores de las APIs, lo que reduce significativamente el espacio de búsqueda de nuestros algoritmos.
+% Para automatizar la identificación de métodos observadores, hemos utilizado una herramienta de análisis estático, \emph{Infer} \footnote{https://fbinfer.com/}, 
+% desarrollada por Facebook. \emph{Infer} ofrece funcionalidades avanzadas que permiten analizar código fuente y clasificar métodos como observadores \cite{Huang:2012} (también denominados métodos puros en la bibliografía \cite{Huang:2012}).
+% \emph{Infer} implementa la identificación de observadores mediante un análisis estático del código de los métodos \cite{Huang:2012,Salcianu:2005}. 
+% Si bien el análisis de \emph{Infer} puede ser impreciso en algunos casos y generar falsos negativos (clasificar métodos como no observadores cuando si lo son), 
+% en nuestros experimentos \emph{Infer}  identifica una buena proporción de los observadores de las APIs, lo que reduce significativamente el espacio de búsqueda de nuestros algoritmos.
 
 % Entre las ventajas de utilizar \emph{Infer} se incluyen:
 
@@ -277,9 +277,10 @@ en nuestros experimentos \emph{Infer}  identifica una buena proporción de los o
 % \item \textbf{Compatibilidad:} Es compatible con varios lenguajes de programación y puede integrarse en flujos de desarrollo modernos.
 % \end{itemize}
 
-Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que
-obtenemos es el que se encuentra en la columna \emph{Observador?} de la tabla
-\ref{tab:ncl-api}. \pp{hay métodos mal clasificados por Infer. Como iterator.
+% Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que
+% obtenemos es el que se encuentra en la columna \emph{Observador?} de la tabla
+% \ref{tab:ncl-api}.
+ \pp{hay métodos mal clasificados por Infer. Como iterator.
     Hay que ver bien si no hay algún otro. Habría que reportar los observadores
     reales analizados a mano por un lado en la Tabla I, y después acá poner una
 tabla II que sea una copia de Tabla I y agregue una columna Infer que muestre
@@ -288,7 +289,63 @@ sobreaproxima los observadores. Pero es muy
 rápido y suficientemente bueno para descartar muchos métodos para nuestros
 algoritmos}  
 
-De esta manera, \emph{Infer} es utilizado como paso previo a la ejecución de nuestros algoritmos. Los métodos reportados como observadores por \emph{Infer} se descartan antes de comenzar la búsqueda de métodos generadores de objetos.
+\cacho{Es nuevo}
+En el ejemplo motivador presentado en la Sección~\ref{sec:motivacion} y en la Tabla~\ref{tab:ncl-api}, se puede observar que existen numerosos métodos clasificados como observadores. 
+Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental identificar este tipo de métodos, ya que no contribuyen a la construcción de nuevos objetos: no modifican el estado del sistema ni crean nuevas instancias útiles para el objetivo. 
+Por lo tanto, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de métodos generadores de objetos, y pueden descartarse de forma segura.
+
+Para automatizar la identificación de estos métodos, hemos utilizado la herramienta de análisis estático \emph{Infer}~\footnote{\url{https://fbinfer.com/}}, desarrollada por Facebook. 
+\emph{Infer} ofrece funcionalidades avanzadas para analizar código fuente y clasificar métodos como observadores~\cite{Huang:2012} (también denominados \emph{métodos puros} en la bibliografía~\cite{Salcianu:2005}).
+La clasificación se realiza mediante un análisis estático que infiere efectos secundarios sobre el estado de los objetos, sin necesidad de ejecutar el código.
+
+Si bien \emph{Infer} puede generar falsos negativos —por ejemplo, no clasificar como observador a un método que en realidad sí lo es, como \texttt{iterator()}—, su comportamiento es conservador y evita falsos positivos. 
+Es decir, rara vez clasificará como observador a un método que en realidad tiene efectos colaterales. 
+Esta característica lo convierte en una herramienta extremadamente útil como filtro preliminar: su bajo costo computacional permite eliminar rápidamente una gran cantidad de métodos irrelevantes, 
+lo que reduce de forma significativa el espacio de búsqueda de nuestros algoritmos sin comprometer la corrección del análisis.
+
+La Tabla~\ref{tab:ncl-api} muestra la clasificación manual obtenida a partir del análisis del comportamiento de los métodos de la clase \texttt{NodeCachingLinkedList}.
+En tanto, la Tabla~\ref{tab:ncl-infer-comparacion} presenta el resultado del análisis realizado por \emph{Infer}, indicando, en la columna \emph{esObservador?} para cada método si fue clasificado correctamente como no observador.
+
+\begin{table}[h!]
+\centering
+{\scriptsize
+\begin{tabular}{|r|l|c|}
+\hline
+No. & Nombre del Método & esObservador? \\
+\hline
+0 & NCL() & No \\
+1 & NCL(int) & No \\
+2 & NCL(Collection) & No \\
+3 & add(Object) & No \\
+4 & add(int,Object) & No \\
+5 & addAll(Collection) & No \\
+6 & addAll(int,Collection) & No \\
+7 & addFirst(Object) & No \\
+8 & addLast(Object) & No \\
+9 & clear() & No \\
+10 & iterator() & \textbf{Sí} \\
+11 & listIterator() & \textbf{Sí} \\
+12 & listIterator(int) & \textbf{Sí} \\
+13 & remove(int) & No \\
+14 & remove(Object) & No \\
+15 & removeAll(Collection) & No \\
+16 & removeFirst() & No \\
+17 & removeLast() & No \\
+18 & retainAll(Collection) & No \\
+19 & set(int,Object) & No \\
+\hline
+\end{tabular}
+}
+\caption{Comparación entre clasificación manual e Infer sobre la API de \texttt{NodeCachingLinkedList}.}
+\label{tab:ncl-infer-comparacion}
+\end{table}
+
+
+Los métodos reportados como observadores por \emph{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
+En síntesis, \emph{Infer} actúa como una etapa de preprocesamiento que combina eficiencia y utilidad práctica: permite reducir el número de métodos a analizar, sin necesidad de intervención manual, manteniendo un nivel de precisión suficiente para nuestros casos de estudio.
+
+
+% De esta manera, \emph{Infer} es utilizado como paso previo a la ejecución de nuestros algoritmos. Los métodos reportados como observadores por \emph{Infer} se descartan antes de comenzar la búsqueda de métodos generadores de objetos.
 
 
 % 1- estados o configuraciones del problema
@@ -341,7 +398,7 @@ No. & Nombre del Método \\
 \hline
 \end{tabular}
 }
-\caption{API de NodeCachingLinkedList de Apache}
+\caption{API de NodeCachingLinkedList de Apache despues de la identificación de métodos observadores.}
 \label{tab:ncl-api-infer}
 \end{table}
 
@@ -818,13 +875,13 @@ basados en una estrategia de ascenso de colinas \cite{Russell:2009}. El espacio 
 compuesto por un conjunto generalmente muy grande de individuos (los candidatos), y
 el objetivo de la búsqueda es encontrar un individuo con las características deseadas. 
 A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de individuos,
-llamado la población, y la búsqueda progresa seleccionando iterativamente un número de individuos de la población, 
+llamado población, y la búsqueda progresa seleccionando iterativamente un número de individuos de la población, 
 utilizando estos para la evolución (construyendo nuevos individuos a partir de estos), 
 y dejando fuera algunos individuos del conjunto total (los ``viejos'' y los ``nuevos'').
 La selección de individuos para la evolución de la población, así como la eliminación de individuos, 
 son guiadas por una función de aptitud, la función heurística utilizada para guiar la búsqueda. 
 Esta función se aplica a los individuos, y su resultado es generalizable también a la población 
-(por ejemplo, la aptitud de la población puede tomarse como la aptitud de su individuo ``más apto'').
+(por ejemplo, la aptitud de la población puede tomarse como la aptitud de su individuo "más apto").
 Esta función captura las características deseadas en la búsqueda, y por lo tanto puede usarse como un 
 criterio de detención (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una 
 aptitud superior a un umbral determinado). Finalmente, los individuos suelen llamarse cromosomas y 
@@ -835,6 +892,20 @@ de un individuo con parte de las características de otro, o cambiando arbitrari
 un individuo dado. Estas dos formas de evolución se llaman cruzamiento y mutación, respectivamente, y son el 
 mecanismo tradicional para construir nuevos candidatos a partir de los existentes en los algoritmos genéticos. 
 %Para más detalles, remito al lector a \cite{Michalewicz:1996}.
+
+% A diferencia de los algoritmos de búsqueda clásicos, los algoritmos genéticos mantienen un conjunto de soluciones candidatas, denominado \emph{población}, que evoluciona a lo largo del tiempo. 
+
+% La búsqueda progresa de forma iterativa: en cada generación, se selecciona un subconjunto de individuos, se generan nuevos descendientes a partir de estos, y se eliminan algunos individuos (ya sean antiguos o recién generados).
+
+% Tanto la selección como la eliminación están guiadas por una función de aptitud (\emph{fitness function}), que evalúa la calidad de cada individuo según el objetivo del problema. Esta función también permite estimar la calidad de la población en su conjunto (por ejemplo, tomando el máximo o el promedio de las aptitudes individuales).
+
+% La función de aptitud dirige el proceso evolutivo y puede utilizarse como criterio de detención: por ejemplo, cuando se encuentra un individuo con una aptitud superior a un umbral predefinido.
+
+% Los individuos, o \emph{cromosomas}, se representan como vectores de características llamados \emph{genes}. Esta representación facilita la creación de nuevos individuos combinando partes de distintos cromosomas (mediante \emph{cruzamiento}) o modificando aleatoriamente sus genes (\emph{mutación}).
+
+% Estos dos mecanismos constituyen el núcleo del proceso evolutivo y permiten explorar eficazmente el espacio de búsqueda.
+
+
 
 A continuacion explicaremos en detalle los distintos componentes del algoritmo genético que hemos implementado.
 
@@ -856,16 +927,15 @@ En cada iteración del algoritmo, los individuos más aptos tienen más probabil
 y así crear nuevos individuos que a su vez formarán parte de la población de la siguiente generación. Con el tiempo, se espera que la población evolucione y
 mejore su aptitud en función del criterio de optimización establecido por la función objetivo.
 
-En nuestro caso, la población está limitada a un tamaño de 50 individuos a lo largo del proceso evolutivo. Como es típico en los algoritmos genéticos, 
-el tamaño de la población fue determinado empíricamente, probando distintos valores y eligiendo aquel que mejor rendimiento obtuvo en nuestros experimentos.
-
-En nuestro algoritmo, tenemos una población inicial de 50 individuos. Durante todo el proceso evolutivo, la población está limitada a un tamaño de 100 individuos. Cómo es típico para los hiperparámetros de los algoritmos genéticos determinamos el tamaño de la población empíricamente, probando distintos valores y utilizando el que mejor funcionaba en nuestros experimentos. 
+En nuestro caso, la población está limitada a un tamaño de 50 individuos a lo largo del proceso evolutivo.
+Cómo es típico para los hiperparámetros de los algoritmos genéticos determinamos el tamaño de la población empíricamente, probando distintos valores
+eligiendo aquel que mejor rendimiento obtuvo en nuestros experimentos.
 %El método de prueba y error es comúnmente utilizado en computación evolutiva para definir los parámetros de búsqueda de manera adecuada. Es importante mencionar que si bien elegimos estos valores basándonos en los resultados de experimentos en un solo caso de estudio, luego utilizamos los mismos valores para el resto de los casos de estudio.
 
 A medida que el algoritmo avanza, se aplican operadores genéticos como el cruzamiento y la mutación para crear nuevos individuos a partir de la población actual.
 
 \subsubsection{Selección}
-
+\label{sec:selection}
 La selección en los algoritmos genéticos es el proceso de elegir qué individuos de la población actual participarán en la reproducción y darán lugar a la siguiente generación \cite{Goldberg:1989}. En este proceso, se otorgan mayores probabilidades de selección a los individuos más aptos, es decir, aquellos que tienen un mejor valor de la función objetivo \cite{Goldberg:1989}
 La idea detrás de la selección es favorecer la transmisión de características deseables de los individuos más aptos a las generaciones futuras, para así mejorar gradualmente la calidad de las soluciones.
 
@@ -874,6 +944,21 @@ En nuestro enfoque, hemos utilizado un operador de selección tipo torneo (\emph
 El operador de selección tipo torneo ofrece una forma eficiente de elegir individuos y típicamente da lugar una buena diversidad de individuos en la población \cite{Goldberg:1989}. Es eficiente porque los torneos pueden paralelizarse, debido a que son independientes entre si. Además, es un operador muy flexible, ya que permite adaptar la velocidad de convergencia del algoritmo variando $t$. Valores más grandes de $t$ producen una mayor probabilidad de selección de los invidividuos más aptos, lo que acelera la convergencia, y viceversa. 
 
 Nuevamente, elegimos este operador de selección porque dió los mejores resultados en nuestros experimentos (también probamos otros operadores típicos como selección por ruleta, selección por ranking \cite{Goldberg:1989}.
+
+\cacho{Esto es nuevo, antes no estaba:}
+En nuestro enfoque, el operador de torneo se aplica en dos momentos distintos del ciclo evolutivo:
+por un lado, para seleccionar los \emph{supervivientes} que pasarán sin modificaciones a la siguiente generación,
+y por otro, para elegir los \emph{padres} que serán combinados mediante cruzamiento para generar nuevos descendientes.
+Concretamente, mantenemos una estrategia de reemplazo parcial en la que el 40\% de la población sobrevive sin alteraciones,
+mientras que el 60\% restante es regenerado mediante operadores genéticos
+Por ejemplo, en una población de 50 individuos, esto implica que 20 individuos son seleccionados por torneo para conservarse tal como están,
+y otros 30 se generan a partir de cruzamientos entre individuos también seleccionados por torneo.
+
+Esta estrategia de reemplazo parcial, donde una parte de la población sobrevive sin alteraciones y el resto se regenera mediante operadores genéticos, 
+nos permitió mantener la diversidad sin perder calidad de soluciones.  
+En particular, observamos que el operador de torneo con $t=4$ resultó especialmente efectivo para lograr este balance en nuestros casos de estudio.
+
+
 
 \subsubsection{Operadores Genéticos: Cruzamiento}
 El cruzamiento, también conocido como \emph{crossover}, es uno de los operadores fundamentales en los algoritmos genéticos. 
@@ -886,6 +971,7 @@ La Figura \ref{fig:crossover} ilustra este procedimiento aplicado a dos individu
 En este ejemplo, los puntos de cruzamiento seleccionados son el tercer y el sexto bit.  
 El primer descendiente hereda los primeros tres bits del primer padre, los siguientes tres bits del segundo padre y los bits restantes nuevamente del primer padre.  
 De manera análoga, el segundo descendiente toma los primeros tres bits del segundo padre, intercambia los siguientes tres con el primer padre y conserva los últimos cuatro bits del segundo padre.  
+
 En nuestro contexto de detección de métodos generadores de objetos, cada posición en el vector representa la presencia ('1') o la ausencia ('0') de un método de la API.  
 Por ejemplo, la posición 0 puede corresponder a un constructor de listas, la
 posición 1 a un método de inserción, etc.  
@@ -899,8 +985,19 @@ de los padres. Este mecanismo favorece la exploración del espacio de búsqueda 
   \label{fig:crossover}
 \end{figure}
 
+\cacho{Nuevo:}
 
-En nuestro algoritmo, utilizamos una tasa de cruzamiento de 0.30 (\emph{crossover rate}), lo cual significa que en cada generación aproximadamente el 30 por ciento de los individuos serán seleccionados para cruzarse y crear nuevos descendientes. Este valor fue obtenido a partir de evaluaciones experimentales que hemos realizado para nuestros casos de estudio.
+En nuestro algoritmo, utilizamos una tasa de cruzamiento de \( c_r = 0{,}50 \) (\emph{tasa de crossover}), 
+lo cual implica que, en cada generación, aproximadamente el 50\,\% de los individuos seleccionados para reproducción serán cruzados entre sí.  
+Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección~\ref{sec:selection}), esto equivale al:
+
+\begin{equation}
+\text{individuos\_cruzados} = r_c \cdot \text{offspringSize} = 0,50 \cdot \left(0,60 \cdot N\right)
+\end{equation}
+
+donde \( N \) representa el tamaño total de la población.  
+Por ejemplo, si \( N = 50 \), entonces se generan \( 0{,}50 \cdot 30 = 15 \) individuos por cruzamiento.  
+Los 15 individuos restantes se obtienen por mutación directa o copia de padres seleccionados, asegurando una mezcla equilibrada entre exploración y explotación en el espacio de soluciones.
 
 \subsubsection{Operadores Genéticos: Mutación}
 
@@ -908,13 +1005,30 @@ La mutación es un operador fundamental en los algoritmos genéticos, encargado 
 Cada bit del cromosoma tiene una pequeña probabilidad de ser modificado, lo que en una representación binaria implica invertir su valor ('0' a '1' o viceversa).  
 Este mecanismo, denominado \emph{mutación por inversión de bits}, es especialmente adecuado para representaciones binarias como la utilizada en nuestro enfoque. 
 
-La Figura \ref{fig:mutation} muestra un ejemplo de mutación en el que las posiciones 1, 4, 5 y 7 del cromosoma fueron seleccionadas para ser alteradas.  
-Aunque la mutación es un proceso aleatorio, su probabilidad se mantiene baja para evitar cambios drásticos que puedan comprometer la convergencia del algoritmo.  
-En nuestro caso, utilizamos una probabilidad de mutación de 0.08, es decir, cada bit de un individuo tiene un 5\% de probabilidad de cambiar de estado.  
+\cacho{
+En representaciones binarias, como la que usamos, se aplica la \emph{mutación por inversión de bits}.  
+Cada bit tiene una probabilidad $m_P$ de cambiar su valor (de ‘0’ a ‘1’ o viceversa).  
+La Figura~\ref{fig:mutation} muestra un ejemplo donde se modifican los bits en las posiciones 1, 4, 5 y 7.
+La probabilidad $m_P$ suele mantenerse baja para evitar alteraciones drásticas que perjudiquen la convergencia.  
+En nuestro caso, usamos $m_P = 0{,}05$, lo que significa que cada bit tiene un 5\% de probabilidad de mutar.
 Este valor fue determinado experimentalmente para equilibrar la exploración y la preservación de soluciones prometedoras.
+}
+\cacho{Esto es nuevo tamb:}
+Como los individuos están representados por cromosomas binarios de longitud $L$ y la población tiene tamaño $N$,  
+la cantidad esperada de bits mutados por generación, $\mu$, se calcula como:
 
-Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces una mutación en la posición 2 implicaría activar o desactivar el método
-correspondiente en el individuo.
+\[
+\mu = N \cdot L \cdot P_m
+\]
+
+Donde $N$ es el tamaño de la población, $L$ es la longitud del cromosoma y $P_m$ es la probabilidad de mutación.
+En nuestro caso, para la clase NCL, $N = 50$, $L = 20$ y $P_m = 0,05$, por lo que $\mu = 50 \cdot 20 \cdot 0,05 = 50$.
+Esto indica que, en promedio, se mutan 50 bits de toda la poblacion por generación
+
+
+
+Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces una mutación en la posición 3 implicaría activar o desactivar el método
+correspondiente en el individuo, de acuerdo a la tabla \ref{tab:ncl-api-infer}, seria el método \emph{add(Object)}.
 Este tipo de variaciones permite explorar diferentes combinaciones de subconjuntos de métodos que de otra manera no se generarían.  
 
 \begin{figure}
@@ -933,30 +1047,71 @@ El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genétic
   objetos}
   \label{alg:enfoqueGA}
   \begin{algorithmic}[1]
-  
-  \STATE $P \gets$ generar población aleatoria
-  \FOR{$i \gets 0$ \TO $numEvoluciones$}
-      \STATE $P \gets$ $popSize$ cromosomas más aptos de $P$
-      \FOR{$j \gets 1$ \TO $\text{tasaC} \times |P|$}
-          \STATE $C_1, C_2 \gets$ dos cromosomas más aptos 
-          \STATE cruzar($C_1, C_2$)
+  \STATE $pop \gets$ generar población de cromosomas con un solo gen en true
+  \STATE $offspringSize \gets 0.6 \times cromosomaSize$
+  \STATE $survivorSize \gets N - offspringSize$
+  \FOR{$i \gets 0$ \TO $numEvo$}
+      \STATE $survivors \gets$ seleccionar $survivorSize$ por torneo de tamaño $tournamentSize$ de $pop$
+      \STATE $offspring \gets$ \{\}
+      \FOR{$j \gets 1$ \TO $offspringSize$}
+          \STATE $c_1 \gets$ torneo($pop$, $tournamentSize$, $f(s)$)
+          \STATE $c_2 \gets$ torneo($pop$, $tournamentSize$, $f(s)$)
+          \IF{$rand() < crossoverRate$}
+            \STATE $child \gets$ multiPointCrossover($c_1$, $c_2$)
+          \ELSE
+            \STATE $child \gets$ más apto entre $c_1$, $c_2$
+          \ENDIF
+          \STATE añadir $child$ a $offspring$
       \ENDFOR
-      \FORALL{cromosomas en $P$}
-          \STATE mutar $1/\text{tasaMutacion}$ genes
+      \FORALL{$c \in offspring$}
+          \STATE $new \gets$ mutar($c$, $mutacionRate$)
+          \IF{$new \ne c$}
+            \STATE remplazar $c$ por $new$ en $offspring$
+          \ENDIF
       \ENDFOR
-  
-    \STATE $C \gets$ mejor cromosoma de $P$
-    \STATE $actual \gets$ estado inicial
-
+    \STATE $pop \gets survivors \cup offspring$
+    \STATE $C \gets$ mejor cromosoma de $pop$
     \IF{aptitud de $C$ es constante durante $maxIter$}
         \STATE detener algoritmo
     \ENDIF
-\ENDFOR
+  \ENDFOR
+\STATE $result \gets$ $C$
+
 
 \end{algorithmic}
 \end{algorithm}
 
 
+% \begin{algorithm}
+%   \caption{Algoritmo genético para la identificación de métodos generadores de
+%   objetos}
+%   \label{alg:enfoqueGA}
+%   \begin{algorithmic}[1]
+  
+%   \STATE $P \gets$ generar población aleatoria
+%   \FOR{$i \gets 0$ \TO $numEvoluciones$}
+%       \STATE $P \gets$ $popSize$ cromosomas más aptos de $P$
+%       \FOR{$j \gets 1$ \TO $\text{tasaC} \times |P|$}
+%           \STATE $C_1, C_2 \gets$ dos cromosomas más aptos 
+%           \STATE cruzar($C_1, C_2$)
+%       \ENDFOR
+%       \FORALL{cromosomas en $P$}
+%           \STATE mutar $1/\text{tasaMutacion}$ genes
+%       \ENDFOR
+  
+%     \STATE $C \gets$ mejor cromosoma de $P$
+%     \STATE $actual \gets$ estado inicial
+
+%     \IF{aptitud de $C$ es constante durante $maxIter$}
+%         \STATE detener algoritmo
+%     \ENDIF
+% \ENDFOR
+
+% \end{algorithmic}
+% \end{algorithm}
+
+
+\cacho{Explicar bien una vez que lo vea con PP}
 Los elementos descritos anteriormente son las partes constitutivas del algoritmo genético que implementa nuestro enfoque. 
 Nótese que el algoritmo~\ref{alg:enfoqueGA} sigue la estructura típica de un algoritmo genético. 
 
@@ -1015,7 +1170,7 @@ algoritmo. \pp{No estoy seguro que nos convenga mantener este párrafo. Jenetics
 maneje los hilos solo? O los implementaste vos? Un jurado que sepa de genéticos nos puede pegar por
 todos lados.}
 
-Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
+Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/} varsion 5.2.0 . Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
 \emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda.
 utivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) podrían optimizar los tiempos de ejecución.
