@@ -75,90 +75,101 @@ public boolean repOK() {
 \label{fig:NCL-repOK}
 \end{figure}
 
-Para ilustrar las dificultades de escribir especificaciones formales para la generación exhaustiva acotada de estructuras, 
-consideremos el invariante de representación (comúnmente llamado \emph{repOK}) de la clase \emph{NodeCachingLinkedList} (NCL) de Apache, que se muestra en la Figura \ref{fig:NCL-repOK}.
-Este es un \emph{repOK} del benchmark \emph{ROOPS}. 
 
-\cacho{Lo explique antes, pero creo que hace falta como una introducción a lo
-que es el repOK}\pp{Dónde está la explicación antes? Citalo o sino introducilo por acá en un párrafo.}
-Los NCL, tal cual lo explicamos en el capitulo anterior \pp{referencia?} se componen de una lista principal circular doblemente enlazada con un nodo ficticio al comienzo de la estructura. 
-Esta estructura se utiliza para el almacenamiento de datos y una caché de nodos previamente utilizados, 
-implementada como una lista enlazada simple. Los nodos eliminados de la lista principal se mueven a la caché, 
-cambiando su valor a \emph{null}, donde se guardan para su uso futuro. 
-De esta manera, cuando se requiere un nodo para una operación de inserción, se reutiliza un nodo de la caché (si existe) 
-en lugar de asignar un nuevo nodo. 
-El objetivo es evitar la sobrecarga de recolección de basura para las aplicaciones que realizan una gran cantidad de inserciones y
-eliminaciones en la lista. El \emph{repOK} devuelve \texttt{true} si y solo si la estructura de entrada satisface las propiedades estructurales de NCL \cite{Liskov00}. 
-En la Figura \ref{fig:nclInstanceRepOK} se pueden observar instancias válidas de
-la estructura. 
+\cacho{Es nuevo esto:}
+La generación automática de estructuras para pruebas requiere que el dominio de entrada esté claramente especificado. 
+En herramientas basadas en generación exhaustiva acotada, como \emph{Korat}, esta especificación suele definirse mediante 
+un invariante de representación, comúnmente denominado \emph{repOK}~\cite{Boyapati02}. Este es un predicado booleano 
+que devuelve \texttt{true} si, y solo si, una estructura de datos satisface todas sus restricciones de validez.
 
-\pp{Esta figura con una instancia sola no ilustra mucho, hay que
-sacarla. Ya la Figura 2 está y mucho más linda.}
-\begin{figure}[H]
+
+Para ilustrar las dificultades que implica escribir estas especificaciones de forma precisa, consideramos el método 
+\emph{repOK} de la clase \texttt{NodeCachingLinkedList} (NCL) de Apache, mostrado en la Figura~\ref{fig:NCL-repOK}. 
+Este ejemplo, proveniente del benchmark \emph{ROOPS}, ha sido ampliamente utilizado para evaluar herramientas de generación 
+de estructuras válidas.
+
+Como se explicó en el Capítulo~\ref{cap:builders}, NCL implementa una lista principal circular doblemente enlazada, 
+junto con una lista auxiliar simple que actúa como caché de nodos previamente utilizados. Esta caché permite reutilizar 
+nodos eliminados, evitando la sobrecarga de recolección de basura en aplicaciones con frecuentes inserciones y 
+eliminaciones.
+
+El método \texttt{repOK} verifica la validez estructural de una instancia de NCL. Sin embargo, como se observa en la 
+Figura~\ref{fig:NCL-repOK}, en la línea 28, ciertas restricciones están comentadas, debido a la ausencia de la misma y no se verifican (por ejemplo, que el nodo 
+ficticio debe tener valor \texttt{null}, o que los nodos de la caché no deben contener datos). La omisión de estas 
+condiciones puede conducir a la generación de estructuras inválidas que no reflejan correctamente el dominio.
+
+
+\begin{figure}[p]
     \centering
-    \includegraphics[width=0.85\textwidth]{NCL.jpg}
-    \caption{Instancia de NodeCachingLinkedList}
-    \label{fig:nclInstanceRepOK}
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/repOK1.jpg}
+        \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la estructura general.}
+        \label{fig:repOKa}
+    \end{subfigure}
+
+    \vspace{10pt}
+
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/repOK2.jpg}
+        \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista principal.}
+        \label{fig:repOKb}
+    \end{subfigure}
+
+    \vspace{10pt}
+
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/repOK3.jpg}
+        \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista caché.}
+        \label{fig:repOKc}
+    \end{subfigure}
+
+    \caption{Ejemplos de instancias de \texttt{NodeCachingLinkedList}.}
+    \label{fig:repOK}
 \end{figure}
 
-Las restricciones impuestas en el método Java que abarcan las líneas 2 a 10 se refieren a la verificación de la estructura general de \emph{NodeCachingLinkedList},
-como por ejemplo la existencia de un nodo ficticio en la lista principal. 
-Este nodo ficticio es generalmente un nodo especial que no contiene datos reales
-(debería contener \emph{null} como valor del nodo), pero se utiliza como una
-especie de marcador de inicio que simplifica la manipulación de la lista. La
-idea es que este nodo ficticio tiene un enlace que apunta al primer elemento
-real de la lista. Por ejemplo, la Figura \ref{fig:repOK1} \pp{Las figuras 9 a 11 están muy buenas, pero el formato es incorrecto. Hay que hacerlas mucho más chicas y juntarlas todas en una misma figura, 9a, 9b y 9c. Latex tiene ambientes para hacer esto. Así sueltas quedan desperdigadas por todo el trabajo y es difícil de leer.} 
-nos muestra dos instancias de NCL. La lista de la parte superior es la lista principal y la lista de la parte inferior es la representación de la lista caché. 
-En la figura, la instancia del lado izquierdo es válida, la del derecho es inválida debido a que no cumple la especificación de poseer un nodo ficticio. 
-El \emph{repOK} en la línea 5 y 6 controla esta situación y el método retorna \texttt{false}.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{images/repok1.jpg}
-  \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en las configuraciones generales de la estructura.}
-  \label{fig:repOK1}
-\end{figure}
+En la Figura~\ref{fig:repOK} se muestran ejemplos de instancias válidas e inválidas, lo cual facilita entender visualmente las propiedades que deben estar reflejadas en la especificación.
 
-Siguiendo con el análisis del \emph{repOK} de la Figura \ref{fig:NCL-repOK}, las líneas 11 a 20 del método verifican que la lista principal 
-sea una lista circular doblemente enlazada. Una lista circular es aquella en la que el último elemento de la lista está enlazado al primer elemento, formando un ciclo. 
-En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al último elemento y luego volveremos al primer elemento.
-Una lista doblemente enlazada, cada nodo tiene dos enlaces, uno que apunta al nodo anterior y otro que apunta al nodo siguiente. 
-Esto permite recorrer la lista en ambas direcciones: desde el primer nodo hasta el último y viceversa.
+Las líneas 2 a 10 del método se centran en la verificación de aspectos estructurales básicos. Se asegura la existencia del 
+nodo ficticio, que debe contener valor \texttt{null} y estar correctamente conectado. Su presencia facilita el manejo de 
+la lista, actuando como ancla para los elementos reales. 
+La parte superior de la Figura~\ref{fig:repOKa} representa la lista principal, mientras que la inferior muestra la caché. 
+En el ejemplo, la instancia de la izquierda es válida; la de la derecha es inválida al no incluir un nodo ficticio, lo cual es detectado por las condiciones de las líneas 5 y 6.
 
-En la Figura \ref{fig:repok2} se pueden observar ejemplos de instancias que pasan o no esta sección de restricciones del método. 
-La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha tiene el error de que la lista principal no es cíclica, 
-característica que poseen las listas principales (donde se guardan los datos) de NCL. 
-El campo \emph{next} del nodo no apunta a \emph{null}, lo que rompe la propiedad
-de callicidas \pp{???}. 
-Esta restricción se contempla en la línea 16 del \emph{repOK}.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{images/repok2.jpg}
-  \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista principal.}
-  \label{fig:repok2}
-\end{figure}
+Las líneas 11 a 20 validan que la lista principal sea circular y doblemente enlazada. Esto implica que el recorrido a partir 
+del nodo ficticio debe eventualmente volver a él, y que cada nodo debe tener enlaces consistentes hacia su anterior y su 
+siguiente. En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al
+último elemento y luego volveremos al primer elemento. Además, se asegura que la cantidad de nodos visitados coincida con el valor del campo \texttt{size}.
 
-Por último, el método \emph{repOK} de la Figura \ref{fig:NCL-repOK}, en las líneas 21 a 35 verifica propiedades sobre la lista caché. 
-Esta debe ser una lista simplemente enlazada terminada en un valor nulo (y se verifica la consistencia de los campos de tamaño en el proceso). 
-Como ejemplo de esta situación, mostramos dos nuevas instancias en la Figura \ref{fig:repok3}. 
+En la Figura~\ref{fig:repOKb} se pueden observar ejemplos de instancias que satisfacen o no esta sección de restricciones del método.  
+La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha presenta el error de que la lista principal no es circular,  
+una propiedad estructural que deben cumplir las listas principales (donde se almacenan los datos) en \texttt{NCL}.  
+En esta instancia, el campo \emph{next} del nodo final no apunta nuevamente al nodo ficticio, lo que rompe la propiedad de circularidad de la estructura.  
+Esta restricción está controlada en la línea 16 del método \texttt{repOK}.
+
+Por su parte, las líneas 21 en adelante analizan la estructura de la caché, que debe ser una lista simple, acíclica, con nodos 
+que no contengan valores. También se verifica que no haya nodos repetidos en la caché, y que la 
+cantidad de elementos coincida con el valor de \texttt{cacheSize}.
+Como ejemplo de esta situación, mostramos dos nuevas instancias en la Figura \ref{fig:repOKc}. 
 La primera es una instancia válida de la lista caché y el \emph{repOK} nos devuelve \texttt{true}. 
 La segunda instancia en la figura nos muestra una instancia inválida de acuerdo a la especificación. 
 Esto se debe a que la lista caché (la lista de la parte inferior de la estructura) es cíclica. 
 La insatisfacción de la propiedad se da cuando el método vuelve a insertar el mismo nodo al conjunto \emph{visited}. 
 Este conjunto recorre la lista y chequea en la línea 31 si vuelve a pasar por un nodo ya visitado. 
-En caso de que esto suceda, retorna \texttt{false}. Esto es lo que sucede en la instancia de la Figura \ref{fig:repok3}.
+En caso de que esto suceda, retorna \texttt{false}. 
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[scale=0.3]{images/repok3.jpg}
-  \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista caché.}
-  \label{fig:repok3}
-\end{figure}
+Este ejemplo permite evidenciar que incluso estructuras relativamente simples requieren de especificaciones formales 
+detalladas y cuidadosas. La ausencia o incorrecta implementación de restricciones puede resultar en la 
+generación de instancias que no representan adecuadamente el dominio, afectando negativamente la efectividad de los 
+procesos de verificación y prueba.
+
 
 Este método \emph{repOK} está implementado siguiendo las recomendaciones de los
-autores del enfoque de generación exhaustiva acotada de BEAPI \pp{??? Nosotros
-no dimos recomendaciones para el repOK}, utilizando la herramienta \textsf{Korat} \cite{Boyapati02}. 
+autores del enfoque de generación exhaustiva acotada de \textsf{Korat} \cite{Boyapati02}. 
 La función devuelve \emph{falso} tan pronto como detecta una violación en alguna propiedad esperada de la estructura actual. 
 En caso contrario, devuelve \emph{verdadero} al finalizar el método. 
 Este enfoque permite a \textsf{Korat} podar eficientemente grandes porciones del espacio de búsqueda al encontrar restricciones incumplidas, mejorando así significativamente su eficiencia.
