@@ -199,43 +199,27 @@ Esta técnica será detallada en las siguientes secciones, y busca ofrecer una s
 \label{sec:beapiIntro}
 \pp{Esta sección debería llamarse visión general de BEAPI, y ser mergeada con
 5.5}
-
+\cacho{Falta completar aca, no hice nada aun}
 En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos, haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de pruebas dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
 El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test \cite{Ammann16}, y las ejecuta para generar estructuras. 
 
 
 
-\pp{Después de visión general de BEAPI va scope. Que iría por acá.}
 
+% \pp{Esto no va acá. Va en una sección que se llama programación defensiva que
+%     puede estar después de scope, y que se encarga de explicar esto, y cómo ejecutando un test
+% se puede descartar una secuencia.}
+% A diferencia de los enfoques de generación basados en caja negra, \textsf{BEAPI} no requiere una especificación formal de las propiedades de las estructuras. Al igual que otras técnicas de generación exhaustiva acotada (BEG), el usuario solo debe proporcionar los alcances para la generación, que se abordan en detalle en la sección correspondiente.  Esto permite generar estructuras válidas sin requerir una especificación detallada de las propiedades de las estructuras, reduciendo así la carga de trabajo para el programador.
 
-\pp{Esto no va acá. Va en una sección que se llama programación defensiva que
-    puede estar después de scope, y que se encarga de explicar esto, y cómo ejecutando un test
-se puede descartar una secuencia.}
-A diferencia de los enfoques de generación basados en caja negra, \textsf{BEAPI} no requiere una especificación formal de las propiedades de las estructuras. Al igual que otras técnicas de generación exhaustiva acotada (BEG), el usuario solo debe proporcionar los alcances para la generación, que se abordan en detalle en la sección correspondiente.  Esto permite generar estructuras válidas sin requerir una especificación detallada de las propiedades de las estructuras, reduciendo así la carga de trabajo para el programador.
+% La principal ventaja de \textsf{BEAPI} es que requiere un esfuerzo menor de especificación para realizar la generación exhaustiva acotada. Si los métodos de la API utilizados en la generación son correctos, todas las estructuras generadas serán válidas para su construcción. El programador solo necesita asegurarse de que los métodos de la API lancen excepciones cuando se violen las reglas de uso, siguiendo un estilo de programación defensivo \cite{Liskov00}. En la mayoría de los casos, esto implica verificar condiciones muy simples en las entradas. Por ejemplo, el método para eliminar (\emph{remove(int)}) un elemento de una \texttt{NCL} en un índice pasado como parámetro lanza una \texttt{IllegalArgumentException} cuando se llama con un índice menor a 0 o mayor al \emph{size} de la lista. El \emph{listing} de la figura \ref{fig:algoProgDefensiva}  se puede observar que la implementación del método se encarga de cumplir con la especificación indicada \texttt{NCL}.
+% Para hacer esto
 
-La principal ventaja de \textsf{BEAPI} es que requiere un esfuerzo menor de especificación para realizar la generación exhaustiva acotada. Si los métodos de la API utilizados en la generación son correctos, todas las estructuras generadas serán válidas para su construcción. El programador solo necesita asegurarse de que los métodos de la API lancen excepciones cuando se violen las reglas de uso, siguiendo un estilo de programación defensivo \cite{Liskov00}. En la mayoría de los casos, esto implica verificar condiciones muy simples en las entradas. Por ejemplo, el método para eliminar (\emph{remove(int)}) un elemento de una \texttt{NCL} en un índice pasado como parámetro lanza una \texttt{IllegalArgumentException} cuando se llama con un índice menor a 0 o mayor al \emph{size} de la lista. El \emph{listing} de la figura \ref{fig:algoProgDefensiva}  se puede observar que la implementación del método se encarga de cumplir con la especificación indicada \texttt{NCL}.
-Para hacer esto
-
-
-\begin{figure}[!thb]
-\begin{lstlisting}
-public Object removeIndex(int index) {
-  // Check precondic\'on
-  if(index < 0 || index >= size)
-      throws new IllegalArgumentException();  
-  . . .
-}
-
-\end{lstlisting}
-\caption{Programación defensiva aplicada en métodos de la API}
-\label{fig:algoProgDefensiva}
-\end{figure}
 
 
 Es importante destacar que el enfoque \textsf{BEAPI} aborda las dificultades de escribir especificaciones formales para la generación de estructuras exhaustiva acotadas al aprovechar la ejecución de las rutinas de la API y aplicar técnicas de poda para mejorar la eficiencia de la generación.
 
 \pp{Esto que está abajo estaba comentado pero está muy bien, así que habría que revisarlo y dejarlo.}
- La generación exhaustiva de todas las secuencias de prueba factibles a partir de rutinas hasta una longitud máxima, también conocida como generación por fuerza bruta, es un enfoque intrínsecamente combinatorio que consume una gran cantidad de recursos computacionales, incluso para alcances pequeños. Por lo tanto, \textsf{BEAPI} utiliza varias técnicas de poda que son fundamentales para mejorar su eficiencia y permitir la escalabilidad a alcances más grandes.
+La generación exhaustiva de todas las secuencias de prueba factibles a partir de rutinas hasta una longitud máxima, también conocida como generación por fuerza bruta, es un enfoque intrínsecamente combinatorio que consume una gran cantidad de recursos computacionales, incluso para alcances pequeños. Por lo tanto, \textsf{BEAPI} utiliza varias técnicas de poda que son fundamentales para mejorar su eficiencia y permitir la escalabilidad a alcances más grandes.
 
 En primer lugar, \textsf{BEAPI} ejecuta las secuencias de prueba y descarta
 aquellas que producen excepciones que violan las reglas de uso de la API, como
@@ -251,7 +235,6 @@ A continuación, explicaremos en detalle cada una de estas optimizaciones.
 
 \subsection{Scope}
 \label{sec:scope}
-\pp{Esta sección va antes}
 
 \begin{figure}[H]
     \centering
@@ -266,22 +249,28 @@ eliminar la otra?}
 \begin{figure}[H]
 \begin{lstlisting}[keywordstyle=\scriptsize\ttfamily]
 max.objects=k
-int.range=0:k
+int.range=0:3
 strings=str1,str2,str3
 omit.fields=NCL.DEFAULT_MAXIMUM_CACHE_SIZE
 \end{lstlisting}
-\caption{\textsf{BEAPI}'s scope definition for \texttt{NCL} (max. nodes 3)}
+\caption{Definición del scope de BEAPI para NCL (nodos max. 3)}
 \label{fig:NCL-fin-BEAPI}
 \end{figure}
-\pp{Por qué el caption en inglés? Y por qué dice k el finitization y el caption
-dice 3? Si se lo paso a BEAPI no anda con k.}
 
 En el contexto de la generación exhaustiva acotada, el término \emph{scope} se refiere al límite o alcance que se establece para la generación de estructuras. Es una restricción que define cuántos objetos de un tipo particular pueden aparecer en las estructuras generadas. Esta restricción es esencial para controlar el tamaño y la complejidad del espacio de búsqueda de estructuras durante la generación exhaustiva. Sin un límite en el número de objetos que pueden aparecer en las estructuras generadas, el espacio de búsqueda podría ser infinito o extremadamente grande. Esto hace que la generación sea impracticable en la mayoría de los casos debido al tiempo y los recursos requeridos.  En muchos casos, el conjunto de estructuras relevantes o interesantes es finito y puede definirse mediante un \emph{scope} adecuado. Al generar solo un conjunto finito de estructuras, se pueden abordar de manera exhaustiva todos los casos posibles.
 
 Para limitar el número de estructuras generadas, BEAPI necesita definirlo en un archivo de descripción simple en formato \texttt{java.properties}, en el cual, además, se establecen algunos otros parámetros. En la figura \ref{fig:NCL-fin-BEAPI}, en la línea 1, se puede observar como establecer el \emph{scope} para un caso específico con la sentencia \emph{max.objects}. Este valor (\emph{k}) debe ser un valor entero. Supongamos el caso de la figura \ref{fig:ncl-instances} de instancias de \texttt{NCL}.  El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$). Esto especifica el número máximo de objetos diferentes (alcanzables desde la raíz) permitidos en una estructura. Las secuencias de prueba generadas por \emph{BEAPI} que crean estructuras que exceden este número (para cualquier clase) se descartan y no se siguen extendiendo
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/scope.jpg}
+    \caption{Representación con scope 3 para NCL}
+    \label{fig:scope}
+\end{figure}
+
 Nuestra técnica, basada en generación de test por feedback, necesita, también, un conjunto de valores primitivos especificado por el usuario (enteros, strings, etc) que son utilizados para alimentar a los métodos (que requieran valores primitivos) de la API que se combinan para generar las estructuras del SUT que estamos buscando.
-Por ejemplo, en la figura \ref{fig:scope} \pp{Está leeeejos la figura} el método \emph{add(int)}, que agrega un elemento a la lista principal, necesita un entero para el campo \emph{value} de cada nodo. Este valor entero, como es un valor primitivo, se toma de algunos de los valores primitivos que definió el usuario en el archivo de configuración de BEAPI (\ref{fig:NCL-fin-BEAPI}). En la línea 2 y 3 se puede observar que define valores de tipo enteros y valores de tipo string que serán utilizados por los métodos cuando necesiten valores de este tipo. 
+Por ejemplo, en la figura \ref{fig:scope} el método \emph{add(int)}, que agrega un elemento a la lista principal, necesita un entero para el campo \emph{value} de cada nodo. Este valor entero, como es un valor primitivo, se toma de algunos de los valores primitivos que definió el usuario en el archivo de configuración de BEAPI (\ref{fig:NCL-fin-BEAPI}). En la línea 2 y 3 se puede observar que define valores de tipo enteros y valores de tipo string que serán utilizados por los métodos cuando necesiten valores de este tipo. 
+\\
 \cacho{Explicar sobre objects que son int para nosotros? o
 esconderlo?}\pp{Que algunos parámetros Object los interpretamos como int?
 No sé si vale la pena meterse con eso, porque es sólo para casos específicos
@@ -292,28 +281,28 @@ Esto toma especial importancia el contexto de estructuras de datos, especialment
 Para lograr todo lo explicado en esta sección, nosotros canonizamos los objetos generados por la ejecución de cada secuencia de métodos y analizamos y trabajamos con su representación canónica.
 Para finalizar esta sección, se puede observar en la figura \ref{sec:scope} un ejemplo del espacio de búsqueda de una secuencia generada con la combinación del método constructor de la clase más el método \emph{add} de NCL. En esta figura, se especificó un scope de 3. Esto quiere decir que cuando genera alguna estructura con más de 3 nodos como es en el caso de la última secuencia de la figura, esta es descartada por exceder el límite de nodos en la estructura (el nodo ficticio de la estructura se tiene en cuenta en la definición de \emph{scope})
 
-\pp{Esta canonización no coincide con la que se explica en state matching, que
-    implica recorrer un grafo y generar una secuencia. Yo no sé si pondría este
-ejemplo. De cualquier modo, no va acá en la sección de scope, de última va para
-state matching. Yo cerraría la sección acá.}
-Imaginemos un conjunto de números representado en diferentes órdenes:
-\begin{itemize}
-    \item Conjunto 1: \{3, 1, 2\}
-    \item Conjunto 2: \{1, 2, 3\}
-    \item Conjunto 3: \{2, 3, 1\}
-\end{itemize}
+% \pp{Esta canonización no coincide con la que se explica en state matching, que
+%     implica recorrer un grafo y generar una secuencia. Yo no sé si pondría este
+% ejemplo. De cualquier modo, no va acá en la sección de scope, de última va para
+% state matching. Yo cerraría la sección acá.}
+% Imaginemos un conjunto de números representado en diferentes órdenes:
+% \begin{itemize}
+%     \item Conjunto 1: \{3, 1, 2\}
+%     \item Conjunto 2: \{1, 2, 3\}
+%     \item Conjunto 3: \{2, 3, 1\}
+% \end{itemize}
 
-Aunque los elementos de cada conjunto son los mismos, el orden de los números varía. Si quisiéramos comparar estos conjuntos para determinar si son equivalentes, el proceso de canonización podría consistir en ordenar los números en cada conjunto de manera ascendente:
+% Aunque los elementos de cada conjunto son los mismos, el orden de los números varía. Si quisiéramos comparar estos conjuntos para determinar si son equivalentes, el proceso de canonización podría consistir en ordenar los números en cada conjunto de manera ascendente:
 
-\begin{itemize}
-    \item Conjunto 1 canonizado: {1, 2, 3}
-    \item Conjunto 2 canonizado: {1, 2, 3}
-    \item Conjunto 3 canonizado: {1, 2, 3}
-\end{itemize}
+% \begin{itemize}
+%     \item Conjunto 1 canonizado: {1, 2, 3}
+%     \item Conjunto 2 canonizado: {1, 2, 3}
+%     \item Conjunto 3 canonizado: {1, 2, 3}
+% \end{itemize}
 
-Tras la canonización, todas las versiones del conjunto resultan idénticas, lo que nos permite determinar fácilmente que los tres conjuntos son equivalentes, independientemente del orden en el que aparecían originalmente los números.
+% Tras la canonización, todas las versiones del conjunto resultan idénticas, lo que nos permite determinar fácilmente que los tres conjuntos son equivalentes, independientemente del orden en el que aparecían originalmente los números.
 
-En el contexto de estructuras de datos, este proceso podría implicar reorganizar los nodos, normalizar los valores de ciertos campos, o eliminar detalles que no son relevantes para la comparación, como el \emph{modCount} mencionado anteriormente. Al canonizar, se asegura que dos estructuras de datos se comparen en términos de su contenido esencial, ignorando diferencias superficiales o de implementación.
+% En el contexto de estructuras de datos, este proceso podría implicar reorganizar los nodos, normalizar los valores de ciertos campos, o eliminar detalles que no son relevantes para la comparación, como el \emph{modCount} mencionado anteriormente. Al canonizar, se asegura que dos estructuras de datos se comparen en términos de su contenido esencial, ignorando diferencias superficiales o de implementación.
 
 % (Normalmente, las técnicas basada en generación por retroalimentación guardaría los valores primitivos que son devueltos por la ejecución de las pruebas y reutilizaría estos valores en pruebas futuras). 
 % También nuestra técnica descartar secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo), para evitar que se construyan objetos más grandes de lo necesario. 
@@ -324,123 +313,98 @@ En el contexto de estructuras de datos, este proceso podría implicar reorganiza
 % Por ejemplo, la figura \ref{fig:scope}, se puede observar que cuando genera una estructura con mas nodos que el especificado en el archivo de configuración, 
 % este no sigue extiendo el árbol de búsqueda. En la figura el scope especificado es 3 (vale aclarar, que el nodo ficticio cuanta como nodo de la estructura.)
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{images/scope.jpg}
-    \caption{Representación con scope 3 para NCL}
-    \label{fig:scope}
-\end{figure}
-
 
 % Siguiendo el análisis del archivo de configuración de la figura \ref{fig:NCL-fin-BEAPI},
 % y el número de valores primitivos disponibles, en nuestro ejemplo de la figura, se especifica enteros del 0 a $k-1$ y cadenas de caracteres: str1, str2, str3. Ademas, se pueden especificar otros valores primitivos como floats, doubles, etc. Esto serán los dominios de datos para los tipos primitivos que necesiten los métodos que serán utilizados. Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de canonización de objetos, que se lleva a cabo en la ejecución de las secuencias de métodos de la API. Esto permite al usuario controlar qué partes de la estructura del objeto son relevantes para la coincidencia de estados (ver más adelante en la sección \ref{sec:stateMatching}). Por ejemplo,  la línea 4 haría que \emph{BEAPI} omita el tamaño máximo predeterminado de la caché en la coincidencia de estados, que en la API de \emph{NCL} es una constante inicializada en 20 en el constructor de la clase. Es importante que aquí se omitan campos que puede afectar la coincidencia de estados, como el caso del campo \emph{modCount}. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada. 
 % La configuración mostrada en la Figura~\ref{fig:NCL-fin-BEAPI} es suficiente para que \emph{BEAPI} genere NCL con un máximo de 3 nodos, que contienen enteros del 0 al 2 como valores. 
 
-\pp{Acá va programación defensiva.}
+\subsection{Programación Defensiva}
+\label{sec:defensiveProgramming}
+
+\cacho{Toda esta seccion es nueva, solo un parrafo ya estaba.}
+Una de las principales ventajas del enfoque \textsf{BEAPI} frente a otras técnicas de generación automática de estructuras 
+es que no requiere de una especificación formal explícita para restringir el espacio de búsqueda. 
+En lugar de depender de invariantes de representación complejos, como ocurre en técnicas basadas en generación exhaustiva acotada tradicional 
+(e.g., \textsf{Korat}), \textsf{BEAPI} se apoya en la definición de métodos correctos provistos por la API de la clase bajo prueba.
+
+Esto es posible gracias a la adopción de un estilo de \emph{programación defensiva}~\cite{Liskov00} en el diseño de estos métodos. 
+La programación defensiva es una técnica que promueve la validación de precondiciones en los métodos públicos, de modo que los errores 
+relacionados con el uso incorrecto de la API puedan ser detectados y reportados mediante excepciones apropiadas.
+
+En el contexto de \textsf{BEAPI}, esta práctica permite descartar automáticamente secuencias de métodos que violan las restricciones de uso 
+de la clase, ya que los tests generados que invocan métodos con parámetros inválidos o en estados inconsistentes provocan una excepción 
+durante la ejecución. Dado que \textsf{BEAPI} ejecuta cada secuencia como parte del proceso de exploración, este mecanismo actúa 
+como un filtro dinámico: las secuencias inválidas no se consideran como candidatas válidas para generar nuevas estructuras.
+
+\begin{figure}[!htb]
+\begin{lstlisting}
+public Object removeIndex(int index) {
+  // Verificacion de precondicion
+  if(index < 0 || index >= size)
+      throw new IllegalArgumentException();  
+   \dots
+   }
+\end{lstlisting}
+\caption{Programación defensiva en un metodo en \texttt{NodeCachingLinkedList}.}
+\label{fig:algoProgDefensiva}
+\end{figure}
+
+El código mostrado en la Figura~\ref{fig:algoProgDefensiva} ejemplifica esta técnica. 
+El método \texttt{removeIndex} de la clase \texttt{NodeCachingLinkedList} verifica que el índice especificado se encuentre dentro de los límites válidos de la lista. 
+Si la condición no se cumple, se lanza una excepción que permite a \textsf{BEAPI} descartar automáticamente la secuencia correspondiente 
+sin necesidad de especificar esta restricción en un invariante externo.
+
+Este enfoque reduce significativamente la carga de trabajo del usuario, ya que no es necesario escribir un \texttt{repOK} manual ni mantenerlo 
+en sincronía con la implementación. En cambio, basta con asegurar que los métodos de la API respeten buenas prácticas de validación 
+de entradas y mantengan la clase en un estado consistente. 
+De este modo, \textsf{BEAPI} puede aprovechar la ejecución dinámica de los tests para delimitar correctamente el espacio de estructuras válidas.
+
 
 \subsection{State Matching}
 \label{sec:stateMatching}
+\cacho{Explique un poco mejor la parte de la figura, no me parece agregar mucho mas al respecto. Lo podemos charlar}
+Durante la generación exhaustiva de secuencias de prueba, pueden surgir múltiples caminos que conducen al mismo estado final. 
+Estas secuencias redundantes aumentan innecesariamente el espacio de exploración, consumiendo recursos y tiempo de ejecución. 
+Para mitigar este problema, \textsf{BEAPI} implementa una estrategia de coincidencia de estado(\emph{state matching} en inglés) que permite identificar y descartar caminos que conducen a estados ya generados.
 
-\pp{No me gustan estos ejemplos. Falta el grafo de los objetos, aparecen 
-    secuencias que son la abstracción de objetos que no se sabe cuáles son ni de
-    dónde salen.  La Figura 16 explica esto mucho mejor, no vale la pena poner esto duplicado.} 
-
-Para introducirnos en el tema, veamos algunos ejemplos de secuencias de test en estructuras de datos:
-
-Estos sos algunos ejemplos de secuencia de test: 
-
-\bigskip
-\begin{lstlisting}[numbers=none, caption={Crear una lista vacía}, label={lst:emptylist}, captionpos=b, frame=tb, basicstyle=\scriptsize]
-  List<Integer> lista = new ArrayList<>();
-
-  // Estado resultante:
-  // Lista: [5]
-\end{lstlisting}
-
-\vspace{1em}
-
-\begin{lstlisting}[numbers=none, caption={Crear una lista vacía, agregar y eliminar un elemento, luego agregarlo nuevamente}, label={lst:add-remove-add}, captionpos=b, frame=tb, basicstyle=\scriptsize]
-  List<Integer> lista = new ArrayList<>();
-  lista.add(5);
-  lista.remove(0);
-  lista.add(5);
-
-  // Estado resultante:
-  // Lista: [5]
-\end{lstlisting}
-  
-\vspace{1em}
-
-\begin{lstlisting}[language=Java, caption={Crear una lista vacía}, label={lst:remove-empty}, captionpos=b, frame=tb, basicstyle=\scriptsize]
-  List<Integer> lista = new ArrayList<>();
-  
-  // Estado resultante:
-  // Lista: []
-\end{lstlisting}
-
-\vspace{1em}
- 
-\begin{lstlisting}[numbers=none, caption={Intentar eliminar un elemento en una lista vacía}, label={lst:remove-empty}, captionpos=b, frame=tb, basicstyle=\scriptsize]
-  List<Integer> lista = new ArrayList<>();
-  lista.remove(new Integer(5)); 
-  // Estado resultante:
-  // Lista: []
-\end{lstlisting}
-  
-\vspace{1em}
-
-\begin{lstlisting}[numbers=none, caption={Crear una pila y apilar un elemento}, label={lst:push}, captionpos=b, frame=tb, basicstyle=\scriptsize]
-  // Crear una pila y apilar un elemento
-  Stack<Integer> pila = new Stack<>();
-  pila.push(10);
-
-  // Estado resultante:
-  // Pila: [10]
-\end{lstlisting}
-
-\vspace{1em}
-
-\begin{lstlisting}[numbers=none, caption={Push, pop y nuevo push en una pila}, label={lst:push-pop-push}, captionpos=b, frame=tb, basicstyle=\scriptsize]
-  // Crear una pila, apilar un elemento, desapilarlo y volver a apilar el mismo elemento
-  Stack<Integer> pila = new Stack<>();
-  pila.push(10);
-  pila.pop();
-  pila.push(10);
-
-  // Estado resultante:
-  // Pila: [10]
-\end{lstlisting}  
-
-Los ejemplos presentados ilustran cómo distintas secuencias de llamadas a métodos pueden conducir al mismo estado observable de una estructura de datos. 
-Por ejemplo, crear una lista vacía, agregar un elemento, eliminarlo y luego volver a agregarlo, resulta en el mismo estado final que simplemente agregar ese elemento a una lista vacía. 
-De manera similar, intentar eliminar un elemento de una lista vacía no altera su estado, lo que genera un resultado equivalente al de una lista recién creada.
-En el caso de estructuras como pilas, realizar una operación de \texttt{push}, seguida de un \texttt{pop} y un nuevo \texttt{push} del mismo valor, 
+Por ejemplo, crear una lista vacía, agregar un elemento, eliminarlo y luego volver a agregarlo, resulta en el mismo estado que simplemente agregar ese elemento a una lista vacía. 
+De manera similar, intentar eliminar un elemento de una lista vacía no altera su estado, produciendo el mismo resultado que una lista recién creada. 
+En estructuras como pilas, realizar una operación de \texttt{push}, seguida de un \texttt{pop} y un nuevo \texttt{push} del mismo valor, 
 produce una configuración indistinguible de aquella que resulta de realizar únicamente el último \texttt{push}. 
-Este tipo de situaciones es relevante para herramientas como \textsf{BEAPI}, 
-que identifican y descartan caminos redundantes al detectar estados equivalentes durante la exploración exhaustiva del espacio de ejecuciones posibles.
 
-\pp{Yo arrancaría acá, dando mucho más detalle sobre la explicación de la
-Figura 16. A lo sumo dividiría la Figura en 2 o 3 partes para poder explicar
-bien las ideas.}
-En la figura \ref{fig:stateMatching}, se puede observar de manera mas clara, la explosion de estados.
-\textsf{BEAPI} asume que las ejecuciones de métodos son deterministas, es decir, cualquier ejecución de una rutina con las mismas entradas produce los mismos resultados. 
-Observamos que para cada estructura distinta $s$, solo necesitamos guardar la primera secuencia de prueba que genera $s$ (y la estructura en sí).
-Todas las secuencias de prueba generadas posteriormente que también crean $s$ pueden ser descartadas. 
+Este tipo de situaciones es capturado por la estrategia de \emph{state matching}, que consiste en mantener un registro de las estructuras generadas durante la exploración, y descartar cualquier nueva secuencia que produzca una estructura ya observada. 
+\textsf{BEAPI} asume que las ejecuciones de los métodos de la API son deterministas, es decir, cualquier ejecución de un método con las mismas entradas produce siempre el mismo resultado. 
+Por tanto, si una secuencia de prueba conduce a una estructura $s$ que ya ha sido generada por una secuencia anterior, no es necesario seguir extendiendo la nueva secuencia, 
+ya se han explorado sus consecuencias a través de la primera.
 Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, 
 lo que resultaría tener que realizar un cómputo de las secuencias que sería innecesario ya que producen un estado que ya hemos computado y que hemos extendido.  
+
+En la Figura~\ref{fig:stateMatching}, se puede observar de manera mas clara, la explosion de estados. 
+Cada nodo del árbol representa una secuencia de llamadas a la API sobre una instancia de \texttt{NodeCachingLinkedList}. 
+Las flechas indican la evolución de los estados al ejecutar nuevas operaciones. 
+Las marcas de \emph{visited state} \cacho{SACO EL INGLES?} indican que el estado generado ya ha sido explorado anteriormente. 
+Como puede observarse, múltiples caminos llevan a la misma estructura, y continuar su expansión sería innecesario.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\textwidth]{images/stateMatching1.jpg}
-  \caption{Representación con scope 3 para NCL \pp{Qué onda este caption?}}
+  \caption{State matching en \emph{NodeCachingLinkedList}}
   \label{fig:stateMatching}
 \end{figure}
 
-Por lo tanto, implementamos la coincidencia de estados en \textsf{BEAPI} de la siguiente manera.
 
-Almacenamos todas las estructuras producidas hasta ahora por \textsf{BEAPI} en una forma canónica. Después de ejecutar la última rutina \texttt{r(p$_1$, ..., p$_k$)} de una nueva secuencia de prueba generada \texttt{T}, comprobamos si alguno de los parámetros de \texttt{r} tiene una estructura no vista antes (no almacenada). Si \texttt{T} no crea ninguna estructura nueva, se descarta. De lo contrario, \texttt{T} y las nuevas estructuras que genera son almacenadas por \textsf{BEAPI}.
+\emph{State matching} es, por tanto, una optimización crítica para que la generación exhaustiva acotada pueda escalar a dominios con muchas combinaciones posibles de operaciones. 
+Implementamos esta técnica en \textsf{BEAPI} mediante la transformación de las estructuras generadas a una representación canónica que permite su comparación eficiente.
 
-Representamos las estructuras asignadas en el heap como grafos etiquetados. Después de la ejecución de un método, un parámetro $p$ (de tipo no primitivo) contiene una referencia al objeto raíz $r$ de un \emph{heap} con raíz (es decir, $p=r$), definido a continuación.
+Concretamente, \textsf{BEAPI} almacena todas las estructuras generadas hasta el momento en su forma canónica. 
+Luego de ejecutar la última rutina \texttt{r(p$_1$, ..., p$_k$)} de una nueva secuencia de prueba \texttt{T}, 
+el sistema verifica si alguno de los parámetros involucrados en \texttt{r} posee una estructura que no haya sido observada previamente (es decir, que no esté almacenada). 
+Si ninguna estructura nueva es detectada, la secuencia \texttt{T} se considera redundante y es descartada. 
+De lo contrario, \texttt{T} se almacena como secuencia representativa, junto con las nuevas estructuras producidas.
+
+Representamos las estructuras asignadas en el heap como grafos etiquetados. 
+Después de la ejecución de un método, un parámetro $p$ (de tipo no primitivo) 
+contiene una referencia al objeto raíz $r$ de un \emph{heap} con raíz (es decir, $p=r$), definido a continuación.
 
 \begin{definition}
 Sea $O$ un conjunto de objetos y $P$ un conjunto de valores primitivos (incluido $null$). Sea $F$ el conjunto de campos de todos los objetos en $O$.
@@ -454,38 +418,66 @@ El caso especial $p = null$ se puede representar con un \emph{heap} con raíz qu
 
 \bigbreak
 
+% \begin{figure}[!th]
+% \begin{lstlisting}
+% int[] linearizar(O raiz, Heap<O, E> heap, int alcance, Regex omitirCampos) {
+%     Map ids = new Map(); // mapea nodos a sus identificadores unicos
+%     return lin(raiz, heap, alcance, ids, omitirCampos);
+% }
+% int[] lin(O raiz, Heap<O, E> heap, int alcance, Map ids, Regex omitirCampos) {
+%     if (ids.containsKey(raiz))
+%         return secuenciaUnica(ids.get(raiz));
+%     if (ids.size() == alcance)
+%         throw new excepcionAlcanceSuperado();
+%     int id = ids.size() + 1;
+%     ids.put(raiz, id);
+%     int[] seq = secuenciaUnica(id);
+%     Edge[] campos =
+%     ordenarPorCampo({ <raiz, f, o> en E }, omitirCampos);
+%     foreach (<raiz, f, o> en campos) {
+%         if (esPrimitivo(o))
+%             seq.add(representacionUnica(o));
+%         else
+%             seq.append(lin(o, heap, alcance, ids, omitirCampos));
+%     }
+%     return seq;
+% }
+% \end{lstlisting}
+% \caption{Algoritmo de linearización}
+% \label{alg:linearization}
+% \end{figure}
+
+\cacho{Cambios minimos, sacado del paper de BEAPI, algoritmo en ingles en vez de español.}
+
+
+
 \begin{figure}[!th]
 \begin{lstlisting}
-int[] linearizar(O raiz, Heap<O, E> heap, int alcance, Regex omitirCampos) {
-    Map ids = new Map(); // mapea nodos a sus identificadores unicos
-    return lin(raiz, heap, alcance, ids, omitirCampos);
+int[] linearize(O root, Heap<O, E> heap, int scope, Regex omitFields) {
+    Map ids = new Map(); // maps nodes into their unique ids 
+    return lin(root, heap, scope, ids, omitFields); 
 }
-int[] lin(O raiz, Heap<O, E> heap, int alcance, Map ids, Regex omitirCampos) {
-    if (ids.containsKey(raiz))
-        return secuenciaUnica(ids.get(raiz));
-    if (ids.size() == alcance)
-        throw new excepcionAlcanceSuperado();
-    int id = ids.size() + 1;
-    ids.put(raiz, id);
-    int[] seq = secuenciaUnica(id);
-    Edge[] campos =
-    ordenarPorCampo({ <raiz, f, o> en E }, omitirCampos);
-    foreach (<raiz, f, o> en campos) {
-        if (esPrimitivo(o))
-            seq.add(representacionUnica(o));
-        else
-            seq.append(lin(o, heap, alcance, ids, omitirCampos));
-    }
-    return seq;
+int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) { 
+  if (ids.containsKey(root))
+    return singletonSequence(ids.get(root)); 
+  if (ids.size() == scope) 
+    throw new ScopeExceededException();
+  int id = ids.size() + 1;
+  ids.put(root, id);
+  int[] seq = singletonSequence(id);
+  Edge[] fields = sortByField({ <root, f, o> in E }, omitFields); 
+  foreach (<root, f, o> in fields) {
+    if (isPrimitive(o)) 
+      seq.add(uniqueRepresentation(o));
+    else
+      seq.append(lin(o, heap, scope, ids, omitFields));
+  }
+  return seq; 
 }
 \end{lstlisting}
-\caption{Algoritmo de linearización}
+\caption{Algortirmo de linearización }
 \label{alg:linearization}
 \end{figure}
-\pp{Por qué están traducidos los algoritmos? Se leen mucho peor. El castellano
-es muy verbose para los algoritmos. Poner los de los papers en inglés.}
-
-
 % java.util.LinkedList.MAX_ARRAY_SIZE&java.util.LinkedList:0&2147483639
 % java.util.LinkedList.first&java.util.LinkedList:0&java.util.LinkedList$Node:0
 % java.util.LinkedList.last&java.util.LinkedList:0&java.util.LinkedList$Node:1
@@ -495,23 +487,40 @@ es muy verbose para los algoritmos. Poner los de los papers en inglés.}
 % traversal.DummyHeapRoot.theroot&traversal.DummyHeapRoot:0&java.util.LinkedList:0
 
 
+Figura\ref{alg:linearization} muestra el algoritmo de linealización utilizado por \textsf{BEAPI}, una versión personalizada que 
+informa cuando los objetos exceden el \emph{scope} y permite ignorar ciertos campos de los objetos (para la versión original, véase 
+\cite{Xie04}). El procedimiento \texttt{linearize} inicia un recorrido en profundidad del heap a partir de un objeto raíz, invocando 
+\texttt{lin} en la línea 3. Para canonicizar el heap, \texttt{lin} asigna identificadores únicos a cada objeto que visita. El mapa 
+\texttt{ids} almacena la correspondencia entre objetos y sus identificadores únicos.
 
-El algoritmo mostrado en la Figura~\ref{alg:linearization} es una versión personalizada para \textsf{BEAPI} del algoritmo de linearización presentado en \cite{Xie04}. Esta versión ha sido modificada para informar cuando los objetos exceden los alcances y para permitir la omisión de campos de la estructura de dato en análisis.
+Figure\ref{alg:linearization} muestra el algoritmo de linealización utilizado por \textsf{BEAPI}, una versión personalizada que 
+informa cuando los objetos exceden el \emph{scope} y permite ignorar ciertos campos de los objetos (para la versión original, véase 
+\cite{Xie04}). El procedimiento \texttt{linearize} inicia un recorrido en profundidad del heap a partir de un objeto raíz, invocando 
+\texttt{lin} en la línea 3. Para canonicizar el heap, \texttt{lin} asigna identificadores únicos a cada objeto que visita. El mapa 
+\texttt{ids} almacena la correspondencia entre objetos y sus identificadores únicos.
 
-El algoritmo \texttt{linearize} invoca a la función \texttt{lin} y realiza un recorrido en profundidad del heap comenzando desde la raíz (línea 3). Durante este recorrido, se asignan identificadores diferentes a cada objeto visitado. Cuando se visita un objeto por primera vez, se le asigna un nuevo identificador único (líneas 10-11) y se crea una secuencia de un solo elemento llamada \texttt{seq}, que contiene el identificador de objeto y representa el objeto (línea 12). El mapa \texttt{ids} se utiliza para almacenar el mapeo entre los objetos y los identificadores de objeto únicos.
+Cuando un objeto es visitado por primera vez, se le asigna un nuevo identificador (líneas 10--11), y se crea una secuencia singleton 
+que representa dicho objeto (línea 12). A continuación, se recorren los campos del objeto, ordenados en un orden predefinido (por 
+ejemplo, alfabéticamente por nombre), y se construye la linealización de cada valor de campo, concatenando el resultado a la secuencia 
+del objeto actual (líneas 13--19). Si un campo contiene un valor primitivo, se lo representa mediante una secuencia singleton con dicho 
+valor (líneas 15--16). Si un campo referencia a otro objeto, se realiza una llamada recursiva a \texttt{lin} para convertir dicho objeto 
+en una secuencia, la cual se añade al resultado (línea 18). Al finalizar el bucle, \texttt{seq} contiene la representación canónica del 
+heap con raíz en \texttt{root}, y se devuelve como resultado (línea 20).
 
-A continuación, se recorren los campos del objeto en un orden predefinido (por ejemplo, por nombre) y se construye la linearización de cada valor de campo, que se agrega a la secuencia \texttt{seq} (líneas 13-19). Si un campo almacena un valor primitivo (línea 15), se agrega una secuencia de un solo elemento que representa ese valor a \texttt{seq} (línea 16). Si el campo hace referencia a otro objeto, se realiza una llamada recursiva a la función \texttt{lin} para transformarlo en una secuencia, que luego se agrega a \texttt{seq} (línea 18).
+Cuando un objeto ya visitado es alcanzado por una llamada recursiva, el mismo ya debe tener un identificador asignado en \texttt{ids} 
+(línea 6), y \texttt{lin} retorna la secuencia singleton correspondiente (línea 7). Si durante el proceso se detecta que la cantidad de 
+objetos alcanzables excede el \emph{scope} permitido, se lanza una excepción \texttt{ScopeExceededException} (líneas 9--10). Esta 
+excepción será utilizada por \textsf{BEAPI} para descartar aquellas secuencias de prueba que generan objetos más grandes de lo 
+permitido por el \emph{scope}.
 
-Al final del ciclo, la secuencia \texttt{seq} contiene la representación canónica de todo el heap que comienza en la raíz, y se devuelve por la función \texttt{lin} (línea 20). Sin embargo, si se encuentra un objeto que ya ha sido visitado en llamadas recursivas anteriores, es decir, que ya tiene un identificador asignado en \texttt{ids}, el algoritmo devuelve una secuencia de un solo elemento que contiene el identificador único del objeto (líneas 6-7).
+El procedimiento \texttt{linearize} también recibe como parámetro una expresión regular \texttt{omitFields}, que define los nombres 
+de los campos que deben ser ignorados durante la linealización (véase Sección~\ref{sec:finitization-definition}). Para omitir estos 
+campos, la función \texttt{sortByField} (línea 13) ha sido implementada de forma tal que no devuelve las aristas correspondientes a 
+los campos cuyo nombre coincide con \texttt{omitFields}. Esto evita que los valores de dichos campos se incluyan en la secuencia 
+resultante.
 
-Si hay más de \texttt{scope} objetos alcanzables desde la raiz del \emph{heap}, lo cual significa que se ha superado el límite establecido en los alcances, el algoritmo \texttt{linearize} devuelve una excepción para informar esta situación (líneas 9-10). Además, el parámetro \texttt{linearize} también acepta una expresión regular llamada \texttt{omitFields}, que se utiliza para coincidir con los nombres de los campos que deben ser omitidos durante la canonización del \emph{heap}.
-
-Para omitir dichos campos, se implementa la función \\
-\texttt{sortByField} (línea 13), de manera que no se devuelven las aristas correspondientes a los campos cuyos nombres coinciden con \texttt{omitFields}. 
-Es importante destacar que este comportamiento es específico de nuestro enfoque, ya que la excepción será utilizada por \textsf{BEAPI} para descartar secuencias de prueba que generen objetos que excedan los alcances permitidos.
-
-Cabe destacar que la linearización proporciona una forma eficiente de comparar objetos: dos objetos se consideran iguales si y solo si las secuencias correspondientes generadas por la función \texttt{linearize} son iguales.
-
+Finalmente, la linealización permite comparar estructuras de manera eficiente: dos objetos (es decir, dos heaps enraizados) son iguales 
+si, y solo si, las secuencias generadas por \texttt{linearize} son iguales.
 
 \subsection{Uso de m\'etodos generadores de objectos en BEAPI}
 \label{sec:buildersOptimization}
