@@ -514,7 +514,7 @@ excepción será utilizada por \textsf{BEAPI} para descartar aquellas secuencias
 permitido por el \emph{scope}.
 
 El procedimiento \texttt{linearize} también recibe como parámetro una expresión regular \texttt{omitFields}, que define los nombres 
-de los campos que deben ser ignorados durante la linealización (véase Sección~\ref{sec:finitization-definition}). Para omitir estos 
+de los campos que deben ser ignorados durante la linealización. Para omitir estos 
 campos, la función \texttt{sortByField} (línea 13) ha sido implementada de forma tal que no devuelve las aristas correspondientes a 
 los campos cuyo nombre coincide con \texttt{omitFields}. Esto evita que los valores de dichos campos se incluyan en la secuencia 
 resultante.
@@ -525,35 +525,13 @@ si, y solo si, las secuencias generadas por \texttt{linearize} son iguales.
 \subsection{Uso de m\'etodos generadores de objectos en BEAPI}
 \label{sec:buildersOptimization}
 En esta sección, utilizaremos una optimización que hemos desarrollado y que es
-una parte importante de esta tesis \ref{cap:builders} \pp{mal referenciado,
-mirar el pdf}. 
+una parte importante de esta tesis (Capítulo \ref{cap:builders}.
 Estos métodos generadores nos permiten generar cualquier configuración posible que se puede construir con la API (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
 Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos,
 es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, 
 utilizamos el enfoque de identificación automática de métodos generadores que se describe en el Capítulo \ref{cap:builders}.
 Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. 
 El uso de métodos generadores permite generar estados complejos sin necesidad de ejecutar múltiples pasos individuales. Esto reduce significativamente la cantidad de secuencias que BEAPI necesita explorar, optimizando el análisis. 
-
-\pp{Estos ejemplos no ilustran nada la utilidad de los builders. Además hay un
-capítulo entero dedicado a eso, por qué pondríamos un ejemplo acá?}
-Por ejemplo, consideremos la clase \texttt{NodeCachingLinkedList (NCL)}. 
-Sin estos m\'etodos generadores, para generar una lista con un solo elemento, se necesitarían las siguientes operaciones:
-\vspace{1em}
-\begin{lstlisting}
-  ncl.NodeCachingLinkedList.<init>() // Crear lista
-  ncl.add(42) // Agrega el nodo con el valor 42
-\end{lstlisting}
-
-\vspace{1em}
-
-Esto implica ejecutar al menos dos pasos para construir el estado deseado. Sin embargo, con un método generador predefinido, se puede simplificar a:
-\vspace{1em}
-
-\begin{lstlisting}
-ncl.NodeCachingLinkedList.<init>(42) // Crear lista con un elemento
-\end{lstlisting}
-
-De esta manera, los metodos generadores permite construir un estado equivalente sin necesidad de explorar todas las combinaciones posibles de pasos intermedios.
 
 En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de métodos generadores.
 El enfoque está basado en el algoritmo de optimización \emph{Escalada de colinas} que logra un mejor rendimiento. 
@@ -571,25 +549,19 @@ En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para cal
 Después de identificar eficientemente los métodos generadores con un alcance pequeño, podemos ejecutar \textsf{BEAPI}, utilizando los métodos generadores identificados y,
 con un alcance mayor. Esto nos permite generar objetos más grandes y utilizarlos para probar el software bajo prueba.
 
-En la mayoría de nuestros casos de estudio, los métodos generadores de objetos consisten en un constructor y un solo método para agregar elementos a la estructura. 
-Como por ejemplo en el caso de listas simplemente enlazadas. 
-Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores mostró que, 
-en el caso de los árboles Rojo-Negro (ver figura \ref{fig:redBlack1}) \pp{Para
-qué me sirve una figura de un árbol? No ayuda a la comprensión. De última hay
-que meter una descripción breve de qué son, y una cita para que alguien lea. La
-figura hay que volarla.}, también se requería un método de eliminación (para alcances mayores que 3). 
+En la mayoría de nuestros casos de estudio, los métodos generadores de objetos se limitan a un 
+constructor y un único método para agregar elementos a la estructura, como ocurre en las listas 
+simplemente enlazadas.  
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\textwidth]{images/redBlackTree.jpg}
-  \caption{Ejemplo de un árbol red-black}
-  \label{fig:redBlack1}
-\end{figure}
+Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores evidenció que, 
+en el caso de los árboles Rojo–Negro, también es necesario incluir un método de eliminación 
+(para alcances mayores que tres).  
+Esto se debe a que este tipo de árboles requiere configuraciones específicas de equilibrio, 
+que involucran el coloreo de nodos en rojo y negro, las cuales no pueden obtenerse únicamente 
+mediante operaciones de inserción.
 
-Esto se debe a que estos tipos de árboles necesitan una configuración específica de equilibrio (coloreando los nodos en rojo y negro) 
-que no se pueden construir solo agregando elementos al árbol. En contraste, los
-árboles AVL (figura \ref{fig:avl}) \pp{Lo mismo que para RBT, la figura 
-suelta no ayuda a la comprensión. Hay que sacarla.}, 
+
+En contraste, los árboles AVL,
 que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
 Los árboles AVL están siempre equilibrados, 
 de tal modo que para todos los nodos, la altura de la rama izquierda no debe diferir en más de una unidad de la altura de la rama derecha o viceversa. 
@@ -632,58 +604,61 @@ y se devuelve la lista de todas las secuencias en \texttt{secuenciasActuales} (l
   \centering
   \begin{algorithm}[H]
       \SetAlgoLined
-      \KwIn{Lista de métodos \textit{methods}, alcance máximo \textit{scope}, mapa de tipos primitivos textit \textit{primitives}, campos a omitir \textit{omitFields}}
-      \KwOut{Lista de secuencias generadas}
+      \KwIn{List of methods \textit{methods}, maximum scope \textit{scope}, map of primitive types \textit{primitives}, fields to omit \textit{omitFields}}
+      \KwOut{List of generated sequences}
       
-      $secuenciasActuales \leftarrow$ copia de las primitivas\;
-      $canonicos \leftarrow \emptyset$\;
+      $currSeqs \leftarrow$ copy of \textit{primitives}\;
+      $canonicalStrs \leftarrow \emptyset$\;
       
       \While{\textbf{true}}{
-          $nuevasSecuencias \leftarrow \emptyset$\;
-          $hayNuevas \leftarrow$ \textbf{falso}\;
+          $newSeqs \leftarrow \emptyset$\;
+          $hasNew \leftarrow$ \textbf{false}\;
           
-          \For{$m(T_1,\ldots,T_n):T_r$ en metodos}{
-            $seqs_{T_1} \leftarrow secuenciasActuales$ para tipo $T_1$\;
+          \For{$m(T_1,\ldots,T_n):T_r$ in \textit{methods}}{
+            $seqs_{T_1} \leftarrow$ currSeqs for type $T_1$\;
             \ldots\;
-            $seqs_{T_n} \leftarrow secuenciasActuales$ para tipo $T_n$\;
+            $seqs_{T_n} \leftarrow$ currSeqs for type $T_n$\;
 
             \For{$(s_1,\ldots,s_n) \in seqs_{T_1} \times \ldots \times seqs_{T_n}$}{
-              $nuevaSec \leftarrow$ crearSecuencia($s_1,\ldots,s_n,m$)\;
-              $(o_1,\ldots,o_n,o_r, fallo, excepcion) \leftarrow$ ejecutar($nuevaSec$)\;                
-              \If{fallo}{
-                  \Return{\texttt{ExcepciónEjecuciónFallida}($nuevaSec$)}\;
-              }
-              \If{excepción}{
-                  \textbf{continuar}\;
-              }
+              $newSeq \leftarrow$ createSequence($s_1,\ldots,s_n,m$)\;
+              $(o_1,\ldots,o_n,o_r, failure, exception) \leftarrow$ execute($newSeq$)\;                
               
-              $(c_1,\ldots,c_n,c_r,\ fueraDeRango) \leftarrow$ canonizar($o_1,\ldots,o_n,o_r$, \textit{scope}, \textit{omitFields})\;
-              
-              \If{fueraDeRango}{
-                  \textbf{continuar}\;
+              \If{failure}{
+                  \Return{\texttt{ExecutionFailedException}($newSeq$)}\;
+              }
+              \If{exception}{
+                  \textbf{continue}\;
               }
               
-              \For{\textbf{cada} tipo $T_i$ en $\{T_1,\ldots,T_n,T_r\}$}{
-                  \If{$T_i$ es de referencia \textbf{y} $c_i \notin canonicos$}{
-                      $canonicos \leftarrow canonicos \cup \{c_i\}$\;
-                      agregar $nuevaSec$ a $nuevasSecuencias$ para el tipo $T_i$\;
-                      $hayNuevas \leftarrow$ \textbf{verdadero}\;
+              $(c_1,\ldots,c_n,c_r, outOfScope) \leftarrow$ makeCanonical($o_1,\ldots,o_n,o_r$, \textit{scope}, \textit{omitFields})\;
+              
+              \If{outOfScope}{
+                  \textbf{continue}\;
+              }
+              
+              \For{\textbf{each} type $T_i$ in $\{T_1,\ldots,T_n,T_r\}$}{
+                  \If{$T_i$ is reference type \textbf{and} $c_i \notin canonicalStrs$}{
+                      $canonicalStrs \leftarrow canonicalStrs \cup \{c_i\}$\;
+                      add $newSeq$ to $newSeqs$ for type $T_i$\;
+                      $hasNew \leftarrow$ \textbf{true}\;
                   }
               }
             }
           }
           
-          \If{\textbf{no} $hayNuevas$}{
-              \textbf{salir del ciclo}\;
+          \If{\textbf{not} $hasNew$}{
+              \textbf{break}\;
           }
           
-          $secuenciasActuales \leftarrow secuenciasActuales \cup nuevasSecuencias$\;
+          $currSeqs \leftarrow currSeqs \cup newSeqs$\;
         }
-    \Return{todas las secuencias en $secuenciasActuales$}\;
+    \Return{all sequences in $currSeqs$}\;
   \end{algorithm}
-  \caption{Algoritmo de \textsf{BEAPI}}
+  \caption{\textsf{BEAPI} algorithm}
   \label{fig:beapi-algorithm}
 \end{figure}
+
+\cacho{ESto lo tengo que ver}
 \pp{Por qué están traducidos los algoritmos? Se leen mucho peor. El castellano
 es muy verbose para los algoritmos. Poner los de los papers en inglés.}
 
