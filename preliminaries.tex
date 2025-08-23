@@ -189,9 +189,9 @@ Korat ha demostrado ser eficaz en la generación de estructuras complejas como l
 %     }
 %     \end{lstlisting}
     
-
+\cacho{Mejorar y ampliar, buscar PICT de Pablo}
 El testing es una técnica fundamental para mejorar la confiabilidad del software
-y detectar errores en el código \cite{} \pp{Libros de testing}. 
+y detectar errores en el código \cite{Ammann16}. 
 Sin embargo, escribir los tests de manera manual es una tarea trabajosa, y
 requiere un esfuerzo importante por parte de los desarrolladores. Es por esto
 que en los últimos años la comunidad de la ingeniería de software ha puesto especial énfasis en el
@@ -399,13 +399,20 @@ técnicas de generación automática de tests), como las presentadas en esta tes
 Los criterios de cobertura tradicionales proveen formas relativamente sencillas de evaluar 
 la calidad de una suite de tests, debido a que típicamente hay una alta correlación entre
 la satisfacción de los criterios y la capacidad de detección de defectos de la
-suite \cite{} \pp{Libros de testing, correlacion entre mutantes y fallas reales
-de Rene Just}.
-En esta sección, describimos tres criterios fundamentales adoptados en esta tesis: 
-cobertura de código (líneas y ramas)\cite{} \pp{Libros de testing} y análisis de mutación 
-\cite{} \pp{Libros de testing, papers de mutación}.
-Estas técnicas proporcionan métricas objetivas para medir la calidad de los
-tests.
+suite \cite{Ammann16,just2014mutants}. 
+En particular, Just et al.~\cite{just2014mutants} muestran que existe una fuerte
+correlación entre la detección de mutantes y la detección de fallas reales, lo
+que respalda el uso de la mutación como sustituto práctico para evaluar la
+eficacia de un conjunto de pruebas.
+
+En esta sección describimos tres criterios fundamentales adoptados en esta tesis: 
+(i) cobertura de código, considerando tanto líneas como ramas \cite{Ammann16,myzili2012coverage}, 
+(ii) análisis de mutación \cite{jia2011analysis,Ammann16,just2014mutants}, 
+y (iii) la identificación de métodos observadores, propuesta en esta tesis como un criterio adicional
+específico para APIs de estructuras de datos. 
+Las dos primeras técnicas son ampliamente utilizadas en la literatura y proporcionan 
+métricas objetivas para medir la calidad de los tests, mientras que la tercera constituye
+una contribución original de este trabajo.
 
 \subsection{Cobertura de Código}
 

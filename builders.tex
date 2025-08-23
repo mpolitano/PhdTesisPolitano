@@ -1,56 +1,56 @@
+% !chktex off
+
 \chapter[Identificación de Métodos Generadores de Objetos]{Identificación de Métodos Generadores de Objetos}
 \label{cap:builders}
-
-\cacho{1 - terminar las citas}
 
 % Primera etapa
 \section{Ejemplo Motivador}
 \label{sec:motivacionBuilders}
-\begin{table}[]
+
+\begin{table}[H]
 \centering
-{\scriptsize
-\begin{tabular}{|l|l|l|}
-\hline
+\scriptsize
+\begin{tabular}{clc}
+\toprule
 No. & Nombre del Método & Observador? \\
-\hline
-0 & NCL() & no \\
-1 & NCL(int) & no \\
-2 & NCL(Collection) & no \\
-3 & add(Object) & no \\
-4 & add(int,Object) & no \\
-5 & addAll(Collection) & no \\
-6 & addAll(int,Collection) & no \\
-7 & addFirst(Object) & no \\
-8 & addLast(Object) & no \\
-9 & clear() & no \\
-10 & contains(Object) & si \\
-11 & containsAll(Collection) & si \\
-12 & equals(Object) & si \\
-13 & get(int) & si \\
-14 & getFirst() & si \\
-15 & getLast() & si \\
-16 & indexOf(Object) & si \\
-17 & isEmpty() & si \\
-18 & iterator() & no \\
-19 & lastIndexOf(Object) & si \\
-20 & listIterator() & no \\
-21 & listIterator(int) & no \\
-22 & remove(int) & no \\
-23 & remove(Object) & no \\
-24 & removeAll(Collection) & no \\
-25 & removeFirst() & no \\
-26 & removeLast() & no \\
-27 & retainAll(Collection) & no \\
-28 & set(int,Object) & no \\
-29 & size() & si \\
-30 & subList(int,int) & si \\
-31 & toArray() & si \\
-32 & toArray(Object[]) & si \\
-33 & toString() & si \\
-\hline
+\midrule
+0  & NCL()                        & no \\
+1  & NCL(int)                     & no \\
+2  & NCL(Collection)              & no \\
+3  & add(Object)                  & no \\
+4  & add(int,Object)              & no \\
+5  & addAll(Collection)           & no \\
+6  & addAll(int,Collection)       & no \\
+7  & addFirst(Object)             & no \\
+8  & addLast(Object)              & no \\
+9  & clear()                      & no \\
+10 & contains(Object)             & sí \\
+11 & containsAll(Collection)      & sí \\
+12 & equals(Object)               & sí \\
+13 & get(int)                     & sí \\
+14 & getFirst()                   & sí \\
+15 & getLast()                    & sí \\
+16 & indexOf(Object)              & sí \\
+17 & isEmpty()                    & sí \\
+18 & iterator()                   & no \\
+19 & lastIndexOf(Object)          & sí \\
+20 & listIterator()               & no \\
+21 & listIterator(int)            & no \\
+22 & remove(int)                  & no \\
+23 & remove(Object)               & no \\
+24 & removeAll(Collection)        & no \\
+25 & removeFirst()                & no \\
+26 & removeLast()                 & no \\
+27 & retainAll(Collection)        & no \\
+28 & set(int,Object)              & no \\
+29 & size()                       & sí \\
+30 & subList(int,int)             & sí \\
+31 & toArray()                    & sí \\
+32 & toArray(Object[])            & sí \\
+33 & toString()                   & sí \\
+\bottomrule
 \end{tabular}
-}
-\caption{API de NodeCachingLinkedList de Apache con los métodos observadores identificados manualmente}
+\caption{API de \texttt{NodeCachingLinkedList} de Apache con los observadores identificados manualmente.}
 \label{tab:ncl-api}
 \end{table}
 
@@ -280,14 +280,6 @@ public class NodeCachingLinkedList {
 % Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que
 % obtenemos es el que se encuentra en la columna \emph{Observador?} de la tabla
 % \ref{tab:ncl-api}.
- \pp{hay métodos mal clasificados por Infer. Como iterator.
-    Hay que ver bien si no hay algún otro. Habría que reportar los observadores
-    reales analizados a mano por un lado en la Tabla I, y después acá poner una
-tabla II que sea una copia de Tabla I y agregue una columna Infer que muestre
-también los resultados de Infer. Y decir que Infer hace análisis estático y 
-sobreaproxima los observadores. Pero es muy
-rápido y suficientemente bueno para descartar muchos métodos para nuestros
-algoritmos}  
 
 \cacho{Es nuevo}
 En el ejemplo motivador presentado en la Sección~\ref{sec:motivacionBuilders} y en la Tabla~\ref{tab:ncl-api}, se puede observar que existen numerosos métodos clasificados como observadores. 
@@ -303,58 +295,74 @@ Es decir, rara vez clasificará como observador a un método que en realidad tie
 Esta característica lo convierte en una herramienta extremadamente útil como filtro preliminar: su bajo costo computacional permite eliminar rápidamente una gran cantidad de métodos irrelevantes, 
 lo que reduce de forma significativa el espacio de búsqueda de nuestros algoritmos sin comprometer la corrección del análisis.
 
-La Tabla~\ref{tab:ncl-api} muestra la clasificación manual obtenida a partir del análisis del comportamiento de los métodos de la clase \texttt{NodeCachingLinkedList}.
-En tanto, la Tabla~\ref{tab:ncl-infer-comparacion} agrega a la tabla el resultado del análisis realizado por \emph{Infer}, indicando, en la columna \emph{Infer} el resultado dado por el mismo.
+La Tabla~\ref{tab:ncl-api-manual} presenta la clasificación manual de los métodos de la clase 
+\texttt{NodeCachingLinkedList}, distinguiendo cuáles se comportan como observadores y cuáles no, 
+a partir del análisis de su implementación. 
+Posteriormente, en la Tabla~\ref{tab:ncl-infer-comparacion} se muestra la comparación con el análisis 
+automatizado realizado por \emph{Infer}. 
+En esta segunda tabla, la columna adicional \emph{Infer} indica el resultado provisto por la herramienta, 
+lo que permite identificar tanto los aciertos como las discrepancias respecto de la clasificación manual.
 
-\begin{table}[]
+\begin{table}[H]
 \centering
-{\scriptsize
-\begin{tabular}{|l|l|l||l|}
-\hline
-No. & Nombre del Método & Observador? & Infer\\
-\hline
-0 & NCL() & no & no \\
-1 & NCL(int) & no & no\\
-2 & NCL(Collection) & no & no\\
-3 & add(Object) & no & no\\
-4 & add(int,Object) & no & no\\
-5 & addAll(Collection) & no & no\\
-6 & addAll(int,Collection) & no & no \\
-7 & addFirst(Object) & no & no \\
-8 & addLast(Object) & no & no \\
-9 & clear() & no & no\\
-10 & contains(Object) & si & si \\
-11 & containsAll(Collection) & si & si \\
-12 & equals(Object) & si & si \\
-13 & get(int) & si & si\\
-14 & getFirst() & si & si \\
-15 & getLast() & si & si \\
-16 & indexOf(Object) & si & si\\
-17 & isEmpty() & si & si\\
-18 & iterator() & no & si \\
-19 & lastIndexOf(Object) & si & no \\
-20 & listIterator() & no & si \\
-21 & listIterator(int) & no & si\\
-22 & remove(int) & no & no \\
-23 & remove(Object) & no & no \\
-24 & removeAll(Collection) & no & no \\
-25 & removeFirst() & no & no \\
-26 & removeLast() & no& no  \\
-27 & retainAll(Collection) & no& no  \\
-28 & set(int,Object) & no& no  \\
-29 & size() & si & si\\
-30 & subList(int,int) & si& si\\
-31 & toArray() & si & si\\
-32 & toArray(Object[]) & si & si \\
-33 & toString() & si \\
-\hline
+\scriptsize
+\begin{tabular}{clcc}
+\toprule
+No. & Nombre del Método & Observador? & Infer \\
+\midrule
+0  & NCL()                        & no  & no \\
+1  & NCL(int)                     & no  & no \\
+2  & NCL(Collection)              & no  & no \\
+3  & add(Object)                  & no  & no \\
+4  & add(int,Object)              & no  & no \\
+5  & addAll(Collection)           & no  & no \\
+6  & addAll(int,Collection)       & no  & no \\
+7  & addFirst(Object)             & no  & no \\
+8  & addLast(Object)              & no  & no \\
+9  & clear()                      & no  & no \\
+10 & contains(Object)             & sí  & sí \\
+11 & containsAll(Collection)      & sí  & sí \\
+12 & equals(Object)               & sí  & sí \\
+13 & get(int)                     & sí  & sí \\
+14 & getFirst()                   & sí  & sí \\
+15 & getLast()                    & sí  & sí \\
+16 & indexOf(Object)              & sí  & sí \\
+17 & isEmpty()                    & sí  & sí \\
+18 & iterator()                   & no  & sí \\
+19 & lastIndexOf(Object)          & sí  & si \\
+20 & listIterator()               & no  & sí \\
+21 & listIterator(int)            & no  & sí \\
+22 & remove(int)                  & no  & no \\
+23 & remove(Object)               & no  & no \\
+24 & removeAll(Collection)        & no  & no \\
+25 & removeFirst()                & no  & no \\
+26 & removeLast()                 & no  & no \\
+27 & retainAll(Collection)        & no  & no \\
+28 & set(int,Object)              & no  & no \\
+29 & size()                       & sí  & sí \\
+30 & subList(int,int)             & sí  & sí \\
+31 & toArray()                    & sí  & sí \\
+32 & toArray(Object[])            & sí  & sí \\
+33 & toString()                   & sí  & sí \\
+\bottomrule
 \end{tabular}
-}
-\caption{API de NodeCachingLinkedList de Apache con los observadores identificados manualmente y por Infer.}
-\label{tab:ncl-api}
+\caption{Comparación entre observadores de \texttt{NodeCachingLinkedList} identificados manualmente y por \emph{Infer}.}
+\label{tab:ncl-infer-comparacion}
 \end{table}
 
-
+En términos generales, \emph{Infer} logra detectar correctamente la mayoría de los métodos observadores. 
+No obstante, se observan algunos casos particulares. 
+Por ejemplo, clasifica como observadores a los métodos que devuelven iteradores 
+(\texttt{iterator()}, \texttt{listIterator()}, \texttt{listIterator(int)}). 
+Si bien este criterio no es del todo incorrecto, ya que dichos métodos permiten inspeccionar 
+la estructura de datos sin necesariamente modificarla, la clasificación resulta ambigua. 
+En la práctica, los iteradores suelen considerarse como una interfaz de recorrido y no como observadores directos, 
+ya que pueden exponer operaciones que alteran el estado interno de la colección 
+(por ejemplo, la operación \texttt{remove()} del iterador). 
+Esto explica por qué \emph{Infer} los clasifica como observadores,
+a simple vista sólo devuelven un acceso para recorrer la colección, 
+pero en realidad los iteradores también permiten operaciones que pueden modificarla 
+de modo que no aseguran que el estado de la lista se mantenga inmutable.
 
 Los métodos reportados como observadores por \emph{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
 En síntesis, \emph{Infer} actúa como una etapa de preprocesamiento que combina eficiencia y utilidad práctica: permite reducir el número de métodos a analizar, sin necesidad de intervención manual, manteniendo un nivel de precisión suficiente para nuestros casos de estudio.
@@ -383,23 +391,23 @@ En nuestros algoritmos de búsqueda, los estados están compuestos por subconjun
 Como vimos en la tabla \ref{tab:ncl-api}, \texttt{NCL}, tiene un total de 34 métodos. Sin embargo, no todos estos métodos son relevantes para nuestros algoritmos. Por ejemplo, los métodos observadores deben excluirse del análisis ya que no contribuyen a la construcción de objetos. Esto reduce el número total de métodos considerados, lo que a su vez reduce significativamente el espacio de búsqueda.
 
 Después de excluir los métodos observadores, quedan 20 métodos relevantes en NCL. Estos métodos se enumeran desde 0 hasta 19 como se puede observar en la tabla \ref{tab:ncl-api-infer}. 
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 {\scriptsize
 \begin{tabular}{|l|l|}
 \hline
 No. & Nombre del Método \\
 \hline
-0 & NCL() \\
-1 & NCL(int) \\
-2 & NCL(Collection) \\
-3 & add(Object) \\
-4 & add(int,Object) \\
-5 & addAll(Collection) \\
-6 & addAll(int,Collection) \\
-7 & addFirst(Object) \\
-8 & addLast(Object) \\
-9 & clear() \\
+0  & NCL() \\
+1  & NCL(int) \\
+2  & NCL(Collection) \\
+3  & add(Object) \\
+4  & add(int,Object) \\
+5  & addAll(Collection) \\
+6  & addAll(int,Collection) \\
+7  & addFirst(Object) \\
+8  & addLast(Object) \\
+9  & clear() \\
 10 & iterator() \\
 11 & listIterator() \\
 12 & listIterator(int) \\
@@ -413,9 +421,10 @@ No. & Nombre del Método \\
 \hline
 \end{tabular}
 }
-\caption{API de NodeCachingLinkedList de Apache despues de la identificación de métodos observadores.}
+\caption{API de NodeCachingLinkedList de Apache después de la identificación de métodos observadores.}
 \label{tab:ncl-api-infer}
 \end{table}
+
 
 La representación de los estados en nuestros algoritmos se realiza mediante vectores booleanos. Cada posición $i$ en el vector representa el $i$-ésimo método de la API:
 
@@ -442,7 +451,7 @@ Por ejemplo, un estado posible puede representarse como un vector de la siguient
 En este caso, las posiciones 0, 7 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjuto de métodos:
 \vspace{5pt} 
 
-\begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos que representa el cromosoma de la Figura 2, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
+\begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos que representa el cromosoma de la Figura \ref{fig:cromosoma}, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (16) removeFirst()
@@ -489,8 +498,6 @@ Integer,Char=2
 Float,Double,String=4
 Object=6
 \end{lstlisting}
-\pp{Cambié los pesos. Quizás hay que cambiar algún cálculo en base a estos
-    nuevos pesos (eran 1,2,3 y 4, pasaron a ser 1,2,4 y 6.}
 
 Como ya se discutió en esta Sección, buscamos un conjunto minimal de generadores de objetos, donde los métodos tengan parámetros tan simples como sea posible. Por lo tanto, la cantidad de objetos generados usando BEAPI es sólo un componente de la función objetivo. Dado un conjunto de métodos $M$, representado por un candidato $C$, la función objetivo $f$ devuelve un valor real conformado por tres componentes:
 
@@ -690,8 +697,7 @@ generadores.} Así, la segunda función objetivo se basa en generar test suites
 de manera automática (aleatoria) utilizando un suconjunto candidato de métodos,  
 y medir la cobertura de código que alcanzan estas test suites. 
 La cobertura se mide en términos de las líneas de código y las ramas del
-programa que son ejercitadas por los tests (\ref{sec:coverage}) \pp{hacer referencia a la sección
-correspondiente de background y mirar que matcheen los términos usados}.
+programa que son ejercitadas por los tests (\ref{sec:coverage}).
 Esta métrica nos da una idea de qué tan bien los tests generados usando el
 subconjunto de métodos pueden cubrir las diferentes partes del programa, 
 lo que nos permite evaluar un aspecto importante de la calidad de las test
@@ -747,15 +753,13 @@ La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
 producir estas secuencias de test. Esta función realiza su tarea utilizando 
 la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
 
-\pp{Meter el algoritmo en un float para que encaje bien? el vspace no funciona}
-
-\begin{algorithm}[htbp]
+\begin{algorithm}[H]
     \SetAlgoLined
     \KwIn{Métodos de la API $API$, subconjunto de métodos $M \subseteq API$,
     tiempo total $S$}
     \KwOut{Conjunto final de tests generados}
     
-    \SetKwFunction{FMain}{GenerarTests}
+    \SetKwFunction{FMain}{GenerarTest}
     \SetKwFunction{FGen}{GenerarNuevasSecuencias}
     \SetKwProg{Fn}{Function}{:}{}
     \BlankLine
@@ -808,7 +812,7 @@ la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback
     \Return{$tests$}\;
     }
     
-    \caption{GenerarTests}
+    \caption{Generación de tests para cobertura de código}
     \label{alg:fitnessRandoop}
     \end{algorithm}
     
