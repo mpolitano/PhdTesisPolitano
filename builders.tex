@@ -23,16 +23,16 @@ No. & Nombre del Método & Observador? \\
 7 & addFirst(Object) & no \\
 8 & addLast(Object) & no \\
 9 & clear() & no \\
-10 & contains(Object) & sí \\
-11 & containsAll(Collection) & sí \\
-12 & equals(Object) & sí \\
-13 & get(int) & sí \\
-14 & getFirst() & sí \\
-15 & getLast() & sí \\
-16 & indexOf(Object) & sí \\
-17 & isEmpty() & sí \\
+10 & contains(Object) & si \\
+11 & containsAll(Collection) & si \\
+12 & equals(Object) & si \\
+13 & get(int) & si \\
+14 & getFirst() & si \\
+15 & getLast() & si \\
+16 & indexOf(Object) & si \\
+17 & isEmpty() & si \\
 18 & iterator() & no \\
-19 & lastIndexOf(Object) & sí \\
+19 & lastIndexOf(Object) & si \\
 20 & listIterator() & no \\
 21 & listIterator(int) & no \\
 22 & remove(int) & no \\
@@ -42,15 +42,15 @@ No. & Nombre del Método & Observador? \\
 26 & removeLast() & no \\
 27 & retainAll(Collection) & no \\
 28 & set(int,Object) & no \\
-29 & size() & sí \\
+29 & size() & si \\
 30 & subList(int,int) & si \\
-31 & toArray() & sí \\
-32 & toArray(Object[]) & sí \\
-33 & toString() & sí \\
+31 & toArray() & si \\
+32 & toArray(Object[]) & si \\
+33 & toString() & si \\
 \hline
 \end{tabular}
 }
-\caption{API de NodeCachingLinkedList de Apache}
+\caption{API de NodeCachingLinkedList de Apache con los métodos observadores identificados manualmente}
 \label{tab:ncl-api}
 \end{table}
 
@@ -189,7 +189,7 @@ Así, las Figuras~\ref{fig:NCLbuilders} y ~\ref{fig:NCLbuilders2} muestran ejemp
 Notar que muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos sobre los que operan, ni son útiles para crear nuevos objetos. 
 Debido a que estos métodos observadores siempre son superfluos y nunca deben incluirse en un conjunto de generadores de objetos minimal. Por esta razón, nuestros enfoques de identificación de métodos generadores intentan reconocerlos de antemano y descartarlos.
 
-Por último, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
+También, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
 la lista principal de NCL (ver Tabla~\ref{tab:ncl-api}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos posibles. En cambio, \texttt{add(Object)}, \texttt{addFirst(Object)}, \texttt{addLast(Object)} toman un único parámetro. Si bien cualquiera de estas rutinas sirve para generar los mismos objetos de NCL, hay más formas de invocar a \texttt{add(int,Object)}. Esto usualmente redunda en una pérdida de eficiencia en la construcción de objetos por parte de un análisis automático de programas. Similarmente, elegiremos métodos con parámetros más simples (por ejemplo, parámetros de tipo primitivo), que otros con parámetros más complejos (por ejemplo, parámetros de tipo referencia) siempre y cuando los métodos permitan construir los mismos objetos.
 
 De la discusión anterior se desprende que preferimos los métodos con menor número de parámetros, y con parámetros más fáciles de instanciar en los generadores de objetos (siempre que se mantengan las propiedades de suficiencia y minimalidad de los generadores). 
@@ -213,7 +213,7 @@ Nos enfrentamos a un problema de optimización, donde apuntamos a encontrar el m
 Esta definición es la de los algoritmos de búsqueda local \cite{Russell:2009}.
 Para abordar este problema desarrollamos dos algoritmos de búsqueda, cada uno con su enfoque único. Estos algoritmos nos permiten explorar el espacio de búsqueda de manera eficiente y efectiva.
 
-El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica \cite{Goldberg:1989}
+El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica. \cite{Goldberg:1989}
 %, este algoritmo se enfoca en generar conjuntos de métodos generadores que puedan dar lugar a configuraciones más grandes y diversas de objetos. 
 La naturaleza basada en la evolución de este enfoque permite encontrar soluciones prometedoras y adaptarse a diferentes situaciones.
 
@@ -238,7 +238,7 @@ Por simplicidad, a partir de esta sección llamaremos generadores de objetos a a
 
 Se puede observar en el código de la Figura \ref{fig:emptyObs} que las funciones \emph{isEmpty} y \emph{size} de la clase NodeCachingLinkedList (NCL) son métodos observadores.  Estos métodos no modifican ningún atributo de la clase NCL.
  
-\begin{lstlisting}[language=Java, label=fig:emptyObs, caption=Algunos métodos observadores de la clase NCL. Se observa que no modifican el estado de NCL., captionpos=b, frame=tb, float=t]
+\begin{lstlisting}[language=Java, label=fig:emptyObs, caption=Algunos métodos observadores de la clase NCL. Se observa que no modifican el estado de NCL., captionpos=b, frame=tb]
 public class NodeCachingLinkedList {
     Node head;
     int size;
@@ -304,41 +304,56 @@ Esta característica lo convierte en una herramienta extremadamente útil como f
 lo que reduce de forma significativa el espacio de búsqueda de nuestros algoritmos sin comprometer la corrección del análisis.
 
 La Tabla~\ref{tab:ncl-api} muestra la clasificación manual obtenida a partir del análisis del comportamiento de los métodos de la clase \texttt{NodeCachingLinkedList}.
-En tanto, la Tabla~\ref{tab:ncl-infer-comparacion} presenta el resultado del análisis realizado por \emph{Infer}, indicando, en la columna \emph{esObservador?} para cada método si fue clasificado correctamente como no observador.
+En tanto, la Tabla~\ref{tab:ncl-infer-comparacion} agrega a la tabla el resultado del análisis realizado por \emph{Infer}, indicando, en la columna \emph{Infer} el resultado dado por el mismo.
 
-\begin{table}[h!]
+\begin{table}[]
 \centering
 {\scriptsize
-\begin{tabular}{|r|l|c|}
+\begin{tabular}{|l|l|l||l|}
 \hline
-No. & Nombre del Método & esObservador? \\
+No. & Nombre del Método & Observador? & Infer\\
 \hline
-0 & NCL() & No \\
-1 & NCL(int) & No \\
-2 & NCL(Collection) & No \\
-3 & add(Object) & No \\
-4 & add(int,Object) & No \\
-5 & addAll(Collection) & No \\
-6 & addAll(int,Collection) & No \\
-7 & addFirst(Object) & No \\
-8 & addLast(Object) & No \\
-9 & clear() & No \\
-10 & iterator() & \textbf{Sí} \\
-11 & listIterator() & \textbf{Sí} \\
-12 & listIterator(int) & \textbf{Sí} \\
-13 & remove(int) & No \\
-14 & remove(Object) & No \\
-15 & removeAll(Collection) & No \\
-16 & removeFirst() & No \\
-17 & removeLast() & No \\
-18 & retainAll(Collection) & No \\
-19 & set(int,Object) & No \\
+0 & NCL() & no & no \\
+1 & NCL(int) & no & no\\
+2 & NCL(Collection) & no & no\\
+3 & add(Object) & no & no\\
+4 & add(int,Object) & no & no\\
+5 & addAll(Collection) & no & no\\
+6 & addAll(int,Collection) & no & no \\
+7 & addFirst(Object) & no & no \\
+8 & addLast(Object) & no & no \\
+9 & clear() & no & no\\
+10 & contains(Object) & si & si \\
+11 & containsAll(Collection) & si & si \\
+12 & equals(Object) & si & si \\
+13 & get(int) & si & si\\
+14 & getFirst() & si & si \\
+15 & getLast() & si & si \\
+16 & indexOf(Object) & si & si\\
+17 & isEmpty() & si & si\\
+18 & iterator() & no & si \\
+19 & lastIndexOf(Object) & si & no \\
+20 & listIterator() & no & si \\
+21 & listIterator(int) & no & si\\
+22 & remove(int) & no & no \\
+23 & remove(Object) & no & no \\
+24 & removeAll(Collection) & no & no \\
+25 & removeFirst() & no & no \\
+26 & removeLast() & no& no  \\
+27 & retainAll(Collection) & no& no  \\
+28 & set(int,Object) & no& no  \\
+29 & size() & si & si\\
+30 & subList(int,int) & si& si\\
+31 & toArray() & si & si\\
+32 & toArray(Object[]) & si & si \\
+33 & toString() & si \\
 \hline
 \end{tabular}
 }
-\caption{Comparación entre clasificación manual e Infer sobre la API de \texttt{NodeCachingLinkedList}.}
-\label{tab:ncl-infer-comparacion}
+\caption{API de NodeCachingLinkedList de Apache con los observadores identificados manualmente y por Infer.}
+\label{tab:ncl-api}
 \end{table}
+
 
 
 Los métodos reportados como observadores por \emph{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
