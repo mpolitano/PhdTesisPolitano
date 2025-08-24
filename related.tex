@@ -12,7 +12,7 @@ casos de prueba automatizados, se aborda este mismo problema: determinar qué pa
 para el análisis. En general, esta tarea se realiza de forma manual en la mayoría de los enfoques previos.
 
 El uso de técnicas basadas en búsqueda para resolver problemas complejos en ingeniería de software es una estrategia cada vez 
-más popular, con aplicaciones exitosas en generación de inputs para pruebas \cite{Fraser:2011}, reparación de programas 
+más popular, con aplicaciones exitosas en generación de inputs para tests \cite{Fraser:2011}, reparación de programas 
 \cite{DBLP:journals/tse/GouesNFW12}, entre otros. Hasta donde tenemos conocimiento, nuestra propuesta representa 
 una aplicación novedosa de computación evolutiva en este tipo de contexto.
 
@@ -24,7 +24,7 @@ ha sido provisto, lo que contrasta con nuestra propuesta, que precisamente abord
 
 Nuestra técnica también requiere un mecanismo para identificar métodos \emph{observadores}, lo cual resolvimos realizando un análisis estático con
 la herramienta \emph{Infer}. Si bien existen enfoques previos para identificar observadores, o más precisamente métodos \emph{puros} \cite{Huang:2012,Salcianu:2005}, es importante destacar que el 
-foco de nuestro algoritmo evolutivo no está puesto en esa tarea, sino en la construcción de un conjunto mínimo y suficiente 
+foco de nuestro algoritmo evolutivo no está puesto en esa tarea, sino en la construcción de un conjunto minimal y suficiente 
 de métodos generadores de objetos.
 Además, nuestro enfoque es independiente del mecanismo utilizado para identificar observadores o métodos puros, por lo que podría 
 complementarse con trabajos previos que abordan específicamente esa problemática.
@@ -63,7 +63,7 @@ Un tipo alternativo de BEG consiste en generar todas las entradas necesarias par
 Esta es la idea detrás de la generación de tests dinámica (también llamado concolic test), una variante de la ejecución 
 simbólica \cite{Godefroid18}. Este enfoque ha sido implementado en diversas herramientas \cite{Godefroid12,Godefroid05,Pham19,Christakis15}, y ha logrado 
 con éxito generar suites con alta cobertura de código, detectar errores reales en programas y demostrar propiedades de los programas, como seguridad de memoria.
-\textsf{Kiasan} \cite{Deng06} y \textsf{FAJITA} \cite{Abad13} también son enfoques de generación de pruebas de tipo \emph{white-box}, que requieren especificaciones 
+\textsf{Kiasan} \cite{Deng06} y \textsf{FAJITA} \cite{Abad13} también son enfoques de generación de tests de tipo \emph{white-box}, que requieren especificaciones 
 formales y tienen como objetivo cubrir el comportamiento del sistema bajo prueba.
 
 La técnica de linearización ha sido empleada previamente para eliminar estructuras isomorfas en verificadores de modelos tradicionales \cite{Iosif02,Robby03}, y también 
@@ -72,4 +72,4 @@ para podar el espacio de búsqueda de entradas mediante linearización, tanto pa
 Como se indicó previamente, la ejecución concreta en \textsf{JPF} requiere que el usuario proporcione un \emph{driver}, 
 mientras que el enfoque simbólico busca cubrir caminos del sistema; en cambio, nuestro trabajo se enfoca en la 
 generación exhaustiva de entradas válidas (BEG). 
-La linearización también ha sido utilizada con éxito para la minimización de suites de pruebas \cite{Xie04}.
+La linearización también ha sido utilizada con éxito para la minimización de suites de tests \cite{Xie04}.

@@ -43,12 +43,16 @@ incluyendo: \verb"NCL" de Apache Commons Collections~\cite{apache};
 \verb"BinaryTree", \verb"BinomialHeap" y \verb"FibonacciHeap", extraídos
 de~\cite{Visser:2006}; y \verb"UnionFind", una implementación de conjuntos
 disjuntos tomada de JGrapht~\cite{jgrapht}.
-
-También se incluyeron componentes de proyectos reales de software, tales como
-\verb"Lits" de la implementación de Sat4j~\cite{sat4j}, utilizada previamente
-en~\cite{Loncaric:2018}. Esta clase representa un conjunto de variables
-booleanas, encargado de registrar cuándo se realizó la última asignación y si
-existen observadores monitoreando su estado.\pp{No se entiende qué hace Lits}
+\cacho{
+También se incluyeron componentes de proyectos reales de software, como 
+\verb"Lits" de la implementación de Sat4j~\cite{sat4j}, utilizada previamente 
+en~\cite{Loncaric:2018}. \verb"Lits" implementa la interfaz \verb"ILits" y 
+administra el “vocabulario” interno del solver (variables y literales): traduce 
+literales desde DIMACS a la representación interna, registra el nivel de decisión 
+o propagación asociado a cada literal, y mantiene las listas de observación 
+(\emph{watch lists}) usadas en la propagación booleana unitaria. En la práctica, 
+esto equivale a guardar cuándo se asignó por última vez un literal y qué 
+restricciones lo observan}
 
 Por otro lado, se consideraron estructuras adicionales como \verb"Scheduler",
 un planificador de procesos tomado del conjunto de benchmarks SIR~\cite{sir},
@@ -62,19 +66,43 @@ package-summary.html}}, incluyendo \verb"TreeMap", \verb"TreeSet",
 
 Para evaluar la precisión de nuestros algoritmos, se construyó manualmente un
 conjunto de referencia o \emph{ground truth} que contiene los métodos
-generadores considerados mínimos y suficientes en cada caso de estudio. Esta
+generadores considerados minimales y suficientes en cada caso de estudio. Esta
 tarea implicó un análisis detallado y manual de cada API, lo que representó un
 trabajo considerable, especialmente en los casos más complejos. La
 Tabla~\ref{tab:groundTruth} resume este conjunto de referencia, indicando para
 cada clase el número total de métodos en su API pública (\#API) y los métodos
 identificados manualmente como generadores de objetos. Cabe destacar que en algunos
 casos ciertos métodos pueden ser intercambiables (por ejemplo,
-\texttt{addFirst} y \texttt{addLast} en \texttt{NCL}). \pp{el encabezado de la
-tabla está en inglés. No usamos la palabra builders acá. Y el caption? No se
-entiende que dice.}
+\texttt{addFirst} y \texttt{addLast} en \texttt{NCL}).
 
 
 \subsubsection{Algoritmos evaluados.}
+
+\cacho{NUEVO:}
+El objetivo de esta sección es identificar automáticamente el subconjunto de métodos generadores de cada API. 
+Modelamos la tarea como un problema de búsqueda sobre subconjuntos \(M \subseteq API\) y empleamos distintos algoritmos 
+para explorar ese espacio. La calidad de cada candidato \(M\) se evalúa mediante funciones objetivo 
+(\emph{fitness}) definidas en las secciones citadas.
+
+\paragraph{Algoritmos}
+\begin{itemize}
+  \item \textbf{GA} (\emph{Algoritmo Genético}; véase Sección~\ref{alg:approachGA}): explora subconjuntos de métodos generadores mediante operadores de cruce y mutación, con selección por torneo.
+  \item \textbf{HC} (\emph{Hill-Climbing}; \S~\ref{alg:approachHC}): búsqueda local que parte de una solución inicial y aplica modificaciones incrementales aceptando únicamente mejoras según la función objetivo.
+\end{itemize}
+
+\paragraph{Funciones objetivo}
+Usamos dos funciones objetivo alternativas para evaluar cada conjunto candidato de métodos, 
+que dan lugar a las variantes reportadas en las tablas:
+
+\begin{itemize}
+  \item \textbf{GE} (\emph{Generación Exhaustiva}; Sección~\ref{sec:fitnessGE}):
+mide la cantidad/calidad de objetos distintos alcanzados mediante generación exhaustiva hasta un \emph{scope} fijado.
+  \item \textbf{RC} (\emph{Randoop Coverage}; Sección~\ref{sec:fitnessRandoop}): maximiza la cobertura de código (líneas y ramas) alcanzada por los tests generados con Randoop restringidas al conjunto candidato. 
+\end{itemize}
+
+% \paragraph{Convenciones de nombres}
+% Cuando un algoritmo se evalúa con una función objetivo específica, usamos la notación \textbf{Algoritmo–Fitness}. 
+% Por ejemplo: \textbf{GA–GE}, \textbf{GA–RC}, \textbf{HC–GE}, \textbf{HC–RC}.
 
 \pp{Falta describir brevemente los algoritmos evaluados, citando las secciones
 correspondientes, y las funciones de fitness. Y darles los nombres abreviados
@@ -86,61 +114,33 @@ que después aparecen en las tablas.}
 % genético incluyen la tasa de mutación, la tasa de cruce, el tamaño de la
 % población y la estrategia de selección utilizada.
 
-Nuestros algoritmos requieren la configuración de diversos parámetros que influyen en su eficiencia y
-efectividad. En particular, los parámetros más relevantes para el algoritmo
-genético ((Sección~\ref{alg:approachGA})) incluyen la tasa de mutación, la tasa de cruce, el tamaño de la
-población y la estrategia de selección utilizada. \pp{Este párrafo está repetido
-abajo agregando solo los valores para los parámetros. Por qué no ponerlos
-acá directamente?}
+\cacho{Esto es nuevo}
+Nuestros algoritmos requieren la configuración de diversos parámetros que influyen en su eficiencia y efectividad.
+En particular, para el algoritmo genético (Sección~\ref{alg:approachGA}) utilizamos una tasa de cruce de 0{,}40, una tasa de mutación de 0{,}05, 
+selección por torneo con cuatro participantes, una población de 100 individuos y 20 generaciones por ejecución. 
+Estos valores se determinaron empíricamente mediante prueba y error, priorizando la eficiencia y la estabilidad de las soluciones y se mantuvieron constantes en todos los experimentos.
 
-Para las evaluaciones que utilizan la función de valoración basada en Randoop
-(Sección~\ref{sec:fitnessRandoop}), es importante considerar el tiempo
-disponible para la generación de objetos y el valor de la semilla aleatoria.
-Randoop utiliza esta semilla para controlar la generación de pruebas y
+Para las evaluaciones con la función objetivo basada en Randoop (Sección~\ref{sec:fitnessRandoop}), 
+fijamos un tiempo máximo de ejecución de 30 segundos por candidato 
+y controlamos la aleatoriedad mediante semillas. Randoop utiliza esta semilla para controlar la generación de tests y
 permitir la reproducción de resultados. Dado que Randoop introduce un grado
-considerable de aleatoriedad, optamos por utilizar una semilla aleatoria
-diferente en cada ejecución para evaluar la robustez de nuestro enfoque bajo
-distintos escenarios. \pp{Este párrafo está repetido
-abajo agregando solo los valores para los parámetros. Por qué no ponerlos
-acá directamente?}
+considerable de aleatoriedad, optamos por utilizar dos semillas distintas para capturar la variabilidad introducida por el 
+generador aleatorio, registrándolas para permitir la reproducción de resultados. 
+Esta configuración proporciona una medida más robusta del desempeño de los algoritmos en contextos con 
+elementos no determin\'isticos.
 
-En el caso de la función de valoración basada en generación exhaustiva
-(Sección~\ref{sec:fitnessGE}), es crucial definir el \emph{scope}, es decir, la
-cantidad máxima de objetos por clase que se pueden generar. Además, se omiten
-ciertos campos internos de las clases bajo análisis que no afectan la
-estructura lógica de los objetos generados, tales como el campo
-\texttt{modCount}, común en muchas colecciones de Java, que simplemente cuenta
-el número de modificaciones internas pero no altera la estructura observada
-del objeto. \pp{Este párrafo está repetido
-abajo agregando solo los valores para los parámetros. Por qué no ponerlos
-acá directamente?}
+En el caso de la función objetivo basada en generación exhaustiva (Sección~\ref{sec:fitnessGE}),
+el parámetro central es el \emph{scope}, entendido como la cantidad máxima de objetos por clase/tipo que pueden crearse durante la evaluación.
+En nuestros experimentos fijamos \(k=5\), es decir, un máximo de cinco objetos por tipo para cada conjunto candidato de métodos generadores. 
+Además, para evitar diferencias espurias que no reflejan cambios semánticos en la representación, 
+omitimos campos internos que no afectan la estructura lógica de los objetos generados (por ejemplo, \texttt{modCount}, común en colecciones de Java), 
+el cual sólo contabiliza modificaciones internas sin alterar la estructura observada del objeto. \pp{Yo no pondría esto último porque no recuerdo que lo
+hayamos explicado en ningún lado.} \cacho{Hay un apartado pequeño, lo podemos charlar}
 
-Los valores de configuración utilizados en los experimentos fueron determinados empíricamente mediante un proceso de prueba y error,
-como es habitual en el diseño y ajuste de algoritmos genéticos. 
-Se seleccionaron aquellos parámetros que ofrecieron los mejores resultados en términos de eficiencia y estabilidad de las soluciones encontradas. 
-Para el algoritmo genético (descrito en la Sección~\ref{sec:fitnessGE}), se utilizó una tasa de cruce de 0.4 y una tasa de mutación de 0.05. 
-La estrategia de selección adoptada fue la de torneo, con cuatro participantes por torneo, y se empleó una población de 100 individuos, 
-evolucionando durante 20 generaciones por ejecución.
-
-En lo que respecta a la función de valoración basada en Randoop (descrita en la Sección~\ref{sec:fitnessRandoop}),
-se configuró un tiempo máximo de ejecución de 30 segundos por candidato, 
-y se emplearon dos semillas distintas en cada ejecución para capturar la variabilidad introducida por
-el car\'acter aleatorio del generador. Esta configuración permite obtener una medida más robusta del desempeño 
-de los algoritmos en contextos con elementos no determin\'isticos.
-
-Por otro lado, en la función de valoración basada en generación exhaustiva (también discutida en la Sección~\ref{sec:fitnessGE}), 
-se estableció un scope de 5, es decir, el número máximo de objetos de cada tipo que se generan para evaluar cada conjunto candidato de métodos
-constructores. Además, se ignoraron campos de las clases evaluadas que no
-alteran la estructura lógica de los objetos generados, tales como el campo
-\texttt{modCount}. \pp{Yo no pondría esto último porque no recuerdo que lo
-hayamos explicado en ningún lado.}
-
-Para cada combinación de caso de estudio y función de valoración, el algoritmo
-genético fue ejecutado cinco veces con los parámetros mencionados \pp{Y HC}. Los
+Para cada combinación de caso de estudio y función objetivo, el algoritmo
+genético y el de \emph{Hill Climbing} fue ejecutado cinco veces con los parámetros mencionados. Los
 resultados reportados en las siguientes secciones corresponden al promedio de
-estas ejecuciones. En el caso particular de la función de valoración \pp{no
-usamos el término función de valoración. Siempre pusimos función objetivo.
-Chequeuar en todos lados.} basada en
+estas ejecuciones. En el caso particular de la función objetivo basada en
 generación exhaustiva, no fue necesario realizar múltiples repeticiones, dado
 que dicha evaluación es determinística bajo una misma configuración.
 
@@ -158,14 +158,14 @@ generadores de objetos a partir de la API.
 %para obtener las soluciones. 
 Comparamos los resultados obtenidos con la técnica evolutiva (\emph{GA}) y con
 la técnica greedy (\emph{HC}), y combinamos ambos enfoques en las distintas
-funciones objetivo propuestas \pp{Nombres}. Los resultados se presentan en la Tabla \ref{tab:eficiencia}.
+funciones objetivo propuestas (\emph{RC} y \emph{GE}). Los resultados se presentan en la Tabla \ref{tab:eficiencia}.
 \pp{Corregir el caption de la tabla.}
 
 Como se observa en la tabla, el algoritmo Hill Climbing (\emph{HC}) es más
-efectivo \pp{eficiente?} que el algoritmo genético (\emph{GA}) en todos los casos de estudio considerados.
+eficiente que el algoritmo genético (\emph{GA}) en todos los casos de estudio considerados.
 El enfoque de Hill Climbing es razonablemente eficiente, tardando solo 20 minutos en el peor de los casos (NCL, debido a la cantidad y complejidad
 de su API), mientras que el algoritmo genético puede tardar mas de una hora en
-el peor de los casos \pp{Cuál?}. \pp{Hay que poner tiempos promedios además del
+el peor de los casos (\emph{HashSet}). \pp{Hay que poner tiempos promedios además del
 peor caso. Y agregarlos a las tablas.}.
 
 \pp{Faltan los tiempos promedios}. 
@@ -176,25 +176,20 @@ peor caso. Y agregarlos a las tablas.}.
 %Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más rápidamente que el algoritmo Hill Climbing.
 %
 
-En relaci\'on con las funciones de valoraci\'on \pp{funciones objetivo las
-llamamos en toda la tesis. Si la vas a llamar función de valoración hay que
-cambiarlo en todos lados}, observamos que la basada en el generador exhaustivo (GE) logra 
+En relación con las funciones objectivo, observamos que la basada en el generador exhaustivo (GE) logra 
 finalizar la búsqueda de métodos generadores de objetos en menos tiempo en comparación con la función basada en la 
-cobertura generada por la suite de pruebas \pp{No usar más la palabra pruebas.
-Es tests. O cambiarla en toda la tesis.} el algoritmo \pp{Poner el nombre del
+cobertura generada por la suite de tests el algoritmo \pp{Poner el nombre del
 algoritmo, y la sección donde está} (RC). \pp{Hay que poner tiempos promedios
 para explicar esto. Y agregarlos a las tablas.}.
 
 Esto se aplica a todos los algoritmos implementados. La función 
-de valoración GE termina antes en los algoritmos debido a que genera objetos
-\pp{para un scope que debe ser especificado manualmente por el usuario. } (en este caso, 5 para todos 
+objetivo GE termina antes en los algoritmos debido a que genera objetos 
+para un scope que debe ser especificado manualmente por el usuario (en este caso, 5 para todos 
 los casos \pp{esto va antes, cuando se presentan los algoritmos}). Todas tienen un \emph{timeout} de 
 30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
 la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. Esto permite
-que \pp{Nombre del algoritmo} más rápida \pp{cuánto?} en comparación 
-con la función de valoración \pp{objetivo} basada en Randoop \pp{No es basada en Randoop, es
-el algoritmo presentado en la sección correspondiente. Sino le bajás el
-precio.}. En cambio, el algoritmo \pp{XX} debe agotar su presupuesto de tiempo
+que GE más rápida \pp{cuánto?} en comparación 
+con la función objetivo RC. En cambio, el algoritmo HC debe agotar su presupuesto de tiempo
 para cada candidato considerado. \pp{Sin embargo, la función objetivo basada en 
     algoritmo XX no requiere que el usuario provea la definición del scope, y
     podría ser más escalable que la generación exhaustiva acotada en casos donde
@@ -202,12 +197,8 @@ la cantidad de objetos a generar crezca exponencialmente respecto de los scopes
 (ver si hay alguno). Como trabajos futuros se planean realizar más experimentos 
 para evaluar esta hipótesis.}
 
-Es importante destacar que todos los algoritmos se ejecutan con 10 hilos
-simultáneamente, evaluando así 10 candidatos a la vez para cada algoritmo
-\pp{Esto se contradice con lo que dice la sección de genéticos}.
-
 En conclusión, en términos de eficiencia de nuestro algoritmo, para los casos estudiados en esta tesis, es conveniente utilizar el 
-algoritmo Hill Climbing con una función de valoración que cuente los objetos
+algoritmo Hill Climbing con una función objetivo que cuente los objetos
 generados por el generador exhaustivo (\emph{GE}). \pp{La conclusión (respuesta
     a la RQ) tiene que ser con números promedio para cada algoritmo, y debe contrastar los
 algoritmos y las funciones de valuación.}
@@ -217,44 +208,29 @@ algoritmos y las funciones de valuación.}
 \subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
 La efectividad de nuestros algoritmos se mide en función de cuán cercanos están
-a identificar el conjunto mínimo \pp{Minimal. Tener en cuenta los términos
-precisos que usamos durante toda la tesis.} de métodos 
+a identificar el conjunto minimal de métodos 
 generadores de objetos a partir de una API. 
 Cabe destacar que en todos los casos, nuestros algoritmos 
 logran identificar al menos un subconjunto suficiente de métodos generadores de objetos. No obstante, cuanto más reducido sea este subconjunto, el resultado se condsidera mejor desde el punto de vista de la
-usabilidad de los generadores de objetos para el análisis de programas.
+usabilidad de los generadores de objetos para el análisis de programas. (véase Tabla~\ref{tab:eficiencia}).
 
-Los experimentos se realizaron utilizando las estructuras de datos ya detalladas en la primera sección de este capítulo. Se evaluaron 
-los dos algoritmos: Hill Climbing (\emph{HC}), un algoritmo genético (\emph{GA}). Para cada uno de ellos, 
-se aplicaron dos funciones de valoración: una basada en el generador exhaustivo 
-(\emph{GE}) y otra basada en la cobertura de ramas obtenida a partir de una
-suite de pruebas generada con Randoop (\emph{RC}) \pp{Todo esto ya está dicho
-arriba}.
-Es importante señalar que la función de valoración basada en Randoop depende de una semilla aleatoria, lo que introduce cierta 
-variabilidad en los resultados. Esta función mide la cobertura alcanzada durante la ejecución de la suite generada, y puede arrojar 
-diferentes valores dependiendo de la semilla inicial \pp{Esto va en la
-definición de los algoritmos arriba. Y hay que explicar como mitigamos este
-problema, o sino directamente capaz que no lo mencionamos.}.
-
-En el caso de la estructura \emph{NCL}, el algoritmo \emph{HC} utilizando la
-función de valoración \emph{GE} \pp{Creo que le pondría HC+GE, porque sino es
-muy repetitivo y largo todo el texto.} logra encontrar el 
-conjunto mínimo exacto de métodos generadores en todas las ejecuciones. Sin embargo, cuando se utiliza la función \emph{RC}, 
-el mismo algoritmo encuentra en promedio un conjunto con 3.80 métodos \pp{acá el
+En el caso de \emph{NCL}, \textbf{GA+GE} encuentra el conjunto minimal exacto de métodos generadores en todas las ejecuciones.
+Sin embargo, con \textbf{GA+RC} el conjunto hallado tiene en promedio \(\mathbf{3{,}80}\) métodos, \pp{acá el
 promedio no es lo mejor, habría que explicar los casos por separado. Pero ya lo
-hiciste así que fue. si lo cambiamos va a ser mucho laburo.}, lo que indica que en tres de las cinco ejecuciones se incluyó 
-un método adicional no necesario. Por su parte, el algoritmo evolutivo
-(\emph{GA}) encuentra en todas las ejecuciones los metodos correctos con ambas
-funciones de valoracion \pp{No es lo que dice la tabla}. \pp{El caption de la
-tabla hay que mejorarlo.} \pp{La tabla no está referenciada en el texto?}
+hiciste así que fue. si lo cambiamos va a ser mucho laburo.}
+lo que indica que en tres
+de las cinco ejecuciones se incluyó un método adicional no necesario.
+Por su parte, el algoritmo de \emph{Hill Climbing}
+(\emph{HC}) encuentra en todas las ejecuciones los metodos correctos con ambas
+funciones objetivo.
 
 En estructuras como \emph{UnionFind}, \emph{FibonacciHeap}, \emph{BTree}, \emph{BinomialHeap} y \emph{Scheduler}, todos los 
-algoritmos evaluados lograron encontrar el conjunto mínimo exacto de métodos
-\emph{builders} \pp{No usar builders.}. Esto puede atribuirse a que estas 
+algoritmos evaluados lograron encontrar el conjunto minimal exacto de métodos
+generadores de objectos. Esto puede atribuirse a que estas 
 estructuras presentan un menor número de métodos en su API, y sus invariantes son relativamente simples en comparación con otras 
 clases evaluadas.
 
-Para la estructura \emph{Lits}, la función de valoración basada en el generador exhaustivo (\emph{GE}) tiende a incluir al menos un 
+Para la estructura \emph{Lits}, la función objetivo basada en el generador exhaustivo (\emph{GE}) tiende a incluir al menos un 
 método adicional. Este fenómeno se debe a cómo el generador maneja los valores iniciales de los arreglos internos en la clase 
 \emph{List}. En particular, \emph{Lits} forma parte de una biblioteca Java utilizada para resolver problemas de satisfacibilidad 
 booleana (SAT), y contiene colecciones que almacenan literales. Algunos métodos permiten crear o modificar arreglos con literales, 
@@ -262,13 +238,44 @@ pero el generador exhaustivo, sujeto al \emph{scope} limitado y a los valores in
 utilizar métodos adicionales. Es importante aclarar que esto no implica que dichos métodos adicionales sean verdaderos generadores, 
 sino que bajo las restricciones actuales (como el \emph{scope} configurado), no existe otra vía para construir determinadas 
 estructuras sin agregarlos. Si se incrementa el \emph{scope} o se modifica la clase para exponer mejor sus constructores, entonces 
-se logra encontrar el conjunto mínimo real \pp{Y por qué no hicimos esto en
-lugar de que calcule mal? No entiendo bien el problema, hay que charlarlo.} En contraste, la función \emph{RC} encuentra siempre el conjunto mínimo, dado que su 
+se logra encontrar el conjunto minimal real \pp{Y por qué no hicimos esto en
+lugar de que calcule mal? No entiendo bien el problema, hay que charlarlo.} En contraste, la función \emph{RC} encuentra siempre el conjunto minimal, dado que su 
 evaluación no depende del \emph{scope}, sino de la cobertura lograda en ejecución.
+
+
+Para la estructura \emph{Lits}, la función objetivo basada en el generador
+exhaustivo (\emph{GE}) tiende a incluir al menos un método adicional. Este
+fenómeno se debe a cómo el generador maneja los valores iniciales de los
+arreglos internos en la clase \emph{Lits}. En particular, \emph{Lits} forma
+parte de una biblioteca Java utilizada para resolver problemas de
+satisfacibilidad booleana (SAT), y contiene colecciones que almacenan
+literales. Algunos métodos permiten crear o modificar arreglos con literales,
+pero el generador exhaustivo, sujeto al \emph{scope} limitado y a los valores
+iniciales, no logra producir ciertos arreglos sin utilizar métodos adicionales.
+Es importante aclarar que esto no implica que dichos métodos adicionales sean
+verdaderos generadores, sino que bajo las restricciones actuales (como el
+\emph{scope} configurado), no existe otra vía para construir determinadas
+estructuras sin agregarlos. Si se incrementa el \emph{scope} o se modifica la
+clase para exponer mejor sus constructores, entonces se logra encontrar el
+conjunto minimal real \pp{Y por qué no hicimos esto en lugar de que calcule
+mal? No entiendo bien el problema, hay que charlarlo.} 
+\cacho{Nuevo}
+Para este trabajo mantuvimos un \emph{scope} fijo (\(k=5\)) para asegurar
+la comparación entre sujetos y un presupuesto de búsqueda
+constante. Aumentar \(k\) incrementa el costo de forma combinatoria. Del mismo
+modo, no modificamos la clase (p.\,ej., exponiendo constructores adicionales)
+porque alteraría el sujeto bajo prueba y sesgaría la comparación entre casos.
+Bajo estas restricciones, el desvío de \emph{GE} en \emph{Lits} se interpreta
+como una limitación operativa del criterio (no del algoritmo), que desaparece
+si se relajan las restricciones.
+
+En contraste, la función \emph{RC} encuentra siempre el conjunto minimal, dado que su
+evaluación no depende del \emph{scope}, sino de la cobertura lograda en
+ejecución.
 
 En las estructuras pertenecientes al paquete \emph{java.util}, como \emph{TreeMap}, \emph{TreeSet}, \emph{HashMap}, \emph{HashSet} y \emph{LinkedList}, 
 el comportamiento de los algoritmos evaluados varía significativamente en función de la complejidad de la estructura, 
-el tamaño de la API y la función de valoración utilizada.
+el tamaño de la API y la función objetivo utilizada.
 
 El algoritmo genético (\emph{GA}), en combinación con la función de cobertura (\emph{RC}), muestra una mayor tendencia a incluir métodos 
 adicionales en el conjunto resultante, especialmente en estructuras donde existen muchas formas alternativas de construir una instancia válida. 
@@ -289,13 +296,13 @@ En el caso específico de \emph{HashMap}, incluso la función \emph{GE} tiende a
 necesario para construir configuraciones específicas que de otro modo no serían alcanzables bajo el \emph{scope} definido. \pp{No debería pasar esto en teoría. Hay que charlarlo.}.
 
 En contraste, el algoritmo \emph{HC} muestra mayor estabilidad en la precisión, 
-logrando identificar el conjunto mínimo en la mayoría de los casos, 
-independientemente de la función de valoración empleada. Su comportamiento determinista y 
+logrando identificar el conjunto minimal en la mayoría de los casos, 
+independientemente de la función objetivo empleada. Su comportamiento determinista y 
 su foco en mejoras incrementales lo hacen menos propenso a incluir métodos redundantes, 
 aunque esto también puede limitar su capacidad de escape ante óptimos locales \pp{No debería pasar esto en teoría, salvo que
 no le alcance el tiempo al genético. Hay que charlarlo.}.
 
-En resumen, la precisión alcanzada por los algoritmos depende fuertemente tanto de la estrategia de búsqueda como de la función de valoración. 
+En resumen, la precisión alcanzada por los algoritmos depende fuertemente tanto de la estrategia de búsqueda como de la función objetivo. 
 La exploración estocástica de \emph{GA} le permite descubrir soluciones diversas, 
 pero también lo expone a converger en conjuntos sobredimensionados si la presión selectiva o la función de evaluación no están cuidadosamente diseñadas. 
 Estos resultados destacan la necesidad de calibrar adecuadamente los parámetros y de considerar cuidadosamente la métrica de evaluación para lograr una identificación eficiente y precisa de métodos generadores.
@@ -307,7 +314,7 @@ software}
 En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
 identificados previamente, en el contexto de la generación automatizada de casos de prueba. 
 Estos métodos permiten crear instancias válidas de estructuras de datos, que pueden ser utilizadas como 
-entradas en pruebas unitarias o pruebas basadas en propiedades.
+entradas en tests unitarios o tests basadas en propiedades.
 
 Para aquellos casos de estudio cuyas clases permiten medir el tamaño de los objetos generados 
 (mediante el método \texttt{size()}) y comparar objetos por igualdad (a través de \texttt{equals()}), 
@@ -319,7 +326,7 @@ configuraciones distintas: (i) utilizando toda la API disponible de la clase baj
 
 Para ambas configuraciones, medimos la \textit{cantidad de objetos distintos 
 generados} (\textit{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
-pruebas: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la Tabla~\ref{tab:results-obj}.
+tests: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la Tabla~\ref{tab:results-obj}.
 
 Los resultados muestran de forma consistente que el uso exclusivo de los métodos generadores 
 permite generar una cantidad significativamente mayor de objetos válidos en comparación con el uso 
@@ -330,7 +337,7 @@ Estos hallazgos ponen de manifiesto el impacto positivo de identificar automáti
 generadores adecuados. Su utilización en herramientas de prueba como \emph{Randoop} mejora sustancialmente 
 la calidad y diversidad de los objetos generados, lo cual es especialmente relevante para clases con 
 estado interno complejo. Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
-constituye una estrategia efectiva y valiosa para potenciar la generación automatizada de pruebas.
+constituye una estrategia efectiva y valiosa para potenciar la generación automatizada de tests.
 \input{tables/objectsBuilders.tex}
 
 \vspace{10pt}
@@ -342,7 +349,7 @@ Este experimento lo evaluamos en los casos de estudio del paquete \texttt{java.u
 
 Las técnicas de verificación de modelos requieren definir \emph{controladores de prueba}, es decir, 
 secuencias de métodos que permitan construir las entradas sobre las que se analizará el programa. 
-Idealmente, estas secuencias deberían generarse a partir del conjunto mínimo de métodos que permitan 
+Idealmente, estas secuencias deberían generarse a partir del conjunto minimal de métodos que permitan 
 construir todas las instancias posibles dentro de un alcance definido (\emph{scope}). Sin embargo, 
 la selección manual de estos métodos representa una barrera significativa para el uso de herramientas 
 como JPF, ya que requiere un análisis exhaustivo de la API y una comprensión detallada de la 
@@ -390,9 +397,9 @@ determinista.
 \end{lstlisting}
 
 Para mitigar esta explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
-detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion de valoracion de \emph{RC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
+detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{RC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
 Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
-\texttt{TreeMap} selecciona sólo dos métodos, suficientes y mínimos, para generar todas las instancias 
+\texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
 válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
 de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
 
@@ -437,7 +444,7 @@ en la API no contribuyen a la diversidad estructural de las entradas, sino que s
 complejidad innecesaria en el espacio de búsqueda.
 
 En resumen, estos resultados evidencian que la identificación automática de métodos generadores no 
-solo mejora la calidad de las entradas en contextos como la generación de pruebas, sino que también 
+solo mejora la calidad de las entradas en contextos como la generación de tests, sino que también 
 es una estrategia efectiva para escalar técnicas de verificación formal a estructuras de datos más 
 complejas. Al eliminar métodos superfluos y reducir el espacio de búsqueda, se mejora significativamente 
 el rendimiento de herramientas como JPF, sin sacrificar precisión ni completitud en el análisis.
@@ -722,8 +729,8 @@ utilidad de los métodos generadores identificados mediante nuestro enfoque, par
 en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 
 objetos que pueden utilizarse como entradas en test suites parametrizadas.
 
-Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en pruebas 
-automatizadas. En lugar de definir casos de prueba específicos para cada configuración, se 
+Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en tests 
+automatizados. En lugar de definir casos de prueba específicos para cada configuración, se 
 establece una única prueba que se ejecuta múltiples veces con distintos parámetros. En nuestro 
 contexto, dichos parámetros son objetos generados por distintas técnicas, los cuales sirven como 
 entrada a los métodos de la clase bajo prueba.
@@ -731,7 +738,7 @@ entrada a los métodos de la clase bajo prueba.
 Para llevar a cabo este experimento, diseñamos una test suite parametrizada en la que cada método 
 público de la clase bajo análisis es ejercitado con objetos generados por distintas técnicas. Las 
 herramientas utilizadas para generar estos objetos fueron: la versión estándar de Randoop, que 
-genera directamente una suite de pruebas sin reutilizar objetos previos; una variante de Randoop 
+genera directamente una suite de tests sin reutilizar objetos previos; una variante de Randoop 
 denominada \emph{R-Serialize}, que serializa los objetos construidos durante la generación de 
 tests, permitiendo su reutilización como entrada en tests parametrizados; una versión modificada 
 de Randoop que prioriza el uso de métodos generadores de objetos identificados previamente mediante 

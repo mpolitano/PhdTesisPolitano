@@ -197,8 +197,8 @@ Esta técnica será detallada en las siguientes secciones, y busca ofrecer una s
 \section[BEAPI]{BEAPI}
 \label{sec:beapiIntro}
 \cacho{Es nuevo esto:}
-En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos, haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de pruebas dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
-El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de pruebas basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test \cite{Ammann16}, y las ejecuta para generar estructuras. 
+En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos, haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de tests dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
+El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de tests basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test \cite{Ammann16}, y las ejecuta para generar estructuras. 
 
 \section{Visión general de BEAPI}
 \label{sec:beapi-overview}
@@ -216,9 +216,9 @@ La Figura~\ref{fig:beapi-overview} muestra una visión general de la herramienta
 de generación exhaustiva acotada de objetos mediante llamadas exclusivamente a 
 la API de un módulo. 
 
-Este enfoque se basa en la generación de pruebas dirigida por retroalimentación 
+Este enfoque se basa en la generación de tests dirigida por retroalimentación 
 (\emph{feedback-directed test generation}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
-Al igual que otros enfoques de generación de pruebas basados en API, 
+Al igual que otros enfoques de generación de tests basados en API, 
 \textsf{BEAPI} construye secuencias de llamadas a métodos de la API 
 (\emph{test sequences}~\cite{Ammann16}) y las ejecuta para producir estructuras.
 
@@ -239,7 +239,7 @@ Como entradas, \textsf{BEAPI} recibe:
 Como salidas, \textsf{BEAPI} produce:
 \begin{itemize}
     \item un conjunto acotado y exhaustivo de objetos generados;
-    \item una suite de pruebas \texttt{JUnit}~\cite{junit} con las secuencias 
+    \item una suite de tests \texttt{JUnit}~\cite{junit} con las secuencias 
     utilizadas para generar cada objeto;
     \item otra suite con secuencias que revelan errores en los métodos utilizados 
     para la generación.
@@ -303,7 +303,7 @@ Estas optimizaciones son:
       secuencias de métodos exploradas previamente. Esta técnica se describe en detalle en la sección \ref{sec:stateMatching}.
     \item \textbf{Selección de métodos generadores:} utiliza un subconjunto 
       de métodos de la API identificado mediante un algoritmo \emph{greedy} y 
-      una función de valoración para maximizar la cantidad de objetos generados 
+      una función objetivo para maximizar la cantidad de objetos generados 
       en el menor tiempo (Capítulo~\ref{cap:builders}).
 \end{enumerate}
 
@@ -806,14 +806,14 @@ Además, se establece \texttt{hayNuevas} en verdadero para indicar que al menos 
 Este proceso se repite para los objetos canónicos \texttt{c$_2$,$\ldots$,c$_n$,c$_r$} (líneas 20-25).
 
 
-\textsf{BEAPI} distingue los fallos del mal uso de la API en función del tipo de excepción (similarmente a las técnicas anteriores de generación de pruebas basadas en API \cite{Pacheco07}). 
+\textsf{BEAPI} distingue los fallos del mal uso de la API en función del tipo de excepción (similarmente a las técnicas anteriores de generación de tests basadas en API \cite{Pacheco07}). 
 Por ejemplo, \\
 \texttt{IllegalArgumentException} y \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos de manera predeterminada. 
 La implementación de \textsf{BEAPI} permite al usuario seleccionar las excepciones que corresponden a fallos y aquellas que no, configurando los parámetros correspondientes. 
 Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no se pueden ejecutar con entradas inválidas. 
 Sostenemos que esta es una práctica común, llamada programación defensiva \cite{Liskov00}, 
 que todos los programadores deberían seguir, ya que resulta en un código más robusto y 
-mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de pruebas automatizadas). 
+mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de tests automatizadas). 
 También argumentamos en la Sección~\ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que escribir \texttt{repOK}s precisos (y eficientes) para BEG, 
 y esto era cierto después de inspeccionar manualmente el código fuente de nuestros casos de estudio. 
 Por otro lado, ten en cuenta que \textsf{BEAPI} puede utilizar especificaciones formales para revelar errores en la API, por ejemplo, 
@@ -829,7 +829,7 @@ Esto contrasta con los enfoques basados en especificaciones (que generan un conj
 Encontrar una secuencia de invocaciones a métodos de la API que creen una estructura específica es un problema difícil en sí mismo, 
 que puede ser bastante costoso computacionalmente \cite{Braione17} o requerir un esfuerzo significativo para realizarlo manualmente. 
 Por lo tanto, a menudo los objetos generados por enfoques basados en especificaciones están "incrustados" cuando se utilizan para probar un SUT 
-(por ejemplo, mediante el uso de reflexión en Java), lo que hace que las pruebas sean muy difíciles de entender y mantener, ya que dependen de los detalles de implementación de bajo nivel de las estructuras \cite{Braione17}.
+(por ejemplo, mediante el uso de reflexión en Java), lo que hace que los tests sean muy difíciles de entender y mantener, ya que dependen de los detalles de implementación de bajo nivel de las estructuras \cite{Braione17}.
 
 A continuación, comentamos los detalles del bucle \texttt{for} en las líneas 6--28 del Algoritmo~\ref{fig:beapi-algorithm}. 
 En primer lugar, se obtienen todas las secuencias que se pueden utilizar para construir entradas para \texttt{m} en \texttt{seqsT$_1$}, \ldots, \texttt{seqsT$_n$}. 
@@ -849,7 +849,7 @@ Si no se presenta ninguna de las situaciones anteriores, significa que la secuen
 A continuación, \textsf{BEAPI} realiza \textit{state matching} verificando que cada \texttt{c$_i$} de tipo de referencia no haya sido creada anteriormente (líneas~20--25).  
 El conjunto \texttt{canonicalStrs} almacena todas las estructuras ya vistas; si \texttt{c$_i$} es nueva, se agrega a \texttt{canonicalStrs} (línea~22) y se añade \texttt{newSeq} al conjunto de secuencias asociadas al tipo \texttt{T$_i$} (línea~24), estableciendo \texttt{newStrs} en \texttt{true} para indicar que al menos se ha generado una estructura nueva en la iteración actual.  
 
-\textsf{BEAPI} distingue fallos de mal uso de la API en función del tipo de excepción (similar a técnicas previas de generación de pruebas basadas en API~\cite{Pacheco07}).  
+\textsf{BEAPI} distingue fallos de mal uso de la API en función del tipo de excepción (similar a técnicas previas de generación de tests basadas en API~\cite{Pacheco07}).  
 Por ejemplo, \texttt{IllegalArgumentException} e \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos por defecto.  
 La implementación permite al usuario configurar qué excepciones se interpretan como fallos y cuáles no.  
 Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones al recibir entradas inválidas, una práctica conocida como \textit{defensive programming}~\cite{Liskov00} que mejora la robustez del código y facilita las pruebas~\cite{Ammann16}.  
@@ -859,7 +859,7 @@ Sin embargo, estas especificaciones no necesitan ser muy precisas (por ejemplo, 
 También puede emplear otras especificaciones más simples, como propiedades metamórficas~\cite{Chen19}, invariantes del lenguaje (p.ej., \texttt{equals} como relación de equivalencia) o \texttt{assert}s proporcionados por el usuario.  
 
 Finalmente, una ventaja clave de \textsf{BEAPI} es que, para cada objeto generado, produce una secuencia de prueba ejecutable que lo construye, a diferencia de los enfoques basados en \texttt{repOK}, donde los objetos generados suelen incrustarse mediante reflexión.  
-Esto facilita la comprensión y el mantenimiento de las pruebas, y evita depender de detalles internos de implementación~\cite{Braione17}.
+Esto facilita la comprensión y el mantenimiento de los tests, y evita depender de detalles internos de implementación~\cite{Braione17}.
 
 
 \subsection{Visión general de BEAPI}
@@ -871,8 +871,8 @@ y un archivo los métodos de la clase objetivo que serán utilizados para la gen
 
 
 Como salidas, BEAPI produce, un conjunto acotado y exhaustivo de objetos generados, 
-un conjunto de pruebas \texttt{JUnit}~\cite{junit} con las secuencias de métodos utilizadas para generar cada objeto,
-y otro conjunto de pruebas que revelan errores (si los hubiera) en los métodos utilizados para la generación.
+un conjunto de tests \texttt{JUnit}~\cite{junit} con las secuencias de métodos utilizadas para generar cada objeto,
+y otro conjunto de tests que revelan errores (si los hubiera) en los métodos utilizados para la generación.
 
 % \subsection{Entradas de BEAPI}
 
@@ -918,7 +918,7 @@ A partir de estas, se construyen secuencias de longitud 2, agregando una invocac
 Este proceso se repite iterativamente, generando secuencias de longitud 3, 4, y así sucesivamente.
 
 El proceso continúa hasta que las secuencias de longitud $k$ ya no generan nuevos objetos dentro del alcance definido por los \emph{scopes}. 
-En ese punto, el generador de secuencias detiene su ejecución y BEAPI devuelve la suite de pruebas generada junto con el conjunto de objetos producidos.
+En ese punto, el generador de secuencias detiene su ejecución y BEAPI devuelve la suite de tests generada junto con el conjunto de objetos producidos.
 
 A continuación, se describe cómo BEAPI procesa los distintos resultados que puede arrojar la ejecución de una secuencia de prueba.
 El módulo \emph{clasificador}, también ilustrado en la Figura~\ref{fig:beapi-overview}, 
@@ -959,6 +959,6 @@ Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy inef
 y ser capaz de generar entradas únicamente para alcances pequeños (por ejemplo, de tamaño 3) en tiempos razonables~\cite{Politano20}. 
 En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
 
-El resultado de la ejecución de BEAPI es una suite de pruebas en formato \texttt{JUnit}. 
+El resultado de la ejecución de BEAPI es una suite de tests en formato \texttt{JUnit}. 
 Cada prueba en la suite corresponde a una secuencia de métodos que construye uno de los objetos del conjunto exhaustivo resultante.
 

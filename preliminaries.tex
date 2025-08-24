@@ -37,7 +37,7 @@ todas sus extensiones también serán descartadas.
 
 De esta forma, el algoritmo de Korat combina una búsqueda por retroceso con poda guiada por la ejecución de \texttt{repOK}, permitiendo explorar exhaustivamente el dominio acotado sin redundancias innecesarias. El proceso continúa hasta haber generado todas las instancias válidas dentro del límite especificado.
 
-Korat ha demostrado ser eficaz en la generación de estructuras complejas como listas doblemente enlazadas, árboles binarios y montículos binomiales, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de pruebas. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
+Korat ha demostrado ser eficaz en la generación de estructuras complejas como listas doblemente enlazadas, árboles binarios y montículos binomiales, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de tests. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
 
 
 
@@ -403,7 +403,7 @@ suite \cite{Ammann16,just2014mutants}.
 En particular, Just et al.~\cite{just2014mutants} muestran que existe una fuerte
 correlación entre la detección de mutantes y la detección de fallas reales, lo
 que respalda el uso de la mutación como sustituto práctico para evaluar la
-eficacia de un conjunto de pruebas.
+eficacia de un conjunto de tests.
 
 En esta sección describimos tres criterios fundamentales adoptados en esta tesis: 
 (i) cobertura de código, considerando tanto líneas como ramas \cite{Ammann16,myzili2012coverage}, 
@@ -441,7 +441,7 @@ cuando cubren el defecto con la entrada adecuada.
 \subsection{Análisis de Mutación}
 
 El análisis de mutación (mutation testing) es una técnica para medir la
-capacidad de un conjunto de pruebas para detectar cambios sintácticos
+capacidad de un conjunto de tests para detectar cambios sintácticos
 introducidos deliberadamente en el código fuente. Consiste en la creación de versiones 
 alteradas del código original, denominadas mutantes, mediante la realización de
 cambios sintáticos pequeños (ej. reemplazar $>$ por $>=$). Cada mutante representa una 
