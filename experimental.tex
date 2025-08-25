@@ -159,28 +159,37 @@ generadores de objetos a partir de la API.
 Comparamos los resultados obtenidos con la técnica evolutiva (\emph{GA}) y con
 la técnica greedy (\emph{HC}), y combinamos ambos enfoques en las distintas
 funciones objetivo propuestas (\emph{RC} y \emph{GE}). Los resultados se presentan en la Tabla \ref{tab:eficiencia}.
-\pp{Corregir el caption de la tabla.}
 
-Como se observa en la tabla, el algoritmo Hill Climbing (\emph{HC}) es más
-eficiente que el algoritmo genético (\emph{GA}) en todos los casos de estudio considerados.
-El enfoque de Hill Climbing es razonablemente eficiente, tardando solo 20 minutos en el peor de los casos (NCL, debido a la cantidad y complejidad
-de su API), mientras que el algoritmo genético puede tardar mas de una hora en
-el peor de los casos (\emph{HashSet}). \pp{Hay que poner tiempos promedios además del
-peor caso. Y agregarlos a las tablas.}.
+\cacho{Nuevo esto:}
 
-\pp{Faltan los tiempos promedios}. 
+Cada fila corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API (\#API) y 
+la cantidad de métodos generadores del \emph{ground truth} (\#MétodosGen). 
+Las columnas se agrupan por algoritmo (\textbf{GA} y \textbf{HC}) y, dentro de cada uno, por función 
+objetivo, \textbf{\tiny GE} (generación exhaustiva) y \textbf{\tiny RC} (cobertura con Randoop). 
+El formato de cada celda es \emph{promedio}/\textbf{peor} en segundos; 
+el \emph{promedio} se calcula sobre las 5 ejecuciones que se realizaron, y el \textbf{peor} es el máximo observado. 
+
+Analizando la Tabla~\ref{tab:eficiencia}, podemos observar que el algoritmo \emph{Hill Climbing} (HC) es
+más eficiente que el algoritmo genético (GA) en todos los casos de estudio considerados.
+En términos de peor caso, HC con \emph{RC} tarda \(921\,\text{s}\) en \emph{NCL} (aprox. 15 minutos) y
+alcanza \(3842\,\text{s}\) en \emph{HashSet} (aprox. 64 minutos), mientras que GA con \emph{RC} supera la hora
+en \emph{TreeMap} con \(5162\,\text{s}\) (aprox.86 minutos). En general, \emph{RC} es más costoso que \emph{GE},
+como también se refleja en la tabla.
+
+En relación con las funciones \emph{objetivo}, observamos que la basada en
+generación exhaustiva (\textbf{GE}, Sección~\ref{sec:fitnessGE})
+finaliza la búsqueda de métodos generadores en menos tiempo que la
+basada en cobertura con \textbf{Randoop} (\textbf{RC}, Sección~\ref{sec:fitnessRandoop}).
+La razón es que GE evalúa por enumeración acotada (scope fijo), mientras
+que RC requiere, para cada candidato, generar y ejecutar pruebas con Randoop y
+medir cobertura, lo que incrementa el costo.
+
 %Esto se debe a que los algoritmos
 %de Hill Climbing comienzan desde abajo hacia arriba, considerando menos métodos antes de considerar más métodos, a diferencia de los 
 %algoritmos genéticos, que generan sucesores mediante operadores de cruce y mutación. Esta estrategia favorece al algoritmo Hill Climbing 
 %para encontrar los métodos mínimos en tiempos más cortos. Cabe mencionar que en casos de estudio donde el algoritmo genético supera al 
 %Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más rápidamente que el algoritmo Hill Climbing.
 %
-
-En relación con las funciones objectivo, observamos que la basada en el generador exhaustivo (GE) logra 
-finalizar la búsqueda de métodos generadores de objetos en menos tiempo en comparación con la función basada en la 
-cobertura generada por la suite de tests el algoritmo \pp{Poner el nombre del
-algoritmo, y la sección donde está} (RC). \pp{Hay que poner tiempos promedios
-para explicar esto. Y agregarlos a las tablas.}.
 
 Esto se aplica a todos los algoritmos implementados. La función 
 objetivo GE termina antes en los algoritmos debido a que genera objetos 
@@ -190,20 +199,31 @@ los casos \pp{esto va antes, cuando se presentan los algoritmos}). Todas tienen 
 la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. Esto permite
 que GE más rápida \pp{cuánto?} en comparación 
 con la función objetivo RC. En cambio, el algoritmo HC debe agotar su presupuesto de tiempo
-para cada candidato considerado. \pp{Sin embargo, la función objetivo basada en 
-    algoritmo XX no requiere que el usuario provea la definición del scope, y
-    podría ser más escalable que la generación exhaustiva acotada en casos donde
+para cada candidato considerado.
+ \pp{Sin embargo, la función objetivo basada en el algoritmo XX no requiere que el usuario provea la definición del scope, y
+podría ser más escalable que la generación exhaustiva acotada en casos donde
 la cantidad de objetos a generar crezca exponencialmente respecto de los scopes 
 (ver si hay alguno). Como trabajos futuros se planean realizar más experimentos 
 para evaluar esta hipótesis.}
 
-En conclusión, en términos de eficiencia de nuestro algoritmo, para los casos estudiados en esta tesis, es conveniente utilizar el 
-algoritmo Hill Climbing con una función objetivo que cuente los objetos
-generados por el generador exhaustivo (\emph{GE}). \pp{La conclusión (respuesta
-    a la RQ) tiene que ser con números promedio para cada algoritmo, y debe contrastar los
-algoritmos y las funciones de valuación.}
+Los tiempos promedio en la Tabla~\ref{tab:eficiencia} reflejan que GE es más eficiente que RC para una misma configuración, y 
+además, HC supera a GA en tiempo para una misma función objetivo. 
+Por ejemplo, en \emph{NCL}: GA muestra GE 292s vs RC 3622s , 
+y HC muestra GE 40s vs RC 645s. 
+Un patrón similar se observa en \emph{TreeMap} (GA: 974 vs 3872; HC: 68 vs 484) 
+y \emph{Lits} (GA: 25 vs 3429; HC: 7 vs 394). 
+En síntesis, GE es sistemáticamente más eficiente que RC para nuestros experimientos, 
+mientras que HC aporta el mejor rendimiento que GA.
+
 \input{tables/eficienciaBuilders}
-\pp{Falta un número para la última fila}
+
+Los tiempos promedio en la Tabla~\ref{tab:eficiencia} reflejan la tendencia xxxx completar ahio. Por ejemplo, en \emph{NCL}:
+\emph{GA} muestra \textbf{GE} 292\,s vs \textbf{RC} 3622\,s, y \emph{HC} muestra
+\textbf{GE} 40\,s vs \textbf{RC} 645\,s. Un patrón similar se observa en
+\emph{TreeMap} (GA: 974 vs 3872; HC: 68 vs 484) y \emph{Lits} (GA: 25 vs 3429; HC: 7 vs 394).
+En síntesis, GE es sistemáticamente más eficiente que RC para nuestros sujetos,
+mientras que RC aporta una evaluación guiada por cobertura.
+
 
 \subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
