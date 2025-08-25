@@ -1,56 +1,56 @@
+% !chktex off
+
 \chapter[Identificación de Métodos Generadores de Objetos]{Identificación de Métodos Generadores de Objetos}
 \label{cap:builders}
 
-\cacho{1 - terminar las citas}
-
 % Primera etapa
 \section{Ejemplo Motivador}
+\label{sec:motivacionBuilders}
 
-\begin{table}[]
+\begin{table}[H]
 \centering
-{\scriptsize
-\begin{tabular}{|l|l|l|}
-\hline
+\scriptsize
+\begin{tabular}{clc}
+\toprule
 No. & Nombre del Método & Observador? \\
-\hline
-0 & NCL() & no \\
-1 & NCL(int) & no \\
-2 & NCL(Collection) & no \\
-3 & add(Object) & no \\
-4 & add(int,Object) & no \\
-5 & addAll(Collection) & no \\
-6 & addAll(int,Collection) & no \\
-7 & addFirst(Object) & no \\
-8 & addLast(Object) & no \\
-9 & clear() & no \\
-10 & contains(Object) & sí \\
-11 & containsAll(Collection) & sí \\
-12 & equals(Object) & sí \\
-13 & get(int) & sí \\
-14 & getFirst() & sí \\
-15 & getLast() & sí \\
-16 & indexOf(Object) & sí \\
-17 & isEmpty() & sí \\
-18 & iterator() & no \\
-19 & lastIndexOf(Object) & sí \\
-20 & listIterator() & no \\
-21 & listIterator(int) & no \\
-22 & remove(int) & no \\
-23 & remove(Object) & no \\
-24 & removeAll(Collection) & no \\
-25 & removeFirst() & no \\
-26 & removeLast() & no \\
-27 & retainAll(Collection) & no \\
-28 & set(int,Object) & no \\
-29 & size() & sí \\
-30 & subList(int,int) & si \\
-31 & toArray() & sí \\
-32 & toArray(Object[]) & sí \\
-33 & toString() & sí \\
-\hline
+\midrule
+0  & NCL()                        & no \\
+1  & NCL(int)                     & no \\
+2  & NCL(Collection)              & no \\
+3  & add(Object)                  & no \\
+4  & add(int,Object)              & no \\
+5  & addAll(Collection)           & no \\
+6  & addAll(int,Collection)       & no \\
+7  & addFirst(Object)             & no \\
+8  & addLast(Object)              & no \\
+9  & clear()                      & no \\
+10 & contains(Object)             & sí \\
+11 & containsAll(Collection)      & sí \\
+12 & equals(Object)               & sí \\
+13 & get(int)                     & sí \\
+14 & getFirst()                   & sí \\
+15 & getLast()                    & sí \\
+16 & indexOf(Object)              & sí \\
+17 & isEmpty()                    & sí \\
+18 & iterator()                   & no \\
+19 & lastIndexOf(Object)          & sí \\
+20 & listIterator()               & no \\
+21 & listIterator(int)            & no \\
+22 & remove(int)                  & no \\
+23 & remove(Object)               & no \\
+24 & removeAll(Collection)        & no \\
+25 & removeFirst()                & no \\
+26 & removeLast()                 & no \\
+27 & retainAll(Collection)        & no \\
+28 & set(int,Object)              & no \\
+29 & size()                       & sí \\
+30 & subList(int,int)             & sí \\
+31 & toArray()                    & sí \\
+32 & toArray(Object[])            & sí \\
+33 & toString()                   & sí \\
+\bottomrule
 \end{tabular}
-}
-\caption{API de NodeCachingLinkedList de Apache}
+\caption{API de \texttt{NodeCachingLinkedList} de Apache con los observadores identificados manualmente.}
 \label{tab:ncl-api}
 \end{table}
 
@@ -189,7 +189,7 @@ Así, las Figuras~\ref{fig:NCLbuilders} y ~\ref{fig:NCLbuilders2} muestran ejemp
 Notar que muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos sobre los que operan, ni son útiles para crear nuevos objetos. 
 Debido a que estos métodos observadores siempre son superfluos y nunca deben incluirse en un conjunto de generadores de objetos minimal. Por esta razón, nuestros enfoques de identificación de métodos generadores intentan reconocerlos de antemano y descartarlos.
 
-Por último, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
+También, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
 la lista principal de NCL (ver Tabla~\ref{tab:ncl-api}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos posibles. En cambio, \texttt{add(Object)}, \texttt{addFirst(Object)}, \texttt{addLast(Object)} toman un único parámetro. Si bien cualquiera de estas rutinas sirve para generar los mismos objetos de NCL, hay más formas de invocar a \texttt{add(int,Object)}. Esto usualmente redunda en una pérdida de eficiencia en la construcción de objetos por parte de un análisis automático de programas. Similarmente, elegiremos métodos con parámetros más simples (por ejemplo, parámetros de tipo primitivo), que otros con parámetros más complejos (por ejemplo, parámetros de tipo referencia) siempre y cuando los métodos permitan construir los mismos objetos.
 
 De la discusión anterior se desprende que preferimos los métodos con menor número de parámetros, y con parámetros más fáciles de instanciar en los generadores de objetos (siempre que se mantengan las propiedades de suficiencia y minimalidad de los generadores). 
@@ -208,12 +208,12 @@ Para facilitar la tarea del desarrollador, en las secciones siguientes proponemo
 
 
 % Intro
-En este capítulo, nos enfrentamos al desafío de identificar un conjunto suficiente y mínimo de generadores de objetos a partir de la API de un módulo. 
+En este capítulo, nos enfrentamos al desafío de identificar un conjunto suficiente y minimal de generadores de objetos a partir de la API de un módulo. 
 Nos enfrentamos a un problema de optimización, donde apuntamos a encontrar el mejor estado según una función objetivo.
 Esta definición es la de los algoritmos de búsqueda local \cite{Russell:2009}.
 Para abordar este problema desarrollamos dos algoritmos de búsqueda, cada uno con su enfoque único. Estos algoritmos nos permiten explorar el espacio de búsqueda de manera eficiente y efectiva.
 
-El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica \cite{Goldberg:1989}
+El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica. \cite{Goldberg:1989}
 %, este algoritmo se enfoca en generar conjuntos de métodos generadores que puedan dar lugar a configuraciones más grandes y diversas de objetos. 
 La naturaleza basada en la evolución de este enfoque permite encontrar soluciones prometedoras y adaptarse a diferentes situaciones.
 
@@ -222,7 +222,7 @@ El segundo algoritmo que proponemos es un enfoque \emph{greedy}, específicament
 
 %Por último, presentamos un algoritmo basado en la idea de particionar los subconjuntos de métodos de la API en "clases de equivalencias" según los objetos que construyen. Esta estrategia nos permite agrupar métodos con propiedades similares y seleccionar conjuntos de métodos más cohesivos y efectivos.
 
-Cada uno de estos algoritmos ofrece ventajas y desventajas en términos de rendimiento y precisión. Nuestra investigación se centró en comparar y evaluar estos algoritmos en diferentes casos de estudio para determinar cuál de ellos se adapta mejor a la tarea de identificar conjuntos suficientes y mínimos de generadores de objetos.
+Cada uno de estos algoritmos ofrece ventajas y desventajas en términos de rendimiento y precisión. Nuestra investigación se centró en comparar y evaluar estos algoritmos en diferentes casos de estudio para determinar cuál de ellos se adapta mejor a la tarea de identificar conjuntos suficientes y minimal de generadores de objetos.
 
 % Para abordar estos desafíos planteados, a continuación se proponen dos enfoques para seleccionar automáticamente un conjunto suficiente y minimal de métodos generadores de objetos a partir de una API. El primero es un enfoque \emph{greedy}, basado en \emph{hill climbing}. El segundo enfoque utiliza algoritmos genéticos. En la próxima sección, explicaremos en detalle cada uno de estos enfoques y su implementación.
 
@@ -238,7 +238,7 @@ Por simplicidad, a partir de esta sección llamaremos generadores de objetos a a
 
 Se puede observar en el código de la Figura \ref{fig:emptyObs} que las funciones \emph{isEmpty} y \emph{size} de la clase NodeCachingLinkedList (NCL) son métodos observadores.  Estos métodos no modifican ningún atributo de la clase NCL.
  
-\begin{lstlisting}[language=Java, label=fig:emptyObs, caption=Algunos métodos observadores de la clase NCL. Se observa que no modifican el estado de NCL., captionpos=b, frame=tb, float=t]
+\begin{lstlisting}[language=Java, label=fig:emptyObs, caption=Algunos métodos observadores de la clase NCL. Se observa que no modifican el estado de NCL., captionpos=b, frame=tb]
 public class NodeCachingLinkedList {
     Node head;
     int size;
@@ -280,17 +280,9 @@ public class NodeCachingLinkedList {
 % Por ejemplo, al analizar la API de NCL con \emph{Infer}, el resultado que
 % obtenemos es el que se encuentra en la columna \emph{Observador?} de la tabla
 % \ref{tab:ncl-api}.
- \pp{hay métodos mal clasificados por Infer. Como iterator.
-    Hay que ver bien si no hay algún otro. Habría que reportar los observadores
-    reales analizados a mano por un lado en la Tabla I, y después acá poner una
-tabla II que sea una copia de Tabla I y agregue una columna Infer que muestre
-también los resultados de Infer. Y decir que Infer hace análisis estático y 
-sobreaproxima los observadores. Pero es muy
-rápido y suficientemente bueno para descartar muchos métodos para nuestros
-algoritmos}  
 
 \cacho{Es nuevo}
-En el ejemplo motivador presentado en la Sección~\ref{sec:motivacion} y en la Tabla~\ref{tab:ncl-api}, se puede observar que existen numerosos métodos clasificados como observadores. 
+En el ejemplo motivador presentado en la Sección~\ref{sec:motivacionBuilders} y en la Tabla~\ref{tab:ncl-api}, se puede observar que existen numerosos métodos clasificados como observadores. 
 Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental identificar este tipo de métodos, ya que no contribuyen a la construcción de nuevos objetos: no modifican el estado del sistema ni crean nuevas instancias útiles para el objetivo. 
 Por lo tanto, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de métodos generadores de objetos, y pueden descartarse de forma segura.
 
@@ -303,43 +295,74 @@ Es decir, rara vez clasificará como observador a un método que en realidad tie
 Esta característica lo convierte en una herramienta extremadamente útil como filtro preliminar: su bajo costo computacional permite eliminar rápidamente una gran cantidad de métodos irrelevantes, 
 lo que reduce de forma significativa el espacio de búsqueda de nuestros algoritmos sin comprometer la corrección del análisis.
 
-La Tabla~\ref{tab:ncl-api} muestra la clasificación manual obtenida a partir del análisis del comportamiento de los métodos de la clase \texttt{NodeCachingLinkedList}.
-En tanto, la Tabla~\ref{tab:ncl-infer-comparacion} presenta el resultado del análisis realizado por \emph{Infer}, indicando, en la columna \emph{esObservador?} para cada método si fue clasificado correctamente como no observador.
+La Tabla~\ref{tab:ncl-api-manual} presenta la clasificación manual de los métodos de la clase 
+\texttt{NodeCachingLinkedList}, distinguiendo cuáles se comportan como observadores y cuáles no, 
+a partir del análisis de su implementación. 
+Posteriormente, en la Tabla~\ref{tab:ncl-infer-comparacion} se muestra la comparación con el análisis 
+automatizado realizado por \emph{Infer}. 
+En esta segunda tabla, la columna adicional \emph{Infer} indica el resultado provisto por la herramienta, 
+lo que permite identificar tanto los aciertos como las discrepancias respecto de la clasificación manual.
 
-\begin{table}[h!]
+\begin{table}[H]
 \centering
-{\scriptsize
-\begin{tabular}{|r|l|c|}
-\hline
-No. & Nombre del Método & esObservador? \\
-\hline
-0 & NCL() & No \\
-1 & NCL(int) & No \\
-2 & NCL(Collection) & No \\
-3 & add(Object) & No \\
-4 & add(int,Object) & No \\
-5 & addAll(Collection) & No \\
-6 & addAll(int,Collection) & No \\
-7 & addFirst(Object) & No \\
-8 & addLast(Object) & No \\
-9 & clear() & No \\
-10 & iterator() & \textbf{Sí} \\
-11 & listIterator() & \textbf{Sí} \\
-12 & listIterator(int) & \textbf{Sí} \\
-13 & remove(int) & No \\
-14 & remove(Object) & No \\
-15 & removeAll(Collection) & No \\
-16 & removeFirst() & No \\
-17 & removeLast() & No \\
-18 & retainAll(Collection) & No \\
-19 & set(int,Object) & No \\
-\hline
+\scriptsize
+\begin{tabular}{clcc}
+\toprule
+No. & Nombre del Método & Observador? & Infer \\
+\midrule
+0  & NCL()                        & no  & no \\
+1  & NCL(int)                     & no  & no \\
+2  & NCL(Collection)              & no  & no \\
+3  & add(Object)                  & no  & no \\
+4  & add(int,Object)              & no  & no \\
+5  & addAll(Collection)           & no  & no \\
+6  & addAll(int,Collection)       & no  & no \\
+7  & addFirst(Object)             & no  & no \\
+8  & addLast(Object)              & no  & no \\
+9  & clear()                      & no  & no \\
+10 & contains(Object)             & sí  & sí \\
+11 & containsAll(Collection)      & sí  & sí \\
+12 & equals(Object)               & sí  & sí \\
+13 & get(int)                     & sí  & sí \\
+14 & getFirst()                   & sí  & sí \\
+15 & getLast()                    & sí  & sí \\
+16 & indexOf(Object)              & sí  & sí \\
+17 & isEmpty()                    & sí  & sí \\
+18 & iterator()                   & no  & sí \\
+19 & lastIndexOf(Object)          & sí  & si \\
+20 & listIterator()               & no  & sí \\
+21 & listIterator(int)            & no  & sí \\
+22 & remove(int)                  & no  & no \\
+23 & remove(Object)               & no  & no \\
+24 & removeAll(Collection)        & no  & no \\
+25 & removeFirst()                & no  & no \\
+26 & removeLast()                 & no  & no \\
+27 & retainAll(Collection)        & no  & no \\
+28 & set(int,Object)              & no  & no \\
+29 & size()                       & sí  & sí \\
+30 & subList(int,int)             & sí  & sí \\
+31 & toArray()                    & sí  & sí \\
+32 & toArray(Object[])            & sí  & sí \\
+33 & toString()                   & sí  & sí \\
+\bottomrule
 \end{tabular}
-}
-\caption{Comparación entre clasificación manual e Infer sobre la API de \texttt{NodeCachingLinkedList}.}
+\caption{Comparación entre observadores de \texttt{NodeCachingLinkedList} identificados manualmente y por \emph{Infer}.}
 \label{tab:ncl-infer-comparacion}
 \end{table}
 
+En términos generales, \emph{Infer} logra detectar correctamente la mayoría de los métodos observadores. 
+No obstante, se observan algunos casos particulares. 
+Por ejemplo, clasifica como observadores a los métodos que devuelven iteradores 
+(\texttt{iterator()}, \texttt{listIterator()}, \texttt{listIterator(int)}). 
+Si bien este criterio no es del todo incorrecto, ya que dichos métodos permiten inspeccionar 
+la estructura de datos sin necesariamente modificarla, la clasificación resulta ambigua. 
+En la práctica, los iteradores suelen considerarse como una interfaz de recorrido y no como observadores directos, 
+ya que pueden exponer operaciones que alteran el estado interno de la colección 
+(por ejemplo, la operación \texttt{remove()} del iterador). 
+Esto explica por qué \emph{Infer} los clasifica como observadores,
+a simple vista sólo devuelven un acceso para recorrer la colección, 
+pero en realidad los iteradores también permiten operaciones que pueden modificarla 
+de modo que no aseguran que el estado de la lista se mantenga inmutable.
 
 Los métodos reportados como observadores por \emph{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
 En síntesis, \emph{Infer} actúa como una etapa de preprocesamiento que combina eficiencia y utilidad práctica: permite reducir el número de métodos a analizar, sin necesidad de intervención manual, manteniendo un nivel de precisión suficiente para nuestros casos de estudio.
@@ -368,23 +391,23 @@ En nuestros algoritmos de búsqueda, los estados están compuestos por subconjun
 Como vimos en la tabla \ref{tab:ncl-api}, \texttt{NCL}, tiene un total de 34 métodos. Sin embargo, no todos estos métodos son relevantes para nuestros algoritmos. Por ejemplo, los métodos observadores deben excluirse del análisis ya que no contribuyen a la construcción de objetos. Esto reduce el número total de métodos considerados, lo que a su vez reduce significativamente el espacio de búsqueda.
 
 Después de excluir los métodos observadores, quedan 20 métodos relevantes en NCL. Estos métodos se enumeran desde 0 hasta 19 como se puede observar en la tabla \ref{tab:ncl-api-infer}. 
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 {\scriptsize
 \begin{tabular}{|l|l|}
 \hline
 No. & Nombre del Método \\
 \hline
-0 & NCL() \\
-1 & NCL(int) \\
-2 & NCL(Collection) \\
-3 & add(Object) \\
-4 & add(int,Object) \\
-5 & addAll(Collection) \\
-6 & addAll(int,Collection) \\
-7 & addFirst(Object) \\
-8 & addLast(Object) \\
-9 & clear() \\
+0  & NCL() \\
+1  & NCL(int) \\
+2  & NCL(Collection) \\
+3  & add(Object) \\
+4  & add(int,Object) \\
+5  & addAll(Collection) \\
+6  & addAll(int,Collection) \\
+7  & addFirst(Object) \\
+8  & addLast(Object) \\
+9  & clear() \\
 10 & iterator() \\
 11 & listIterator() \\
 12 & listIterator(int) \\
@@ -398,9 +421,10 @@ No. & Nombre del Método \\
 \hline
 \end{tabular}
 }
-\caption{API de NodeCachingLinkedList de Apache despues de la identificación de métodos observadores.}
+\caption{API de NodeCachingLinkedList de Apache después de la identificación de métodos observadores.}
 \label{tab:ncl-api-infer}
 \end{table}
+
 
 La representación de los estados en nuestros algoritmos se realiza mediante vectores booleanos. Cada posición $i$ en el vector representa el $i$-ésimo método de la API:
 
@@ -427,7 +451,7 @@ Por ejemplo, un estado posible puede representarse como un vector de la siguient
 En este caso, las posiciones 0, 7 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjuto de métodos:
 \vspace{5pt} 
 
-\begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos que representa el cromosoma de la Figura 2, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
+\begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos que representa el cromosoma de la Figura \ref{fig:cromosoma}, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (16) removeFirst()
@@ -468,16 +492,12 @@ Como la cantidad de secuencias a explorar crece exponencialmente respecto de las
 
 Nuestra técnica se basa en una variante de la \emph{hipótesis de la cota pequeña}, ampliamente reconocida en el testing de software \cite{Andoni:2003,jackson2006, Abad13}. La hipótesis de la cota pequeña indica que la mayoría de las fallas pueden revelarse ejercitando el software bajo test con entradas de tamaño relativamente pequeño. Nuestra hipótesis es que si dos conjuntos de métodos $M_1$ y $M_2$ generan los mismos objetos acotados (para una cota relativamente pequeña), entonces es altamente probable $M_1$ y $M_2$ sirvan para generar los mismos objetos en un contexto no acotado. Esto fue validado empíricamente en todos nuestros casos de estudio.
 
-%\cacho{Ver con Pablo luego. Pensar en ejecucion simbolica. String es mas dificil que generar un Int, ver tabla de pesos}
-
 \begin{lstlisting}[label=fig:rankParameters,caption=Ranking con los tipos de parametros, captionpos=b,frame=tb, float=t]
 Boolean=1
 Integer,Char=2
 Float,Double,String=4
 Object=6
 \end{lstlisting}
-\pp{Cambié los pesos. Quizás hay que cambiar algún cálculo en base a estos
-    nuevos pesos (eran 1,2,3 y 4, pasaron a ser 1,2,4 y 6.}
 
 Como ya se discutió en esta Sección, buscamos un conjunto minimal de generadores de objetos, donde los métodos tengan parámetros tan simples como sea posible. Por lo tanto, la cantidad de objetos generados usando BEAPI es sólo un componente de la función objetivo. Dado un conjunto de métodos $M$, representado por un candidato $C$, la función objetivo $f$ devuelve un valor real conformado por tres componentes:
 
@@ -543,15 +563,16 @@ se compara la complejidad de los parámetros \( P(M_1) \) con \( P(M_2) \).
 
 Para ilustrar este concepto, consideremos los siguientes ejemplos.
 
-En el primer caso, tenemos dos conjuntos de métodos:
-\vspace{5pt} 
+
+En el primer caso, analizamos dos conjuntos de métodos:
+
+\vspace{5pt}
 
 \begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_1 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
-\end{lstlisting} 
-
+\end{lstlisting}
 
 \begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_2 \)]
   NodeCachingLinkedList()
@@ -559,28 +580,54 @@ En el primer caso, tenemos dos conjuntos de métodos:
 \end{lstlisting}
 
 
-Obtenemos las siguientes triplas:
+\cacho{Es nuevo esto}
+
+
+Ambos conjuntos tienen en común el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo Object, 
+con peso 6 según la Tabla~\ref{fig:rankParameters}. 
+Los demás métodos no tienen parámetros, por lo tanto:
 
 \[
-f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 4 \rangle
+W(M_1) = W(M_2) = 6
 \]
-\pp{4 no puede ser para el tercer componente. Porque está definido como la suma
-de la API - el peso de los métodos. Debería dar un número bastante grande.}
-\pp{Por qué el segundo componente da esos valores? Explicarlo.}
 
-Dado que el conjunto \( M_1 \) genera más objetos (15 frente a 12) \pp{15? Es
-demasiado chico, cuál es el scope de esto?}, \( f(M_1) > f(M_2) \). Esto implica que \( M_1 \) es capaz de generar más instancias, mientras que \( M_2 \) no puede generar algunas que requieren métodos para agregar nodos a la lista cache.
+Como el peso total de la API es 72, se obtiene:
 
-En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), pero \( M_4 \) tiene un método adicional:
-\vspace{10pt} 
+\[
+P(M_1) = P(M_2) = 72 - 6 = 66
+\]
+
+La API contiene un total de 20 métodos (ver Tabla~\ref{tab:ncl-api-infer}). Como \( M_1 \) utiliza 3 de ellos y \( M_2 \) solo 2, se obtiene:
+
+\[
+R(M_1) = 20 - 3 = 17 \quad \text{y} \quad R(M_2) = 20 - 2 = 18
+\]
+
+En nuestros experimentos (con un \emph{scope} igual a 3), \( M_1 \) genera 18 objetos, mientras que \( M_2 \) genera 12. Las funciones objetivo son entonces:
+
+\[
+f(M_1) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 66 \rangle
+\]
+
+Dado que \( M_1 \) genera más objetos, se concluye que:
+
+\[
+f(M_1) > f(M_2)
+\]
+
+Esto implica que \( M_1 \) es un conjunto generador más adecuado, ya que permite construir un mayor número de instancias. 
+En particular, \( M_2 \) no puede generar aquellas instancias que requieren eliminar elementos de la lista, lo cual sí permite \( M_1 \) mediante el método \texttt{removeFirst()}.
+
+
+En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (18, para scope 3), pero el conjunto \( M_4 \) incluye un método adicional:
+
+\vspace{5pt}
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders3, caption=Conjunto de métodos \( M_3 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
 \end{lstlisting}
-
-\vspace{10pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders4, caption=Conjunto de métodos \( M_4 \)]
   NodeCachingLinkedList()
@@ -589,20 +636,21 @@ En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (15), p
   removeFirst()
 \end{lstlisting}
 
-
 Las triplas resultantes son:
 
 \[
-f(M_3) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_4) = \langle 15, 16, 4 \rangle
+f(M_3) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_4) = \langle 18, 16, 66 \rangle
 \]
-\pp{4 no puede ser para el tercer componente. Porque está definido como la suma
-de la API - el peso de los métodos. Debería dar un número bastante grande.}
-\pp{Por qué el segundo componente da esos valores? Explicarlo.}
 
-Aunque ambos conjuntos generan la misma cantidad de objetos, \( M_3 \) tiene una redundancia menor (16 frente a 17). Esto significa que \( f(M_3) > f(M_4) \), ya que \( M_3 \) contiene menos métodos redundantes.
+Ambos conjuntos logran generar la misma cantidad de objetos y presentan la misma complejidad en sus parámetros. Sin embargo, \( M_4 \) utiliza un método más, por lo que tiene una redundancia mayor (\( R(M_4) = 16 \) frente a \( R(M_3) = 17 \)). 
+Dado que nuestra función objetivo favorece subconjuntos más reducidos en caso de empate, se concluye que:
 
-En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos, pero \( M_6 \) tiene más parámetros en el método \( add(int, Object) \):
-\vspace{10pt} 
+\[
+f(M_3) > f(M_4)
+\]
+
+
+En el tercer caso, los conjuntos tienen la misma cantidad de objetos generados (18, para scope 3) y el mismo número de métodos, pero difieren en la complejidad de los parámetros utilizados:
 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders5, caption=Conjunto de métodos \( M_5 \)]
   NodeCachingLinkedList()
@@ -610,34 +658,26 @@ En el tercer caso, los conjuntos tienen la misma cantidad de objetos y métodos,
   removeFirst()
 \end{lstlisting}
 
-\vspace{10pt} 
-
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders6, caption=Conjunto de métodos \( M_6 \)]
   NodeCachingLinkedList()
   add(int, Object)
   removeFirst()
 \end{lstlisting}
 
-\vspace{10pt} 
-
-Obtenemos las siguientes triplas:
+Las triplas correspondientes son:
 
 \[
-f(M_5) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_6) = \langle 15, 17, 6 \rangle
+f(M_5) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_6) = \langle 18, 17, 64 \rangle
 \]
-\pp{4 no puede ser para el tercer componente. Porque está definido como la suma
-de la API - el peso de los métodos. Debería dar un número bastante grande.}
-\pp{Por qué el segundo componente da esos valores? Explicarlo.}
 
-Ambos conjuntos generan la misma cantidad de objetos y tienen la misma
-redundancia, pero \( M_6 \) tiene mas parámetros \pp{No importa el número de
-    parámetros sino su complejidad. Hay que calcular bien el tercer componente
-para este caso}. (el método \( add(int, Object)
-\) tiene un parámetro adicional). Como resultado, \( f(M_6) > f(M_5) \), debido
-a que preferimos una menor complejidad en los parámetros. 
+Ambos conjuntos tienen igual número de métodos y generan la misma cantidad de objetos. 
+Sin embargo, \( M_6 \) contiene un método con parámetros más complejos (el método \texttt{add(int, Object)}) lo cual se refleja en un mayor peso de parámetros. 
+Como la función \( f \) prefiere subconjuntos con menor complejidad de parámetros en caso de empate, se concluye que:
 
-\cacho{Poner el total de parametros que tiene NCL, buscar en experimentos}\pp{O
-calcularlo a mano, no es difícil.}
+\[
+f(M_5) > f(M_6)
+\]
+
 
 
 %Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en el Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
@@ -657,8 +697,7 @@ generadores.} Así, la segunda función objetivo se basa en generar test suites
 de manera automática (aleatoria) utilizando un suconjunto candidato de métodos,  
 y medir la cobertura de código que alcanzan estas test suites. 
 La cobertura se mide en términos de las líneas de código y las ramas del
-programa que son ejercitadas por los tests \pp{hacer referencia a la sección
-correspondiente de background y mirar que matcheen los términos usados}.
+programa que son ejercitadas por los tests (\ref{sec:coverage}).
 Esta métrica nos da una idea de qué tan bien los tests generados usando el
 subconjunto de métodos pueden cubrir las diferentes partes del programa, 
 lo que nos permite evaluar un aspecto importante de la calidad de las test
@@ -714,15 +753,13 @@ La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
 producir estas secuencias de test. Esta función realiza su tarea utilizando 
 la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
 
-\pp{Meter el algoritmo en un float para que encaje bien? el vspace no funciona}
-
-\begin{algorithm}[htbp]
+\begin{algorithm}[H]
     \SetAlgoLined
     \KwIn{Métodos de la API $API$, subconjunto de métodos $M \subseteq API$,
     tiempo total $S$}
     \KwOut{Conjunto final de tests generados}
     
-    \SetKwFunction{FMain}{GenerarTests}
+    \SetKwFunction{FMain}{GenerarTest}
     \SetKwFunction{FGen}{GenerarNuevasSecuencias}
     \SetKwProg{Fn}{Function}{:}{}
     \BlankLine
@@ -775,13 +812,10 @@ la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback
     \Return{$tests$}\;
     }
     
-    \caption{GenerarTests}
+    \caption{Generación de tests para cobertura de código}
     \label{alg:fitnessRandoop}
     \end{algorithm}
     
-
-\pp{Hace falta el número máximo de tests W en el algoritmo o lo podemos sacar? Me suena raro
-pero podría estar comiéndome algún caso.} \cacho{Hecho, no hace falta}
 
 Más adelante, se realiza una segunda ejecución
 de Randoop usando las secuencias de test $tests_{obj}$ como punto de partida para
@@ -793,9 +827,6 @@ asignado \texttt{S} (ver $S_2$ en la línea 3).
 Nuevamente, la producción de secuencias de test se hace invocando a
 \texttt{GenerarNuevasSecuencias}.
 
-\pp{Muchos errores de ortografía había en esta y en otras secciones! Instalar un spell
-checker para latex.}
-
 Usamos el algoritmo \ref{alg:fitnessRandoop} para computar $Cob$ de la siguiente manera.
 Primero, se genera una test suite para un conjuto de métodos dado $M$, con un tiempo límite
 de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
@@ -804,68 +835,112 @@ de generación $S$ fijo (determinado experimentalmente). Luego, se mide
 
 La función objetivo que utilizamos para evaluar la calidad de un candidato, 
 representado por un conjunto de métodos $M$, se define como una tripla al igual 
-que la función de la sección \ref{} \pp{Ref.}:
+que la función de la sección \ref{sec:fitnessGE}.
 
 \[
-f(M) = \langle Cob(M), R(M), C(M) \rangle
+f'(M) = \langle Cob(M), R(M), C(M) \rangle
 \]
-\pp{Cambiar $f$ por $f'$, sino parece que fuera la misma función}
 
 Donde:
 
 \begin{itemize}
     \item $Cob(M)$ (Cobertura): Es el número de ramas y lineas cubiertas
         (\pp{ref a la fórmula de Cob}) por la
-        suite generada por el algoritmo \ref{} \pp{Ref.}, utilizando $M$ como
+        suite generada por el algoritmo \ref{alg:fitnessRandoop}, utilizando $M$ como
         entrada. 
     Este componente tiene la mayor importancia, ya que refleja directamente la
     efectividad de los tests al cubrir líneas y ramas de la API.
 \item $R(M)$ (Redundancia): Diferencia entre el número total de métodos de la
     API ($M_t$) y la cantidad de métodos en $M$. Se define igual que para la
-    función objetivo basada en generación exhuastiva acotada de la sección \ref{} \pp{Ref.}.
+    función objetivo basada en generación exhuastiva acotada de la sección \ref{sec:fitnessGE}.
     \item $P(M)$ (Parámetros): Medida ponderada de la complejidad de los
         parámetros de los métodos en $M$. También mantuvimos el mismo cálculo
         que para la función objetivo basada en generación exhaustiva acotada.
 \end{itemize}
 
-Volvamos al ejemplo que usamos durante este capítulo. En el primer caso tenemos los siguientes métodos:
-\vspace{5pt} 
+Volvamos al ejemplo que usamos durante este capítulo. Consideremos los siguientes conjuntos de métodos:
 
 \begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_1 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
+  
 \end{lstlisting} 
 
-y en el segundo caso tenemos:
 
 \begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_2 \)]
   NodeCachingLinkedList()
   addFirst(Object)
+
+   
 \end{lstlisting}
 
 
-Para estos casos, se ejecuta el algoritmo \ref{} \pp{Ref.} y se obtienen test suites.
-A partir de estas, se ejecutan y se analiza la cobertura que se obtiene, cuyo
-resultado se muestra a continuación:
+\cacho{Nuevo esto:}
+\\
+
+Al ejecutar el algoritmo~\ref{alg:fitnessRandoop} con cada conjunto como entrada, se generan suites de tests que luego son evaluadas utilizando herramientas de análisis de cobertura. 
+El resultado, expresado como la tripla \( \langle Cob, R, P \rangle \), se detalla a continuación:
 
 \[
-f(M_1) = \langle 15, 17, 4 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 4 \rangle
+f(M_1) = \langle 293, 17, 66 \rangle \quad \text{y} \quad f(M_2) = \langle 272, 18, 66 \rangle
 \]
 
-\pp{El ejemplo está incompleto. 15 no sé qué es, habría que decir más o menos
-    que cobertura obtuvo, por qué un conjunto de métodos obtiene más cobertura
-    que el otro, etc.. Sino así como está no aclara mucho. Hay que arreglar todo lo que había que arreglar en la sección previa también (ej. valuaciones para los parámetros.}
+En este caso, la cobertura  (\(Cob\)), se computa como la suma del número de líneas y ramas cubiertas.
+Para \( M_1 \), se cubrieron 192 líneas y 101 ramas (\(Cob = 293\)), para \( M_2 \), se cubrieron 175 líneas y 97 ramas (\(Cob = 272\)).
+
+Para la redundancia de métodos, tal cual la seccion anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
+El conjunto \( M_1 \) contiene 3 métodos, por lo que \( R(M_1) = 20 - 3 = 17 \) y el conjunto \( M_2 \) contiene 2 métodos, entonces \( R(M_2) = 20 - 2 = 18 \).
+
+En cuanto a los parámetros, ambos conjuntos tienen la misma complejidad de parámetros, ya que ambos conjuntos incluyen únicamente el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo \texttt{Object}, con un peso de 6 según la Tabla~\ref{fig:rankParameters}. 
+Los demás métodos no tienen parámetros. Por lo tanto, el peso total de parámetros en ambos conjuntos es \( W(M_1) = W(M_2) = 6 \), y como el peso total de la API es \( W(API) = 72 \), se obtiene \( P = 72 - 6 = 66 \) en ambos casos.
+
+En este caso, el conjunto \( M_1 \) logra una mejor cobertura, lo cual alcanza este valor para elegirlo como mejor candidato. 
+Esto se debe a que la inclusión de métodos como \texttt{removeFirst()} en \( M_1 \) permite generar tests más variados, que ejercitan comportamientos adicionales de la API. 
+En contraste, \( M_2 \) no permite generar escenarios que modifiquen el estado interno de la lista, lo que impide alcanzar ciertas ramas del código.
+
+Por lo tanto, de acuerdo con la función objetivo basada en cobertura, se prefiere el conjunto \( M_1 \):
+
+\[
+f(M_1) > f(M_2)
+\]
+
 
 En nuestra evaluación experimental, ambas funciones objetivo son utilizadas como
 parte de los algoritmos de búsqueda implementados, para analizar sus ventajas y
 desventajas en la práctica. 
 
+
+
 \section{Algoritmos para la Identificación de Métodos Generadores de Objetos}
 \label{sec:algorithms}
 
-\pp{En algún lugar habría que meter un gráfico de cómo funciona la técnica a alto nivel. Creo que en alguna de las slides teníamos algo así.} 
-\cacho{Poner algo de dibujitos algo sobre el flujo de la tecnicas. Pedir a Vale el de BEAPI y adaptarlo aca, asi quedan del mismo formato}
+En esta sección presentamos el proceso completo para identificar automáticamente métodos generadores de objetos a partir de la clase objetivo (target class). 
+La Figura~\ref{fig:builders-overview} muestra una visión general del enfoque propuesto.
+
+\cacho{Debo charlar con PP para ver la imagen y mejorarla. Creo que queda mejor al principio de todo el capitulo. Falta mejorar nombres en la imagen pero es para tener una idea}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\textwidth]{images/builders.png}
+  \caption{Framework de BEAPI}
+  \label{fig:builders-overview}
+\end{figure}
+
+
+Dado una clase objetivo (por ejemplo, \texttt{NCL}), nuestro enfoque busca identificar el subconjunto de métodos de su API que permite construir objetos representativos, de acuerdo con un criterio de evaluación. 
+Este proceso se estructura en tres componentes principales: la definición de una función objetivo (\emph{fitness}), la exploración del espacio de soluciones mediante algoritmos de búsqueda, 
+y la evaluación sobre dos variantes: generación exhaustiva acotada (usando BEAPI) y generación de tests (usando Randoop).
+
+El procedimiento comienza con la especificación de la clase objetivo y los parámetros de configuración para el generador BEAPI (por ejemplo, el \texttt{scope}, el número máximo de objetos, y el rango de valores enteros permitidos). 
+En paralelo, se pueden definir los parámetros del algoritmo genético o del algoritmo de escalada empleados para explorar el espacio de soluciones.
+
+El sistema evalúa candidatos (subconjuntos de métodos) mediante una función objetivo que mide su capacidad para generar objetos válidos (en el caso de BEAPI), o para cubrir líneas y ramas del código (en el caso de Randoop).
+Esta evaluación se traduce en una tripla que combina métricas como la cantidad de objetos generados o la cobertura alcanzada, junto con aspectos estructurales como la redundancia del conjunto y la complejidad de los parámetros de los métodos utilizados.
+
+Los candidatos se refinan iterativamente utilizando algoritmos de búsqueda metaheurísticos. 
+Finalmente, el mejor conjunto identificado se reporta como el conjunto de métodos generadores.
+
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
@@ -986,7 +1061,7 @@ de los padres. Este mecanismo favorece la exploración del espacio de búsqueda 
 \end{figure}
 
 \cacho{Nuevo:}
-
+\\
 En nuestro algoritmo, utilizamos una tasa de cruzamiento de \( c_r = 0{,}50 \) (\emph{tasa de crossover}), 
 lo cual implica que, en cada generación, aproximadamente el 50\,\% de los individuos seleccionados para reproducción serán cruzados entre sí.  
 Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección~\ref{sec:selection}), esto equivale al:
@@ -1025,8 +1100,6 @@ Donde $N$ es el tamaño de la población, $L$ es la longitud del cromosoma y $P_
 En nuestro caso, para la clase NCL, $N = 50$, $L = 20$ y $P_m = 0,05$, por lo que $\mu = 50 \cdot 20 \cdot 0,05 = 50$.
 Esto indica que, en promedio, se mutan 50 bits de toda la poblacion por generación
 
-
-
 Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces una mutación en la posición 3 implicaría activar o desactivar el método
 correspondiente en el individuo, de acuerdo a la tabla \ref{tab:ncl-api-infer}, seria el método \emph{add(Object)}.
 Este tipo de variaciones permite explorar diferentes combinaciones de subconjuntos de métodos que de otra manera no se generarían.  
@@ -1041,6 +1114,7 @@ Este tipo de variaciones permite explorar diferentes combinaciones de subconjunt
 
 El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que definimos para la búsqueda de métodos generadores de objetos.
 
+\cacho{TODO ESTO ES NUEVO:}
 
 \begin{algorithm}
   \caption{Algoritmo genético para la identificación de métodos generadores de
@@ -1110,65 +1184,40 @@ El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genétic
 % \end{algorithmic}
 % \end{algorithm}
 
+Los elementos descritos a continuación corresponden a las partes constitutivas del algoritmo genético implementado en nuestro enfoque 
+para identificar subconjuntos de métodos generadores. 
+El algoritmo~\ref{alg:enfoqueGA} sigue la estructura típica de un algoritmo evolutivo, adaptado específicamente a nuestro problema.
 
-\cacho{Explicar bien una vez que lo vea con PP}
-Los elementos descritos anteriormente son las partes constitutivas del algoritmo genético que implementa nuestro enfoque. 
-Nótese que el algoritmo~\ref{alg:enfoqueGA} sigue la estructura típica de un algoritmo genético. 
+La población inicial se construye en la línea 1, generando cromosomas válidos, donde cada uno representa un subconjunto de métodos con exactamente un método activo.
+Esta decisión inicial asegura diversidad mínima, permitiendo explorar combinaciones desde los métodos más simples hacia conjuntos más complejos 
+a lo largo de la evolución.
 
-La población inicial se genera produciendo todos los cromosomas factibles con un
-único método disponible (vectores con falso en todas las posiciones excepto una,
-establecida en verdadero) (línea 1) \pp{esto no coincide con el pseudocódigo}. 
-Luego, comienza a evolucionar la población de forma iterativa (líneas 2-14). 
-Al inicio de cada iteración, el algoritmo descarta algunos individuos para controlar el tamaño de la población, conservando los $popSize$ individuos más aptos de la población actual y eliminando el resto (línea 3).
+En la línea 2 se define el tamaño de la descendencia como un 60\% del tamaño del cromosoma, 
+y el resto (40\%) se mantiene como sobrevivientes de la población actual. A partir de allí, el algoritmo entra en el bucle evolutivo que se repite durante un número máximo de generaciones $numEvo$ (línea 3).
 
-\pp{Cuál es la función objetivo del algoritmo genético?}
 
-Posteriormente, el algoritmo realiza un cruzamiento de dos puntos en individuos
-seleccionados aleatoriamente (líneas 4-7). \pp{No. Debería usar tournament para
-hacer selección. Tournament selection no aparece en ningún lado del
-pseudocódigo, está incompleto o es otra cosa diferente al algoritmo real.
-Tenemos que juntarnos a ver esto.}
-El cruzamiento se aplica un número de veces proporcional al tamaño de la población $popSize$, 
-determinado por el producto de $popSize$ y la tasa de cruzamiento $cRate$ ($0
-\leq cRate \leq 1$). \pp{cRate no está en el algoritmo}. \pp{El resultado del
-cruzamiento no se sabe a qué población va a parar, parece que se tirara de la
-forma en que está el pseudocódigo.}
-Luego, el algoritmo muta los individuos (líneas 8-10) cambiando el valor de cada
-uno de sus genes con probabilidad $mRate$ ($0 \leq mRate \leq 1$) \pp{mRate no
-está en el algoritmo. El resultado de mutar tampoco se sabe dónde se guarda.}. 
-Todos los nuevos individuos creados por las operaciones de cruzamiento y
-mutación se agregan a la población \pp{dónde en el pseudocódigo?}.
+En cada iteración, se seleccionan los individuos sobrevivientes mediante un proceso de \textit{selección por torneo} (línea 4), utilizando el parámetro $tournamentSize$ como tamaño de torneo.
+A continuación, se genera una descendencia en la línea 5 a través de un ciclo de reproducción que recorre $offspringSize$ veces.
 
-El algoritmo se detiene después de $numEvo$ \pp{No está en el algoritmo}
-evoluciones, donde $numEvo$ es un parámetro del algoritmo \pp{No están
-declarados los parámetros del algoritmo, habría que declararlos al inicio para
-que queden más claros}. 
-%Cabe destacar que no tenemos un valor objetivo para nuestra función de fitness, 
-%ya que un conjunto no probado de métodos podría producir más  que las observadas hasta el momento. 
-Nuevamente, existe un compromiso al elegir un buen valor para $numEvo$: un número mayor aumenta la precisión del algoritmo pero incrementa su tiempo de ejecución, 
+Cada nuevo individuo se genera a partir de dos padres seleccionados también mediante torneo (líneas 7-8). 
+Con una probabilidad $crossoverRate$, se aplica un operador de \textit{cruzamiento multipunto} (línea 9); en caso contrario, se elige el más apto entre los dos padres (línea 11).
+Luego de generada la descendencia, se aplica el operador de \textit{mutación} (líneas 14-17) sobre cada individuo. 
+La mutación se realiza gen a gen con una probabilidad $mutationRate$, y si el cromosoma mutado es diferente del original, se reemplaza.
+
+La nueva población para la siguiente generación se construye uniendo los sobrevivientes y la descendencia (línea 19). A partir de esta población, se determina el mejor cromosoma actual (línea 20).
+El algoritmo verifica si la aptitud del mejor cromosoma se mantiene constante durante un número de generaciones consecutivas igual a $maxIter$ (líneas 21 a 23). Si esto ocurre, se detiene anticipadamente.
+
+La \textbf{función objetivo} utilizada durante todo el proceso es la definida en la sección~\ref{sec:fitnessGE}, y tiene en cuenta tres componentes: cantidad de objetos generados, minimalidad (métodos usados) y complejidad de parámetros. 
+Esta función se utiliza tanto en los torneos como para evaluar los resultados de cruce y mutación.
+
+Finalmente, el mejor cromosoma encontrado se retorna como resultado del algoritmo (línea 25).
+
+Todos los parámetros del algoritmo fueron definidos de manera experimental.
+Los valores utilizados en nuestras evaluaciones son: tamaño de población $N = 50$, tasa de cruzamiento $crossoverRate = 0.35$, tasa de mutación $mutationRate = 0.08$, número máximo de generaciones $numEvo = 20$ y iteraciones máximas $maxIter = 5$.
+ 
+Existe un compromiso al elegir un buen valor para $numEvo$: un número mayor aumenta la precisión del algoritmo pero incrementa su tiempo de ejecución, 
 mientras que un número menor lo hace más rápido pero podría no encontrar el
 mejor conjunto de generadores de objetos.
-
-\pp{Qué hacen las líneas 11, 12, 13-15? No están en el texto.}
-
-Como es habitual, determinamos valores para los parámetros del algoritmo que
-funcionan bien de manera experimental. Luego de realizar experimentos en
-varios casos de estudios y con diferentes valores para los párametros 
-elegimos $numEvo=20$, $popSize=50$, $cRate=0.35$, $mRate=0.08$ 
-y $maxIter=5$. 
-
-%Cabe destacar que, si quitamos la complejidad de la función de aptitud, nuestro algoritmo evolutivo es bastante estándar, por lo que no es sorprendente que una implementación existente funcione bien para nuestros propósitos. Por supuesto, realizar mejoras en el algoritmo evolutivo y ajustar sus parámetros (como las tasas de cruce y mutación) podría acelerar los tiempos de ejecución.
-
-También implementamos una versión simple de nuestro enfoque que utiliza
-múltiples hilos (multi-threading), lo que ayuda a mejorar el rendimiento.
-Básicamente, en cada iteración se crean t copias de la población actual, donde t
-es el número de hilos disponibles. Luego, cada réplica de la población
-evoluciona de forma independiente. Cuando todos los hilos terminan, se conservan
-los 50/t individuos más aptos de la población evolucionada por cada hilo, y
-estos se utilizan para construir la población de la siguiente iteración del
-algoritmo. \pp{No estoy seguro que nos convenga mantener este párrafo. Jenetics quizás
-maneje los hilos solo? O los implementaste vos? Un jurado que sepa de genéticos nos puede pegar por
-todos lados.}
 
 Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/} varsion 5.2.0 . Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
 \emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
@@ -1176,52 +1225,11 @@ Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera 
 utivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) podrían optimizar los tiempos de ejecución.
 
 
-%\subsection{Representación del Cromosoma}
+Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{\url{https://jenetics.io/}}, versión 5.2.0. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
+\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
+Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda.
+Una característica relevante de \emph{Jenetics} es que permite realizar la evaluación de los individuos de la población en paralelo utilizando el \emph{ForkJoinPool.commonPool()}, lo que mejora notablemente el rendimiento en sistemas con múltiples núcleos. Esta paralelización se gestiona de forma transparente, sin necesidad de implementar hilos manualmente, y puede personalizarse en caso de requerirse un control más detallado del entorno de ejecución.
 
-%En el contexto de nuestro problema, las soluciones candidatas representan conjuntos de métodos de la API del módulo que se está analizando. Empleamos vectores de valores booleanos como representación del cromosoma. Sea $n$ el número de métodos en la API; los cromosomas en nuestro algoritmo serán vectores de tamaño $n$. Para cualquier vector, la posición $i$ será verdadera si y solo si el cromosoma contiene el $i$-ésimo método de la API. Por ejemplo, hay 34 métodos en la API de NCL (Tabla \ref{tab:ncl-api}), y los numeramos del 0 al 33. El conjunto suficiente de constructores en la Figura \ref{fig:NCLbuilders} está caracterizado por el vector con las posiciones 0, 7 y 25 configuradas como verdaderas, y las posiciones restantes configuradas como falsas. En este caso, el espacio de búsqueda completo consta de los $2^{34}$ cromosomas posibles.
-
-% Idealmente, nos gustaría explorar todos los objetos factibles dentro de un límite pequeño $k$, 
-% que pueden construirse utilizando los métodos del cromosoma actual, es decir, $BE(M, k)$.
-% En otras palabras, necesitamos un generador exhaustivo limitado para el conjunto de métodos. 
-% El límite $k$ representa el número máximo de objetos que se pueden crear para cada clase (en la Figura \ref{fig:ncl-instances}, 
-% el número de nodos en los objetos NCL está limitado por $k=2$), 
-% y el número máximo de valores primitivos disponibles (por ejemplo, enteros de 0 a $k-1$). 
-% Para esto, desarrollamos un prototipo modificando la herramienta Randoop, 
-% que se discute brevemente en la Sección \ref{sec:randoop}.
-% Primero, alteramos Randoop para trabajar con un conjunto fijo de valores primitivos (enteros de 0 a $k-1$). 
-% (Normalmente, Randoop guardaría valores primitivos que se devuelven por la ejecución de pruebas, y reutilizaría estos valores en futuras pruebas). En segundo lugar, hacemos que Randoop descarte secuencias de métodos que creen objetos con más de $k$ objetos (de cualquier tipo), para evitar que construya objetos más grandes de los necesarios. Para lograr esto, canonicemos los objetos generados por la ejecución de cada secuencia, y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$. En tercer lugar, extendemos Randoop con extensiones de campos ``globales'', y cuando la ejecución de una secuencia termina, todos los valores de campo de los objetos generados por la secuencia se agregan a las extensiones de campos. Por ejemplo, si Randoop hubiera generado los objetos en la Figura \ref{fig:ncl-instances}, entonces las extensiones globales de campo tendrían los valores mostrados en la Figura \ref{fig:NCLextensions}. Nuestro objetivo es que, dado un límite $k$, cuando nuestra versión modificada de Randoop termine, las extensiones globales de campo contengan todos los valores de campo del conjunto exhaustivo limitado de estructuras con hasta $k$ nodos, $BE(M, k)$. El resultado de la función de aptitud para el cromosoma es el número de valores de campo en las extensiones globales calculadas por la herramienta.
-
-% Nuestra justificación para usar conjuntos limitados de objetos es similar a la hipótesis de alcance pequeño para la detección de errores \cite{Andoni:2003}: si un conjunto de métodos no se puede usar para construir objetos pequeños que permitan diferenciarlo de otro conjunto de métodos, entonces es poco probable que estos dos conjuntos se puedan distinguir con objetos más grandes. Esta hipótesis se cumplió durante nuestra evaluación empírica en todos nuestros estudios de caso.
-
-% Descubrimos que, además de verse afectada por el azar, nuestra herramienta rara vez deja de construir objetos que deberían agregar valores relevantes a las extensiones globales, cuando se emplean valores pequeños para $k$.
-
-
-%vieja explicacion
-
-% El algoritmo comienza con una población inicial de individuos, que son configuraciones del problema que estamos tratando de resolver. El metedo \emph{new Poblacion()} 
-% es el encargado de devolvernos el conjunto de individuos iniciales con el que comenzara la busqueda.
-% \pp{Antes se menciona que se genera aleatoriamente, no está en el algoritmo esto. Hay que hacer referencia a las secciones en las que se explica cada componente.}.
-% \cacho{Aca comente arriba que inciiamos con una poblacion de singletons, se puede evitar decir esto, para no ensuciar el algoritmo genetico como tal}
-% El algoritmo se ejecuta en ciclos repetitivos llamados generaciones. En cada generación, se crea una nueva población a partir de la población anterior mediante una combinación de selección, cruzamiento y mutación.
-
-% En la fase de selección (línea 5 y 6), se eligen los individuos de la población actual que participarán en la reproducción.
-% Los individuos más aptos, es decir, aquellos con una mayor adaptación o valor de la función objetivo, tienen más probabilidad de ser seleccionados.
-% En la fase de cruzamiento (línea 7), se seleccionan dos individuos padres de la población y se combinan partes de sus genes para crear nuevos individuos hijos, tal cual lo explicamos en la sección de cruzamiento. \pp{No está en crossover rate.}
-
-% Luego, en la fase de mutación (Línea 8 y 9), se introducen cambios aleatorios en los genes de algunos individuos para diversificar la población y evitar que el algoritmo quede atrapado en óptimos locales. 
-% La probabilidad de mutación suele ser baja, por ende, depende de esta probabilidad para realizar la mutación.
-
-% Una vez que se ha creado la nueva población (Línea 13), reemplaza a la población anterior y se repite el proceso para generar una nueva generación. 
-% El algoritmo se repite durante un número determinado de generaciones o hasta que, durante 7 generaciones, se repita siempre el mejor estado. Esto es lo que refleja la \emph{condicionDeTerminacionCumplida}
-% en el algoritmo (linea 14).
-
-% Al final del algoritmo, se selecciona el mejor individuo (de acuerdo a la función de valoración) de la última población como la solución encontrada. (Línea 16)
-
-% \pp{Acá habría que describir la biblioteca utilizada y meter una referencia}
-% \cacho{Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.}
-
-% \cacho{\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
-% Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. }
 
 \subsection{Algortimo de Escalada de Colinas}
 \label{alg:approachHC}
@@ -1312,7 +1320,7 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
 
 \end{algorithm}
 
-La Figura~\ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos . 
+El algoritmo~\ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos . 
 La representación que hemos utilizado del problema es la explicada en la sección
 \ref{sec:estados}. Esto quiere decir que utilizamos vectores de bits para
 representar los estados. \pp{Y las funciones objetivo?}

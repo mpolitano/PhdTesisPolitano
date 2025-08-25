@@ -19,10 +19,10 @@ introduce dos algoritmos para la identificación automática de métodos generad
 Ambos algoritmos buscan detectar conjuntos de métodos constructores que permitan generar estructuras desde cero, 
 sin requerir intervención manual ni especificaciones formales. 
 Evaluamos estas técnicas en casos de estudios extraídos de la literatura, 
-y los resultados obtenidos muestran que los conjuntos identificados son suficientes y mínimos, con tiempos de ejecución razonables. 
+y los resultados obtenidos muestran que los conjuntos identificados son suficientes y minimales, con tiempos de ejecución razonables. 
 Hasta donde tenemos conocimiento, este constituye el primer trabajo que aborda de manera sistemática y automática el problema de la identificación de constructores, el cual ha sido tradicionalmente resuelto de manera manual.
 
-Además, mostramos que los conjuntos de constructores obtenidos pueden ser aprovechados por herramientas de generación de pruebas, facilitando la creación de objetos más grandes y diversos. 
+Además, mostramos que los conjuntos de constructores obtenidos pueden ser aprovechados por herramientas de generación de tests, facilitando la creación de objetos más grandes y diversos. 
 También técnicas como \emph{model checking} pueden beneficiarse de estos métodos mediante la construcción automática de \emph{drivers} eficientes. 
 Los resultados obtenidos son alentadores y sugieren que esta línea de trabajo sea prometedora.
 
@@ -33,7 +33,7 @@ Aunque existen herramientas para generación exhaustiva acotada, ninguna de ella
 lo cual subraya la originalidad y el valor del enfoque propuesto en este trabajo.
 
 La segunda técnica, presentada en el Capítulo~\ref{cap:beapi}, se centra precisamente en la necesidad de contar con una herriamienta
-de generación exhaustiva acotada que produzca entradas de pruebas y que opere directamente desde la API pública del software bajo prueba (SUT), sin requerir especificaciones formales.
+de generación exhaustiva acotada que produzca entradas de tests y que opere directamente desde la API pública del software bajo prueba (SUT), sin requerir especificaciones formales.
 Surge entonces BEAPI, que permite generar suites exhaustivas acotadas incluso cuando existen invariantes implícitos, 
 reduciendo la carga de tener que escribir y ajustar especificaciones manualmente.
 Al no existir herramientas de generación exhaustiva que trabajen directamente sobre APIs, BEAPI llena un vacío importante en el área.
@@ -42,7 +42,7 @@ Gracias a una serie de optimizaciones —incluyendo la identificación automáti
 BEAPI logra un rendimiento comparable al de la técnica más eficiente basada en especificaciones, Korat \cite{Boyapati02}. 
 Además, identificamos ciertas características de los componentes que los hacen más adecuados para una generación basada en especificaciones o bien para una generación basada en API.
 
-A pesar de que la generación exhaustiva acotada de pruebas es intrínsecamente combinatoria, 
+A pesar de que la generación exhaustiva acotada de tests es intrínsecamente combinatoria, 
 el proceso puede volverse eficiente gracias a diversas optimizaciones que propusimos e implementamos. 
 Estas incluyen la generación de secuencias de métodos guiada por retroalimentación, la eliminación de estados redundantes mediante comparación, 
 y el uso de métodos constructores para reducir la explosión combinatoria. 
@@ -56,7 +56,7 @@ Esto indica que tanto las técnicas que requieren \texttt{repOK} (por ejemplo, \
 pueden beneficiarse de la técnica presentada.
 
 En conclusión, este trabajo sienta las bases para una generación exhaustiva acotada de entradas de prueba que, 
-partiendo únicamente de la API pública de un módulo, permite construir conjuntos de pruebas completos y representativos. 
+partiendo únicamente de la API pública de un módulo, permite construir conjuntos de tests completos y representativos. 
 Las contribuciones desarrolladas en esta tesis aportan significativamente al aseguramiento de la calidad del software, 
 y abren nuevas perspectivas para la investigación y el desarrollo de herramientas de prueba automatizadas, 
 más efectivas y confiables en contextos reales.
@@ -95,7 +95,7 @@ suites exhaustivas acotadas (por ejemplo, \cite{Molina+2021}), pueden beneficiar
 \cacho{Traduccion del paper Automatically Identifying Sufficient Object Builders from Module APIs }
 
 En este trabajo, presentamos un algoritmo evolutivo para detectar automáticamente conjuntos de constructores a partir de la API de un módulo. 
-Evaluamos nuestro algoritmo en varios estudios de caso tomados de la literatura, y encontramos que es capaz de identificar de manera precisa conjuntos de constructores que son suficientes y mínimos, 
+Evaluamos nuestro algoritmo en varios estudios de caso tomados de la literatura, y encontramos que es capaz de identificar de manera precisa conjuntos de constructores que son suficientes y minimales, 
 en tiempos de ejecución razonables. Hasta donde sabemos, este es el primer trabajo que aborda este problema, el cual suele resolverse de manera manual.
 
 También mostramos resultados preliminares que indican que nuestro enfoque puede ser aprovechado por herramientas de generación de casos de prueba para producir objetos más grandes y diversos. 
@@ -120,16 +120,16 @@ por lo que planeamos investigar esto más a fondo en el futuro.
 s
 \cacho{Traduccion del paper BEAPI: A Tool for Bounded Exhaustive Input Generation from APIs }
 
-Presentamos BEAPI, una herramienta para la generación exhaustiva acotada de entradas de prueba que se basa únicamente en la API pública del SUT para la generación de pruebas. 
+Presentamos BEAPI, una herramienta para la generación exhaustiva acotada de entradas de prueba que se basa únicamente en la API pública del SUT para la generación de tests. 
 Al ejercitar directamente la API del software bajo prueba, BEAPI resulta fácil de usar y habilita la generación exhaustiva acotada para software que carece de especificaciones formales de entradas válidas. 
 Al mismo tiempo, la herramienta necesariamente genera entradas positivas verdaderas, en el sentido de que cada entrada producida es efectivamente construible a partir de los métodos públicos del SUT.
 
-A pesar de que la generación exhaustiva acotada de pruebas es intrínsecamente combinatoria, 
+A pesar de que la generación exhaustiva acotada de tests es intrínsecamente combinatoria, 
 el proceso de generación puede hacerse eficiente gracias a diversas optimizaciones en el algoritmo de generación exhaustiva acotada de BEAPI, que hemos propuesto e implementado. 
 Estas optimizaciones incluyen la generación de secuencias de métodos basada en retroalimentación, la eliminación de estados redundantes mediante comparación de estados, y la identificación y posterior uso de métodos constructores para reducir la explosión de secuencias de métodos. 
 Mostramos experimentalmente que las optimizaciones propuestas son cruciales para la eficiencia y escalabilidad de la herramienta, y que permiten a BEAPI alcanzar una eficiencia comparable a la de los enfoques exhaustivos acotados más eficientes basados en especificaciones existentes.
 
-Como trabajo futuro, planeamos evaluar BEAPI frente a otras herramientas de generación de pruebas de última generación que no son exhaustivas (por ejemplo, Randoop), 
+Como trabajo futuro, planeamos evaluar BEAPI frente a otras herramientas de generación de tests de última generación que no son exhaustivas (por ejemplo, Randoop), 
 utilizando benchmarks modernos de la literatura, para evaluar mejor las capacidades de BEAPI (y de la generación exhaustiva acotada en general) 
 frente a otras técnicas de prueba automatizadas.
 
