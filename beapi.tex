@@ -1,32 +1,35 @@
-\chapter{Generación Exhaustiva acotada desde API de los programas}
+\chapter{Generación exhaustiva acotada basada en la API}
 \label{cap:beapi}
 
 En adelante, se presenta la técnica desarrollada llamada BEAPI, que tiene como
-objetivo mejorar la generación exhaustiva acotada (BEG, por sus siglas en
-inglés, \emph{Bounded Exhaustive Generation}). \cacho{Agregar en preliminar? o
-referencia a book?} \pp{Ya fue. La estás introduciendo intuitivamente y
-definiendo la técnica acá. Se puede introducir Korat en preliminares pero
-requiere mucho laburo de estudiar como funciona.}
-La generación exhaustiva acotada se refiere a un enfoque en pruebas de software
-y análisis de sistemas en el cual se generan y evalúan todas las posibles combinaciones o instancias de entrada dentro de un conjunto acotado. 
-Esto significa que se examinan todas las combinaciones posibles de entrada dentro de un límite especificado. 
-Es un enfoque efectivo para revelar fallas en el software. 
-%Además, se utiliza a menudo en sistemas donde el espacio de entrada es manejable y finito. 
+objetivo realizar la generación exhaustiva acotada (\emph{Bounded Exhaustive Generation}) 
+de objetos usando los métodos de la API del módulo bajo test. 
+La generación exhaustiva acotada es un enfoque de generación de tests que
+consiste en generar todas las posibles entradas para el software bajo test con
+dominios de datos acotados (usualmente pequeños). 
+La mayor ventaja de la generación exhaustiva acotada es un enfoque efectivo para
+revelar fallas en el software \cite{} \pp{Agregar citas, están en el paper de
+BEAPI}. 
 
-Existen varios enfoques de BEG que requieren una especificación precisa de que entradas son válidas en el contexto del sistema. 
-Esta especificación comúnmente se llaman \emph{RepOK} y debe ser brindada por el usuario.
-En este capítulo, introduciremos BEAPI, un enfoque eficiente que genera un conjunto exhaustivo acotado de objetos realizando únicamente llamadas a la API de un módulo. 
-Discutiremos las principales ideas de nuestros enfoques para generar de manera eficiente. 
+Los enfoques existentes de generación exhaustiva acotada requieren una
+especificación precisa y formal de las propiedades que deben satisfacer las
+entradas del software bajo test \cite{} \pp{Agregar citas a Korat, TestEra, etc}. 
+Esta especificación comúnmente se llama \emph{repOK} (define las propiedades que
+satisface la representación de las entradas) y debe ser brindada por el usuario \cite{} \pp{Agregar citas a Korat, TestEra, etc}.
+En este capítulo, introduciremos BEAPI, un enfoque eficiente que genera un
+conjunto exhaustivo acotado de objetos realizando únicamente llamadas a la API
+de un módulo. Al utilizar la API para construir objetos, BEAPI no requiere 
+un \emph{repOK} como las técnicas existentes. 
+Además, BEAPI incorpora optimizaciones novedosas en la generación de tests, que
+mejoran significativamente su rendimiento, y son claves para realizar la generación exhaustiva acotada de manera eficiente. 
 
-\cacho{No se si es necesario, lo tenia hecho de antes} \pp{Está bien, pero hay
-que actualizarlo.}
 Este capítulo está organizado de la siguiente manera: en la Sección \ref{sec:motivating-example}, 
 se presenta un ejemplo que ilustra el problema que se aborda con la técnica propuesta, 
 la cual se explica en la Sección \ref{sec:beapiIntro}. Luego, en las Secciones \ref{sec:scope}, \ref{sec:stateMatching} y
  \ref{sec:buildersOptimization}, se describen las optimizaciones implementadas en BEAPI. 
- Estas optimizaciones son de vital importancia a la hora de trabajar con BE, 
- ya que necesitamos acortar el espacio de búsqueda para poder generar suites exhaustivas acotadas con un 
- rendimiento comparable al de las técnicas basada en especificaciones, una de ellas es \emph{Korat}\cite{Boyapati02} 
+ Estas optimizaciones son de vital importancia, y le permiten a BEAPI 
+lograr rendimiento comparable al de las técnicas basadas en especificaciones
+(como \emph{Korat}\cite{Boyapati02}). \pp{Revisar los números de sección}
 
 
 \section[Motivación]{Motivación}
@@ -74,46 +77,59 @@ public boolean repOK() {
 \caption{\texttt{repOK} de \texttt{NodeCachingLinkedList} tomado del benchmark de \textsf{ROOPS}}
 \label{fig:NCL-repOK}
 \end{figure}
+Las herramientas de generación exhaustiva acotada existentes, como \emph{Korat},
+requieren de una especificación formal para poder distinguir las entradas
+que válidas para el software bajo test de las inválidas (y descartar estas
+últimas durante la generación).
+En el caso de Korat, esta especificación se define mediante 
+un método booleano en el mismo lenguaje de programación (Java), que toma como
+parámetro una estructura y devuelve
+\texttt{true} si y solo si la estructura satisface las propiedades deseadas.
+Cuando se trata de implementaciones de estructuras de datos (un caso típico de
+aplicación de la generación exhaustiva acotada), la especificación describe las
+propiedades que debe satisfacer la representación de la estructura, por lo que 
+el método que define la especificación usualmente se denomina \emph{repOK}~\cite{Boyapati02}. 
 
+Para ilustrar las dificultades que implica escribir estas especificaciones de
+forma precisa para el usuario de la herramienta, consideramos el método 
+\emph{repOK} de la clase \texttt{NodeCachingLinkedList} (NCL) de Apache, que se
+muestra en la Figura~\ref{fig:NCL-repOK}. 
+Este ejemplo proviene del benchmark \emph{ROOPS}, que ha sido ampliamente
+utilizado para evaluar herramientas automáticas de testing/análisis de software 
+\cite{} \pp{Agregar citas}. 
 
-\cacho{Es nuevo esto:}
-La generación automática de estructuras para pruebas requiere que el dominio de entrada esté claramente especificado. 
-En herramientas basadas en generación exhaustiva acotada, como \emph{Korat}, esta especificación suele definirse mediante 
-un invariante de representación, comúnmente denominado \emph{repOK}~\cite{Boyapati02}. Este es un predicado booleano 
-que devuelve \texttt{true} si, y solo si, una estructura de datos satisface todas sus restricciones de validez.
+Como se explicó en el Capítulo~\ref{cap:builders}, NCL posee una lista
+principal, implementada usando una lista circular doblemente enlazada, 
+y una lista auxiliar simplemente enlazada que actúa como caché de nodos
+previamente eliminados de la lista principal. Esta caché permite reutilizar 
+nodos eliminados, evitando la sobrecarga de recolección de basura en aplicaciones con frecuentes inserciones y eliminaciones.
 
-
-Para ilustrar las dificultades que implica escribir estas especificaciones de forma precisa, consideramos el método 
-\emph{repOK} de la clase \texttt{NodeCachingLinkedList} (NCL) de Apache, mostrado en la Figura~\ref{fig:NCL-repOK}. 
-Este ejemplo, proveniente del benchmark \emph{ROOPS}, ha sido ampliamente utilizado para evaluar herramientas de generación 
-de estructuras válidas.
-
-Como se explicó en el Capítulo~\ref{cap:builders}, NCL implementa una lista principal circular doblemente enlazada, 
-junto con una lista auxiliar simple que actúa como caché de nodos previamente utilizados. Esta caché permite reutilizar 
-nodos eliminados, evitando la sobrecarga de recolección de basura en aplicaciones con frecuentes inserciones y 
-eliminaciones.
-
-El método \texttt{repOK} verifica la validez estructural de una instancia de NCL. Sin embargo, como se observa en la 
-Figura~\ref{fig:NCL-repOK}, en la línea 28, ciertas restricciones están comentadas, debido a la ausencia de la misma y no se verifican (por ejemplo, que el nodo 
-ficticio debe tener valor \texttt{null}, o que los nodos de la caché no deben contener datos). La omisión de estas 
-condiciones puede conducir a la generación de estructuras inválidas que no reflejan correctamente el dominio.
-
+El método \texttt{repOK} verifica la validez estructural de una instancia de
+NCL. Sin embargo, como se muestra en la Figura~\ref{fig:NCL-repOK}, el
+autor del código en ROOPS olvidó describir algunas restricciones que deben
+cumplir las instancias de NCL. Más específicamente, el autor omitió las
+restricciones que indican que: el nodo ficticio de la lista principal debe tener el
+valor \texttt{null} (líneas 3 y 4), y que los nodos de la caché no deben 
+contener datos (líneas 28 y 29)). Como se discute más adelante, la omisión de estas 
+condiciones conduce a la generación de una gran cantidad de estructuras
+inválidas por parte de Korat.
 
 \begin{figure}[p]
     \centering
     \begin{subfigure}[b]{\textwidth}
         \centering
         \includegraphics[width=0.8\textwidth]{images/repOK1.jpg}
-        \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la estructura general.}
+        \caption{Ejemplo de una instancia válida y otra inválida debido a la
+            falta de un nodo ficticio en la lista principal.}
         \label{fig:repOKa}
     \end{subfigure}
 
     \vspace{10pt}
-
     \begin{subfigure}[b]{\textwidth}
         \centering
         \includegraphics[width=0.8\textwidth]{images/repOK2.jpg}
-        \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista principal.}
+        \caption{Ejemplo de una instancia válida y otra inválida debido a la
+            ciclicidad de la lista principal.}
         \label{fig:repOKb}
     \end{subfigure}
 
@@ -122,7 +138,8 @@ condiciones puede conducir a la generación de estructuras inválidas que no ref
     \begin{subfigure}[b]{\textwidth}
         \centering
         \includegraphics[width=0.8\textwidth]{images/repOK3.jpg}
-        \caption{Ejemplo de una instancia válida y otra no válida de acuerdo al \emph{repOK} en la lista caché.}
+        \caption{Ejemplo de una instancia válida y otra inválida debido a la
+            aciclicidad de la lista caché.}
         \label{fig:repOKc}
     \end{subfigure}
 
@@ -133,66 +150,77 @@ condiciones puede conducir a la generación de estructuras inválidas que no ref
 
 En la Figura~\ref{fig:repOK} se muestran ejemplos de instancias válidas e inválidas, lo cual facilita entender visualmente las propiedades que deben estar reflejadas en la especificación.
 
-Las líneas 2 a 10 del método se centran en la verificación de aspectos estructurales básicos. Se asegura la existencia del 
-nodo ficticio, que debe contener valor \texttt{null} y estar correctamente conectado. Su presencia facilita el manejo de 
-la lista, actuando como ancla para los elementos reales. 
-La parte superior de la Figura~\ref{fig:repOKa} representa la lista principal, mientras que la inferior muestra la caché. 
-En el ejemplo, la instancia de la izquierda es válida; la de la derecha es inválida al no incluir un nodo ficticio, lo cual es detectado por las condiciones de las líneas 5 y 6.
+Las líneas 2 a 10 del método \texttt{repOK} se centran en la verificación de aspectos estructurales básicos. Se asegura la existencia del 
+nodo ficticio, y que debe estar correctamente conectado (se omite que debe contener el valor
+\texttt{null}). 
+En el ejemplo de la Figura~\ref{fig:repOKa}, la instancia de la izquierda es
+válida; la de la derecha es inválida porque no posee un nodo ficticio, lo cual
+es detectado por la condición de la línea 2.
 
-
-Las líneas 11 a 20 validan que la lista principal sea circular y doblemente enlazada. Esto implica que el recorrido a partir 
-del nodo ficticio se debe eventualmente volver a él, y que cada nodo debe tener enlaces consistentes hacia su anterior y su 
+Las líneas 9 a 20 validan que la lista principal sea circular y doblemente enlazada. Esto implica que el recorrido a partir 
+del nodo ficticio debe eventualmente volver a él, y que cada nodo debe tener enlaces consistentes hacia su anterior y su 
 siguiente. En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al
 último elemento y luego volveremos al primer elemento. Además, se asegura que la cantidad de nodos visitados coincida con el valor del campo \texttt{size}.
 
-En la Figura~\ref{fig:repOKb} se pueden observar ejemplos de instancias que satisfacen o no esta sección de restricciones del método.  
-La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha presenta el error de que la lista principal no es circular,  
-una propiedad estructural que deben cumplir las listas principales (donde se almacenan los datos) en \texttt{NCL}.  
+En la Figura~\ref{fig:repOKb} se pueden observar ejemplos de instancias que satisfacen o no esta sección de restricciones del método.
+La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha presenta el error de que la lista principal no es circular.  
 En esta instancia, el campo \emph{next} del nodo final no apunta nuevamente al nodo ficticio, lo que rompe la propiedad de circularidad de la estructura.  
-Esta restricción está controlada en la línea 16 del método \texttt{repOK}.
+Esta restricción está controlada en las líneas 15 y 16 del método \texttt{repOK}.
 
-Por su parte, las líneas 21 en adelante analizan la estructura de la caché, que debe ser una lista simple, acíclica, con nodos 
-que no contengan valores. También se verifica que no haya nodos repetidos en la caché, y que la 
+Por su parte, desde la línea 21 en adelante se analiza la estructura de la
+caché, que debe ser una lista simple, acíclica, y cuyos nodos 
+no contienen valores. También se verifica que no haya nodos repetidos en la caché, y que la 
 cantidad de elementos coincida con el valor de \texttt{cacheSize}.
 Como ejemplo de esta situación, mostramos dos nuevas instancias en la Figura \ref{fig:repOKc}. 
 La primera es una instancia válida de la lista caché y el \emph{repOK} nos devuelve \texttt{true}. 
 La segunda instancia en la figura nos muestra una instancia inválida de acuerdo a la especificación. 
-Esto se debe a que la lista caché (la lista de la parte inferior de la estructura) es cíclica. 
-La insatisfacción de la propiedad se da cuando el método vuelve a insertar el mismo nodo al conjunto \emph{visited}. 
+Esto se debe a que la lista caché es cíclica. 
+La violación de esta propiedad se da cuando el método vuelve a insertar el mismo nodo al conjunto \emph{visited}. 
 Este conjunto recorre la lista y chequea en la línea 31 si vuelve a pasar por un nodo ya visitado. 
 En caso de que esto suceda, retorna \texttt{false}. 
 
-Este ejemplo permite evidenciar que incluso estructuras relativamente simples requieren de especificaciones formales 
-detalladas y cuidadosas. La ausencia o incorrecta implementación de restricciones puede resultar en la 
-generación de instancias que no representan adecuadamente el dominio, afectando negativamente la efectividad de los 
-procesos de verificación y prueba.
-
-
-Este método \emph{repOK} está implementado siguiendo las recomendaciones de los
-autores del enfoque de generación exhaustiva acotada de \textsf{Korat} \cite{Boyapati02}. 
+Notar que el método \emph{repOK} de la figura \ref{fig:NCL-repOK} está implementado siguiendo las recomendaciones de los autores del enfoque de generación exhaustiva acotada de \textsf{Korat} \cite{Boyapati02}. 
 La función devuelve \emph{falso} tan pronto como detecta una violación en alguna propiedad esperada de la estructura actual. 
 En caso contrario, devuelve \emph{verdadero} al finalizar el método. 
-Este enfoque permite a \textsf{Korat} podar eficientemente grandes porciones del espacio de búsqueda al encontrar restricciones incumplidas, mejorando así significativamente su eficiencia.
+Este enfoque permite a \textsf{Korat} podar eficientemente grandes porciones del
+espacio de estructuras al encontrar restricciones incumplidas, mejorando así significativamente su eficiencia \cite{Boyapati02}.
 
-Sin embargo, en el \emph{repOK} que se presenta en la figura \ref{fig:NCL-repOK}, 
-se puede observar que algunas restricciones están comentadas, 
-lo que indica la ausencia de validaciones cruciales. 
-Estas restricciones no estaban presentes en la versión original del \emph{repOK} que tomamos de Roops; 
-las incorporamos después de analizar las estructuras generadas para las pruebas que resultaron incorrectas.
+Sin embargo, como se mencionó anteriormente el \emph{repOK} omite las
+restricciones que se encuentran en los comentarios, lo que indica la ausencia de
+verificaciones de propiedades importantes. 
+Estas restricciones no estaban presentes en la versión
+original del \emph{repOK} que tomamos de ROOPS; 
+las incorporamos después de analizar manualmente el \emph{repOK} y las
+estructuras inválidas generadas por Korat (como si fueran válidas) en base al mismo.
 
-La omisión de restricciones en el \emph{repOK} tiene un impacto directo y considerable en la cantidad de estructuras que \textsf{Korat} genera. 
-Esta falta de precisión no solo aumenta exponencialmente el número de estructuras generadas, 
-sino que también complica la tarea de identificar cuáles son válidas y cuáles no. 
+La omisión de restricciones en el \emph{repOK} tiene un impacto considerable en
+la cantidad de estructuras que \textsf{Korat}. 
 Por ejemplo, cuando se ejecuta \textsf{Korat} con el \emph{repOK} sin las restricciones comentadas, 
-se generan 54.5 millones de estructuras para un \emph{scope} de 8. Al incluir las restricciones faltantes, 
-la cantidad de estructuras generadas se reduce drásticamente a solo 2.8 millones para el mismo \emph{scope}.
+se generan 54.5 millones de estructuras para un \emph{scope} de 8 (máxima
+cantidad de nodos que pueden tener las estructuras, con elementos enteros entre
+0 y 7). Al incluir las restricciones faltantes, 
+la cantidad de estructuras generadas se reduce drásticamente a 2.8 millones
+(para el mismo \emph{scope}).
+Este incremento masivo en la generación de estructuras debido a la omisión de
+restricciones tiene implicaciones importantes para el testing. Por un
+lado, ejecutar los tests con una cantidad tan grande de estructuras se vuelve
+mucho más lento, y a veces prohibitivo. Por otro lado,  
+se incrementa la probabilidad de que existan falsos positivos, es decir, errores
+que surgen de ejecutar el programa con estructuras inválidas que Korat genera
+como si fueran válidas (en este caso porque el \emph{repOK} omite restricciones). 
+Estos falsos positivos pueden resultar en reportes de errores en el software
+bajo test que no son errores reales, malgastando el tiempo del programador que
+debe analizar manualmente estos reportes y descartar los falsos positivos. 
 
-Este incremento masivo en la generación de estructuras debido a la omisión de restricciones tiene implicaciones graves para el proceso de testing. 
-Aumenta la probabilidad de que se generen falsos positivos, es decir, estructuras que cumplen con las propiedades básicas pero que no son representativas de casos válidos. 
-Estos falsos positivos pueden llevar a realizar pruebas innecesarias o a interpretar incorrectamente los resultados del testing, comprometiendo la calidad del software.
+Este ejemplo permite evidenciar que escribir especificaciones formales precisas
+para la generación exhaustiva acotada no es sencillo, y que los errores que
+aparecen en las especificaciones pueden ser sutiles. En este contexto, la ausencia o la
+implementación incorrecta de algunas restricciones puede tener un impacto muy
+negativo para el testing subsecuente. 
 
-Motivados por estos desafíos y la complejidad inherente a la escritura de métodos \emph{repOK} precisos para la generación exhaustiva acotada, hemos desarrollado una técnica que hemos denominado BEAPI. 
-Esta técnica será detallada en las siguientes secciones, y busca ofrecer una solución más robusta y precisa para la generación y validación de estructuras en el contexto de pruebas exhaustivas.
+Motivados por estos desafíos y la complejidad inherente a la escritura de
+métodos \emph{repOK} precisos para la generación exhaustiva acotada hemos
+desarrollado la técnica BEAPI, que se detalla en las secciones siguientes.
 
 \section[BEAPI]{BEAPI}
 \label{sec:beapiIntro}
