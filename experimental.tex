@@ -169,12 +169,13 @@ objetivo, \textbf{GE} (generación exhaustiva) y \textbf{RC} (cobertura con Rand
 El formato de cada celda es \emph{promedio}/\textbf{peor} en segundos; 
 el \emph{promedio} se calcula sobre las 5 ejecuciones que se realizaron, y el \textbf{peor} es el máximo observado. 
 
-Analizando la Tabla~\ref{tab:eficiencia}, podemos observar que el algoritmo \emph{Hill Climbing} (HC) es
-más eficiente que el algoritmo genético (GA) en todos los casos de estudio considerados.
-En términos de peor caso, HC con \emph{RC} tarda \(921\,\text{s}\) en \emph{NCL} (aprox. 15 minutos) y
-alcanza \(3842\,\text{s}\) en \emph{HashSet} (aprox. 64 minutos), mientras que GA con \emph{RC} supera la hora
-en \emph{TreeMap} con \(5162\,\text{s}\) (aprox.86 minutos). En general, \emph{RC} es más costoso que \emph{GE},
-como también se refleja en la tabla.
+Analizando la Tabla~\ref{tab:eficiencia}, observamos que \textbf{HC} es
+generalmente más eficiente que \textbf{GA} (en promedio y en peor caso) para
+ambas funciones objetivo, \textbf{GE} y \textbf{RC}.
+En términos de analizar el peor caso, con \textbf{HC+RC} se alcanza 5162s en
+\emph{TreeMap} (aprox 86 minutos) y 3842s en \emph{HashSet} para
+para \textbf{HC+GA} (aprox. 64 minutos). 
+Con \textbf{GE+GA}, se observa que el peor caso tarda 1803s (aprox 30 minutos) en \emph{HashMap} con \textbf{GE+RC} alcanza 113s para \emph{TreeMap} (aprox 2 minutos).
 
 En relación con las funciones objetivo, observamos que la basada en
 generación exhaustiva (\textbf{GE}, Sección~\ref{sec:fitnessGE})
