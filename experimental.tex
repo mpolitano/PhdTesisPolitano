@@ -317,9 +317,14 @@ configuraciones distintas: (i) utilizando toda la API disponible de la clase baj
 (\texttt{Builders}) identificados por nuestro enfoque en el experimento anterior 
 (ver Tabla~\ref{tab:results-obj}).
 
+\pp{Agregar una subsubsection para separar el experimento de tamaño de objetos generados
+con Randoop, y otra para el experimento de bounded model checking con JPF.}
+
 Para ambas configuraciones, medimos la \textit{cantidad de objetos distintos 
 generados} (\textit{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
-pruebas: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la Tabla~\ref{tab:results-obj}.
+pruebas: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la
+Tabla~\ref{tab:results-obj}. \pp{Agregar promedios a las tablas, y agregar los números promedios para
+    justificar las conclusiones abajo.}
 
 Los resultados muestran de forma consistente que el uso exclusivo de los métodos generadores 
 permite generar una cantidad significativamente mayor de objetos válidos en comparación con el uso 
@@ -407,7 +412,10 @@ de objetos que con la API completa, pero con un espacio de búsqueda significati
 
 Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-jpf1} y 
 \ref{tab:results-jpf2}, demuestran que los controladores construidos a partir de nuestros 
-métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad. Se observa una 
+métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad
+\pp{Agregar promedios a las tablas, y agregar los números promedios para
+    justificar las conclusiones abajo.}
+. Se observa una 
 reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
 comprometer la cobertura de las estructuras objetivo. Esta evidencia refuerza la utilidad práctica 
 de nuestra técnica en entornos de verificación formal, donde el costo computacional de la exploración 
