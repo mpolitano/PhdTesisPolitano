@@ -176,10 +176,10 @@ alcanza \(3842\,\text{s}\) en \emph{HashSet} (aprox. 64 minutos), mientras que G
 en \emph{TreeMap} con \(5162\,\text{s}\) (aprox.86 minutos). En general, \emph{RC} es más costoso que \emph{GE},
 como también se refleja en la tabla.
 
-En relación con las funciones \emph{objetivo}, observamos que la basada en
+En relación con las funciones objetivo, observamos que la basada en
 generación exhaustiva (\textbf{GE}, Sección~\ref{sec:fitnessGE})
 finaliza la búsqueda de métodos generadores en menos tiempo que la
-basada en cobertura con \textbf{Randoop} (\textbf{RC}, Sección~\ref{sec:fitnessRandoop}).
+basada en cobertura con Randoop (\textbf{RC}, Sección~\ref{sec:fitnessRandoop}).
 La razón es que GE evalúa por enumeración acotada (scope fijo), mientras
 que RC requiere, para cada candidato, generar y ejecutar pruebas con Randoop y
 medir cobertura, lo que incrementa el costo.
@@ -216,14 +216,6 @@ En síntesis, GE es sistemáticamente más eficiente que RC para nuestros experi
 mientras que HC aporta el mejor rendimiento que GA.
 
 \input{tables/eficienciaBuilders}
-
-Los tiempos promedio en la Tabla~\ref{tab:eficiencia} reflejan la tendencia xxxx completar ahio. Por ejemplo, en \emph{NCL}:
-\emph{GA} muestra \textbf{GE} 292\,s vs \textbf{RC} 3622\,s, y \emph{HC} muestra
-\textbf{GE} 40\,s vs \textbf{RC} 645\,s. Un patrón similar se observa en
-\emph{TreeMap} (GA: 974 vs 3872; HC: 68 vs 484) y \emph{Lits} (GA: 25 vs 3429; HC: 7 vs 394).
-En síntesis, GE es sistemáticamente más eficiente que RC para nuestros sujetos,
-mientras que RC aporta una evaluación guiada por cobertura.
-
 
 \subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
