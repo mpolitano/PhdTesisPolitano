@@ -24,12 +24,17 @@ Además, BEAPI incorpora optimizaciones novedosas en la generación de tests, qu
 mejoran significativamente su rendimiento, y son claves para realizar la generación exhaustiva acotada de manera eficiente. 
 
 Este capítulo está organizado de la siguiente manera: en la Sección \ref{sec:motivating-example}, 
-se presenta un ejemplo que ilustra el problema que se aborda con la técnica propuesta, 
-la cual se explica en la Sección \ref{sec:beapiIntro}. Luego, en las Secciones \ref{sec:scope}, \ref{sec:stateMatching} y
- \ref{sec:buildersOptimization}, se describen las optimizaciones implementadas en BEAPI. 
- Estas optimizaciones son de vital importancia, y le permiten a BEAPI 
-lograr rendimiento comparable al de las técnicas basadas en especificaciones
-(como \emph{Korat}\cite{Boyapati02}). \pp{Revisar los números de sección}
+se presenta un ejemplo que ilustra el problema que se aborda con la técnica propuesta. 
+La Sección \ref{sec:beapi-overview} presenta un panorama general de 
+BEAPI. La Sección \ref{sec:scope} describe la definición del scope para la
+técnica, y \ref{sec:defensiveProgramming} aborda como BEAPI evita construir
+objetos inválidos si la API se programa de manera defensiva \cite{} \pp{Cita a Liskov}. 
+Luego, en las Secciones \ref{sec:stateMatching} y
+ \ref{sec:buildersOptimization} se describen las optimizaciones implementadas en
+ BEAPI, que son claves para mejorar su eficiencia, y le permiten a BEAPI 
+lograr un rendimiento comparable al de las técnicas basadas en especificaciones
+(como \emph{Korat}\cite{Boyapati02}). Finalmente, en la Sección 
+\ref{sec:beapiTechnique} se presenta un pseudocódigo del algoritmo de BEAPI.
 
 
 \section[Motivación]{Motivación}
@@ -222,8 +227,6 @@ Motivados por estos desafíos y la complejidad inherente a la escritura de
 métodos \emph{repOK} precisos para la generación exhaustiva acotada hemos
 desarrollado la técnica BEAPI, que se detalla en las secciones siguientes.
 
-\section[BEAPI]{BEAPI}
-\label{sec:beapiIntro}
 
 \section{Visión general de BEAPI}
 \label{sec:beapi-overview}
@@ -231,7 +234,7 @@ desarrollado la técnica BEAPI, que se detalla en las secciones siguientes.
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\textwidth]{images/beapi-arquitecture.jpeg}
-  \caption{Vista general de la técnica \textsf{BEAPI}}
+  \caption{Visión general de la técnica \textsf{BEAPI}}
   \label{fig:beapi-overview}
 \end{figure}
 
@@ -240,107 +243,100 @@ La Figura~\ref{fig:beapi-overview} muestra una visión general de la técnica
 de generación exhaustiva acotada de objetos mediante invocaciones a métodos de
 la API de un módulo. 
 
-
-
-
-
-
-\textsf{BEAPI} explota la idea de generación de tests dirigida por retroalimentación 
-(\emph{feedback-directed test generation} \cite{} \pp{Cita a randoop}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
-Al igual que otros enfoques de generación de tests basados en API, 
-\textsf{BEAPI} construye secuencias de invocaciones a métodos de la API,
-denominadas secuencias de test (\emph{test sequences}~ \cite{} \pp{Cita a randoop}),
-y las ejecuta para producir objetos.
-
-\textsf{BEAPI} aborda las dificultades de escribir especificaciones formales 
-para la generación exhaustiva acotada aprovechando la ejecución directa de las 
-rutinas de la API y aplicando técnicas de poda para mejorar la eficiencia y 
-permitir la escalabilidad a alcances mayores.
-
 % Entradas y salidas
 Como entradas, \textsf{BEAPI} recibe:
 \begin{itemize}
     \item la clase o clases objetivo para la generación de casos de prueba;
-    \item archivos de configuración que definen los límites de scope y los valores primitivos que se usaran para la generación;
+    \item archivos de configuración que definen los scopes de la generación
+        exhaustiva acotada: tamaño máximo permitido para los objetos, y los valores primitivos 
+        que se usarán para la generación;
     \item un archivo con los métodos de la clase objetivo que se emplearán 
-    como \emph{métodos generadores de objetos}.
+        (por ejemplo, la API completa, o \emph{métodos generadores de objetos}).
 \end{itemize}
 
 Como salidas, \textsf{BEAPI} produce:
 \begin{itemize}
-    \item un conjunto acotado y exhaustivo de objetos generados;
-    \item una suite de tests \texttt{JUnit}~\cite{junit} con las secuencias 
-    utilizadas para generar cada objeto;
-    \item otra suite con secuencias que revelan errores en los métodos utilizados 
-    para la generación.
+    \item un conjunto exhaustivo acotado de objetos para los scopes dados;
+    \item una suite de tests \texttt{JUnit}~\cite{junit} con las secuencias de test 
+        que genera \textsf{BEAPI} para crear los objetos de salida del punto anterior;
+    \item otra suite con tests que revelan errores (si los hubiera) en los métodos utilizados 
+        para la generación.
 \end{itemize}
 
-El módulo \emph{generador de secuencias de test} (Figura~\ref{fig:beapi-overview}) 
-comienza creando todas las secuencias de longitud~1 (una única invocación).  
-Los valores primitivos definidos en la configuración se usan para instanciar 
-parámetros.  
+\textsf{BEAPI} explota la idea de generación de tests dirigida por retroalimentación 
+(\emph{feedback-directed test generation} \cite{} \pp{Cita a randoop}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
+Al igual que otros enfoques de generación de tests basados en la API, 
+\textsf{BEAPI} construye secuencias de test \cite{} \pp{Cita a randoop} (secuencias de invocaciones a
+métodos de la API), y las ejecuta para producir objetos.
 
-Cada secuencia se ejecuta, y aquellas que generan nuevos objetos (diferentes 
-a los ya obtenidos) se retroalimentan al generador. A partir de ellas se 
-construyen secuencias de longitud~2, y así sucesivamente.  
+%\textsf{BEAPI} aborda las dificultades de escribir especificaciones formales 
+%para la generación exhaustiva acotada aprovechando la ejecución directa de las 
+%rutinas de la API y aplicando técnicas de poda para mejorar la eficiencia y 
+%permitir la escalabilidad a alcances mayores.
 
-El proceso se repite hasta que las secuencias de longitud $k$ no generan nuevos 
-objetos dentro del alcance definido por los \emph{scopes}. En ese momento, 
-\textsf{BEAPI} detiene la generación y devuelve la suite y el conjunto de 
-objetos.
+A grandes rasgos, el módulo \emph{generador de secuencias de test} (Figura~\ref{fig:beapi-overview}) 
+comienza creando todas las secuencias de test posibles de longitud 1 (con una
+única invocación a un método). Los valores primitivos definidos como parte del
+scope son utilizados para instanciar los parámetros de los métodos en las
+invocaciones.
+El generador ejecuta cada secuencia, y aquellas que generan nuevos objetos (diferentes 
+a los ya obtenidos, ver Sección \ref{sec:stateMatching}) son usadas por
+el generador para producir nuevos tests, extendiendo dichas secuencias. A partir
+de estas, se construyen secuencias de longitud 2, agregando una invocación
+adicional a un método. 
+Este proceso se repite iterativamente, generando secuencias de longitud 3, 4, y así sucesivamente.
+El proceso continúa hasta que las secuencias de longitud $k$ no generan nuevos 
+objetos (dentro de los scopes dados).
+En ese punto, el generador de secuencias detiene su ejecución y BEAPI devuelve
+la suite de tests generada junto con los objetos producidos.
 
 % Clasificación de resultados
 El módulo \emph{clasificador} observa el resultado de cada ejecución y clasifica 
 la secuencia en una de cuatro categorías:
 \begin{enumerate}
-    \item revela un error en algún método;
-    \item viola una precondición de un método;
-    \item genera un objeto fuera de alcance o repetido;
-    \item genera al menos un nuevo objeto válido dentro del alcance.
+    \item La secuencia revela un error en algún método.
+    \item La secuencia viola una precondición de un método.
+    \item La secuencia genera un objeto que excede los límites permitidos por el alcance, o bien genera objetos que ya fueron producidos por secuencias anteriores.
+    \item La secuencia genera al menos un nuevo objeto válido dentro del alcance permitido.
 \end{enumerate}
 
-Los casos (3) y (4) corresponden a ejecuciones sin excepciones.  
-Los objetos generados se \emph{canonizan}~\cite{Politano20} y se comprueba 
-si ya existían o exceden el alcance. En caso afirmativo (3), la secuencia se 
-descarta; si al menos un objeto es nuevo (4), se retroalimenta al generador 
-y se almacena como prueba válida.
+Los casos (3) y (4) corresponden a ejecuciones exitosas, es decir, secuencias que finalizan sin lanzar excepciones. 
+En estos casos, los objetos almacenados en las variables al finalizar la
+ejecución de la secuencia de test son \emph{canonizados} \ref{sec:stateMatching}
+y se verifica si ya han sido generados previamente, o si exceden los límites
+permitidos por los scopes. 
+Si esto último ocurre (caso 3), tanto la secuencia como los objetos que produce son descartados. 
+En cambio, si la secuencia crea al menos un nuevo objeto válido (caso 4), 
+entonces se retroalimenta al generador de secuencias para su potencial extensión
+en el futuro, 
+se almacena como caso de test en la suite retornada por BEAPI,
+y los objetos generados se agregan al conjunto de objetos de salida.
 
-Los casos (1) y (2) corresponden a ejecuciones con excepciones.  
-Siguiendo a Randoop~\cite{Pacheco07}, por defecto \textsf{BEAPI} interpreta 
-\texttt{IllegalArgumentException} e \texttt{IllegalStateException} como 
-violaciones de precondición (caso 2), y el resto como errores (caso 1).  
-Este comportamiento es configurable.
-La generación exhaustiva de todas las secuencias de prueba factibles a partir de rutinas hasta una longitud máxima, 
-también conocida como generación por fuerza bruta, es un enfoque intrínsecamente combinatorio que consume una gran cantidad de recursos computacionales, 
-incluso para alcances pequeños. 
-Por lo tanto, \textsf{BEAPI} utiliza varias técnicas de poda que son fundamentales para mejorar su eficiencia y permitir la escalabilidad a alcances más grandes.
-Estas optimizaciones son:
+Los casos (1) y (2) corresponden a ejecuciones que no finalizan correctamente y lanzan excepciones. 
+Siguiendo la propuesta de Randoop~\cite{Pacheco07}, el tipo de excepción permite distinguir entre lo que BEAPI considera errores (o \emph{bugs}) 
+y violaciones de precondiciones. 
+Por defecto, BEAPI interpreta las excepciones \texttt{IllegalArgumentException} y \texttt{IllegalStateException} 
+como violaciones de precondiciones, mientras que considera el resto de las
+excepciones como errores en los métodos usados para la generación.
+El comportamiento ante excepciones de BEAPI puede ser modificado mediante
+parámetros de configuración de la herramienta. 
+Las secuencias que violan precondiciones (caso 2) son descartadas, 
+mientras que las secuencias que revelan errores (caso 1) 
+son reportadas y retornadas al usuario. De forma similar a Randoop, 
+es posible mejorar la capacidad de detección de errores proveyendo manualmente
+especificaciones formales, como un método que implemente un predicado
+\texttt{repOK} tal y como se describió en la sección anterior ~\cite{Pacheco07}.
 
-\begin{enumerate}
-    \item \textbf{\emph{Scope}} \textsf{BEAPI} restringe
-      la generación de secuencias de prueba a combinaciones de objetos y valores primitivos
-      definidos por un alcance máximo (\emph{scope}) configurado por el usuario. 
-      Este alcance limita, por ejemplo, la cantidad máxima de objetos por clase, 
-      los rangos para tipos numéricos y las cadenas de texto permitidas 
-      (ver Sección~\ref{sec:scope}). De esta forma se reduce drásticamente 
-      el espacio de búsqueda inicial.
-    \item \textbf{Filtrado por excepciones:} \textsf{BEAPI} ejecuta las secuencias de prueba y descarta
-      aquellas que producen excepciones que violan las reglas de uso de la API, como
-      \emph{IllegalArgumentException} e \emph{IllegalStateException} en Java.
-      (\emph{defensive programming}~\cite{Liskov00}, ver Sección~\ref{sec:defensiveProgramming})
-    \item \textbf{Coincidencia de estados:} descarta secuencias de métodos que generan estructuras que ya han sido creadas por 
-      secuencias de métodos exploradas previamente. Esta técnica se describe en detalle en la sección \ref{sec:stateMatching}.
-    \item \textbf{Selección de métodos generadores:} utiliza un subconjunto 
-      de métodos de la API identificado mediante un algoritmo \emph{greedy} y 
-      una función objetivo para maximizar la cantidad de objetos generados 
-      en el menor tiempo (Capítulo~\ref{cap:builders}).
-\end{enumerate}
+BEAPI puede configurarse para habilitar o deshabilitar dos optimizaciones clave: 
+la coincidencia de estados (ver Sección \ref{sec:stateMatching}) y el uso de métodos generadores de objetos
+precomputados (ver Sección \ref{sec:buildersOptimization}) . 
+Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy ineficiente 
+y solo terminar en tiempos razonables para scopes pequeños (por ejemplo, scope 3). 
+En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
 
-Con las optimizaciones deshabilitadas, \textsf{BEAPI} solo es práctico para 
-alcances pequeños (e.g., tamaño 3)~\cite{Politano20}. Con ellas habilitadas, 
-su rendimiento es comparable al de \textsf{Korat} (Capítulo~\ref{cap:experimental}).
-
-
+Si no hay fallas, BEAPI genera una suite de tests en formato \texttt{JUnit}. 
+Cada test en la suite corresponde a una secuencia de métodos cuya ejecución
+construye alguno(s) de los objetos en el conjunto exhaustivo acotado de objetos resultante.
 
 
 
@@ -352,10 +348,7 @@ su rendimiento es comparable al de \textsf{Korat} (Capítulo~\ref{cap:experiment
 % La principal ventaja de \textsf{BEAPI} es que requiere un esfuerzo menor de especificación para realizar la generación exhaustiva acotada. Si los métodos de la API utilizados en la generación son correctos, todas las estructuras generadas serán válidas para su construcción. El programador solo necesita asegurarse de que los métodos de la API lancen excepciones cuando se violen las reglas de uso, siguiendo un estilo de programación defensivo \cite{Liskov00}. En la mayoría de los casos, esto implica verificar condiciones muy simples en las entradas. Por ejemplo, el método para eliminar (\emph{remove(int)}) un elemento de una \texttt{NCL} en un índice pasado como parámetro lanza una \texttt{IllegalArgumentException} cuando se llama con un índice menor a 0 o mayor al \emph{size} de la lista. El \emph{listing} de la figura \ref{fig:algoProgDefensiva}  se puede observar que la implementación del método se encarga de cumplir con la especificación indicada \texttt{NCL}.
 % Para hacer esto
 
-
-A continuación, explicaremos en detalle cada una de estas optimizaciones.
-
-\subsection{Scope}
+\section{Scope}
 \label{sec:scope}
 
 
@@ -467,7 +460,7 @@ Para finalizar esta sección, se puede observar en la figura \ref{sec:scope} un 
 % y el número de valores primitivos disponibles, en nuestro ejemplo de la figura, se especifica enteros del 0 a $k-1$ y cadenas de caracteres: str1, str2, str3. Ademas, se pueden especificar otros valores primitivos como floats, doubles, etc. Esto serán los dominios de datos para los tipos primitivos que necesiten los métodos que serán utilizados. Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de canonización de objetos, que se lleva a cabo en la ejecución de las secuencias de métodos de la API. Esto permite al usuario controlar qué partes de la estructura del objeto son relevantes para la coincidencia de estados (ver más adelante en la sección \ref{sec:stateMatching}). Por ejemplo,  la línea 4 haría que \emph{BEAPI} omita el tamaño máximo predeterminado de la caché en la coincidencia de estados, que en la API de \emph{NCL} es una constante inicializada en 20 en el constructor de la clase. Es importante que aquí se omitan campos que puede afectar la coincidencia de estados, como el caso del campo \emph{modCount}. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada. 
 % La configuración mostrada en la Figura~\ref{fig:NCL-fin-BEAPI} es suficiente para que \emph{BEAPI} genere NCL con un máximo de 3 nodos, que contienen enteros del 0 al 2 como valores. 
 
-\subsection{Programación Defensiva}
+\section{Programación Defensiva}
 \label{sec:defensiveProgramming}
 
 \cacho{Toda esta seccion es nueva, solo un parrafo ya estaba.}
@@ -509,7 +502,7 @@ de entradas y mantengan la clase en un estado consistente.
 De este modo, \textsf{BEAPI} puede aprovechar la ejecución dinámica de los tests para delimitar correctamente el espacio de estructuras válidas.
 
 
-\subsection{State Matching}
+\section{State Matching}
 \label{sec:stateMatching}
 \cacho{Explique un poco mejor la parte de la figura, no me parece agregar mucho mas al respecto. Lo podemos charlar}
 Durante la generación exhaustiva de secuencias de prueba, pueden surgir múltiples caminos que conducen al mismo estado final. 
@@ -671,7 +664,7 @@ resultante.
 Finalmente, la linealización permite comparar estructuras de manera eficiente: dos objetos (es decir, dos heaps enraizados) son iguales 
 si, y solo si, las secuencias generadas por \texttt{linearize} son iguales.
 
-\subsection{Uso de m\'etodos generadores de objectos en BEAPI}
+\section{Uso de m\'etodos generadores de objectos en BEAPI}
 \label{sec:buildersOptimization}
 En esta sección, utilizaremos una optimización que hemos desarrollado y que es
 una parte importante de esta tesis (Capítulo \ref{cap:builders}.
