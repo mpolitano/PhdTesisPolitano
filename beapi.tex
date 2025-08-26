@@ -273,7 +273,6 @@ Como salidas, \textsf{BEAPI} produce:
     para la generación.
 \end{itemize}
 
-% Flujo general de generación
 El módulo \emph{generador de secuencias de test} (Figura~\ref{fig:beapi-overview}) 
 comienza creando todas las secuencias de longitud~1 (una única invocación).  
 Los valores primitivos definidos en la configuración se usan para instanciar 
@@ -316,7 +315,7 @@ Por lo tanto, \textsf{BEAPI} utiliza varias técnicas de poda que son fundamenta
 Estas optimizaciones son:
 
 \begin{enumerate}
-    \item \textbf{Limitación por alcance, (\emph{scope})} \textsf{BEAPI} restringe
+    \item \textbf{\emph{Scope}} \textsf{BEAPI} restringe
       la generación de secuencias de prueba a combinaciones de objetos y valores primitivos
       definidos por un alcance máximo (\emph{scope}) configurado por el usuario. 
       Este alcance limita, por ejemplo, la cantidad máxima de objetos por clase, 
@@ -708,7 +707,6 @@ Esto se debe a que este tipo de árboles requiere configuraciones específicas d
 que involucran el coloreo de nodos en rojo y negro, las cuales no pueden obtenerse únicamente 
 mediante operaciones de inserción.
 
-
 En contraste, los árboles AVL,
 que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
 Los árboles AVL están siempre equilibrados, 
@@ -716,13 +714,6 @@ de tal modo que para todos los nodos, la altura de la rama izquierda no debe dif
 Gracias a esta forma de equilibrio (o balanceo), la complejidad de una búsqueda en uno de estos árboles se mantiene siempre en orden de complejidad O(log n). 
 Para este caso de árboles, solo el constructor de la clase y una rutina de adición son suficientes. 
 Esto demuestra que la identificación de métodos generadores no es trivial de realizar manualmente.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{images/avl.jpg}
-  \caption{Ejemplo de un árbol AVL}
-  \label{fig:avl}
-\end{figure}
 
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
@@ -889,19 +880,6 @@ También puede emplear otras especificaciones más simples, como propiedades met
 Finalmente, una ventaja clave de \textsf{BEAPI} es que, para cada objeto generado, produce una secuencia de prueba ejecutable que lo construye, a diferencia de los enfoques basados en \texttt{repOK}, donde los objetos generados suelen incrustarse mediante reflexión.  
 Esto facilita la comprensión y el mantenimiento de los tests, y evita depender de detalles internos de implementación~\cite{Braione17}.
 
-
-\subsection{Visión general de BEAPI}
-
-La Figura~\ref{fig:beapi-overview} muestra una visión general de la herramienta BEAPI. 
-Como entradas, BEAPI recibe la clase (o clases) objetivo para la generación de casos de prueba, 
-archivos de configuración que definen los límites (también llamados \emph{scopes de objectos}) 
-y un archivo los métodos de la clase objetivo que serán utilizados para la generación (\emph{métodos generadores de objectos}).
-
-
-Como salidas, BEAPI produce, un conjunto acotado y exhaustivo de objetos generados, 
-un conjunto de tests \texttt{JUnit}~\cite{junit} con las secuencias de métodos utilizadas para generar cada objeto,
-y otro conjunto de tests que revelan errores (si los hubiera) en los métodos utilizados para la generación.
-
 % \subsection{Entradas de BEAPI}
 
 % \paragraph{Clase objetivo.}  
@@ -933,60 +911,14 @@ y otro conjunto de tests que revelan errores (si los hubiera) en los métodos ut
 % y BEAPI ya incluye ejemplos precomputados para los casos de estudio utilizados en su evaluación empírica.
 
 
-BEAPI emplea los métodos generadores de objectos de la clase objetivo 
-y los valores primitivos provistos en los archivos de configuración para generar secuencias de estos métodos, 
-las cuales constituyen los casos de prueba y conducen a la creación de objetos de prueba.
-Esta tarea es llevada a cabo por el módulo \emph{generador de secuencia de test}, mostrado en la Figura~\ref{fig:beapi-overview}.
 
-A grandes rasgos, el generador comienza produciendo todas las secuencias de prueba posibles de longitud 1 (es decir, con una sola invocación de método). 
-Los valores primitivos definidos en los archivos de configuración son utilizados para instanciar los parámetros requeridos por los métodos durante su invocación.
-Luego, las secuencias se ejecutan y aquellas cuya ejecución da lugar a nuevos objetos 
-(es decir, diferentes de los generados previamente) se retroalimentan al generador de secuencias.
-A partir de estas, se construyen secuencias de longitud 2, agregando una invocación adicional. 
-Este proceso se repite iterativamente, generando secuencias de longitud 3, 4, y así sucesivamente.
 
-El proceso continúa hasta que las secuencias de longitud $k$ ya no generan nuevos objetos dentro del alcance definido por los \emph{scopes}. 
-En ese punto, el generador de secuencias detiene su ejecución y BEAPI devuelve la suite de tests generada junto con el conjunto de objetos producidos.
+% BEAPI puede configurarse para habilitar o deshabilitar dos optimizaciones clave: 
+% la coincidencia de estados y el uso de métodos generadores predefinidos. 
+% Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy ineficiente 
+% y ser capaz de generar entradas únicamente para alcances pequeños (por ejemplo, de tamaño 3) en tiempos razonables~\cite{Politano20}. 
+% En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
 
-A continuación, se describe cómo BEAPI procesa los distintos resultados que puede arrojar la ejecución de una secuencia de prueba.
-El módulo \emph{clasificador}, también ilustrado en la Figura~\ref{fig:beapi-overview}, 
-observa el resultado de la ejecución y clasifica la secuencia en una de las siguientes categorías:
-
-\begin{enumerate}
-    \item La secuencia revela un error en algún método.
-    \item La secuencia viola una precondición de un método.
-    \item La secuencia genera un objeto que excede los límites permitidos por el alcance, o bien genera objetos que ya fueron producidos por secuencias anteriores.
-    \item La secuencia genera al menos un nuevo objeto válido dentro del alcance permitido.
-\end{enumerate}
-
-Los casos (3) y (4) corresponden a ejecuciones exitosas, es decir, secuencias que finalizan sin lanzar excepciones. 
-En estos casos, los objetos almacenados en las variables al finalizar la ejecución son \emph{canonizados}~\cite{Politano20} 
-y se verifica si ya han sido generados o si exceden los límites permitidos. 
-Si esto ocurre (caso 3), tanto la secuencia como los objetos son descartados. 
-En cambio, si la secuencia produce al menos un nuevo objeto válido (caso 4), 
-entonces se retroalimenta al generador de secuencias, 
-se almacena como caso de test en la suite resultante,
-y los objetos generados se agregan al conjunto acotado y exhaustivo de salida.
-
-Los casos (1) y (2) corresponden a ejecuciones que no finalizan correctamente y lanzan excepciones. 
-Siguiendo la propuesta de Randoop~\cite{Pacheco07}, el tipo de excepción permite distinguir entre lo que BEAPI considera errores (o \emph{bugs}) 
-y violaciones de precondiciones. 
-Por defecto, BEAPI interpreta las excepciones \texttt{IllegalArgumentException} y \texttt{IllegalStateException} 
-como violaciones de precondiciones, mientras que considera el resto de las excepciones como errores reveladores.
-
-El comportamiento ante excepciones puede ser modificado mediante parámetros de configuración. 
-Las secuencias que violan precondiciones (caso 2) son descartadas, 
-mientras que las secuencias que revelan errores (caso 1) 
-son reportadas y retornadas al usuario. De forma similar a Randoop, 
-es posible mejorar la capacidad de detección de errores mediante la especificación adicional de invariantes, 
-como el predicado \texttt{repOK}.
-
-BEAPI puede configurarse para habilitar o deshabilitar dos optimizaciones clave: 
-la coincidencia de estados y el uso de métodos generadores predefinidos. 
-Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy ineficiente 
-y ser capaz de generar entradas únicamente para alcances pequeños (por ejemplo, de tamaño 3) en tiempos razonables~\cite{Politano20}. 
-En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
-
-El resultado de la ejecución de BEAPI es una suite de tests en formato \texttt{JUnit}. 
-Cada prueba en la suite corresponde a una secuencia de métodos que construye uno de los objetos del conjunto exhaustivo resultante.
+% El resultado de la ejecución de BEAPI es una suite de tests en formato \texttt{JUnit}. 
+% Cada prueba en la suite corresponde a una secuencia de métodos que construye uno de los objetos del conjunto exhaustivo resultante.
 
