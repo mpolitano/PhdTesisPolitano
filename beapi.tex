@@ -224,9 +224,6 @@ desarrollado la técnica BEAPI, que se detalla en las secciones siguientes.
 
 \section[BEAPI]{BEAPI}
 \label{sec:beapiIntro}
-\cacho{Es nuevo esto:}
-En esta sección discutimos las ideas principales de nuestros enfoques para generar de manera eficiente un conjunto exhaustivo acotado de objetos, haciendo solo llamadas a la API de un módulo. Nuestro enfoque se basan en la generación de tests dirigida por retroalimentación, explicado en la sección \ref{sec:feedback-directed-test-gen}.
-El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API), introduce una técnica innovadora para la generación exhaustiva acotada. Este enfoque se basa en la realización de llamadas a los métodos de la API del software bajo prueba (SUT). Al igual que otros enfoques de generación de tests basados en API, \textsf{BEAPI} crea secuencias de llamadas a métodos de la API, conocidas como secuencias de test \cite{Ammann16}, y las ejecuta para generar estructuras. 
 
 \section{Visión general de BEAPI}
 \label{sec:beapi-overview}
@@ -234,21 +231,26 @@ El enfoque propuesto, denominado \textsf{BEAPI} (Bounded Exhaustive from an API)
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\textwidth]{images/beapi-arquitecture.jpeg}
-  \caption{Arquitectura general de \textsf{BEAPI}}
+  \caption{Vista general de la técnica \textsf{BEAPI}}
   \label{fig:beapi-overview}
 \end{figure}
 
-
-La Figura~\ref{fig:beapi-overview} muestra una visión general de la herramienta 
-\textsf{BEAPI} (\emph{Bounded Exhaustive from an API}), que implementa un enfoque 
-de generación exhaustiva acotada de objetos mediante llamadas exclusivamente a 
+La Figura~\ref{fig:beapi-overview} muestra una visión general de la técnica 
+\textsf{BEAPI} (\emph{Bounded Exhaustive generation using the API}), que implementa un enfoque 
+de generación exhaustiva acotada de objetos mediante invocaciones a métodos de
 la API de un módulo. 
 
-Este enfoque se basa en la generación de tests dirigida por retroalimentación 
-(\emph{feedback-directed test generation}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
+
+
+
+
+
+\textsf{BEAPI} explota la idea de generación de tests dirigida por retroalimentación 
+(\emph{feedback-directed test generation} \cite{} \pp{Cita a randoop}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
 Al igual que otros enfoques de generación de tests basados en API, 
-\textsf{BEAPI} construye secuencias de llamadas a métodos de la API 
-(\emph{test sequences}~\cite{Ammann16}) y las ejecuta para producir estructuras.
+\textsf{BEAPI} construye secuencias de invocaciones a métodos de la API,
+denominadas secuencias de test (\emph{test sequences}~ \cite{} \pp{Cita a randoop}),
+y las ejecuta para producir objetos.
 
 \textsf{BEAPI} aborda las dificultades de escribir especificaciones formales 
 para la generación exhaustiva acotada aprovechando la ejecución directa de las 
