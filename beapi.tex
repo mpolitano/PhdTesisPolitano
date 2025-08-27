@@ -239,7 +239,7 @@ desarrollado la técnica BEAPI, que se detalla en las secciones siguientes.
 \end{figure}
 
 La Figura~\ref{fig:beapi-overview} muestra una visión general de la técnica 
-\textsf{BEAPI} (\emph{Bounded Exhaustive generation using the API}), que implementa un enfoque 
+\textsf{BEAPI} (\emph{Bounded Exhaustive generation from program APIs}), que implementa un enfoque 
 de generación exhaustiva acotada de objetos mediante invocaciones a métodos de
 la API de un módulo. 
 
@@ -351,77 +351,121 @@ construye alguno(s) de los objetos en el conjunto exhaustivo acotado de objetos 
 \section{Scope}
 \label{sec:scope}
 
+En el contexto de la generación exhaustiva acotada, el término \emph{scope} se
+refiere a los límites en los dominios de datos que se imponen para la generación de
+estructuras. 
+Así, el scope es esencial para controlar el tamaño y la complejidad del espacio de búsqueda de estructuras. 
+Sin un límite para los tamaños las estructuras generadas,
+ el espacio de búsqueda podría ser extremadamente grande o infinito, lo que haría
+ que la generación exhaustiva sea impracticable en la mayoría de los casos. 
+
+Para la definición de los scopes BEAPI requiere de un archivo de configuración
+simple en formato \texttt{java.properties}. En la Figura \ref{fig:NCL-fin-BEAPI}
+se muestra un ejemplo de este archivo. 
+La variable \emph{max.objects} permite definir el número
+máximo de objetos que se pueden crear para cada clase. En el ejemplo de la
+Figura, \emph{max.objects=3} indica que BEAPI sólo admitirá secuencias de test que
+generen listas con hasta 3 objetos de tipo NCL, y 3 objetos de tipo Node. Las
+secuencias de test que crean estructuras que 
+exceden estos límites (para cualquier clase) se descartan, al igual que los
+objetos creados por las mismas por exceder los scopes. Como ejemplo, la Figura
+\ref{sec:scope} muestra una secuencia de test generada usando el método constructor
+de la clase NCL, y el método \emph{add}. Recordar que estamos considerando un scope de 3. 
+Esto quiere decir que cuando se genera alguna estructura con más de 3 nodos, como es en 
+el caso de la última secuencia de test de la Figura, esta es descartada por exceder el 
+límite de nodos en la estructura (notar que el nodo ficticio de la estructura cuenta como un
+nodo). \pp{Está mal la figura, la flecha y la estructura van en el último nodo y no en el
+penúltimo.}
 
 
-En el contexto de la generación exhaustiva acotada, el término \emph{scope} se refiere al límite o alcance que se establece para la generación de estructuras. 
-Es una restricción que define cuántos objetos de un tipo particular pueden aparecer en las estructuras generadas. 
-Esta restricción es esencial para controlar el tamaño y la complejidad del espacio de búsqueda de estructuras durante 
-la generación exhaustiva. Sin un límite en el número de objetos que pueden aparecer en las estructuras generadas,
- el espacio de búsqueda podría ser infinito o extremadamente grande. Esto hace que la generación sea impracticable en la mayoría de los casos debido al tiempo 
- y los recursos requeridos.  En muchos casos, el conjunto de estructuras relevantes o interesantes es finito y puede definirse mediante un \emph{scope} adecuado.
- Al generar solo un conjunto finito de estructuras, se pueden abordar de manera exhaustiva todos los casos posibles.
-
-Para limitar el número de estructuras generadas, BEAPI necesita definirlo en un archivo de descripción simple en formato \texttt{java.properties}, 
-en el cual, además, se establecen algunos otros parámetros. En la figura \ref{fig:NCL-fin-BEAPI}, en la línea 1, se puede observar como establecer 
-el \emph{scope} para un caso específico con la sentencia \emph{max.objects}. Este valor (\emph{k}) debe ser un valor entero. Supongamos el caso de 
-la figura \ref{fig:ncl-instances} de instancias de \texttt{NCL}.  El límite $k$ representa el número máximo de objetos que se pueden crear para cada 
-clase (en la Figura \ref{fig:ncl-instances}, el número de nodos en los objetos NCL está acotado por $k=2$). Esto especifica el número máximo de objetos 
-diferentes (alcanzables desde la raíz) permitidos en una estructura. Las secuencias de prueba generadas por \emph{BEAPI} que crean estructuras que 
-exceden este número (para cualquier clase) se descartan y no se siguen extendiendo
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{images/NCL-instances.png}
-    \caption{Tres instancias de NodeCachingLinkedList con exactamente dos nodos}
-    \label{fig:ncl-instances}
-\end{figure}
-\pp{Esta figura es igual a la Figura 2? Digo porque hay otra con instancias
-antes? Si la vamos a repetir en este capítulo capaz que convenga ponerla antes y
-eliminar la otra?}
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=0.85\textwidth]{images/NCL-instances.png}
+%    \caption{Tres instancias de NodeCachingLinkedList con exactamente dos nodos}
+%    \label{fig:ncl-instances}
+%\end{figure}
+%\pp{Esta figura es igual a la Figura 2? Digo porque hay otra con instancias
+%antes? Si la vamos a repetir en este capítulo capaz que convenga ponerla antes y
+%eliminar la otra?}
 
 \begin{figure}[H]
 \begin{lstlisting}[keywordstyle=\scriptsize\ttfamily]
-max.objects=k
-int.range=0:3
+max.objects=3
+int.range=0:2
 strings=str1,str2,str3
-omit.fields=NCL.DEFAULT_MAXIMUM_CACHE_SIZE
+omit.fields=DEFAULT_MAXIMUM_CACHE_SIZE
 \end{lstlisting}
 \caption{Definición del scope de BEAPI para NCL (nodos max. 3)}
 \label{fig:NCL-fin-BEAPI}
 \end{figure}
 
 
-Nuestra técnica, basada en generación de test por feedback, necesita, también, un conjunto de valores primitivos especificado por el usuario 
-(enteros, strings, etc) que son utilizados para alimentar a los métodos (que requieran valores primitivos) de la API que se combinan para generar 
-las estructuras del SUT que estamos buscando.
-Por ejemplo, en la figura \ref{fig:scope} el método \emph{add(int)}, que agrega un elemento a la lista principal, 
-necesita un entero para el campo \emph{value} de cada nodo. Este valor entero, como es un valor primitivo, 
-se toma de algunos de los valores primitivos que definió el usuario en el archivo de configuración de BEAPI (\ref{fig:NCL-fin-BEAPI}). 
-En la línea 2 y 3 se puede observar que define valores de tipo enteros y valores de tipo string que serán utilizados por los métodos 
-cuando necesiten valores de este tipo. 
-\\
-
+Nuestra técnica, basada en generación de tests guíada por feedback, necesita un
+conjunto de valores primitivos (enteros, strings, etc.) provisto por el usuario
+que son utilizados para invocar a los métodos de la API con parámetros de
+tipos primitivos. En las líneas 2 y 3 de la Figura \ref{fig:NCL-fin-BEAPI} se
+definen los valores de tipo enteros y String, respectivamente, que serán utilizados por los métodos 
+cuando necesiten valores de estos tipos. En la Figura se definen enteros en un
+rango que va del 0 al 2, y las cadenas de caracteres ``str1'', ``str2'' y 
+``str3''. Ademas, se pueden proveer valores para todos los tipos incluyendo floats, doubles, etc. 
+Esto serán los dominios de datos para los tipos primitivos que tomen como
+parámetros los métodos que serán utilizados durante la generación.
+Por ejemplo, el método \emph{add(int)} de NCL, que agrega un elemento al final de la lista
+principal, necesita del entero que será almacenado en el campo \emph{value} del nuevo nodo. 
+Dado el archivo de configuración de la Figura \ref{fig:NCL-fin-BEAPI}, cada vez
+que deba invocar al método \emph{add}, BEAPI lo llamará instanciando su parámetro con los valores 0,
+1 y 2.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{images/scope.jpg}
-    \caption{Representación con scope 3 para NCL}
+    \caption{Secuencia de test descartada por exceder la máxima cantidad de
+    nodos (scope 3) para NCL}
     \label{fig:scope}
 \end{figure}
 
-\cacho{Explicar sobre objects que son int para nosotros? o
-esconderlo?}\pp{Que algunos parámetros Object los interpretamos como int?
-No sé si vale la pena meterse con eso, porque es sólo para casos específicos
-donde la genericidad usa object, que no son muy comunes creo. Lo charlamos.}
+% Siguiendo el análisis del archivo de configuración de la figura \ref{fig:NCL-fin-BEAPI},
+% y el número de valores primitivos disponibles, en nuestro ejemplo de la figura, 
 
-Cómo último, nuestro archivo de configuración, permite que el usuario especifique que valores desea que no sean tenidos en cuenta a la hora de comparar estructuras. 
-Esto toma especial importancia el contexto de estructuras de datos, especialmente en colecciones y contenedores en Java. En estos casos suelen aparecer campos en la clase que representa un contador de modificaciones o cambios realizados en la estructura de datos. Comúnmente son llamados \emph{modCount}. 
-Este es un campo que se utiliza para realizar un seguimiento de las modificaciones que se han realizado en la colección desde su creación o desde la última vez que se realizó un seguimiento. 
-El \emph{modCount} es un campo de tipo entero que se incrementa cada vez que se realiza una modificación en la estructura de datos. Las modificaciones pueden incluir inserciones, eliminaciones, actualizaciones u otras operaciones que afecten la colección. 
+
+Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de
+linealización de objetos (ver más adelante en la sección
+\ref{sec:stateMatching}), que se lleva a cabo luego de la ejecución de las
+secuencias de test. Esto permite al usuario controlar qué partes de la
+estructura del objeto son relevantes para la coincidencia de estados. Por
+ejemplo, la línea 4 hace que \emph{BEAPI} omita el tamaño máximo predeterminado
+de la caché en la coincidencia de estados, que en \emph{NCL} es una
+constante inicializada en 20 en el constructor de la clase. En general, \texttt{omit.fields}
+toma una expresión regular en Java, y \emph{BEAPI} omite los campos de las clases
+cuyo nombre \emph{matchean} con la expresión regular. Es importante que
+aquí se omitan campos que puede afectar negativamente la coincidencia de
+estados.
+Por ejemplo, \emph{modCount} es un campo de tipo entero que se incrementa 
+cada vez que se realiza una modificación en las estructura de datos
+provistas por \texttt{java.util}. Las modificaciones pueden incluir 
+inserciones, eliminaciones, actualizaciones u otras operaciones que afecten la colección. 
 El propósito principal de llevar un contador de modificaciones es facilitar la detección de modificaciones concurrentes o cambios inesperados en la colección por parte de múltiples hilos de ejecución. 
-En la línea 4 del archivo de configuración \ref{fig:NCL-fin-BEAPI}, se puede observar como se especifica aquellos campos que deseamos omitir a la hora de tener una representación canónica de la estructura. Canonicalizar un objeto se refiere a la acción de garantizar que un objeto se encuentre en su forma más básica y representativa, lo que facilita las comparaciones y operaciones con otros objetos similares.
-Para lograr todo lo explicado en esta sección, nosotros canonizamos los objetos generados por la ejecución de cada secuencia de métodos y analizamos y trabajamos con su representación canónica.
-Para finalizar esta sección, se puede observar en la figura \ref{sec:scope} un ejemplo del espacio de búsqueda de una secuencia generada con la combinación del método constructor de la clase más el método \emph{add} de NCL. En esta figura, se especificó un scope de 3. Esto quiere decir que cuando genera alguna estructura con más de 3 nodos como es en el caso de la última secuencia de la figura, esta es descartada por exceder el límite de nodos en la estructura (el nodo ficticio de la estructura se tiene en cuenta en la definición de \emph{scope})
+Sin embargo, para los propósitos de la generación exhaustiva acotada considerar \emph{modCount} como un
+campo de la estructura puede hacer que muchas listas que en contenido son iguales sean diferentes
+por tener distintos valores para este campo (por ejemplo, porque se les
+aplicaron una cantidad distinta de operaciones). Esto haría crecer
+innecesariamente la cantidad de estructuras generadas por \emph{BEAPI}, sin
+brindar ningún beneficio desde el punto de vista del testing estructural.
+Por lo tanto, el usuario puede omitir \emph{modCount} definiendo una expresión 
+regular para \texttt{omit.fields}
+(\texttt{DEFAULT\_MAXIMUM\_CACHE\_SIZE|modCount}).
+
+
+
+%Cómo último, nuestro archivo de configuración, permite que el usuario especifique que valores desea que no sean tenidos en cuenta a la hora de comparar estructuras. 
+%Esto toma especial importancia el contexto de estructuras de datos, especialmente en colecciones y contenedores en Java. En estos casos suelen aparecer campos en la clase que representa un contador de modificaciones o cambios realizados en la estructura de datos. Comúnmente son llamados \emph{modCount}. 
+%Este es un campo que se utiliza para realizar un seguimiento de las modificaciones que se han realizado en la colección desde su creación o desde la última vez que se realizó un seguimiento. 
+%
+%En la línea 4 del archivo de configuración \ref{fig:NCL-fin-BEAPI}, se puede observar como se especifica aquellos campos que deseamos omitir a la hora de tener una representación canónica de la estructura. Canonicalizar un objeto se refiere a la acción de garantizar que un objeto se encuentre en su forma más básica y representativa, lo que facilita las comparaciones y operaciones con otros objetos similares.
+%Para lograr todo lo explicado en esta sección, nosotros canonizamos los objetos generados por la ejecución de cada secuencia de métodos y analizamos y trabajamos con su representación canónica.
+%
+
+
 
 % \pp{Esta canonización no coincide con la que se explica en state matching, que
 %     implica recorrer un grafo y generar una secuencia. Yo no sé si pondría este
@@ -456,9 +500,7 @@ Para finalizar esta sección, se puede observar en la figura \ref{sec:scope} un 
 % este no sigue extiendo el árbol de búsqueda. En la figura el scope especificado es 3 (vale aclarar, que el nodo ficticio cuanta como nodo de la estructura.)
 
 
-% Siguiendo el análisis del archivo de configuración de la figura \ref{fig:NCL-fin-BEAPI},
-% y el número de valores primitivos disponibles, en nuestro ejemplo de la figura, se especifica enteros del 0 a $k-1$ y cadenas de caracteres: str1, str2, str3. Ademas, se pueden especificar otros valores primitivos como floats, doubles, etc. Esto serán los dominios de datos para los tipos primitivos que necesiten los métodos que serán utilizados. Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de canonización de objetos, que se lleva a cabo en la ejecución de las secuencias de métodos de la API. Esto permite al usuario controlar qué partes de la estructura del objeto son relevantes para la coincidencia de estados (ver más adelante en la sección \ref{sec:stateMatching}). Por ejemplo,  la línea 4 haría que \emph{BEAPI} omita el tamaño máximo predeterminado de la caché en la coincidencia de estados, que en la API de \emph{NCL} es una constante inicializada en 20 en el constructor de la clase. Es importante que aquí se omitan campos que puede afectar la coincidencia de estados, como el caso del campo \emph{modCount}. Esta variable se utiliza a menudo en estructuras de datos para realizar un seguimiento de las modificaciones o cambios realizados en los datos almacenados, pero claramente no afecta la estructura generada. 
-% La configuración mostrada en la Figura~\ref{fig:NCL-fin-BEAPI} es suficiente para que \emph{BEAPI} genere NCL con un máximo de 3 nodos, que contienen enteros del 0 al 2 como valores. 
+
 
 \section{Programación Defensiva}
 \label{sec:defensiveProgramming}
