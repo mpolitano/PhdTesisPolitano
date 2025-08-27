@@ -500,25 +500,29 @@ regular para \texttt{omit.fields}
 % este no sigue extiendo el árbol de búsqueda. En la figura el scope especificado es 3 (vale aclarar, que el nodo ficticio cuanta como nodo de la estructura.)
 
 
-
-
 \section{Programación Defensiva}
 \label{sec:defensiveProgramming}
 
-\cacho{Toda esta seccion es nueva, solo un parrafo ya estaba.}
-Una de las principales ventajas del enfoque \textsf{BEAPI} frente a otras técnicas de generación automática de estructuras 
-es que no requiere de una especificación formal explícita para restringir el espacio de búsqueda. 
-En lugar de depender de invariantes de representación complejos, como ocurre en técnicas basadas en generación exhaustiva acotada tradicional 
-(e.g., \textsf{Korat}), \textsf{BEAPI} se apoya en la definición de métodos correctos provistos por la API de la clase bajo prueba.
-
-Esto es posible gracias a la adopción de un estilo de \emph{programación defensiva}~\cite{Liskov00} en el diseño de estos métodos. 
-La programación defensiva es una técnica que promueve la validación de precondiciones en los métodos públicos, de modo que los errores 
-relacionados con el uso incorrecto de la API puedan ser detectados y reportados mediante excepciones apropiadas.
+Una de las principales ventajas del enfoque \textsf{BEAPI} frente a otras
+técnicas de generación exhaustiva acotada existentes 
+es que no requiere de especificaciones formales adicionales (como 
+un \texttt{repOK}).
+En lugar de depender de especificaciones complejas como el \texttt{repOK} de la
+Figura \ref{fig:NCL-repOK} (como ocurre con \textsf{Korat}), \textsf{BEAPI} se
+apoya en la asunción de que los métodos de la API que se usan para la generación
+(por ejemplo, los generadores de objetos) sólo construyen objetos correctos.
+Típicamente, esto es posible gracias a la adopción del estilo llamado
+\emph{programación defensiva}~\cite{Liskov00} en la definición de los métodos. 
+La programación defensiva es una técnica que promueve la verificación de
+precondiciones en los métodos públicos de la API, de modo que los errores 
+relacionados con el uso incorrecto de la API puedan ser detectados y reportados
+mediante las excepciones apropiadas.
 
 En el contexto de \textsf{BEAPI}, esta práctica permite descartar automáticamente secuencias de métodos que violan las restricciones de uso 
-de la clase, ya que los tests generados que invocan métodos con parámetros inválidos o en estados inconsistentes provocan una excepción 
+de la API, ya que los tests generados que invocan métodos con parámetros inválidos o en estados inconsistentes provocan una excepción 
 durante la ejecución. Dado que \textsf{BEAPI} ejecuta cada secuencia como parte del proceso de exploración, este mecanismo actúa 
-como un filtro dinámico: las secuencias inválidas no se consideran como candidatas válidas para generar nuevas estructuras.
+como un filtro dinámico: las secuencias de test que lanzan excepciones correspondientes
+a violaciones de precondiciones no se consideran como candidatas para generar nuevas estructuras.
 
 \begin{figure}[!htb]
 \begin{lstlisting}
@@ -526,48 +530,69 @@ public Object removeIndex(int index) {
   // Verificacion de precondicion
   if(index < 0 || index >= size)
       throw new IllegalArgumentException();  
-   \dots
-   }
+  // Codigo omitido
+}
 \end{lstlisting}
 \caption{Programación defensiva en un metodo en \texttt{NodeCachingLinkedList}.}
 \label{fig:algoProgDefensiva}
 \end{figure}
 
-El código mostrado en la Figura~\ref{fig:algoProgDefensiva} ejemplifica esta técnica. 
-El método \texttt{removeIndex} de la clase \texttt{NodeCachingLinkedList} verifica que el índice especificado se encuentre dentro de los límites válidos de la lista. 
-Si la condición no se cumple, se lanza una excepción que permite a \textsf{BEAPI} descartar automáticamente la secuencia correspondiente 
-sin necesidad de especificar esta restricción en un invariante externo.
+El código mostrado en la Figura~\ref{fig:algoProgDefensiva} ejemplifica la
+técnica de programación defensiva. 
+El método \texttt{removeIndex} de la clase \texttt{NodeCachingLinkedList} verifica que el índice especificado se encuentre dentro de los límites de la lista. 
+Si la condición no se cumple, se lanza una excepción que permite a
+\textsf{BEAPI} descartar automáticamente la secuencia correspondiente (sin
+necesidad de especificar esta restricción en un invariante externo).
 
 Este enfoque reduce significativamente la carga de trabajo del usuario, ya que no es necesario escribir un \texttt{repOK} manual ni mantenerlo 
-en sincronía con la implementación. En cambio, basta con asegurar que los métodos de la API respeten buenas prácticas de validación 
-de entradas y mantengan la clase en un estado consistente. 
+en sincronía con la implementación cuando se realizan cambios sobre la misma. En
+cambio, basta con asegurar que los métodos de la API respeten buenas prácticas
+de verificación de precondiciones sobre las entradas. 
 De este modo, \textsf{BEAPI} puede aprovechar la ejecución dinámica de los tests para delimitar correctamente el espacio de estructuras válidas.
 
 
-\section{State Matching}
+\section{Coincidencia de estados}
 \label{sec:stateMatching}
-\cacho{Explique un poco mejor la parte de la figura, no me parece agregar mucho mas al respecto. Lo podemos charlar}
-Durante la generación exhaustiva de secuencias de prueba, pueden surgir múltiples caminos que conducen al mismo estado final. 
-Estas secuencias redundantes aumentan innecesariamente el espacio de exploración, consumiendo recursos y tiempo de ejecución. 
-Para mitigar este problema, \textsf{BEAPI} implementa una estrategia de coincidencia de estado(\emph{state matching} en inglés) que permite identificar y descartar caminos que conducen a estados ya generados.
+Esta optimización nace de la observación de que durante la generación exhaustiva
+acotada con \textsf{BEAPI} pueden surgir múltiples de secuencias de test que
+construyen el mismo objeto. 
+Estas secuencias redundantes aumentan el espacio de exploración
+de \textsf{BEAPI}, malgastando tiempo de CPU e incrementando significativamente el 
+tiempo de ejecución de la técnica. 
+Para mitigar este problema, \textsf{BEAPI} implementa una estrategia de
+coincidencia de estados (\emph{state matching} en inglés) que permite
+identificar y descartar secuencias de test que conducen a objetos generados
+previamente.
 
 Por ejemplo, crear una lista vacía, agregar un elemento, eliminarlo y luego volver a agregarlo, resulta en el mismo estado que simplemente agregar ese elemento a una lista vacía. 
 De manera similar, intentar eliminar un elemento de una lista vacía no altera su estado, produciendo el mismo resultado que una lista recién creada. 
 En estructuras como pilas, realizar una operación de \texttt{push}, seguida de un \texttt{pop} y un nuevo \texttt{push} del mismo valor, 
 produce una configuración indistinguible de aquella que resulta de realizar únicamente el último \texttt{push}. 
 
-Este tipo de situaciones es capturado por la estrategia de \emph{state matching}, que consiste en mantener un registro de las estructuras generadas durante la exploración, y descartar cualquier nueva secuencia que produzca una estructura ya observada. 
-\textsf{BEAPI} asume que las ejecuciones de los métodos de la API son deterministas, es decir, cualquier ejecución de un método con las mismas entradas produce siempre el mismo resultado. 
-Por tanto, si una secuencia de prueba conduce a una estructura que ya ha sido generada por una secuencia anterior, no es necesario seguir extendiendo la nueva secuencia, 
-ya se han explorado sus consecuencias a través de la primera.
-Si almacenamos muchas secuencias de prueba para la misma estructura, todas estas secuencias tendrían que ser extendidas con nuevas rutinas en iteraciones posteriores de \textsf{BEAPI}, 
-lo que resultaría tener que realizar un cómputo de las secuencias que sería innecesario ya que producen un estado que ya hemos computado y que hemos extendido.  
+Este tipo de situaciones son capturadas por la estrategia de coincidencia de
+estados, que consiste en almacenar las estructuras generadas durante la
+exploración, y descartar cualquier nueva secuencia de test que produzca una
+estructura ya generada. 
+\textsf{BEAPI} asume que las ejecuciones de los métodos de la API son
+deterministas, es decir, que cualquier ejecución de un método con las mismas entradas produce 
+siempre el mismo resultado. 
+Por lo tanto, si una secuencia de test conduce a la creación de estructuras
+que ya han sido generadas por una secuencia anterior, no es necesario seguir
+extendiendo la nueva secuencia con sucesivas invocaciones a otros métodos, ya 
+que esto no producirá nuevos objetos distintos.
 
-En la Figura~\ref{fig:stateMatching}, se puede observar de manera mas clara, la explosion de estados. 
-Cada nodo del árbol representa una secuencia de llamadas a la API sobre una instancia de \texttt{NodeCachingLinkedList}. 
-Las flechas indican la evolución de los estados al ejecutar nuevas operaciones. 
-Las marcas de \emph{visited state} \cacho{SACO EL INGLES?} indican que el estado generado ya ha sido explorado anteriormente. 
-Como puede observarse, múltiples caminos llevan a la misma estructura, y continuar su expansión sería innecesario.
+
+\pp{Hay un error en la Figura ~\ref{fig:stateMatching}, el que ejecuta size también es un visited state porque ya se construyó en el constructor}
+En la Figura~\ref{fig:stateMatching}, se puede observar de manera más clara este
+problema de generación de estructuras redundantes.
+Cada nodo del árbol representa una secuencia test generada por \texttt{BEAPI}
+para \texttt{NodeCachingLinkedList}. 
+Las flechas indican la extensión de una secuencia de test agregando una nueva
+operación al final de la secuencia previa.
+Las marcas de \emph{visited state} indican que el objeto ya fue generado por
+secuencias previas.
+Esta Figura ilustra claramente que típicamente hay múltiples formas de obtener
+la misma estructura usando la API.
 
 \begin{figure}[H]
   \centering
@@ -576,29 +601,52 @@ Como puede observarse, múltiples caminos llevan a la misma estructura, y contin
   \label{fig:stateMatching}
 \end{figure}
 
+La coincidencia de estados es, por lo tanto, una optimización crítica para que
+la generación exhaustiva acotada pueda funcionar para problemas con APIs ricas
+en cantidad de métodos, ya que las combinaciones posibles de métodos para
+construir objetos crecen exponencialmente con la cantidad de métodos
+disponibles.
+Implementamos esta técnica en \textsf{BEAPI} mediante la transformación de las
+estructuras generadas a una representación canónica, que permite almacenar las  
+estructuras y compararlas por igualdad eficientemente \cite{Iosif02,Xie04}. El procedimiento se
+describe a continuación.
 
-\emph{State matching} es, por tanto, una optimización crítica para que la generación exhaustiva acotada pueda escalar a dominios con muchas combinaciones posibles de operaciones. 
-Implementamos esta técnica en \textsf{BEAPI} mediante la transformación de las estructuras generadas a una representación canónica que permite su comparación eficiente.
+%Concretamente, \textsf{BEAPI} almacena todas las estructuras generadas hasta el momento en su forma canónica. 
+%Luego de ejecutar la última rutina \texttt{r(p$_1$, ..., p$_k$)} de una nueva secuencia de prueba \texttt{T}, 
+%el sistema verifica si alguno de los parámetros involucrados en \texttt{r} posee una estructura que no haya sido observada previamente (es decir, que no esté almacenada). 
+%Si ninguna estructura nueva es detectada, la secuencia \texttt{T} se considera redundante y es descartada. 
+%De lo contrario, \texttt{T} se almacena como secuencia representativa, junto con las nuevas estructuras producidas.
 
-Concretamente, \textsf{BEAPI} almacena todas las estructuras generadas hasta el momento en su forma canónica. 
-Luego de ejecutar la última rutina \texttt{r(p$_1$, ..., p$_k$)} de una nueva secuencia de prueba \texttt{T}, 
-el sistema verifica si alguno de los parámetros involucrados en \texttt{r} posee una estructura que no haya sido observada previamente (es decir, que no esté almacenada). 
-Si ninguna estructura nueva es detectada, la secuencia \texttt{T} se considera redundante y es descartada. 
-De lo contrario, \texttt{T} se almacena como secuencia representativa, junto con las nuevas estructuras producidas.
-
-Representamos las estructuras asignadas en el heap como grafos etiquetados. 
-Después de la ejecución de un método, un parámetro $p$ (de tipo no primitivo) 
-contiene una referencia al objeto raíz $r$ de un \emph{heap} con raíz (es decir, $p=r$), definido a continuación.
+Formalmente, representamos las estructuras almacenadas en el heap como grafos
+etiquetados con un nodo raíz, denominados heaps con raíz. 
+Después de la ejecución de un método, un parámetro $p$ de tipo no primitivo
+(incluyendo al receptor \texttt{this}) contiene una referencia al objeto raíz $r$ de un
+heap con raíz, es decir, $p=r$.
 
 \begin{definition}
 Sea $O$ un conjunto de objetos y $P$ un conjunto de valores primitivos (incluido $null$). Sea $F$ el conjunto de campos de todos los objetos en $O$.
 \begin{itemize}
-\item Un \emph{heap} es un grafo etiquetado $H = \langle O, E\rangle$ con $E = {(o, f, v) | o \in O, f \in F, v \in O \cup P}$.
-\item Un \emph{heap con raíz} es un par $RH = \langle r, H \rangle$ donde $r \in O$, $H = \langle O, E\rangle$ es un heap, y para cada $v' \in O \cup P$, $v'$ es alcanzable desde $r$ a través de campos en $F$.
+\item Un \emph{heap} es un grafo etiquetado $H = \langle O, E\rangle$ con $E =
+    \{(o, f, v) | o \in O, f \in F, v \in O \cup P\}$.
+\item Un \emph{heap con raíz} es un par $RH = \langle r, H \rangle$ donde $r \in
+    O$, $H = \langle O, E\rangle$ es un heap, y para cada $v' \in O \cup P$,
+    $v'$ es alcanzable desde $r$ a través de los atributos $f \in F$.
 \end{itemize}
 \end{definition}
 
-El caso especial $p = null$ se puede representar con un \emph{heap} con raíz que tiene un nodo ficticio y un campo ficticio que apunta a null. En lenguajes como Java, cada objeto se identifica por la dirección de memoria donde se encuentra. Cambiar las direcciones de memoria donde se asignan los objetos no tiene efecto desde el punto de vista del programa, ya que el programador no tiene control sobre la representación de bajo nivel de la memoria (a diferencia de otros lenguajes como C). Los \emph{heaps} obtenidos mediante permutaciones de las direcciones de memoria de sus objetos componentes se llaman \emph{heaps isomorfos}. Evitamos la generación de \emph{heaps isomorfos} empleando una representación canónica para los heaps \cite{Iosif02,Boyapati02}. Los heaps con raíz se pueden canonizar eficientemente mediante un enfoque llamado \emph{linearización} \cite{Iosif02,Xie04}, que transforma un heap con raíz en una secuencia única de valores.
+El caso especial $p = null$ se representa con un heap con raíz que tiene un nodo
+ficticio y un campo ficticio que apunta a $null$. En lenguajes como Java, cada
+objeto se identifica por la dirección de memoria donde se encuentra. Cambiar las
+direcciones de memoria donde se almacenan los objetos no tiene efecto desde el
+punto de vista del programa, ya que el programador no tiene control sobre la
+representación de bajo nivel de la memoria (a diferencia de otros lenguajes como
+C). Los heaps obtenidos mediante permutaciones de las direcciones de memoria de
+sus objetos componentes se llaman \emph{heaps
+isomorfos}\cite{Iosif02,Boyapati02}. Evitamos la generación de \emph{heaps
+isomorfos} empleando una representación canónica para los heaps. Los heaps con
+raíz se pueden canonizar eficientemente mediante un enfoque llamado
+\emph{linearización} \cite{Iosif02,Xie04}, que convierte un heap con raíz en
+una secuencia de valores primitivos que lo representa de forma canónica.
 
 \bigbreak
 
@@ -631,8 +679,6 @@ El caso especial $p = null$ se puede representar con un \emph{heap} con raíz qu
 % \label{alg:linearization}
 % \end{figure}
 
-\cacho{Cambios minimos, sacado del paper de BEAPI, algoritmo en ingles en vez de español.}
-
 
 
 \begin{figure}[!th]
@@ -659,7 +705,7 @@ int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) {
   return seq; 
 }
 \end{lstlisting}
-\caption{Algortirmo de linearización }
+\caption{Algoritmo de linealización}
 \label{alg:linearization}
 \end{figure}
 % java.util.LinkedList.MAX_ARRAY_SIZE&java.util.LinkedList:0&2147483639
@@ -671,67 +717,105 @@ int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) {
 % traversal.DummyHeapRoot.theroot&traversal.DummyHeapRoot:0&java.util.LinkedList:0
 
 
-Figura\ref{alg:linearization} muestra el algoritmo de linealización utilizado por \textsf{BEAPI}, una versión personalizada que 
-informa cuando los objetos exceden el \emph{scope} y permite ignorar ciertos campos de los objetos (para la versión original, véase 
-\cite{Xie04}). El procedimiento \texttt{linearize} inicia un recorrido en profundidad del heap a partir de un objeto raíz, invocando 
-\texttt{lin} en la línea 3. Para canonicizar el heap, \texttt{lin} asigna identificadores únicos a cada objeto que visita. El mapa 
-\texttt{ids} almacena la correspondencia entre objetos y sus identificadores únicos.
-
-Figure\ref{alg:linearization} muestra el algoritmo de linealización utilizado por \textsf{BEAPI}, una versión personalizada que 
-informa cuando los objetos exceden el \emph{scope} y permite ignorar ciertos campos de los objetos (para la versión original, véase 
-\cite{Xie04}). El procedimiento \texttt{linearize} inicia un recorrido en profundidad del heap a partir de un objeto raíz, invocando 
-\texttt{lin} en la línea 3. Para canonicizar el heap, \texttt{lin} asigna identificadores únicos a cada objeto que visita. El mapa 
-\texttt{ids} almacena la correspondencia entre objetos y sus identificadores únicos.
+La Figura\ref{alg:linearization} muestra el algoritmo de linealización utilizado
+por \textsf{BEAPI}, una versión modificada del algoritmo original para reportar
+cuando los objetos exceden el \emph{scope}, e ignorar ciertos campos de los objetos (para la versión original, véase 
+\cite{Xie04}). El procedimiento \texttt{linearize} inicia un recorrido en
+profundidad del heap a partir de la raíz, invocando 
+\texttt{lin} en la línea 3. Para canonizar el heap, \texttt{lin} asigna
+identificadores únicos a cada objeto nuevo que visita. El mapa 
+\texttt{ids} almacena la correspondencia entre objetos visitados y sus
+identificadores asignados.
 
 Cuando un objeto es visitado por primera vez, se le asigna un nuevo identificador (líneas 10--11), y se crea una secuencia \emph{singleton}
-que representa dicho objeto (línea 12). A continuación, se recorren los campos del objeto, ordenados en un orden predefinido (por 
-ejemplo, alfabéticamente por nombre), y se construye la linealización de cada valor de campo, concatenando el resultado a la secuencia 
-del objeto actual (líneas 13--19). Si un campo contiene un valor primitivo, se lo representa mediante una secuencia singleton con dicho 
-valor (líneas 15--16). Si un campo referencia a otro objeto, se realiza una llamada recursiva a \texttt{lin} para convertir dicho objeto 
-en una secuencia, la cual se añade al resultado (línea 18). Al finalizar el bucle, \texttt{seq} contiene la representación canónica del 
-heap con raíz en \texttt{root}, y se devuelve como resultado (línea 20).
+que representa dicho objeto (línea 12). A continuación, se recorren los
+atributos del objeto, ordenados en un orden predefinido (en BEAPI los campos se
+ordenan alfabéticamente por nombre), y se construye la linealización del valor
+de cada atributo (líneas 13--19). Si un atributo contiene un valor primitivo, se lo representa mediante una secuencia singleton con dicho 
+valor (líneas 15--16). Si un atributo hace referencia a otro objeto, se realiza una llamada recursiva a \texttt{lin} para convertir dicho objeto 
+en una secuencia, la cual se añade al final de la secuencia resultado (línea
+18). Al finalizar el ciclo, \texttt{seq} contiene la representación canónica del 
+heap con raíz \texttt{root}, que se devuelve como resultado (línea 20).
 
 Cuando un objeto ya visitado es alcanzado por una llamada recursiva, el mismo ya debe tener un identificador asignado en \texttt{ids} 
 (línea 6), y \texttt{lin} retorna la secuencia singleton correspondiente (línea 7). Si durante el proceso se detecta que la cantidad de 
-objetos alcanzables excede el \emph{scope} permitido, se lanza una excepción \texttt{ScopeExceededException} (líneas 9--10). Esta 
-excepción será utilizada por \textsf{BEAPI} para descartar aquellas secuencias de prueba que generan objetos más grandes de lo 
-permitido por el \emph{scope}.
+objetos alcanzables desde la raíz excede el \emph{scope} permitido, se lanza una excepción \texttt{ScopeExceededException} (líneas 9--10). Esta 
+excepción será utilizada por \textsf{BEAPI} para descartar aquellas secuencias
+de test que generan objetos más grandes que lo permitido por los \emph{scope}.
 
 El procedimiento \texttt{linearize} también recibe como parámetro una expresión regular \texttt{omitFields}, que define los nombres 
-de los campos que deben ser ignorados durante la linealización. Para omitir estos 
-campos, la función \texttt{sortByField} (línea 13) ha sido implementada de forma tal que no devuelve las aristas correspondientes a 
-los campos cuyo nombre coincide con \texttt{omitFields}. Esto evita que los valores de dichos campos se incluyan en la secuencia 
-resultante.
+de los atributos que deben ser ignorados durante la linealización. Para omitir estos 
+atributos, la función \texttt{sortByField} (línea 13) ha sido implementada de forma tal que no devuelve las aristas correspondientes a 
+los atributos cuyo nombre coincide con \texttt{omitFields}. Esto evita que los
+valores de dichos atributos se incluyan en la secuencia resultante.
 
-Finalmente, la linealización permite comparar estructuras de manera eficiente: dos objetos (es decir, dos heaps enraizados) son iguales 
-si, y solo si, las secuencias generadas por \texttt{linearize} son iguales.
+Finalmente, la linealización permite comparar estructuras de manera eficiente:
+dos objetos (es decir, dos heaps con raíz) son iguales 
+si y solo si las secuencias generadas por \texttt{linearize} para ambos son
+iguales (comparando elemento a elemento).
 
-\section{Uso de m\'etodos generadores de objectos en BEAPI}
+Cabe destacar que por simplicidad el algoritmo presentado en la Figura\ref{alg:linearization} 
+asume que los objetos almacenan enteros y retorna secuencias de enteros como representaciones
+canónicas. El algoritmo implementado en BEAPI es más general, soporta objetos de
+cualquier tipo y los representa como secuencias de Strings.
+
+\section{Uso de m\'etodos generadores de objetos}
 \label{sec:buildersOptimization}
-En esta sección, utilizaremos una optimización que hemos desarrollado y que es
-una parte importante de esta tesis (Capítulo \ref{cap:builders}.
-Estos métodos generadores nos permiten generar cualquier configuración posible que se puede construir con la API (pudiendo generar de manera exhaustiva, es decir, generando todos los objetos posibles hasta un alcance dado).
-Dado que la cantidad de combinaciones factibles de métodos crece de manera exponencial con el número de métodos,
-es crucial reducir la cantidad de métodos que \textsf{BEAPI} utiliza para producir secuencias de prueba. Para abordar este problema, 
-utilizamos el enfoque de identificación automática de métodos generadores que se describe en el Capítulo \ref{cap:builders}.
-Este enfoque nos ayuda a encontrar un subconjunto de métodos de la API que son suficientes para generar conjuntos de estructuras acotadas y exhaustivas. 
-El uso de métodos generadores permite generar estados complejos sin necesidad de ejecutar múltiples pasos individuales. Esto reduce significativamente la cantidad de secuencias que BEAPI necesita explorar, optimizando el análisis. 
+En esta sección, se describe una optimización clave para BEAPI que hemos desarrollado y que es
+una contribución principal de esta tesis (ver Capítulo \ref{cap:builders}).
+Se observa que los métodos generadores de objetos nos permiten crear cualquier
+instancia posible que se puede construir con la API, incluso de manera
+exhaustiva acotada, es decir, generando todos los objetos posibles para un scope dado.
+Dado que la cantidad de combinaciones de invocaciones a métodos crece de manera
+exponencial con el número de métodos, es crucial reducir la cantidad de métodos
+que \textsf{BEAPI} utiliza para producir secuencias de test. 
 
-En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda de tipo Greedy para identificar este subconjunto de métodos generadores.
-El enfoque está basado en el algoritmo de optimización \emph{Escalada de colinas} que logra un mejor rendimiento. 
-Aunque \emph{Escalada de colinas} puede ser menos preciso, ya que puede incluir algunos métodos que no son necesarios para producir un conjunto acotado y exhaustivo de estructuras, 
-en nuestros experimentos, el algoritmo de \emph{escalada de colinas}  funcionó muy bien y calculó consistentemente conjuntos sufientes de métodos generadores (verificamos que coincidieran con los métodos que identificados manualmente y que son generadores en cada caso de estudio). 
+Para abordar este problema, se propone utilizar algún enfoque de identificación
+automática de métodos generadores de objetos previo a la ejecución de BEAPI. 
+Este enfoque nos permitirá encontrar un subconjunto pequeño de métodos de la API que son
+suficientes para la generación exhaustiva acotada.
+Luego, los generadores de objetos son pasados como parámetro a BEAPI como los
+únicos métodos que debe utilizar (ver Figura \ref{fig:beapi-overview}). 
+Esto reduce significativamente la cantidad de
+secuencias que BEAPI necesita explorar, mejorando significativamente la
+eficiencia de la técnica.
+
+En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda basado en
+\emph{escalada de colinas} (ver Sección \ref{} \pp{Referencia hill climbing}), que logra un mejor rendimiento en tiempo de
+ejecución. 
+Aunque la \emph{escalada de colinas} puede ser menos preciso en algunos casos,
+ya que puede incluir algunos métodos que no son necesarios entre los generadores
+de objetos retornados, en nuestros experimentos el algoritmo funcionó muy bien y
+computó consistentemente conjuntos suficientes de métodos generadores (ver
+Sección \ref{} \pp{Referencia a experimentos}). 
 % Nuestro objetivo aquí es evaluar el impacto de utilizar builders para la generación exhaustiva acotada (BEG) a partir de una API.
+Para la identificación de métodos generadores, utilizamos como función objetivo
+a BEAPI como generador exhaustivo acotado. Esta función objetivo se explicó en
+detalle en la Sección \ref{} \pp{Cambiar la referencia, la función objetivo BE
+es la 4.4.1, no?}). 
 
-Para la identificación de métodos generadores, utilizamos como función de evaluación un generador exhaustivo para crear objetos de la API (ver sección \ref{sec:fitness}). 
-Este generador es precisamente BEAPI que estamos desarrollando en esta sección. 
-La idea clave que hace factible la identificación de los métodos generadores es que a menudo los generadores identificados para un \emph{scope} relativamente pequeño 
-utilizan el mismo conjunto de métodos que se necesitan para crear estructuras de cualquier tamaño.
-En otras palabras, una vez que el alcance para el cálculo de los métodos generadores es lo suficientemente grande, aumentar el alcance producirá como resultado el mismo conjunto de constructores. 
-Este resultado se asemeja a la hipótesis de la cota pequeña para la detección de errores[\cite{Andoni02} (a la técnica de \emph{transcoping} \cite{Rosner13}).
-En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para calcular los métodos generadores de objetos. 
-Después de identificar eficientemente los métodos generadores con un alcance pequeño, podemos ejecutar \textsf{BEAPI}, utilizando los métodos generadores identificados y,
-con un alcance mayor. Esto nos permite generar objetos más grandes y utilizarlos para probar el software bajo prueba.
+La idea clave que hace factible la identificación eficiente de métodos generadores
+previamente a la generación exhaustiva acotada es que a menudo utilizar un
+\emph{scope} relativamente pequeño es suficiente para identificar métodos
+generadores de objetos que resultan ser los generadores de objetos para el caso
+general (es decir, sin restricciones de scope).
+%En otras palabras, una vez que el scope para el cómputo de los métodos generadores es lo suficientemente grande, aumentar el alcance producirá como resultado el mismo conjunto de constructores. 
+Este resultado se asemeja a la ``hipótesis de la cota pequeña'', que predica que
+para encontrar la mayor parte de las fallas es suficiente ejercitar el software
+con estructuras de tamaño relativamente pequeño \cite{Andoni02}. También es
+similar a la técnica de \emph{transcoping}, propuesta en \cite{Rosner13}.
+En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para
+computar los métodos generadores de objetos con precisión (ver Sección
+\ref{} \pp{Resultados experimentales de builders}). 
+
+Después de identificar eficientemente los métodos generadores usando un scope
+pequeño, podemos ejecutar \textsf{BEAPI} con métodos generadores identificados
+como parámetro utilizando scopes más grandes. Esto permite que \textsf{BEAPI}
+produzca objetos más grandes, y con ellos es posible ejercitar más exhuastivamente 
+el software bajo test.
+
+\pp{De acá hasta el final de esta sección son resultados que se deberían
+discutir en la parte de la sección experimental que tiene los resultados de builders} 
 
 En la mayoría de nuestros casos de estudio, los métodos generadores de objetos se limitan a un 
 constructor y un único método para agregar elementos a la estructura, como ocurre en las listas 
@@ -751,6 +835,7 @@ de tal modo que para todos los nodos, la altura de la rama izquierda no debe dif
 Gracias a esta forma de equilibrio (o balanceo), la complejidad de una búsqueda en uno de estos árboles se mantiene siempre en orden de complejidad O(log n). 
 Para este caso de árboles, solo el constructor de la clase y una rutina de adición son suficientes. 
 Esto demuestra que la identificación de métodos generadores no es trivial de realizar manualmente.
+
 
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
