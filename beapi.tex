@@ -803,7 +803,7 @@ general (es decir, sin restricciones de scope).
 Este resultado se asemeja a la ``hipótesis de la cota pequeña'', que predica que
 para encontrar la mayor parte de las fallas es suficiente ejercitar el software
 con estructuras de tamaño relativamente pequeño \cite{Andoni02}. También es
-similar a la técnica de \emph{transcoping}, propuesta en \cite{Rosner13}.
+similar a la técnica llamada \emph{transcoping}, propuesta en \cite{Rosner13}.
 En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para
 computar los métodos generadores de objetos con precisión (ver Sección
 \ref{} \pp{Resultados experimentales de builders}). 
@@ -840,88 +840,84 @@ Esto demuestra que la identificación de métodos generadores no es trivial de r
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
 
-A continuación se muestra un pseudocódigo de \emph{BEAPI} en la Figura \ref{fig:beapi-algorithm}. 
-\emph{BEAPI} toma como entradas una lista de métodos de una API,  \texttt{methods}. 
-Estos métodos pueden ser la API completa o un subconjuntos de métodos de la misma. 
-En nuestro caso, como hemos aplicado anteriormente, vamos a utilizar los métodos generadores previamente identificados. 
-Además, el algoritmo recibe de parámetro, el alcance (\emph{scope}) de objetos para la generación; una lista para crear valores de cada tipo primitivo proporcionado en la descripción del alcance,
-\texttt{primitives} (creados automáticamente a partir de las opciones de configuración como \texttt{int.range}, \texttt{string}, etc., ver Figura~\ref{fig:NCL-fin-BEAPI}); 
-y una expresión regular que coincide con los campos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. 
-Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI},
-por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. 
-La estructura de datos de tipo Map, \texttt{secuenciasActuales} de \emph{BEAPI}  almacena, para cada tipo, 
-la lista de secuencias de test que se sabe que generan estructuras del tipo correspondiente. 
-
-El map \texttt{secuenciasActuales} se inicia con todas las secuencias de tipos primitivos en \texttt{primitives} (líneas 1). 
-En cada iteración del bucle principal (líneas 3-33), \textsf{BEAPI}  crea nuevas secuencias para cada método disponible \texttt{m} (línea 6), 
-explorando exhaustivamente todas las posibilidades para crear secuencias de prueba utilizando \texttt{m} e inputs generados en iteraciones anteriores y almacenados en \texttt{secuenciasActuales} (líneas 7-28).
-Las secuencias de prueba recién creadas que generan nuevas estructuras en la iteración actual se guardan en el mapa \texttt{nuevasSecuencias} (inicializado vacío en la línea 4). 
-Se puede observar que todas las secuencias generadas se agregan a \texttt{secuenciasActuales} al final de la iteración principal (línea 32).
-Si no se producen nuevas estructuras en la iteración actual (\texttt{hayNuevas} es falso en la línea 29), el bucle principal del algoritmo de \textsf{BEAPI} termina su ejecución 
-y se devuelve la lista de todas las secuencias en \texttt{secuenciasActuales} (línea 34).
-
-
-\begin{figure}[H]
-  \centering
-  \begin{algorithm}[H]
-      \SetAlgoLined
-      \KwIn{List of methods \textit{methods}, maximum scope \textit{scope}, map of primitive types \textit{primitives}, fields to omit \textit{omitFields}}
-      \KwOut{List of generated sequences}
-      
-      $currSeqs \leftarrow$ copy of \textit{primitives}\;
-      $canonicalStrs \leftarrow \emptyset$\;
-      
-      \While{\textbf{true}}{
-          $newSeqs \leftarrow \emptyset$\;
-          $hasNew \leftarrow$ \textbf{false}\;
-          
-          \For{$m(T_1,\ldots,T_n):T_r$ in \textit{methods}}{
-            $seqs_{T_1} \leftarrow$ currSeqs for type $T_1$\;
-            \ldots\;
-            $seqs_{T_n} \leftarrow$ currSeqs for type $T_n$\;
-
-            \For{$(s_1,\ldots,s_n) \in seqs_{T_1} \times \ldots \times seqs_{T_n}$}{
-              $newSeq \leftarrow$ createSequence($s_1,\ldots,s_n,m$)\;
-              $(o_1,\ldots,o_n,o_r, failure, exception) \leftarrow$ execute($newSeq$)\;                
-              
-              \If{failure}{
-                  \Return{\texttt{ExecutionFailedException}($newSeq$)}\;
-              }
-              \If{exception}{
-                  \textbf{continue}\;
-              }
-              
-              $(c_1,\ldots,c_n,c_r, outOfScope) \leftarrow$ makeCanonical($o_1,\ldots,o_n,o_r$, \textit{scope}, \textit{omitFields})\;
-              
-              \If{outOfScope}{
-                  \textbf{continue}\;
-              }
-              
-              \For{\textbf{each} type $T_i$ in $\{T_1,\ldots,T_n,T_r\}$}{
-                  \If{$T_i$ is reference type \textbf{and} $c_i \notin canonicalStrs$}{
-                      $canonicalStrs \leftarrow canonicalStrs \cup \{c_i\}$\;
-                      add $newSeq$ to $newSeqs$ for type $T_i$\;
-                      $hasNew \leftarrow$ \textbf{true}\;
-                  }
-              }
-            }
-          }
-          
-          \If{\textbf{not} $hasNew$}{
-              \textbf{break}\;
-          }
-          
-          $currSeqs \leftarrow currSeqs \cup newSeqs$\;
+\begin{figure}[ht]
+\begin{lstlisting}
+BEAPI(List methods, int scope, Map<Type, List<Seq>> primitives, Regex omitFields) {
+  Map<Type, List<Seq>> currSeqs = new Map();
+  currSeqs.addAll({ T->L | T->L in primitives });
+  Set canonicalStrs = new Set();
+  for (int it=0; true; it++) {
+    Map<Type, List<Seq>> newSeqs = new Map();
+    boolean newStrs = false;
+    for (m(T$_1$,$\ldots$,T$_n$):T$_r$: methods) {
+      Map<Type, List<Seq>> seqsT$_1$ = currSeqs.getSequencesForType(T$_1$);
+      $\ldots$ 
+      Map<Type, List<Seq>> seqsT$_n$ = currSeqs.getSequencesForType(T$_n$);
+      for ((s$_1$,$\ldots$,s$_n$): seqsT$_1\times\ldots\times$seqsT$_n$) {
+        Seq newSeq = createNewSeq(s$_1$,$\ldots$,s$_n$,m);
+        o$_1$,$\ldots$,o$_n$,o$_r$,failure,exception = execute(newSeq);
+        if (failure) throw new ExecutionFailedException(newSeq);
+        if (exception) continue;
+        c$_1$,$\ldots$,c$_n$,c$_r$,outOfScope = makeCanonical(o$_1$,$\ldots$,o$_n$,o$_r$,scope,omitFields);
+        if (outOfScope) continue;
+        if (isReferenceType(T$_1$) and !canonicalStrs.contains(c$_1$)) {
+          canonicalStrs.add(c$_1$);
+          newSeqs.addSeqForType(T$_1$, newSeq);
+          newStrs = true;
         }
-    \Return{all sequences in $currSeqs$}\;
-  \end{algorithm}
-  \caption{\textsf{BEAPI} algorithm}
-  \label{fig:beapi-algorithm}
+        $\ldots$
+        if (isReferenceType(T$_r$) and !canonicalStrs.contains(c$_r$)) {
+          canonicalStrs.add(c$_r$);
+          newSeqs.addSeqForType(T$_r$, newSeq);
+          newStrs = true;
+        }
+      }
+    }
+    if (!newStrs) break;
+    currSeqs.addAll(newSeqs);
+  }
+  return currSeqs.getAllSeqsAsList();
+}
+\end{lstlisting}
+\caption{Psuedocódigo de \textsf{BEAPI}}
+\label{fig:beapi-algorithm}
 \end{figure}
 
-\cacho{ESto lo tengo que ver}
-\pp{Por qué están traducidos los algoritmos? Se leen mucho peor. El castellano
-es muy verbose para los algoritmos. Poner los de los papers en inglés.}
+
+La Figura \ref{fig:beapi-algorithm} muestra un pseudocódigo de \emph{BEAPI}. 
+Como se mencionó en la Sección \ref{sec:beapi-overview}, \emph{BEAPI} toma como
+entradas una lista de métodos, \texttt{methods}; el alcance de la generación
+(\emph{scope}); por cada tipo primitivo, una lista de valores que \emph{BEAPI}
+puede utilizar representados como secuencias de test (ej. \texttt{int i = 1;} para
+el valor 1 entero),
+\texttt{primitives} (las secuencias de test se crean automáticamente a partir de las opciones de
+configuración \texttt{int.range}, \texttt{strings}, etc., como se muestra en la Figura~\ref{fig:NCL-fin-BEAPI}); 
+y una expresión regular que describe los atributos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. 
+Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI},
+por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. 
+
+El map \texttt{currSeqs} de \emph{BEAPI} almacena, para cada tipo, 
+la lista de secuencias de test que \emph{BEAPI} generó previamente y que
+construyen objetos del tipo. 
+\texttt{currSeqs} se inicializa, y luego se le agregan todas las
+secuencias de tipos primitivos en \texttt{primitives} (líneas 2 y 3). 
+En cada iteración del ciclo principal (líneas 5-34), \textsf{BEAPI} crea nuevas
+secuencias para cada método \texttt{m} (línea 8), explorando exhaustivamente
+todas las formas posibles de crear secuencias de test utilizando \texttt{m} con
+entradas generadas en iteraciones previas y almacenadas en \texttt{currSeqs}
+(líneas 9-30).
+Luego, las secuencias de test creadas cuya ejecución produce nuevos objetos en
+la iteración actual se guardan en el mapa \texttt{newSeqs} (inicializado vacío en la línea 6). 
+Si no se producen nuevas estructuras en la iteración actual (\texttt{newSeqs} es
+falso en la línea 32), el ciclo principal 
+termina y el algoritmo de \textsf{BEAPI} retorna la lista de todas las
+secuencias de test en \texttt{currSeqs} (línea 35). \textsf{BEAPI} también
+retorna los objetos distintos generados por las secuencias de test, 
+pero este detalle se omite del algoritmo de la Figura \ref{fig:beapi-algorithm} 
+para simplificar la presentación.
+
+\pp{TODO: Voy por acá}
+
 
 A continuación, comentaré los detalles del bucle for en las líneas 6-28. 
 En primer lugar, se obtienen todas las secuencias que se pueden utilizar para construir entradas para \texttt{m} en \texttt{seqsT$_1$}, ..., \texttt{seqsT$_n$}. \textsf{BEAPI} explora cada tupla \texttt{(s$_1$}, ..., \texttt{s$_n$)} de entradas factibles para \texttt{m}.
@@ -972,35 +968,68 @@ que puede ser bastante costoso computacionalmente \cite{Braione17} o requerir un
 Por lo tanto, a menudo los objetos generados por enfoques basados en especificaciones están "incrustados" cuando se utilizan para probar un SUT 
 (por ejemplo, mediante el uso de reflexión en Java), lo que hace que los tests sean muy difíciles de entender y mantener, ya que dependen de los detalles de implementación de bajo nivel de las estructuras \cite{Braione17}.
 
-A continuación, comentamos los detalles del bucle \texttt{for} en las líneas 6--28 del Algoritmo~\ref{fig:beapi-algorithm}. 
-En primer lugar, se obtienen todas las secuencias que se pueden utilizar para construir entradas para \texttt{m} en \texttt{seqsT$_1$}, \ldots, \texttt{seqsT$_n$}. 
-\textsf{BEAPI} explora cada tupla \texttt{(s$_1$}, \ldots, \texttt{s$_n$)} de entradas factibles para \texttt{m}.  
-A continuación, se ejecuta \texttt{createNewSeq} (línea~8), que construye una nueva secuencia de prueba \texttt{newSeq} realizando la composición secuencial de las secuencias \texttt{s$_1$}, \ldots, \texttt{s$_n$} y la rutina \texttt{m}, 
-y reemplazando los parámetros formales de \texttt{m} por las variables que crean los objetos requeridos en \texttt{s$_1$}, \ldots, \texttt{s$_n$}.  
-Luego, se ejecuta \texttt{newSeq} (línea~9) y, como resultado, se puede producir un fallo (\texttt{failure} se establece en \texttt{true}), generarse una excepción que representa un uso no válido de la API (\texttt{exception} se establece en \texttt{true}), o ejecutarse con éxito y crear nuevos objetos \texttt{o$_1$}, \ldots, \texttt{o$_n$}.  
 
-En caso de \texttt{failure}, se lanza una \texttt{ExecutionFailedException} y \texttt{newSeq} se presenta al usuario como evidencia del fallo (línea~11).  
-Si se lanza otro tipo de excepción, \textsf{BEAPI} asume que corresponde a un mal uso de la API, descarta la secuencia de prueba (línea~14) y continúa con la siguiente secuencia candidata.  
+%\begin{figure}[H]
+%  \centering
+%  \begin{algorithm}[H]
+%      \SetAlgoLined
+%      \KwIn{\textit{methods}, \textit{scope}, \textit{primitives}, \textit{omitFields}}
+%      \KwOut{List of generated sequences}
+%      
+%      $currSeqs \leftarrow$ copy of \textit{primitives}\;
+%      $canonicalStrs \leftarrow \emptyset$\;
+%      
+%      \While{\textbf{true}}{
+%          $newSeqs \leftarrow \emptyset$\;
+%          $hasNew \leftarrow$ \textbf{false}\;
+%          
+%          \For{$m(T_1,\ldots,T_n):T_r$ in \textit{methods}}{
+%            $seqs_{T_1} \leftarrow$ currSeqs for type $T_1$\;
+%            \ldots\;
+%            $seqs_{T_n} \leftarrow$ currSeqs for type $T_n$\;
+%
+%            \For{$(s_1,\ldots,s_n) \in seqs_{T_1} \times \ldots \times seqs_{T_n}$}{
+%              $newSeq \leftarrow$ createSequence($s_1,\ldots,s_n,m$)\;
+%              $(o_1,\ldots,o_n,o_r, failure, exception) \leftarrow$ execute($newSeq$)\;                
+%              
+%              \If{failure}{
+%                  \Return{\texttt{ExecutionFailedException}($newSeq$)}\;
+%              }
+%              \If{exception}{
+%                  \textbf{continue}\;
+%              }
+%              
+%              $(c_1,\ldots,c_n,c_r, outOfScope) \leftarrow$ makeCanonical($o_1,\ldots,o_n,o_r$, \textit{scope}, \textit{omitFields})\;
+%              
+%              \If{outOfScope}{
+%                  \textbf{continue}\;
+%              }
+%              
+%              \For{\textbf{each} type $T_i$ in $\{T_1,\ldots,T_n,T_r\}$}{
+%                  \If{$T_i$ is reference type \textbf{and} $c_i \notin canonicalStrs$}{
+%                      $canonicalStrs \leftarrow canonicalStrs \cup \{c_i\}$\;
+%                      add $newSeq$ to $newSeqs$ for type $T_i$\;
+%                      $hasNew \leftarrow$ \textbf{true}\;
+%                  }
+%              }
+%            }
+%          }
+%          
+%          \If{\textbf{not} $hasNew$}{
+%              \textbf{break}\;
+%          }
+%          
+%          $currSeqs \leftarrow currSeqs \cup newSeqs$\;
+%        }
+%    \Return{$currSeqs$}\;
+%  \end{algorithm}
+%  \caption{\textsf{BEAPI} algorithm}
+%  \label{fig:beapi-algorithm}
+%\end{figure}
 
-De lo contrario, la ejecución de \texttt{newSeq} genera nuevos objetos \texttt{o$_1$}, \ldots, \texttt{o$_n$} (o valores de tipos primitivos) que se canonizan mediante \texttt{makeCanonical} (línea~16), el cual invoca \texttt{linearize} (Figura~\ref{alg:linearization}) para obtener una representación canónica.  
-Si alguna de las estructuras producidas por \texttt{newSeq} excede el \texttt{scope}, \texttt{makeCanonical} establece \texttt{outOfScope} en \texttt{true}, \textsf{BEAPI} descarta \texttt{newSeq} y continúa con la siguiente (línea~18).  
-Esto garantiza que \textsf{BEAPI} nunca crea objetos más grandes que los permitidos por el alcance.  
 
-Si no se presenta ninguna de las situaciones anteriores, significa que la secuencia ha pasado todos los chequeos y \texttt{makeCanonical} devuelve las versiones canónicas \texttt{c$_1$}, \ldots, \texttt{c$_n$}, respectivamente.  
-A continuación, \textsf{BEAPI} realiza \textit{state matching} verificando que cada \texttt{c$_i$} de tipo de referencia no haya sido creada anteriormente (líneas~20--25).  
-El conjunto \texttt{canonicalStrs} almacena todas las estructuras ya vistas; si \texttt{c$_i$} es nueva, se agrega a \texttt{canonicalStrs} (línea~22) y se añade \texttt{newSeq} al conjunto de secuencias asociadas al tipo \texttt{T$_i$} (línea~24), estableciendo \texttt{newStrs} en \texttt{true} para indicar que al menos se ha generado una estructura nueva en la iteración actual.  
 
-\textsf{BEAPI} distingue fallos de mal uso de la API en función del tipo de excepción (similar a técnicas previas de generación de tests basadas en API~\cite{Pacheco07}).  
-Por ejemplo, \texttt{IllegalArgumentException} e \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos por defecto.  
-La implementación permite al usuario configurar qué excepciones se interpretan como fallos y cuáles no.  
-Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones al recibir entradas inválidas, una práctica conocida como \textit{defensive programming}~\cite{Liskov00} que mejora la robustez del código y facilita las pruebas~\cite{Ammann16}.  
 
-Además, \textsf{BEAPI} puede emplear especificaciones formales para revelar errores en la API, por ejemplo, ejecutando \texttt{repOK} y verificando que devuelva \texttt{true} para cada objeto generado, como en Randoop~\cite{Pacheco07}.  
-Sin embargo, estas especificaciones no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} subespecificado de \texttt{NCL} en la Sección~\ref{sec:motivating-example} es suficiente para encontrar errores), ni tener un formato particular (como requiere \textsf{Korat}).  
-También puede emplear otras especificaciones más simples, como propiedades metamórficas~\cite{Chen19}, invariantes del lenguaje (p.ej., \texttt{equals} como relación de equivalencia) o \texttt{assert}s proporcionados por el usuario.  
-
-Finalmente, una ventaja clave de \textsf{BEAPI} es que, para cada objeto generado, produce una secuencia de prueba ejecutable que lo construye, a diferencia de los enfoques basados en \texttt{repOK}, donde los objetos generados suelen incrustarse mediante reflexión.  
-Esto facilita la comprensión y el mantenimiento de los tests, y evita depender de detalles internos de implementación~\cite{Braione17}.
 
 % \subsection{Entradas de BEAPI}
 
