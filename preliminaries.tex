@@ -20,7 +20,7 @@ acompañando activamente el ciclo de desarrollo e incluso guiando decisiones de 
 
 
 Korat es uno de los enfoques más conocidos y eficientes para la generación exhaustiva acotada
-de entradas para test \cite{} \pp{Cita a Korat}.
+de entradas para test \cite{Boyapati02}.
 Para funcionar, Korat requiere de una especificación formal dada en términos de
 un método booleano, denominado \texttt{repOK}, que sirve para determinar si una estructura
 es válida o no. Es decir, si satisface o no las restricciones que la estructura
@@ -54,7 +54,7 @@ el espacio de búsqueda acotado eficientemente, evitando explorar estructuras in
 
 Korat ha demostrado ser eficaz y eficiente para la generación de entradas para
 estructuras complejas con invariantes con propiedades ricas, como
-listas doblemente enlazadas, árboles binarios, heaps binomiales, etc. \cite{} \pp{Cita a Korat}.
+listas doblemente enlazadas, árboles binarios, heaps binomiales, etc. \cite{Boyapati02}.
 %, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de tests. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
 
 
@@ -218,15 +218,13 @@ Sin embargo, escribir los tests de manera manual es una tarea trabajosa, y
 requiere un esfuerzo importante por parte de los desarrolladores. Es por esto
 que en los últimos años la comunidad de la ingeniería de software ha puesto especial énfasis en el
 el desarrollo de técnicas automáticas que permitan automatizar la generación de
-tests \cite{} \pp{papers sobre herramientas de testing automático}. 
+tests \cite{Boyapati02,Khurshid01,Fraser11,Visser05,Pasareanu:2010,Cadar08,Tillmann:2010,Ma15,Ponzio:2016,Rosner14}.
 Uno de los enfoques más importantes para esta tarea es la generación aleatoria
-de tests \cite{} \pp{papers de generación aleatoria}. 
+de tests \cite{Chen19,Li18,Ramler12,Shamshiri15}. 
 %que explora el espacio de entrada del programa mediante la ejecución de combinaciones diversas de valores y secuencias de invocaciones. 
 Dentro de estos enfoques, Randoop se destaca como una herramienta ampliamente
 utilizada, debido a su capacidad para generar tests que han mostrado ser útiles para revelar
-fallas en distintos tipos de software muy utilizados \cite{} \pp{papers de
-Randoop que muestran que revela fallas}
-\pp{Para algunas las referencias ver sección relevancia del problema de mi PICT}.
+fallas en distintos tipos de software muy utilizados \cite{Pacheco07,Pacheco08,Shamshiri15,just2014mutants}
 
 Randoop utiliza la API del SUT para generar secuencias de tests, es decir,
 secuencias de invocaciones a métodos de la API. Randoop propone la técnica
