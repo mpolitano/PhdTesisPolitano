@@ -315,8 +315,7 @@ y los objetos generados se agregan al conjunto de objetos de salida.
 Los casos (1) y (2) corresponden a ejecuciones que no finalizan correctamente y lanzan excepciones. 
 Siguiendo la propuesta de Randoop~\cite{Pacheco07}, el tipo de excepción permite distinguir entre lo que BEAPI considera errores (o \emph{bugs}) 
 y violaciones de precondiciones. 
-Por defecto, BEAPI interpreta las excepciones \texttt{IllegalArgumentException} y \texttt{IllegalStateException} 
-como violaciones de precondiciones, mientras que considera el resto de las
+Por defecto, BEAPI interpreta las excepciones \texttt{IllegalArgumentException} y \texttt{IllegalStateException} como violaciones de precondiciones, mientras que considera el resto de las
 excepciones como errores en los métodos usados para la generación.
 El comportamiento ante excepciones de BEAPI puede ser modificado mediante
 parámetros de configuración de la herramienta. 
@@ -337,7 +336,18 @@ En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es compara
 Si no hay fallas, BEAPI genera una suite de tests en formato \texttt{JUnit}. 
 Cada test en la suite corresponde a una secuencia de métodos cuya ejecución
 construye alguno(s) de los objetos en el conjunto exhaustivo acotado de objetos resultante.
-
+%Otra ventaja de \textsf{BEAPI} es que, para cada objeto generado, proporciona una secuencia de test que se puede ejecutar para crear el objeto. 
+Esto es una ventaja de BEAPI con respecto a los enfoques basados en
+especificaciones (que generan un conjunto de objetos a partir de un \texttt{repOK}). 
+Encontrar una secuencia de invocaciones a métodos de la API que construya una estructura específica es un problema difícil en sí mismo, 
+y en particular es costoso computacionalmente \cite{Braione17}. Adicionalmente, requiere
+de un esfuerzo importante si se lleva a cabo de manera manual. 
+Por lo tanto, a menudo los objetos generados por enfoques basados en
+especificaciones se "hardcodean" cuando se usan como entradas para test, por
+ejemplo, mediante el uso de algún mecanismo como reflexión en Java. Esto hace
+que los tests sean más difíciles de entender y mantener, ya que dependen de los
+detalles de implementación de bajo nivel de las estructuras \cite{Braione17} (en
+lugar de depender de la API de alto nivel).
 
 
 % \pp{Esto no va acá. Va en una sección que se llama programación defensiva que
@@ -916,57 +926,65 @@ retorna los objetos distintos generados por las secuencias de test,
 pero este detalle se omite del algoritmo de la Figura \ref{fig:beapi-algorithm} 
 para simplificar la presentación.
 
-\pp{TODO: Voy por acá}
-
-
-A continuación, comentaré los detalles del bucle for en las líneas 6-28. 
-En primer lugar, se obtienen todas las secuencias que se pueden utilizar para construir entradas para \texttt{m} en \texttt{seqsT$_1$}, ..., \texttt{seqsT$_n$}. \textsf{BEAPI} explora cada tupla \texttt{(s$_1$}, ..., \texttt{s$_n$)} de entradas factibles para \texttt{m}.
-A continuación, se ejecuta \texttt{crearNuevaSecuencias} (línea 8), que construye una nueva secuencia de prueba \texttt{nuevaSec} realizando la composición secuencial de las secuencias de prueba \texttt{s$_1$}, ..., \texttt{s$_n$} y la rutina \texttt{m}, 
+A continuación, comentaremos los detalles del ciclo principal de las líneas 9-30. 
+En primer lugar, se obtienen todas las secuencias que se pueden utilizar para
+construir entradas para \texttt{m}, en las variables \texttt{seqsT$_1$}, ...,
+\texttt{seqsT$_n$}. Luego, \textsf{BEAPI} considera cada tupla \texttt{(s$_1$},
+..., \texttt{s$_n$)} de posibles entradas para \texttt{m}.
+A continuación, ejecuta \texttt{createNewSeq} (línea 13), que construye una
+nueva secuencia de test \texttt{newSeq} realizando la composición secuencial de
+las secuencias de test \texttt{s$_1$}, ..., \texttt{s$_n$} y la rutina \texttt{m}, 
 y reemplazando los parámetros formales de \texttt{m} por las variables que crean los objetos requeridos en \texttt{s$_1$}, ..., \texttt{s$_n$}. 
-Luego, se ejecuta \texttt{nuevaSec} (línea 9) y como resultado podemos tener que, produzca un fallo (\texttt{fallo} se establece en verdadero), genera una excepción que representa un uso no válido de la API (\texttt{excepci\'on} se establece en verdadero) 
-o su ejecución tiene éxito y crea nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$}. 
-En caso de fallo, se lanza una excepción y \texttt{nuevaSec} se presenta al usuario como evidencia del fallo (línea 11). 
-Si se lanza un tipo diferente de excepción, \textsf{BEAPI} asume que corresponde a un mal uso de la API (ver más abajo), descarta la secuencia de prueba (línea 14) y continúa con la siguiente secuencia candidata. 
-De lo contrario, la ejecución de \texttt{nuevaSec} genera nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$} (o valores de tipos primitivos) 
-que se canonizan mediante \texttt{canonizar} (línea 16) --ejecutando \texttt{linearizar} de la Figura~\ref{alg:linearization} en cada estructura. 
-Si alguna de las estructuras producidas por \texttt{nuevaSec} excede el scope, \texttt{canonizar} establece \texttt{fueraDeRango} en verdadero, \textsf{BEAPI} descarta \texttt{newSeq} 
-y continúa con la siguiente (línea 18).
+
+Más adelante, se ejecuta \texttt{newSeq} (línea 14) y como resultado podemos
+tener que se produce una falla (\texttt{failure} se establece en verdadero), o
+genera una excepción que representa un uso inválido de la API (\texttt{exception} se establece en verdadero) 
+o su ejecución es exitosa y crea nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$}. 
+En el caso en que la secuencia representa una falla, se lanza una excepción y
+\texttt{newSeq} se presenta al usuario como evidencia de la falla (línea 15). 
+Si se lanza una excepción que corresponde a un mal uso de la API (ver Sección
+\ref{sec:defensiveProgramming}), \texttt{BEAPI} descarta la secuencia de test
+(línea 16) y continúa con la creación de la próxima secuencia. 
+De lo contrario, la ejecución de \texttt{newSeq} genera nuevos objetos
+\texttt{o$_1$,$\ldots$,o$_n$,o$_r$} (o valores de tipos primitivos) 
+que se canonizan con la función \texttt{makeCanonical} (línea 17), que ejecuta
+\texttt{linearize} de la Figura~\ref{alg:linearization} por cada objeto en \texttt{o$_1$,$\ldots$,o$_n$,o$_r$}. 
+Si alguno de los objetos producidos por \texttt{newSeq} excede el scope,
+\texttt{makeCanonical} establece \texttt{outOfScope} en verdadero, \textsf{BEAPI} descarta \texttt{newSeq} 
+y continúa con la siguiente secuencia de test (línea 18).
 Esto garantiza que \textsf{BEAPI} nunca crea objetos más grandes que lo permitidio por el alcance.
-Si ninguna de las situaciones anteriores ocurre, quiere decir que ha pasado todos los chequeos la secuencia corriente y, 
-\texttt{canonizar} devuelve versiones canónicas de \texttt{o$_1$,$\ldots$,o$_n$} en las variables \texttt{c$_1$,$\ldots$,c$_n$}, respectivamente. 
-A continuación, \textsf{BEAPI} realiza una coincidencia de estado comprobando que la estructura canónica \texttt{c$_1$} sea de tipo de referencia 
-y que no haya sido creada por ninguna secuencia de prueba anterior (ciclo de la línea 20). 
-Observa que \texttt{canónicos} almacena todas las estructuras ya visitadas. 
-Si \texttt{c$_1$} es una nueva estructura, se agrega a \texttt{canónicos} (línea 22) y se agrega la secuencia que crea \texttt{c$_i$}, 
-\texttt{nuevaSec}, al conjunto de secuencias de prueba que producen estructuras de tipo \texttt{T$_i$} (\texttt{nuevaSec} en la línea 24).
-Además, se establece \texttt{hayNuevas} en verdadero para indicar que al menos se ha creado un nuevo objeto en la iteración actual (línea 24). 
-Este proceso se repite para los objetos canónicos \texttt{c$_2$,$\ldots$,c$_n$,c$_r$} (líneas 20-25).
+Si ninguna de las situaciones anteriores ocurre,  
+\texttt{makeCanonical} devuelve versiones canónicas de \texttt{o$_1$,$\ldots$,o$_n$,o$_r$} en las variables \texttt{c$_1$,$\ldots$,c$_n$,c$_r$}, respectivamente.
+
+A continuación, \textsf{BEAPI} realiza la coincidencia de estados, comprobando que la estructura canónica \texttt{c$_1$} sea de tipo de referencia 
+y que no haya sido creada por ninguna secuencia de test anterior (ciclo de la
+línea 19). 
+Notar que \texttt{canonicalStrs} almacena todas las estructuras ya visitadas en
+su forma canónica. 
+Si \texttt{c$_1$} es una nueva estructura, se agrega a \texttt{canonicalStrs} (línea 20) y se agrega la secuencia que crea \texttt{c$_i$}, 
+\texttt{newSeq}, al conjunto de secuencias de test que producen estructuras de tipo \texttt{T$_i$} (línea 21).
+Además, se establece \texttt{newStrs} en verdadero para indicar que al menos se ha creado un nuevo objeto en la iteración actual (línea 22). 
+Este proceso se repite para los restantes objetos canónicos \texttt{c$_2$,$\ldots$,c$_n$,c$_r$} (líneas 24-29).
 
 
-\textsf{BEAPI} distingue los fallos del mal uso de la API en función del tipo de excepción (similarmente a las técnicas anteriores de generación de tests basadas en API \cite{Pacheco07}). 
-Por ejemplo, \\
-\texttt{IllegalArgumentException} y \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos de manera predeterminada. 
-La implementación de \textsf{BEAPI} permite al usuario seleccionar las excepciones que corresponden a fallos y aquellas que no, configurando los parámetros correspondientes. 
-Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no se pueden ejecutar con entradas inválidas. 
-Sostenemos que esta es una práctica común, llamada programación defensiva \cite{Liskov00}, 
-que todos los programadores deberían seguir, ya que resulta en un código más robusto y 
-mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de tests automatizadas). 
-También argumentamos en la Sección~\ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que escribir \texttt{repOK}s precisos (y eficientes) para BEG, 
-y esto era cierto después de inspeccionar manualmente el código fuente de nuestros casos de estudio. 
-Por otro lado, ten en cuenta que \textsf{BEAPI} puede utilizar especificaciones formales para revelar errores en la API, por ejemplo, 
-ejecutando \texttt{repOK} y comprobando que devuelve verdadero en cada objeto generado del tipo correspondiente (como en Randoop \cite{Pacheco07}). 
-Sin embargo, las especificaciones utilizadas para encontrar errores no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} subespecificado de \texttt{NCL} de la Sección~\ref{sec:motivating-example} 
-es válido para encontrar errores), ni estar escritas de una manera particular (como lo requiere \textsf{Korat}). 
-\textsf{BEAPI} también puede utilizar otros tipos de especificaciones más débiles y 
-más simples de escribir para revelar errores, como violaciones de contratos específicos del lenguaje 
-(por ejemplo, \texttt{equals} es una relación de equivalencia en Java), propiedades metamórficas \cite{Chen19}, afirmaciones proporcionadas por el usuario (\texttt{assert}), etc.
+%\textsf{BEAPI} distingue los fallos del mal uso de la API en función del tipo de excepción (similarmente a las técnicas anteriores de generación de tests basadas en API \cite{Pacheco07}). 
+%Por ejemplo, \\
+%\texttt{IllegalArgumentException} y \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos de manera predeterminada. 
+%La implementación de \textsf{BEAPI} permite al usuario seleccionar las excepciones que corresponden a fallos y aquellas que no, configurando los parámetros correspondientes. 
+%Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no se pueden ejecutar con entradas inválidas. 
+%Sostenemos que esta es una práctica común, llamada programación defensiva \cite{Liskov00}, 
+%que todos los programadores deberían seguir, ya que resulta en un código más robusto y 
+%mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de tests automatizadas). 
+%También argumentamos en la Sección~\ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que escribir \texttt{repOK}s precisos (y eficientes) para BEG, 
+%y esto era cierto después de inspeccionar manualmente el código fuente de nuestros casos de estudio. 
+%Por otro lado, ten en cuenta que \textsf{BEAPI} puede utilizar especificaciones formales para revelar errores en la API, por ejemplo, 
+%ejecutando \texttt{repOK} y comprobando que devuelve verdadero en cada objeto generado del tipo correspondiente (como en Randoop \cite{Pacheco07}). 
+%Sin embargo, las especificaciones utilizadas para encontrar errores no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} subespecificado de \texttt{NCL} de la Sección~\ref{sec:motivating-example} 
+%es válido para encontrar errores), ni estar escritas de una manera particular (como lo requiere \textsf{Korat}). 
 
-Otra ventaja de \textsf{BEAPI} es que, para cada objeto generado, proporciona una secuencia de prueba que se puede ejecutar para crear el objeto. 
-Esto contrasta con los enfoques basados en especificaciones (que generan un conjunto de objetos a partir de \texttt{repOK}). 
-Encontrar una secuencia de invocaciones a métodos de la API que creen una estructura específica es un problema difícil en sí mismo, 
-que puede ser bastante costoso computacionalmente \cite{Braione17} o requerir un esfuerzo significativo para realizarlo manualmente. 
-Por lo tanto, a menudo los objetos generados por enfoques basados en especificaciones están "incrustados" cuando se utilizan para probar un SUT 
-(por ejemplo, mediante el uso de reflexión en Java), lo que hace que los tests sean muy difíciles de entender y mantener, ya que dependen de los detalles de implementación de bajo nivel de las estructuras \cite{Braione17}.
+Notar que, en caso de que sea necesario, se pueden incorporar fácilmente otros
+tipos de especificaciones provistas por el usuario en \textsf{BEAPI}. Como por ejemplo, violaciones de contratos específicos del lenguaje (por ejemplo, \texttt{equals} es una relación de equivalencia en Java), propiedades metamórficas \cite{Chen19}, aserciones provistas por el usuario (\texttt{assert}), etc.
+
 
 
 %\begin{figure}[H]
