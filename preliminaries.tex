@@ -1,80 +1,50 @@
 \chapter[Preliminares]{Preliminares}
 \label{cap:preliminares.BE}
+
 \section{Testing}
-\cacho{Todo esta seccion de testing es nuea, le di otra vuelta agregando algo de exhaustivo.}
-El \emph{testing} es una de las estrategias más directas y extendidas para evaluar el
-comportamiento de un programa. En términos generales, consiste en ejecutar el
-software bajo condiciones controladas y contrastar los resultados observados con
-los resultados esperados (el \emph{oráculo}). Dado que el espacio de entradas de un
-programa suele ser inmenso o incluso infinito (por ejemplo, cuando procesa
-enteros no acotados), en la práctica se selecciona un subconjunto representativo
-de casos de prueba, conocido como \emph{suite de tests}.
+El testing constituye una de las estrategias más directas y ampliamente utilizadas para verificar el comportamiento de un programa.
+Esta técnica consiste en ejecutar el software bajo distintas condiciones específicas, observando si los resultados obtenidos se corresponden con los resultados esperados. 
+Dado que no es factible analizar el comportamiento de un programa frente a todas las posibles entradas (debido a que este conjunto puede ser extremadamente grande o incluso infinito, como sucede en programas que procesan números enteros arbitrarios), 
+se recurre a la selección de un subconjunto representativo de casos de prueba, comúnmente denominado \emph{suite de tests}.
 
-El propósito de una \emph{suite} es proporcionar evidencia suficiente sobre la
-corrección funcional del sistema, incluso para situaciones no ejercitadas
-explícitamente. En procesos de desarrollo contemporáneos, el testing dejó de ser
-una actividad exclusivamente posterior a la implementación: en enfoques ágiles
-se integra de manera continua, acompañando la evolución del diseño e
-influenciando decisiones de implementación.
-
-El \emph{testing exhaustivo acotado} propone explorar \emph{todas} las entradas
-válidas dentro de un dominio finito y previamente delimitado. La acotación
-transforma un problema inabordable (exhaustivo sobre un dominio infinito) en
-uno factible, aunque potencialmente costoso, al restringir el tamaño y la forma
-de las entradas.
-
-Dado un programa bajo análisis y una especificación de límites (\emph{scope}) para
-sus entradas, el \emph{testing exhaustivo acotado} consiste en: (i) generar \emph{todas} las entradas válidas que
-respeten dicho \emph{scope}; y (ii) ejecutar el programa con cada entrada,
-verificando que la salida cumpla el oráculo correspondiente.
-
-El interés del \emph{testing exhaustivo acotado} se incrementa cuando las entradas son estructuras con
-restricciones (por ejemplo, grafos, árboles o colecciones con invariantes). En estos casos, además de acotar tamaños
-(número de nodos, profundidad, etc.), es necesario garantizar que sólo se
-generen estructuras válidas de acuerdo con las restricciones declaradas.
-
-La ejecución manual de \emph{testing exhaustivo acotado} es impracticable salvo para dominios triviales, por
-lo que la automatización es esencial. Típicamente, el \emph{pipeline} involucra:
-\begin{enumerate}
-  \item \textbf{Generación} sistemática de entradas dentro del \emph{scope} acotado,
-        filtrando únicamente las válidas.
-  \item \textbf{Ejecución} del programa con cada entrada.
-  \item \textbf{Chequeo de oráculo}, comparación con el resultado esperado o con
-        propiedades que deben verificarse.
-\end{enumerate}
-
-Para la generación en dominios acotados con restricciones, se emplean técnicas
-de \emph{constraint solving} y búsqueda, tales como retroceso (\emph{backtracking}),
-model checking, SAT/SMT, o enfoques híbridos que combinan podas estructurales
-con enumeración guiada. Estas técnicas permiten reducir el espacio de búsqueda
-evitando entradas inválidas o isomórficas, y hacen viable la exploración
-exhaustiva dentro del \emph{scope} definido.
-
-\cacho{Saque la seccion de korat, si hace falta la agrego pero ms completa.}
-%\section{Generacion Exhaustiva Acotada}
-%\label{sec:be}
-%
-% \section{Korat: Generación exhaustiva acotada basada en especificaciones}
-% \label{sec:korat}
+El objetivo de esta suite es brindar un nivel de confianza suficiente sobre la corrección funcional del software, 
+incluso en escenarios que no han sido ejercitados directamente. 
+El testing es una etapa fundamental en los procesos modernos de desarrollo de software. 
+Tradicionalmente, se realiza después de la fase de implementación, pero en metodologías de desarrollo ágiles está integrado de manera más continua, 
+acompañando activamente el ciclo de desarrollo e incluso guiando decisiones de diseño e implementación.
 
 
-% Korat es una herramienta para la generación automática de estructuras de datos que cumplen con una especificación, dentro de un dominio acotado. 
-% Esta herramienta fue desarrollada para el lenguaje Java y está orientada a la creación sistemática de instancias de clases que satisfacen ciertas condiciones de validez definidas por el programador. 
-% Estas condiciones se expresan mediante un método booleano denominado \texttt{repOK}, que determina si una estructura de datos es válida desde el punto de vista de su invariante de representación.
 
-% El objetivo de Korat es explorar de manera exhaustiva el espacio de todas las posibles instancias de una clase hasta cierto tamaño (por ejemplo, listas de hasta $k$ nodos), 
-% generando únicamente aquellas que satisfacen el invariante especificado. 
-% El espacio de búsqueda queda así acotado tanto por el tamaño máximo de las estructuras como por el predicado de validez.
+\section{Korat: Generación exhaustiva acotada basada en especificaciones}
+\label{sec:korat}
 
-% La eficiencia de Korat radica en su estrategia de exploración dirigida, 
-% que evita examinar múltiples configuraciones que se sabe, por construcciones previas, que no conducen a estructuras válidas. 
-% Para lograr esto, Korat realiza una exploración sistemática del espacio de posibles asignaciones de campo (por ejemplo, referencias entre nodos) utilizando una técnica basada en el seguimiento de las ubicaciones leídas por \texttt{repOK}.
-% Cada vez que una estructura es evaluada por el método \texttt{repOK}, Korat registra qué campos han sido accedidos (conocidos como \emph{field accesses}). Esta información se utiliza para podar el espacio de búsqueda: si una configuración parcial de campos no puede dar lugar a una estructura válida, 
-% todas sus extensiones también serán descartadas.
 
-% De esta forma, el algoritmo de Korat combina una búsqueda por retroceso con poda guiada por la ejecución de \texttt{repOK}, permitiendo explorar exhaustivamente el dominio acotado sin redundancias innecesarias. El proceso continúa hasta haber generado todas las instancias válidas dentro del límite especificado.
+Korat es una herramienta para la generación automática de estructuras de datos que cumplen con una especificación, dentro de un dominio acotado. 
+Esta herramienta fue desarrollada para el lenguaje Java y está orientada a la creación sistemática de instancias de clases que satisfacen ciertas condiciones de validez definidas por el programador. 
+Estas condiciones se expresan mediante un método booleano denominado \texttt{repOK}, que determina si una estructura de datos es válida desde el punto de vista de su invariante de representación.
 
-% Korat ha demostrado ser eficaz en la generación de estructuras complejas como listas doblemente enlazadas, árboles binarios y montículos binomiales, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de tests. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
+El objetivo de Korat es explorar de manera exhaustiva el espacio de todas las posibles instancias de una clase hasta cierto tamaño (por ejemplo, listas de hasta $k$ nodos), 
+generando únicamente aquellas que satisfacen el invariante especificado. 
+El espacio de búsqueda queda así acotado tanto por el tamaño máximo de las estructuras como por el predicado de validez.
+
+La eficiencia de Korat radica en su estrategia de exploración dirigida, 
+que evita examinar múltiples configuraciones que se sabe, por construcciones previas, que no conducen a estructuras válidas. 
+Para lograr esto, Korat realiza una exploración sistemática del espacio de
+posibles asignaciones de atributos (por ejemplo, referencias entre nodos) utilizando una técnica basada en el seguimiento de las ubicaciones leídas por \texttt{repOK}.
+Cada vez que una estructura es evaluada por el método \texttt{repOK}, Korat
+registra qué atributos han sido accedidos (conocidos como \emph{field
+accesses}). Esta información se utiliza para podar el espacio de búsqueda: si
+una configuración parcial del heap no puede dar lugar a una estructura válida, 
+todas sus extensiones también serán descartadas.
+
+De esta forma, el algoritmo de Korat combina una búsqueda por retroceso con poda guiada por la ejecución de \texttt{repOK}, permitiendo explorar exhaustivamente el dominio acotado sin redundancias innecesarias. El proceso continúa hasta haber generado todas las instancias válidas dentro del límite especificado.
+
+Korat ha demostrado ser eficaz en la generación de estructuras complejas como listas doblemente enlazadas, árboles binarios y montículos binomiales, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de tests. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
+
+
+
+
+
 
 
 
@@ -226,20 +196,21 @@ exhaustiva dentro del \emph{scope} definido.
 %     }
 %     \end{lstlisting}
     
-\cacho{Mejorar y ampliar, buscar PICT de Pablo}
-El emph{testing}  es una técnica fundamental para mejorar la confiabilidad del software
+El testing es una técnica fundamental para mejorar la confiabilidad del software
 y detectar errores en el código \cite{Ammann16}. 
 Sin embargo, escribir los tests de manera manual es una tarea trabajosa, y
 requiere un esfuerzo importante por parte de los desarrolladores. Es por esto
 que en los últimos años la comunidad de la ingeniería de software ha puesto especial énfasis en el
 el desarrollo de técnicas automáticas que permitan automatizar la generación de
-tests \cite{Boyapati02,Khurshid01,Fraser11,Visser05,Pasareanu:2010,Cadar08,Tillmann05,Ma15,Ponzio:2016,Rosner14}. 
+tests \cite{} \pp{papers sobre herramientas de testing automático}. 
 Uno de los enfoques más importantes para esta tarea es la generación aleatoria
-de tests \cite{Chen10,Li18,Ramler12,Shamshiri15}.
+de tests \cite{} \pp{papers de generación aleatoria}. 
 %que explora el espacio de entrada del programa mediante la ejecución de combinaciones diversas de valores y secuencias de invocaciones. 
 Dentro de estos enfoques, Randoop se destaca como una herramienta ampliamente
 utilizada, debido a su capacidad para generar tests que han mostrado ser útiles para revelar
-fallas en distintos tipos de software muy utilizados \cite{Pacheco07,Pacheco08,just2014mutants}
+fallas en distintos tipos de software muy utilizados \cite{} \pp{papers de
+Randoop que muestran que revela fallas}
+\pp{Para algunas las referencias ver sección relevancia del problema de mi PICT}.
 
 Randoop utiliza la API del SUT para generar secuencias de tests, es decir,
 secuencias de invocaciones a métodos de la API. Randoop propone la técnica
@@ -365,7 +336,7 @@ detectar fallas que pueden pasar desapercibidas durante el testing
 manual \cite{Pacheco07,Pacheco08}.
 
 \pp{Poner ejemplo de ejecución de Randoop ilustrando el algoritmo acá abajo.}
-\cacho{Ver esto, que tipo de ejemplo poner.}
+
 
 
 
