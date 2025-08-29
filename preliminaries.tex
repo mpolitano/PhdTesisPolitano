@@ -19,27 +19,43 @@ acompañando activamente el ciclo de desarrollo e incluso guiando decisiones de 
 \label{sec:korat}
 
 
-Korat es una herramienta para la generación automática de estructuras de datos que cumplen con una especificación, dentro de un dominio acotado. 
-Esta herramienta fue desarrollada para el lenguaje Java y está orientada a la creación sistemática de instancias de clases que satisfacen ciertas condiciones de validez definidas por el programador. 
-Estas condiciones se expresan mediante un método booleano denominado \texttt{repOK}, que determina si una estructura de datos es válida desde el punto de vista de su invariante de representación.
+Korat es uno de los enfoques más conocidos y eficientes para la generación exhaustiva acotada
+de entradas para test \cite{} \pp{Cita a Korat}.
+Para funcionar, Korat requiere de una especificación formal dada en términos de
+un método booleano, denominado \texttt{repOK}, que sirve para determinar si una estructura
+es válida o no. Es decir, si satisface o no las restricciones que la estructura
+debe cumplir, como por ejemplo, un invariante de representación de una
+estructura de datos, una precondición de un método, etc. Korat también requiere 
+de la definición del alcance de la generación, (en inglés, el \emph{scope}),
+esto es, límites en el tamaño de los dominios de datos a ser utilizados
+para la generación de estructuras.
 
-El objetivo de Korat es explorar de manera exhaustiva el espacio de todas las posibles instancias de una clase hasta cierto tamaño (por ejemplo, listas de hasta $k$ nodos), 
-generando únicamente aquellas que satisfacen el invariante especificado. 
-El espacio de búsqueda queda así acotado tanto por el tamaño máximo de las estructuras como por el predicado de validez.
+Así, Korat genera de manera exhuastiva todas las estructuras acotadas que
+satisfacen las condiciones de validez definidas por el programador en el
+\texttt{repOK}. 
+Korat explora de manera exhaustiva el espacio de todas las posibles instancias
+acotadas de una clase (por ejemplo, listas con hasta $k$ nodos), 
+retornando únicamente aquellas que satisfacen el invariante especificado. 
 
-La eficiencia de Korat radica en su estrategia de exploración dirigida, 
-que evita examinar múltiples configuraciones que se sabe, por construcciones previas, que no conducen a estructuras válidas. 
+La eficiencia de Korat radica en su estrategia de exploración, 
+que evita examinar múltiples estructuras que se sabe, por construcciones previas, que no conducen a estructuras válidas. 
 Para lograr esto, Korat realiza una exploración sistemática del espacio de
-posibles asignaciones de atributos (por ejemplo, referencias entre nodos) utilizando una técnica basada en el seguimiento de las ubicaciones leídas por \texttt{repOK}.
+posibles asignaciones de valores de atributos (por ejemplo, referencias de
+nodos, enteros, etc.) utilizando una técnica basada en el seguimiento de los
+atributos  leídos por el \texttt{repOK}.
 Cada vez que una estructura es evaluada por el método \texttt{repOK}, Korat
 registra qué atributos han sido accedidos (conocidos como \emph{field
 accesses}). Esta información se utiliza para podar el espacio de búsqueda: si
-una configuración parcial del heap no puede dar lugar a una estructura válida, 
-todas sus extensiones también serán descartadas.
+una configuración parcial del heap no puede dar lugar a una estructura válida
+(\texttt{repOK} da false), todas sus extensiones también serán descartadas.
+De esta forma, el algoritmo de Korat combina una búsqueda basada en backtracking con poda
+guiada por la ejecución del \texttt{repOK}, que le permite explorar 
+el espacio de búsqueda acotado eficientemente, evitando explorar estructuras innecesarias. 
 
-De esta forma, el algoritmo de Korat combina una búsqueda por retroceso con poda guiada por la ejecución de \texttt{repOK}, permitiendo explorar exhaustivamente el dominio acotado sin redundancias innecesarias. El proceso continúa hasta haber generado todas las instancias válidas dentro del límite especificado.
-
-Korat ha demostrado ser eficaz en la generación de estructuras complejas como listas doblemente enlazadas, árboles binarios y montículos binomiales, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de tests. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
+Korat ha demostrado ser eficaz y eficiente para la generación de entradas para
+estructuras complejas con invariantes con propiedades ricas, como
+listas doblemente enlazadas, árboles binarios, heaps binomiales, etc. \cite{} \pp{Cita a Korat}.
+%, y ha sido utilizado como base para múltiples trabajos posteriores en verificación y generación de tests. Su enfoque representa un punto de referencia importante para técnicas que requieren generación de entradas válidas y exhaustivas a partir de especificaciones formales, y constituye una herramienta clásica dentro del campo del \emph{bounded exhaustive testing}.
 
 
 
