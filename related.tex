@@ -2,166 +2,127 @@
 \label{cap:related-work}
 
 Como se ha mencionado a lo largo de esta tesis, el problema de identificar un conjunto suficiente de métodos generadores de objetos 
-para un módulo dado es un desafío recurrente en el ámbito de la ingeniería de software. Este problema
-aparece de forma recurrente en distintos análisis de programas, incluyendo, pero no limitado a, la verificación formal 
-(\emph{model checking}) y la generación automática de tests.
+para un módulo dado aparece de forma recurrente en distintos análisis de
+programas, incluyendo, la verificación de software usando \emph{model checking} y la generación automática de tests.
+En trabajos como \cite{DBLP:conf/tacas/NoriRTT09,DBLP:conf/tacas/KhurshidPV03} en el contexto de verificación 
+de software usando \emph{model checking}, y
+\cite{Tillmann:2010,Tillmann:2008,paPacheco07,DBLP:conf/icse/BraioneDMP18}, en
+el contexto de generación automática de casos de test, aparece el problema de 
+identificar una parte de una API y proveerla para el análisis. En general, esta tarea se realiza de forma manual en los enfoques previos.
 
-En trabajos como \cite{DBLP:conf/tacas/NoriRTT09,DBLP:conf/tacas/KhurshidPV03}, en el contexto de verificación 
-de software, y \cite{Tillmann:2010,Tillmann:2008,paPacheco07,DBLP:conf/icse/BraioneDMP18}, en el contexto de generación de 
-casos de prueba automatizados, se aborda este mismo problema: determinar qué parte de una API debe ser utilizada como entrada 
-para el análisis. En general, esta tarea se realiza de forma manual en la mayoría de los enfoques previos.
+El uso de técnicas basadas en búsqueda para resolver problemas complejos de
+ingeniería de software es una estrategia cada vez más popular, con aplicaciones
+exitosas en generación automática de tests \cite{Fraser:2011}, reparación de programas 
+\cite{DBLP:journals/tse/GouesNFW12}, entre otros. Hasta donde tenemos
+conocimiento, nuestros algoritmos de identificación de métodos generadores de
+objetos son una aplicación novedosa de técnicas basadas en búsqueda a un problema de ingeniería
+de software.
 
-El uso de técnicas basadas en búsqueda para resolver problemas complejos en ingeniería de software es una estrategia cada vez 
-más popular, con aplicaciones exitosas en generación de inputs para tests \cite{Fraser:2011}, reparación de programas 
-\cite{DBLP:journals/tse/GouesNFW12}, entre otros. Hasta donde tenemos conocimiento, nuestra propuesta representa 
-una aplicación novedosa de computación evolutiva en este tipo de contexto.
-
-Un enfoque relacionado, aunque centrado en un problema distinto, es el implementado por la herramienta \textsf{SUSHI} 
+Un enfoque relacionado, aunque centrado en un problema distinto, es el propuesto
+por la técnica \textsf{SUSHI} 
 \cite{DBLP:conf/icse/BraioneDMP18}. En este caso, se utiliza un algoritmo genético alimentado por condiciones de camino 
-(\emph{path conditions}) generadas mediante ejecución simbólica, con el objetivo de construir inputs que las satisfagan, 
-utilizando únicamente la API del módulo en cuestión. Este enfoque asume que el subconjunto relevante de métodos ya 
-ha sido provisto, lo que contrasta con nuestra propuesta, que precisamente aborda el problema de identificar dicho subconjunto.
+(\emph{path conditions}) generadas mediante ejecución simbólica, con el objetivo
+de construir entradas que satisfagan las condiciones de camino (es decir, que
+cubran el camino) utilizando únicamente la API del módulo
+en cuestión. Este enfoque asume que la API o el subconjunto relevante de métodos
+ya ha sido provisto, lo que contrasta con nuestra propuesta, que precisamente aborda el problema de identificar dicho subconjunto.
 
-Nuestra técnica también requiere un mecanismo para identificar métodos \emph{observadores}, lo cual resolvimos realizando un análisis estático con
-la herramienta \emph{Infer}. Si bien existen enfoques previos para identificar observadores, o más precisamente métodos \emph{puros} \cite{Huang:2012,Salcianu:2005}, es importante destacar que el 
-foco de nuestro algoritmo evolutivo no está puesto en esa tarea, sino en la construcción de un conjunto minimal y suficiente 
-de métodos generadores de objetos.
-Además, nuestro enfoque es independiente del mecanismo utilizado para identificar observadores o métodos puros, por lo que podría 
-complementarse con trabajos previos que abordan específicamente esa problemática.
+Nuestra técnica requiere de un mecanismo para identificar métodos
+\emph{observadores}, que se resolvió en nuestro trabajo utilizando el análisis estático 
+implementado en la herramienta \emph{Infer}. 
+Si bien existen enfoques previos para identificar observadores (también
+    denominados en la literatura como métodos \emph{puros}
+\cite{Huang:2012,Salcianu:2005}), es importante destacar que el 
+foco de nuestros algoritmos de búsqueda no está puesto en esa tarea, sino en la
+identificación de un conjunto minimal y suficiente de métodos generadores de objetos.
+Además, nuestro enfoque es independiente del mecanismo utilizado para
+identificar métodos observadores, por lo que podría 
+complementarse con otros trabajos previos que abordan específicamente esa problemática.
 
-Una vez identificado automáticamente un conjunto suficiente de métodos relevantes —tanto generadores como observadores— es posible aplicar técnicas de generación 
-exhaustiva acotada sin necesidad de que el desarrollador proporcione manualmente especificaciones formales. Este paso de identificación previa es clave en nuestra 
-propuesta, ya que habilita la integración fluida de enfoques como \textsf{BEAPI} sobre software real sin intervención adicional. 
+En esta tesis se mostró también que, una vez identificado automáticamente un
+conjunto métodos generadores de objetos a partir de la API, es posible aplicar técnicas de generación 
+exhaustiva acotada usando estos métodos (\textsf{BEAPI}), sin necesidad de que el desarrollador
+proporcione manualmente especificaciones formales. Este paso de identificación
+previa de métodos generadores es clave en nuestra 
+propuesta, ya que incrementa significativamente la eficiencia, y la escalabilidad
+respecto de los scopes, de la generación exhaustiva acotada. 
 
-Los enfoques de generación exhaustiva acotada (BEG, por sus siglas en inglés) han demostrado ser efectivos para alcanzar una alta cobertura de código y para 
-encontrar errores, tal como se reporta en diversos trabajos previos \cite{Marinov01,Khurshid01,Boyapati02,Sullivan04}. El segundo objetivo de esta tesis no es 
-revisar nuevamente la efectividad de las suites BEG, sino presentar un enfoque que resulte sencillo de aplicar sobre software existente, ya que no requiere 
-la escritura manual de especificaciones formales sobre las propiedades de las entradas (por ejemplo, funciones \texttt{repOK}).
+Los enfoques de generación exhaustiva acotada han demostrado ser efectivos para
+alcanzar una alta cobertura de código y para encontrar errores en el software,
+tal como se reporta en diversos trabajos previos
+\cite{Marinov01,Khurshid01,Boyapati02,Sullivan04}. Un objetivo de esta tesis no es 
+revisar nuevamente la efectividad de las técnicas exhaustivas acotadas, sino
+presentar un enfoque que resulte sencillo de aplicar sobre software existente,
+como lo es \texttt{BEAPI}, que no requiere 
+la provisión manual de especificaciones formales que capturen las propiedades
+que deben cumplir las estructuras.
 
-Se han propuesto diferentes lenguajes para describir formalmente las restricciones estructurales en BEG, incluyendo la lógica relacional de Alloy (en el llamado 
-estilo declarativo), utilizada por la herramienta \textsf{TestEra} \cite{Marinov01}; y el código fuente en un lenguaje imperativo (en el estilo operacional), como en 
-\textsf{Korat} \cite{Boyapati02}. El estilo declarativo tiene la ventaja de ser más conciso y más simple para quienes están familiarizados con él; sin embargo, 
-este conocimiento no es común entre desarrolladores. El estilo operacional puede ser más extenso, pero como las especificaciones y el código están escritos en el 
-mismo lenguaje, suele ser el preferido por quienes desarrollan software.
+Se han propuesto diferentes lenguajes para describir formalmente las
+restricciones estructurales en la generación exhaustiva acotada, incluyendo la lógica relacional de Alloy (en el llamado 
+estilo de especificación declarativo), utilizada por la herramienta
+\textsf{TestEra} \cite{Marinov01}; y el código fuente en un lenguaje imperativo
+(en el estilo denominado operacional), como en 
+\textsf{Korat} \cite{Boyapati02}. Las especificaciones declarativas tienen la
+ventaja de ser más concisas y más simples para quienes están familiarizados con
+este tipo de lenguajes; sin embargo, 
+un conocimiento profundo de los lenguajes declarativos no es algo común entre
+los desarrolladores de software. El estilo operacional puede ser más extenso
+pero, como las especificaciones y el código están escritos en el 
+mismo lenguaje de programación, este estilo suele ser el preferido por quienes desarrollan software.
 
 \textsf{UDITA} \cite{Gligoric10} y \textsf{HyTeK} \cite{Rosner14} proponen emplear una combinación de los estilos declarativo y operacional para escribir las 
 especificaciones, dado que ciertas restricciones pueden ser más fáciles de expresar 
-en uno u otro estilo. Con especificaciones precisas, ambos enfoques pueden ser utilizados para BEG. Sin embargo, para utilizarlos, los desarrolladores deben 
-estar familiarizados con ambos estilos de especificación, y dedicar el tiempo y esfuerzo necesarios para escribir dichas especificaciones.
+en un estilo que en el otro. Si las especificaciones provistas son precisas, ambos enfoques
+pueden ser utilizados para la generación exhaustiva acotada. Sin embargo, para utilizarlos los desarrolladores deben 
+estar familiarizados con ambos estilos de especificación, y dedicar el tiempo y
+esfuerzo necesarios para escribir dichas especificaciones (a diferencia de
+\texttt{BEAPI} que no requiere especificaciones adicionales).
 
-Verificadores de modelos como \textsf{Java Pathfinder} \cite{Visser05} (\textsf{JPF}) también pueden realizar BEG, pero el usuario debe proporcionar manualmente un 
-\emph{driver} para la generación: un programa que el verificador de modelos utiliza para construir las estructuras que luego se pasan al sistema bajo prueba. 
-Escribir un driver para BEG a menudo implica invocar rutinas de la API en combinación con operadores no determinísticos propios de \textsf{JPF}, por lo que 
-el desarrollador debe familiarizarse con estos operadores y realizar trabajo manual adicional para aplicar este enfoque.
-Además, \textsf{JPF} se ejecuta sobre una máquina virtual personalizada en lugar de la máquina virtual estandar de Java (\textsf{JVM}), lo cual introduce una 
-sobrecarga significativa en su ejecución comparado con enfoques que utilizan la \textsf{JVM} estándar, como \textsf{BEAPI}. Los resultados de un estudio previo 
-\cite{Siddiqui09} muestran que \textsf{JPF} es significativamente más lento que \textsf{Korat} en tareas de BEG. En dicho estudio, \textsf{Korat} fue presentado 
-como el enfoque más rápido y escalable al momento de su publicación, lo cual se explica en parte por su eficaz poda del espacio de búsqueda y la eliminación 
-de estructuras isomorfas. En contraste, \textsf{BEAPI} no requiere una función de especificación, \texttt{repOK} y opera exclusivamente mediante invocaciones a la API.
+Los \emph{model checkers} para software como \textsf{Java Pathfinder}
+\cite{Visser05} (\textsf{JPF}) también pueden realizar una generación exhaustiva
+acotada para el código bajo prueba, pero el usuario debe proporcionar manualmente un 
+\emph{driver} para la generación: un programa que el \emph{model checker} pueda
+utilizar para construir las estructuras de manera exhaustiva acotada, que luego
+se pasan como entrada al sistema bajo análisis para ejercitarlo. 
+Escribir este tipo de drivers a menudo implica invocar rutinas de la API en
+combinación con operadores no determinísticos propios del model checker (como
+\textsf{JPF}), por lo que 
+el desarrollador debe familiarizarse con estos operadores y realizar el trabajo
+manual adicional de escribir el driver para aplicar este enfoque.
+Además, los model checkers como \textsf{JPF} usualmente se ejecutan sobre una máquina virtual personalizada en lugar de la máquina virtual estandar de Java (\textsf{JVM}), lo cual introduce una 
+sobrecarga significativa en su ejecución comparado con enfoques que utilizan la
+\textsf{JVM} estándar (como \textsf{BEAPI}). Los resultados de un estudio previo 
+\cite{Siddiqui09} muestran que \textsf{JPF} es significativamente más lento que
+\textsf{Korat} para realizar la generación exhaustiva acotada. En dicho estudio,
+se observa experimentalmente que \textsf{Korat} es el enfoque más rápido y
+escalable de generación exhaustiva acotada. Esto se explica en parte por su poda
+eficaz del espacio de búsqueda, y la eliminación de estructuras isomorfas. 
+En contraste, \textsf{BEAPI} no requiere una especificación formal adicional
+(\texttt{repOK}) y opera exclusivamente mediante invocaciones a métodos de la API.
 
-Un tipo alternativo de BEG consiste en generar todas las entradas necesarias para cubrir todos los caminos factibles (y acotados) de ejecución del programa.
-Esta es la idea detrás de la generación de tests dinámica (también llamado concolic test), una variante de la ejecución 
+Una variante alternativa de generación exhaustiva consiste en generar todas las
+entradas necesarias para cubrir todos los caminos posibles (acotados) de
+la ejecución de un programa, en lugar de generar todas las entradas acotadas.
+Esta es la idea detrás de la generación sistemática dinámica de tests (también llamada
+concolic testing), una variante de la ejecución 
 simbólica \cite{Godefroid18}. Este enfoque ha sido implementado en diversas herramientas \cite{Godefroid12,Godefroid05,Pham19,Christakis15}, y ha logrado 
-con éxito generar suites con alta cobertura de código, detectar errores reales en programas y demostrar propiedades de los programas, como seguridad de memoria.
-\textsf{Kiasan} \cite{Deng06} y \textsf{FAJITA} \cite{Abad13} también son enfoques de generación de tests de tipo \emph{white-box}, que requieren especificaciones 
-formales y tienen como objetivo cubrir el comportamiento del sistema bajo prueba.
+generar suites con alta cobertura de código, detectar errores reales en
+programas, y verificar propiedades específicas de los programas (como seguridad
+de memoria).
+\textsf{Kiasan} \cite{Deng06} y \textsf{FAJITA} \cite{Abad13} también son
+enfoques de generación de tests de caja blanca, que requieren especificaciones 
+formales de las propiedades que deben cumplir las entradas, y tienen como objetivo cubrir el código del sistema bajo test.
 
-La técnica de linearización ha sido empleada previamente para eliminar estructuras isomorfas en verificadores de modelos tradicionales \cite{Iosif02,Robby03}, y también 
-en verificadores de software como \textsf{JPF} \cite{Visser06}. Un estudio anterior experimentó el uso de equivalencia de estados en \textsf{JPF}, y propuso varias técnicas 
-para podar el espacio de búsqueda de entradas mediante linearización, tanto para ejecución concreta como simbólica \cite{Visser06}. 
+La técnica de linealización ha sido empleada previamente en diversos contextos,
+diferentes al de la generación exhaustiva acotada. Por ejemplo, para eliminar
+estructuras isomorfas en model checkers tradicionales \cite{Iosif02,Robby03}, y también 
+en model checkers para software como \textsf{JPF} \cite{Visser06}. Un estudio
+anterior experimentó con el uso de coincidencia de estados en \textsf{JPF}, y propuso varias técnicas 
+para podar el espacio de búsqueda de entradas mediante linealización, tanto para
+ejecución concreta como para ejecución simbólica \cite{Visser06}. 
 Como se indicó previamente, la ejecución concreta en \textsf{JPF} requiere que el usuario proporcione un \emph{driver}, 
-mientras que el enfoque simbólico busca cubrir caminos del sistema; en cambio, nuestro trabajo se enfoca en la 
-generación exhaustiva de entradas válidas (BEG). 
-La linearización también ha sido utilizada con éxito para la minimización de suites de tests \cite{Xie04}.
+mientras que el enfoque simbólico busca cubrir caminos del sistema. En cambio, nuestro trabajo se enfoca en la 
+generación exhaustiva acotada de entradas usando la API. 
+La linealización también ha sido utilizada con éxito para la minimización de suites de tests \cite{Xie04}.
 
 
-\cacho{Traduccion del paper Efficient Bounded Exhaustive Input Generationfrom Program APIs }
-Los enfoques \textit{BEG} han demostrado ser efectivos para lograr una alta cobertura 
-de código y encontrar fallas, como se informa en diversos trabajos de investigación~\cite{ref20,ref16,ref4,ref33}. 
-Nuestro objetivo aquí no es volver a evaluar la efectividad de los conjuntos de pruebas 
-\textit{BEG}, sino introducir un enfoque que sea sencillo de utilizar en el software 
-actual, porque no requiere el trabajo manual de escribir especificaciones formales de 
-las propiedades de las entradas (por ejemplo, \texttt{repOKs}). \\
-
-Se han propuesto diferentes lenguajes para describir formalmente restricciones 
-estructurales para \textit{BEG}, incluyendo la lógica relacional de Alloy 
-(en el denominado estilo declarativo), empleada por la herramienta \textit{TestEra}~\cite{ref20}; 
-y código fuente en un lenguaje de programación imperativo (en el denominado estilo operacional), 
-como se usa en \textit{Korat}~\cite{ref4}. El estilo declarativo tiene la ventaja de ser 
-más conciso y sencillo para quienes están familiarizados con él; sin embargo, este conocimiento 
-no es común entre los desarrolladores. El estilo operacional puede ser más extenso, pero 
-dado que las especificaciones y el código fuente se escriben en el mismo lenguaje, este 
-estilo suele ser el preferido por los desarrolladores. \\
-
-\textit{UDITA}~\cite{ref11} y \textit{HyTeK}~\cite{ref29} proponen emplear una combinación de ambos estilos 
-para escribir las especificaciones, ya que algunas restricciones suelen ser más fáciles de 
-expresar en un estilo que en el otro. Con especificaciones precisas, ambos enfoques pueden 
-usarse para \textit{BEG}. Aun así, para utilizar estos enfoques los desarrolladores deben 
-estar familiarizados con ambos estilos y dedicar tiempo y esfuerzo para escribir las especificaciones. \\
-
-Los verificadores de modelos como \textit{Java Pathfinder} (JPF)~\cite{ref34} también pueden realizar \textit{BEG}, 
-pero el usuario debe proporcionar manualmente un “driver” para la generación: un programa 
-que el verificador de modelos pueda usar para producir las estructuras que luego se entregarán 
-al sistema bajo prueba (SUT). Escribir un driver \textit{BEG} suele implicar invocar rutinas de la API 
-en combinación con operadores no deterministas de JPF, por lo que el desarrollador debe 
-familiarizarse con dichos operadores y realizar un esfuerzo manual adicional para este enfoque. \\
-
-Además, JPF se ejecuta sobre una máquina virtual personalizada en lugar de la JVM estándar, 
-lo que implica una sobrecarga significativa frente a la ejecución en la JVM estándar 
-(utilizada por \textit{BEAPI}). Estudios previos~\cite{ref32} muestran que JPF es significativamente 
-más lento que \textit{Korat} para \textit{BEG}, siendo \textit{Korat} el enfoque más rápido y escalable en 
-su momento, gracias a su poda inteligente del espacio de búsqueda de estructuras inválidas 
-y a la eliminación de estructuras isomórficas. En contraste, \textit{BEAPI} no requiere un 
-\texttt{repOK} y funciona realizando llamadas a la API. \\
-
-Una variante alternativa de \textit{BEG} consiste en generar todas las entradas para cubrir 
-todos los caminos de programa factibles (acotados), en lugar de generar todas las entradas 
-factibles acotadas. Este es el enfoque de la generación dinámica sistemática de pruebas, 
-una variante de la ejecución simbólica~\cite{ref14}. Este enfoque está implementado en muchas 
-herramientas~\cite{ref13,ref12,ref24,ref8} y se ha utilizado con éxito para producir conjuntos de 
-pruebas con alta cobertura, revelar fallas reales y demostrar seguridad de memoria. \\
-
-\textit{Kiasan}~\cite{ref9} y \textit{FAJITA}~\cite{ref1} también son enfoques de caja blanca que requieren 
-especificaciones formales y apuntan a la cobertura del SUT. La linealización se ha utilizado 
-para eliminar estructuras isomórficas tanto en verificadores de modelos tradicionales~\cite{ref15,ref28} 
-como en verificadores de software~\cite{ref35}. Un estudio anterior experimentó con coincidencia 
-de estados en JPF y propuso varias técnicas para podar el espacio de búsqueda mediante linealización, 
-tanto en ejecución concreta como simbólica~\cite{ref35}. \\
-
-Como se indicó, la ejecución concreta en JPF requiere un \textit{driver}. El enfoque simbólico intenta 
-encontrar entradas que cubran caminos del SUT; en cambio, aquí realizamos \textit{BEG}. La linealización 
-también se ha aplicado a la minimización de conjuntos de pruebas~\cite{ref36}.
-
-\cacho{Traduccion del paper Automatically Identifying Sufficient Object Builders from Module APIs }
-Como se mencionó a lo largo del trabajo, el problema de identificar un conjunto 
-suficiente de \textit{builders} es recurrente en varios análisis de programas, incluyendo, 
-pero no limitado, a la verificación de software mediante \textit{model checking} y la 
-generación de pruebas. En trabajos como~\cite{ref22,ref17}, en el contexto de 
-\textit{software model checking}, y~\cite{ref30,ref29,ref23,ref5}, en el contexto de la 
-generación automática de pruebas (por citar solo algunos), aparece el problema de 
-identificar una parte de una API y proveerla para el análisis. Típicamente, este 
-problema se resuelve de manera manual. \\
-
-El uso de técnicas de búsqueda para resolver problemas desafiantes de ingeniería 
-de software es una estrategia cada vez más popular, que se ha aplicado con éxito 
-a diversos problemas, incluyendo la generación de entradas de prueba~\cite{ref11}, 
-la reparación de programas~\cite{ref18}, entre otros. Hasta donde sabemos, esta es 
-una aplicación novedosa de la computación evolutiva en ingeniería de software. 
-Un enfoque que aborda un problema relacionado, aunque diferente, es el asociado 
-con la herramienta \textit{SUSHI}~\cite{ref5}. El objetivo de \textit{SUSHI} es alimentar un 
-algoritmo genético con una condición de camino, producida por un motor de 
-ejecución simbólica, de modo que una entrada que satisfaga dicha condición de 
-camino pueda ser reproducida usando la API de un módulo. Este enfoque asume 
-que la API (o el subconjunto de métodos relevantes) se proporciona, en contraste 
-con nuestro trabajo, que aborda precisamente la provisión de la API restringida. \\
-
-Nuestra técnica requiere un mecanismo para identificar \textit{observers}, lo cual 
-resolvimos en este trabajo mediante generación aleatoria de pruebas y 
-instrumentación para el monitoreo de estados. Existen enfoques en la literatura 
-para la identificación de \textit{observers}, o más precisamente de métodos puros~\cite{ref14,ref28}. 
-En relación con estas líneas de investigación, cabe señalar que el foco de nuestro 
-algoritmo evolutivo no es la identificación de \textit{observers}, sino la construcción de 
-un conjunto mínimo y suficiente de \textit{builders}. Además, nuestro enfoque es en 
-realidad independiente del mecanismo usado para identificar \textit{observers}/métodos 
-puros, y por lo tanto podría combinarse con los trabajos recién citados (es decir, 
-reemplazando nuestro enfoque basado en pruebas aleatorias por una alternativa). 
