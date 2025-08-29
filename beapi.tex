@@ -8,14 +8,13 @@ La generación exhaustiva acotada es un enfoque de generación de tests que
 consiste en generar todas las posibles entradas para el software bajo test con
 dominios de datos acotados (usualmente pequeños). 
 La mayor ventaja de la generación exhaustiva acotada es un enfoque efectivo para
-revelar fallas en el software \cite{} \pp{Agregar citas, están en el paper de
-BEAPI}. 
+revelar fallas en el software \cite{Marinov01,Khurshid01,Boyapati02,Sullivan04}.
 
 Los enfoques existentes de generación exhaustiva acotada requieren una
 especificación precisa y formal de las propiedades que deben satisfacer las
-entradas del software bajo test \cite{} \pp{Agregar citas a Korat, TestEra, etc}. 
+entradas del software bajo test \cite{Boyapati02,KhKhurshid01,Ponzio16Ponzio:2016,Rosner14}. 
 Esta especificación comúnmente se llama \emph{repOK} (define las propiedades que
-satisface la representación de las entradas) y debe ser brindada por el usuario \cite{} \pp{Agregar citas a Korat, TestEra, etc}.
+satisface la representación de las entradas) y debe ser brindada por el usuario \cite{Boyapati02,Khurshid01,Ponzio16Ponzio:2016,Rosner14}.
 En este capítulo, introduciremos BEAPI, un enfoque eficiente que genera un
 conjunto exhaustivo acotado de objetos realizando únicamente llamadas a la API
 de un módulo. Al utilizar la API para construir objetos, BEAPI no requiere 
@@ -28,7 +27,7 @@ se presenta un ejemplo que ilustra el problema que se aborda con la técnica pro
 La Sección \ref{sec:beapi-overview} presenta un panorama general de 
 BEAPI. La Sección \ref{sec:scope} describe la definición del scope para la
 técnica, y \ref{sec:defensiveProgramming} aborda como BEAPI evita construir
-objetos inválidos si la API se programa de manera defensiva \cite{} \pp{Cita a Liskov}. 
+objetos inválidos si la API se programa de manera defensiva \cite{Liskov00}.
 Luego, en las Secciones \ref{sec:stateMatching} y
  \ref{sec:buildersOptimization} se describen las optimizaciones implementadas en
  BEAPI, que son claves para mejorar su eficiencia, y le permiten a BEAPI 
@@ -101,7 +100,7 @@ forma precisa para el usuario de la herramienta, consideramos el método
 muestra en la Figura~\ref{fig:NCL-repOK}. 
 Este ejemplo proviene del benchmark \emph{ROOPS}, que ha sido ampliamente
 utilizado para evaluar herramientas automáticas de testing/análisis de software 
-\cite{} \pp{Agregar citas}. 
+\cite{Pasareanu:2010,Rosner15,Galeotti:2010,galeotti2020,Boyapati02,Khurshid01}.
 
 Como se explicó en el Capítulo~\ref{cap:builders}, NCL posee una lista
 principal, implementada usando una lista circular doblemente enlazada, 
@@ -264,9 +263,9 @@ Como salidas, \textsf{BEAPI} produce:
 \end{itemize}
 
 \textsf{BEAPI} explota la idea de generación de tests dirigida por retroalimentación 
-(\emph{feedback-directed test generation} \cite{} \pp{Cita a randoop}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
+(\emph{feedback-directed test generation} \cite{Pacheco07,PaPacheco08}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
 Al igual que otros enfoques de generación de tests basados en la API, 
-\textsf{BEAPI} construye secuencias de test \cite{} \pp{Cita a randoop} (secuencias de invocaciones a
+\textsf{BEAPI} construye secuencias de test \cite{Pacheco07,PaPacheco08}(secuencias de invocaciones a
 métodos de la API), y las ejecuta para producir objetos.
 
 %\textsf{BEAPI} aborda las dificultades de escribir especificaciones formales 
@@ -384,8 +383,7 @@ de la clase NCL, y el método \emph{add}. Recordar que estamos considerando un s
 Esto quiere decir que cuando se genera alguna estructura con más de 3 nodos, como es en 
 el caso de la última secuencia de test de la Figura, esta es descartada por exceder el 
 límite de nodos en la estructura (notar que el nodo ficticio de la estructura cuenta como un
-nodo). \pp{Está mal la figura, la flecha y la estructura van en el último nodo y no en el
-penúltimo.}
+nodo).
 
 
 %\begin{figure}[H]
@@ -591,8 +589,6 @@ que ya han sido generadas por una secuencia anterior, no es necesario seguir
 extendiendo la nueva secuencia con sucesivas invocaciones a otros métodos, ya 
 que esto no producirá nuevos objetos distintos.
 
-
-\pp{Hay un error en la Figura ~\ref{fig:stateMatching}, el que ejecuta size también es un visited state porque ya se construyó en el constructor}
 En la Figura~\ref{fig:stateMatching}, se puede observar de manera más clara este
 problema de generación de estructuras redundantes.
 Cada nodo del árbol representa una secuencia test generada por \texttt{BEAPI}
