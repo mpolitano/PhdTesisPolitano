@@ -787,18 +787,17 @@ secuencias que BEAPI necesita explorar, mejorando significativamente la
 eficiencia de la técnica.
 
 En el contexto de \textsf{BEAPI}, utilizamos el algoritmo de búsqueda basado en
-\emph{escalada de colinas} (ver Sección \ref{} \pp{Referencia hill climbing}), que logra un mejor rendimiento en tiempo de
+\emph{escalada de colinas} (ver Sección \ref{sec:approachHC}), que logra un mejor rendimiento en tiempo de
 ejecución. 
 Aunque la \emph{escalada de colinas} puede ser menos preciso en algunos casos,
 ya que puede incluir algunos métodos que no son necesarios entre los generadores
 de objetos retornados, en nuestros experimentos el algoritmo funcionó muy bien y
 computó consistentemente conjuntos suficientes de métodos generadores (ver
-Sección \ref{} \pp{Referencia a experimentos}). 
+Sección \ref{sec:experimentalIdentificacion}. 
 % Nuestro objetivo aquí es evaluar el impacto de utilizar builders para la generación exhaustiva acotada (BEG) a partir de una API.
 Para la identificación de métodos generadores, utilizamos como función objetivo
 a BEAPI como generador exhaustivo acotado. Esta función objetivo se explicó en
-detalle en la Sección \ref{} \pp{Cambiar la referencia, la función objetivo BE
-es la 4.4.1, no?}). 
+detalle en la Sección \ref{sec:fitnessGE}.
 
 La idea clave que hace factible la identificación eficiente de métodos generadores
 previamente a la generación exhaustiva acotada es que a menudo utilizar un
@@ -812,36 +811,12 @@ con estructuras de tamaño relativamente pequeño \cite{Andoni02}. También es
 similar a la técnica llamada \emph{transcoping}, propuesta en \cite{Rosner13}.
 En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para
 computar los métodos generadores de objetos con precisión (ver Sección
-\ref{} \pp{Resultados experimentales de builders}). 
-
+\ref{sec:experimentalIdentificacion}.
 Después de identificar eficientemente los métodos generadores usando un scope
 pequeño, podemos ejecutar \textsf{BEAPI} con métodos generadores identificados
 como parámetro utilizando scopes más grandes. Esto permite que \textsf{BEAPI}
 produzca objetos más grandes, y con ellos es posible ejercitar más exhuastivamente 
 el software bajo test.
-
-\pp{De acá hasta el final de esta sección son resultados que se deberían
-discutir en la parte de la sección experimental que tiene los resultados de builders} 
-
-En la mayoría de nuestros casos de estudio, los métodos generadores de objetos se limitan a un 
-constructor y un único método para agregar elementos a la estructura, como ocurre en las listas 
-simplemente enlazadas.  
-
-Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores evidenció que, 
-en el caso de los árboles Rojo–Negro, también es necesario incluir un método de eliminación 
-(para alcances mayores que tres).  
-Esto se debe a que este tipo de árboles requiere configuraciones específicas de equilibrio, 
-que involucran el coloreo de nodos en rojo y negro, las cuales no pueden obtenerse únicamente 
-mediante operaciones de inserción.
-
-En contraste, los árboles AVL,
-que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
-Los árboles AVL están siempre equilibrados, 
-de tal modo que para todos los nodos, la altura de la rama izquierda no debe diferir en más de una unidad de la altura de la rama derecha o viceversa. 
-Gracias a esta forma de equilibrio (o balanceo), la complejidad de una búsqueda en uno de estos árboles se mantiene siempre en orden de complejidad O(log n). 
-Para este caso de árboles, solo el constructor de la clase y una rutina de adición son suficientes. 
-Esto demuestra que la identificación de métodos generadores no es trivial de realizar manualmente.
-
 
 \section{Algoritmo de BEAPI}
 \label{sec:beapiTechnique}
