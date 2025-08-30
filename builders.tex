@@ -59,6 +59,7 @@ Para comprender mejor la definición de métodos generadores de objetos, motivar
 
 La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{tab:ncl-api}) que permiten construir, modificar y consultar la colección. Esta API combina funcionalidades típicas de listas enlazadas con optimizaciones adicionales relacionadas con el reuso de nodos en la caché. Los métodos pueden clasificarse en tres categorías principales según su función: 
 
+\cacho{Esto es nuevo}
 \begin{itemize}
     \item \textbf{Métodos constructores:}
     Los métodos constructores (líneas 0-2 en la Tabla~\ref{tab:ncl-api}) permiten crear nuevos objetos del tipo. Estos son:
@@ -72,11 +73,9 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
     Estos métodos permiten agregar, eliminar o modificar elementos de la lista. Algunos ejemplos son:
     \begin{itemize}
         \item \texttt{add(Object)}: Agrega un elemento al final de la lista
-            principal. \cacho{Si hay nodos disponibles en la lista cache, se reutiliza uno de ellos.}\pp{No puede ser,
-            la cache estaría al pedo si fuera así porque no se reusan los nodos. Revisar}
+            principal. Si hay nodos disponibles en la lista cache, se reutiliza uno de ellos.
         \item \texttt{addFirst(Object)} y \texttt{addLast(Object)}: Insertan elementos al principio o al final de la lista principal 
-        \cacho{En ambos casos, si existen nodos disponibles en la cache, se reutilizan para evitar la creación de nuevos nodos.}\pp{No puede ser,
-            la cache estaría al pedo si fuera así porque no se reusan los nodos. Revisar}
+        En ambos casos, si existen nodos disponibles en la cache, se reutilizan para evitar la creación de nuevos nodos.
         \item \texttt{remove(int)} y \texttt{remove(Object)}: Eliminan elementos de la lista por índice o por valor. El nodo eliminado se inserta en la lista cache de la estructura.
         \item \texttt{clear()}: Vacía la lista principal y se insertan los nodos
             eliminados en la lista cache.
@@ -91,6 +90,7 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
         \item \texttt{toArray()}: Crea un nuevo arreglo con todos los elementos de la lista.
     \end{itemize}
 \end{itemize}
+\cacho{Hasta aca}
 
 \noindent
 A partir de esta API, los objetos de \emph{NodeCachingLinkedList} pueden
@@ -506,11 +506,12 @@ f(M) = \langle O(M), R(M), C(M) \rangle
 \]
 Donde:
 
+\cacho{Lo de parametros lo agrego PP, lo dejo}
 \begin{itemize}
     \item $O(M)$ (Objetos): Es el número de objetos generados por el conjunto de métodos $M$ usando generación exhaustiva acotada, para un scope fijo. Este componente es el más importante, ya que los siguientes componentes sólo se usan para decidir en caso de empate respecto de $O(M)$. Recordemos que los generadores de objetos a identificar deben ser siempre suficientes, por lo que la función objetivo siempre prioriza los métodos que generen un mayor número de objetos.
     \item $R(M)$ (Redundancia): Representa la diferencia entre el número total de métodos de la API ($M_t$) y la cantidad de métodos en $M$. Esto se utiliza para desempatar entre conjuntos de métodos que generan la misma cantidad de objetos, dando preferencia a aquellos conjuntos que contengan menos métodos. En otras palabras, este componente de la función busca identificar generadores de objetos minimales.
     \item $P(M)$ (Parámetros): Es una medida ponderada de la complejidad de los
-        parámetros de los métodos en $M$. \pp{Sea $m_l$ un método con parámetros $p_1: T_1,
+        parámetros de los métodos en $M$. Sea $m_l$ un método con parámetros $p_1: T_1,
             p2: T_2, \ldots, p_k: T_j$, la función $W(m_l)$ define el peso de los
             parámetros de $m_l$ de acuerdo al tipo de los mismos. $W$ se
             define como: $W(m_l) = \sum_{i=1}^j = T(T_i)$, donde $T$ es la función
@@ -531,7 +532,7 @@ Donde:
             utiliza para desempatar entre conjuntos de métodos que generan la
             misma cantidad de objetos y tienen la misma cantidad de métodos,
             favoreciendo subconjuntos con una menor complejidad en sus
-        parámetros.}
+        parámetros.
 
 
 \end{itemize}
@@ -690,10 +691,11 @@ f(M_5) > f(M_6)
 \subsection{Cobertura de código}
 \label{sec:fitnessRandoop}
 
-\pp{Como la generación exhuastiva acotada puede ser costosa computacionalmente,
-    proponemos aquí una heurística para computar la función objetivo que debería
-    dar lugar a una mejor eficiencia en los algoritmos de cómputo de métodos
-generadores.} Así, la segunda función objetivo se basa en generar test suites
+\cacho{La primer oracion lo agrego PP, lo dejo}
+Como la generación exhuastiva acotada puede ser costosa computacionalmente,
+proponemos aquí una heurística para computar la función objetivo que debería
+dar lugar a una mejor eficiencia en los algoritmos de cómputo de métodos
+generadores. Así, la segunda función objetivo se basa en generar test suites
 de manera automática (aleatoria) utilizando un suconjunto candidato de métodos,  
 y medir la cobertura de código que alcanzan estas test suites. 
 La cobertura se mide en términos de las líneas de código y las ramas del
@@ -845,7 +847,7 @@ Donde:
 
 \begin{itemize}
     \item $Cob(M)$ (Cobertura): Es el número de ramas y lineas cubiertas
-        (\pp{ref a la fórmula de Cob}) por la
+        (\ref{sec:coverage}) por la
         suite generada por el algoritmo \ref{alg:fitnessRandoop}, utilizando $M$ como
         entrada. 
     Este componente tiene la mayor importancia, ya que refleja directamente la
