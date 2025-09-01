@@ -11,6 +11,17 @@
 \usepackage[spanish,es-tabla]{babel}
 \let\AlgorithmicSemicolon\semicolon
 
+%\usepackage{flushend}
+%\usepackage[lighttt]{lmodern}
+\usepackage{listings} %for code writing   
+\renewcommand{\chaptername}{Capítulo}
+\renewcommand{\contentsname}{Índice general}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+%\renewcommand{\bibliographyname}{Bibliografía}
+\usepackage[table]{colortbl}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{makecell}
 
 
 \usepackage{titletoc}
@@ -20,6 +31,8 @@
 
  % Add new own commands
 \newcommand{\cacho}{\textcolor{red}}
+%\renewcommand{\cacho}[1]{}
+
 \usepackage{colortbl}
 \newcommand{\hightlight}{\rowcolor[gray]{.95}}
 
@@ -112,6 +125,7 @@
 
 
 \newcommand{\pp}[1]{{\color{blue}\bf [PP: #1]}}
+\renewcommand{\pp}[1]{}
 
 \usepackage{algorithmic}
 
@@ -151,14 +165,15 @@
 % ********************************************************************
 % Frontmatter
 \include{titlepage-famaf}
-% \chapter*{}
+
 \pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
 \include{resumen}
 \include{agradecimientos}
 \pagestyle{empty}
 
 \tableofcontents % indice de contenidos
-
+\newpage
+\newpage
 
 % ********************************************************************
 % Mainmatter
@@ -169,20 +184,12 @@
 \setcounter{page}{5}
 
 \include{introduccion}
-\clearpage
-
 \include{preliminaries}
-
 \include{builders}
-
 \include{beapi}
-
 \include{experimental}
-
 \include{related}
-
 \include{conclusiones}
-
 %\include{future}
 
 % \include{trabajofuturo}
@@ -190,7 +197,7 @@
 % ********************************************************************
 % Backmatter
 \cleardoublepage\null
-\bibliographystyle{acm} % estilo de la bibliografía.
+\bibliographystyle{plain} % estilo de la bibliografía.
 \bibliography{Bibliografia}
 
 %\cleardoublepage\phantomsection

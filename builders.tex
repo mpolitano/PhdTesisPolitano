@@ -292,10 +292,10 @@ La clasificación se realiza mediante un análisis estático que infiere efectos
 
 Si bien \emph{Infer} puede generar falsos negativos —por ejemplo, no clasificar como observador a un método que en realidad sí lo es, como \texttt{iterator()}—, su comportamiento es conservador y evita falsos positivos. 
 Es decir, rara vez clasificará como observador a un método que en realidad tiene efectos colaterales. 
-Esta característica lo convierte en una herramienta extremadamente útil como filtro preliminar: su bajo costo computacional permite eliminar rápidamente una gran cantidad de métodos irrelevantes, 
+Esta característica lo convierte en una herramienta extremadamente útil como filtro preliminar, su bajo costo computacional permite eliminar rápidamente una gran cantidad de métodos irrelevantes, 
 lo que reduce de forma significativa el espacio de búsqueda de nuestros algoritmos sin comprometer la corrección del análisis.
 
-La Tabla~\ref{tab:ncl-api-manual} presenta la clasificación manual de los métodos de la clase 
+La Tabla~\ref{tab:ncl-api} presenta la clasificación manual de los métodos de la clase 
 \texttt{NodeCachingLinkedList}, distinguiendo cuáles se comportan como observadores y cuáles no, 
 a partir del análisis de su implementación. 
 Posteriormente, en la Tabla~\ref{tab:ncl-infer-comparacion} se muestra la comparación con el análisis 
@@ -366,9 +366,9 @@ de modo que no aseguran que el estado de la lista se mantenga inmutable.
 
 Los métodos reportados como observadores por \emph{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
 En síntesis, \emph{Infer} actúa como una etapa de preprocesamiento que combina eficiencia y utilidad práctica: permite reducir el número de métodos a analizar, sin necesidad de intervención manual, manteniendo un nivel de precisión suficiente para nuestros casos de estudio.
-
-
+\cacho{Capaz falte alguna referencia donde nos diga que pasa esto}
 % De esta manera, \emph{Infer} es utilizado como paso previo a la ejecución de nuestros algoritmos. Los métodos reportados como observadores por \emph{Infer} se descartan antes de comenzar la búsqueda de métodos generadores de objetos.
+\cacho{hasta aca}
 
 
 % 1- estados o configuraciones del problema
@@ -478,7 +478,7 @@ Como el conjunto de objetos que se pueden construir con la API de un módulo es 
 \label{sec:fitnessGE}
 
 Dado un candidato $C$ que representa un subconjunto de métodos $M$ de la API, 
-nuestra función de valuación intenta calcular el número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. 
+nuestra función objetivo intenta calcular el número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. 
 Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
 
 Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $C$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $C$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos.
@@ -486,7 +486,7 @@ Nuestro enfoque utiliza un generador exhaustivo acotado eficiente basado en mét
 Dado un conjunto de métodos $M$ en un candidato $C$, BEAPI explora todas las secuencias de métodos acotadas que se pueden construir usando métodos de $M$. La cota consiste de un número máximo $m$ de métodos dado por el usuario, y de un conjunto de valores primitivos empleados para instanciar los parámetros de tipo primitivo en los métodos en $M$ (e.g., enteros de \( 0 \) a \( k-1 \)).
 BEAPI utiliza cada uno de estos valores para instanciar cada parámetro del tipo correspondiente. 
 BEAPI cuenta la cantidad de objetos distintos creados por la ejecución de cada una de las secuencias exploradas. 
-Así, para $M$ (y cotas $m$ y $k$) la función de valuación retorna el número de objetos generados por BEAPI usando $M$.
+Así, para $M$ (y cotas $m$ y $k$) la función objetivo retorna el número de objetos generados por BEAPI usando $M$.
 
 Como la cantidad de secuencias a explorar crece exponencialmente respecto de las cotas, BEAPI implementa distintas técnicas que le permiten podar significativamente el espacio de búsqueda y mejorar la eficiencia de la generación (usar el feedback de la ejecución para descartar secuencias inválidas, coincidencia de estado para evitar volver a generar repetidamente los mismos objetos, descartar secuencias que generen objetos de tamaño mayor al permitido por las cotas). Para obtener más información sobre las mismas y sobre BEAPI invitamos al lector a consultar el Capítulo \ref{cap:beapi}.
 
@@ -499,10 +499,10 @@ Float,Double,String=4
 Object=6
 \end{lstlisting}
 
-Como ya se discutió en esta Sección, buscamos un conjunto minimal de generadores de objetos, donde los métodos tengan parámetros tan simples como sea posible. Por lo tanto, la cantidad de objetos generados usando BEAPI es sólo un componente de la función objetivo. Dado un conjunto de métodos $M$, representado por un candidato $C$, la función objetivo $f$ devuelve un valor real conformado por tres componentes:
+Como ya se discutió en esta Sección, buscamos un conjunto minimal de generadores de objetos, donde los métodos tengan parámetros tan simples como sea posible. Por lo tanto, la cantidad de objetos generados usando BEAPI es sólo un componente de la función objetivo. Dado un conjunto de métodos $M$, la función objetivo $f$ devuelve un valor real conformado por tres componentes:
 
 \[
-f(M) = \langle O(M), R(M), C(M) \rangle
+f(M) = \langle O(M), R(M), P(M) \rangle
 \]
 Donde:
 
@@ -510,6 +510,7 @@ Donde:
 \begin{itemize}
     \item $O(M)$ (Objetos): Es el número de objetos generados por el conjunto de métodos $M$ usando generación exhaustiva acotada, para un scope fijo. Este componente es el más importante, ya que los siguientes componentes sólo se usan para decidir en caso de empate respecto de $O(M)$. Recordemos que los generadores de objetos a identificar deben ser siempre suficientes, por lo que la función objetivo siempre prioriza los métodos que generen un mayor número de objetos.
     \item $R(M)$ (Redundancia): Representa la diferencia entre el número total de métodos de la API ($M_t$) y la cantidad de métodos en $M$. Esto se utiliza para desempatar entre conjuntos de métodos que generan la misma cantidad de objetos, dando preferencia a aquellos conjuntos que contengan menos métodos. En otras palabras, este componente de la función busca identificar generadores de objetos minimales.
+        de modo que, para un $M_t$, $R(M)$ es equivalente a $\#M_t - \#M$.
     \item $P(M)$ (Parámetros): Es una medida ponderada de la complejidad de los
         parámetros de los métodos en $M$. Sea $m_l$ un método con parámetros $p_1: T_1,
             p2: T_2, \ldots, p_k: T_j$, la función $W(m_l)$ define el peso de los
@@ -679,6 +680,7 @@ Como la función \( f \) prefiere subconjuntos con menor complejidad de parámet
 f(M_5) > f(M_6)
 \]
 
+\cacho{hasta aca}
 
 
 %Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en el Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
@@ -700,10 +702,8 @@ de manera automática (aleatoria) utilizando un suconjunto candidato de métodos
 y medir la cobertura de código que alcanzan estas test suites. 
 La cobertura se mide en términos de las líneas de código y las ramas del
 programa que son ejercitadas por los tests (\ref{sec:coverage}).
-Esta métrica nos da una idea de qué tan bien los tests generados usando el
-subconjunto de métodos pueden cubrir las diferentes partes del programa, 
-lo que nos permite evaluar un aspecto importante de la calidad de las test
-suites generadas por los métodos.
+Esta métrica estima en qué medida los tests generados a partir del subconjunto de métodos cubren las distintas partes del programa, 
+lo que permite valorar un aspecto clave de la calidad de las suites de test obtenidas.
 % PABLO: Esto está en background
 %Los criterios de evaluación incluyen:
 %\begin{itemize}
@@ -755,7 +755,9 @@ La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
 producir estas secuencias de test. Esta función realiza su tarea utilizando 
 la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
 
+\clearpage
 \begin{algorithm}[H]
+    \small
     \SetAlgoLined
     \KwIn{Métodos de la API $API$, subconjunto de métodos $M \subseteq API$,
     tiempo total $S$}
@@ -879,8 +881,6 @@ Volvamos al ejemplo que usamos durante este capítulo. Consideremos los siguient
 
 
 \cacho{Nuevo esto:}
-\\
-
 Al ejecutar el algoritmo~\ref{alg:fitnessRandoop} con cada conjunto como entrada, se generan suites de tests que luego son evaluadas utilizando herramientas de análisis de cobertura. 
 El resultado, expresado como la tripla \( \langle Cob, R, P \rangle \), se detalla a continuación:
 
@@ -913,9 +913,11 @@ parte de los algoritmos de búsqueda implementados, para analizar sus ventajas y
 desventajas en la práctica. 
 
 
+\cacho{hasta aca}
 
 \section{Algoritmos para la Identificación de Métodos Generadores de Objetos}
 \label{sec:algorithms}
+\cacho{Nuevo esto:}
 
 En esta sección presentamos el proceso completo para identificar automáticamente métodos generadores de objetos a partir de la clase objetivo (target class). 
 La Figura~\ref{fig:builders-overview} muestra una visión general del enfoque propuesto.
@@ -931,7 +933,7 @@ La Figura~\ref{fig:builders-overview} muestra una visión general del enfoque pr
 
 
 Dado una clase objetivo (por ejemplo, \texttt{NCL}), nuestro enfoque busca identificar el subconjunto de métodos de su API que permite construir objetos representativos, de acuerdo con un criterio de evaluación. 
-Este proceso se estructura en tres componentes principales: la definición de una función objetivo (\emph{fitness}), la exploración del espacio de soluciones mediante algoritmos de búsqueda, 
+Este proceso se estructura en tres componentes principales: la definición de una función objetivo, la exploración del espacio de soluciones mediante algoritmos de búsqueda, 
 y la evaluación sobre dos variantes: generación exhaustiva acotada (usando BEAPI) y generación de tests (usando Randoop).
 
 El procedimiento comienza con la especificación de la clase objetivo y los parámetros de configuración para el generador BEAPI (por ejemplo, el \texttt{scope}, el número máximo de objetos, y el rango de valores enteros permitidos). 
@@ -943,6 +945,7 @@ Esta evaluación se traduce en una tripla que combina métricas como la cantidad
 Los candidatos se refinan iterativamente utilizando algoritmos de búsqueda metaheurísticos. 
 Finalmente, el mejor conjunto identificado se reporta como el conjunto de métodos generadores.
 
+\cacho{hasta aca}
 
 \subsection{Algoritmo Genético}
 \label{alg:approachGA}
@@ -1035,6 +1038,7 @@ Esta estrategia de reemplazo parcial, donde una parte de la población sobrevive
 nos permitió mantener la diversidad sin perder calidad de soluciones.  
 En particular, observamos que el operador de torneo con $t=4$ resultó especialmente efectivo para lograr este balance en nuestros casos de estudio.
 
+\cacho{Hasta aca}
 
 
 \subsubsection{Operadores Genéticos: Cruzamiento}
@@ -1063,7 +1067,6 @@ de los padres. Este mecanismo favorece la exploración del espacio de búsqueda 
 \end{figure}
 
 \cacho{Nuevo:}
-\\
 En nuestro algoritmo, utilizamos una tasa de cruzamiento de \( c_r = 0{,}50 \) (\emph{tasa de crossover}), 
 lo cual implica que, en cada generación, aproximadamente el 50\,\% de los individuos seleccionados para reproducción serán cruzados entre sí.  
 Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección~\ref{sec:selection}), esto equivale al:
@@ -1075,6 +1078,7 @@ Dado que la evolución se aplica sobre el 60\% de la población total (ver Secci
 donde \( N \) representa el tamaño total de la población.  
 Por ejemplo, si \( N = 50 \), entonces se generan \( 0{,}50 \cdot 30 = 15 \) individuos por cruzamiento.  
 Los 15 individuos restantes se obtienen por mutación directa o copia de padres seleccionados, asegurando una mezcla equilibrada entre exploración y explotación en el espacio de soluciones.
+\cacho{hasta aca}
 
 \subsubsection{Operadores Genéticos: Mutación}
 
@@ -1231,6 +1235,7 @@ Para implementar el algoritmo genético, utilizamos una biblioteca muy popular e
 \emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda.
 Una característica relevante de \emph{Jenetics} es que permite realizar la evaluación de los individuos de la población en paralelo utilizando el \emph{ForkJoinPool.commonPool()}, lo que mejora notablemente el rendimiento en sistemas con múltiples núcleos. Esta paralelización se gestiona de forma transparente, sin necesidad de implementar hilos manualmente, y puede personalizarse en caso de requerirse un control más detallado del entorno de ejecución.
+\cacho{HASTA ACA}
 
 
 \subsection{Algortimo de Escalada de Colinas}

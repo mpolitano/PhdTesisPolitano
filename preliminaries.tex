@@ -226,7 +226,7 @@ Dentro de estos enfoques, Randoop se destaca como una herramienta ampliamente
 utilizada, debido a su capacidad para generar tests que han mostrado ser útiles para revelar
 fallas en distintos tipos de software muy utilizados \cite{Pacheco07,Pacheco08,Shamshiri15,just2014mutants}
 
-Randoop utiliza la API del SUT para generar secuencias de tests, es decir,
+Randoop utiliza la API del SUT (por las siglas de \emph{software under test}) para generar secuencias de tests, es decir,
 secuencias de invocaciones a métodos de la API. Randoop propone la técnica
 de generación aleatoria con retroalimentación basada en la ejecución, que
 consiste en ejecutar las secuencias de test y observar los resultados para 
@@ -428,7 +428,7 @@ eficacia de un conjunto de tests.
 En esta sección describimos tres criterios fundamentales adoptados en esta tesis: 
 (i) cobertura de código, considerando tanto líneas como ramas \cite{Ammann16,myzili2012coverage}, 
 (ii) análisis de mutación \cite{jia2011analysis,Ammann16,just2014mutants}, 
-y (iii) la identificación de métodos observadores, propuesta en esta tesis como un criterio adicional
+y \cacho{Esto no me cierra:} (iii) la identificación de métodos observadores, propuesta en esta tesis como un criterio adicional
 específico para APIs de estructuras de datos. 
 Las dos primeras técnicas son ampliamente utilizadas en la literatura y proporcionan 
 métricas objetivas para medir la calidad de los tests, mientras que la tercera constituye
@@ -437,7 +437,7 @@ una contribución original de este trabajo.
 \subsection{Cobertura de Código}
 
 La cobertura de líneas mide el porcentaje de
-líneas de código del SUT (por las siglas de \emph{software under test}) que han sido ejecutadas por los tests. 
+líneas de código del SUT que han sido ejecutadas por los tests. 
 Esta técnica evalúa la exhaustividad de los tests al determinar si cada línea de código ha sido ejecutada al menos una vez. 
 Sin embargo, la cobertura de líneas no mide si se han ejecutado todas las ramas
 posibles en el programa, lo que puede limitar su capacidad para detectar fallas
@@ -468,7 +468,7 @@ cambios sintáticos pequeños (ej. reemplazar $>$ por $>=$). Cada mutante repres
 posible variación o error que podría haberse introducido en el código original.
 Una vez generados, se ejecutan los tests sobre los mutantes. 
 Si algún test de la suite falla al ejecutar el mutante se considera que ha
-"matado" al mutante. Esto significa que los tests son capaces de detectar el error 
+\'matado\' al mutante. Esto significa que los tests son capaces de detectar el error 
 introducido por el mutante. Un mutante sobrevive si ningún test de la suite 
 detecta el cambio. Esto implica que es posible mejorar la suite para aumentar su capacidad 
 para encontrar errores, por ejemplo, agregando un nuevo test que mate el mutante.
@@ -485,13 +485,13 @@ El análisis de mutación es uno de los criterios más fuertes para evaluar la
 calidad de los tests, ya que los mutantes generados por las operadores de 
 mutación más usados 
 tienen una alta correlación con las fallas que cometen los desarrolladores 
-(incluso, una mayor correlación que los criterios anteriores) \cite{}. Sin
+(incluso, una mayor correlación que los criterios anteriores) \cite{just2014mutants}. Sin
 embargo, su costo computacional es elevado (requiere generar un
 número usualmente grande de mutantes, y ejecutar los tests para todos ellos). 
 Suele ser el criterio más trabajoso para el desarrollador, ya que usualmente 
 se requiere un número relativamente grande de tests para lograr un buen puntaje 
 de mutación (suele ser significativamente mayor que la cantidad de tests
-    requeridos para lograr buena cobertura de código) \cite{}.
+    requeridos para lograr buena cobertura de código) \cite{papadakis2019}.
 
 Las técnicas mencionadas anteriormente se aplican en esta tesis para evaluar las 
 nuevas técnicas propuestas, y poder realizar una comparación con herramientas
