@@ -959,14 +959,14 @@ llamado población, y la búsqueda progresa seleccionando iterativamente un núm
 utilizando estos para la evolución (construyendo nuevos individuos a partir de estos), 
 y dejando fuera algunos individuos del conjunto total (los ``viejos'' y los ``nuevos'').
 La selección de individuos para la evolución de la población, así como la eliminación de individuos, 
-son guiadas por una función de aptitud, la función heurística utilizada para guiar la búsqueda. 
+son guiadas por una función objetivo, la función heurística utilizada para guiar la búsqueda. 
 Esta función se aplica a los individuos, y su resultado es generalizable también a la población 
 (por ejemplo, la aptitud de la población puede tomarse como la aptitud de su individuo "más apto").
 Esta función captura las características deseadas en la búsqueda, y por lo tanto puede usarse como un 
 criterio de detención (por ejemplo, el algoritmo se detiene después de encontrar un individuo con una 
 aptitud superior a un umbral determinado). Finalmente, los individuos suelen llamarse cromosomas y 
 se representan como vectores de genes que capturan sus características. Esta idea está estrechamente relacionada 
-con la forma en que se construyen los nuevos individuos: al representar a los candidatos como vectores de 
+con la forma en que se construyen los nuevos individuos, al representar a los candidatos como vectores de 
 características independientes, se pueden construir nuevos candidatos combinando parte de las características 
 de un individuo con parte de las características de otro, o cambiando arbitrariamente una característica de 
 un individuo dado. Estas dos formas de evolución se llaman cruzamiento y mutación, respectivamente, y son el 
@@ -1001,7 +1001,7 @@ un vector de bits en el que solo un único método está activado. Esta estrateg
 facilitando la combinación progresiva de métodos a lo largo de las generaciones.
 
 En un algoritmo genético, la población evoluciona a lo largo de las generaciones a través de operaciones de selección, 
-cruzamiento (\emph{crossover}) y mutación \cite{Goldberg:1989}
+cruzamiento y mutación \cite{Goldberg:1989}
 
 En cada iteración del algoritmo, los individuos más aptos tienen más probabilidad de ser seleccionados para cruzarse y/o mutarse, 
 y así crear nuevos individuos que a su vez formarán parte de la población de la siguiente generación. Con el tiempo, se espera que la población evolucione y
@@ -1012,14 +1012,14 @@ Cómo es típico para los hiperparámetros de los algoritmos genéticos determin
 eligiendo aquel que mejor rendimiento obtuvo en nuestros experimentos.
 %El método de prueba y error es comúnmente utilizado en computación evolutiva para definir los parámetros de búsqueda de manera adecuada. Es importante mencionar que si bien elegimos estos valores basándonos en los resultados de experimentos en un solo caso de estudio, luego utilizamos los mismos valores para el resto de los casos de estudio.
 
-A medida que el algoritmo avanza, se aplican operadores genéticos como el cruzamiento y la mutación para crear nuevos individuos a partir de la población actual.
+%A medida que el algoritmo avanza, se aplican operadores genéticos como el cruzamiento y la mutación para crear nuevos individuos a partir de la población actual.
 
 \subsubsection{Selección}
 \label{sec:selection}
-La selección en los algoritmos genéticos es el proceso de elegir qué individuos de la población actual participarán en la reproducción y darán lugar a la siguiente generación \cite{Goldberg:1989}. En este proceso, se otorgan mayores probabilidades de selección a los individuos más aptos, es decir, aquellos que tienen un mejor valor de la función objetivo \cite{Goldberg:1989}
+La selección en los algoritmos genéticos es el proceso de elegir qué individuos de la población actual participarán en la reproducción y darán lugar a la siguiente generación \cite{Goldberg:1989}. En este proceso, se otorgan mayores probabilidades de selección a los individuos más aptos, es decir, aquellos que tienen un mejor valor de la función objetivo \cite{Goldberg:1989}.
 La idea detrás de la selección es favorecer la transmisión de características deseables de los individuos más aptos a las generaciones futuras, para así mejorar gradualmente la calidad de las soluciones.
 
-En nuestro enfoque, hemos utilizado un operador de selección tipo torneo (\emph{tournament}) \cite{Goldberg:1989}. Este enfoque funciona de la siguiente manera: se selecciona aleatoriamente un grupo de $t$ individuos de la población y se los pone a ``competir'' entre sí. El individuo más apto (con valor de la función objetivo) dentro de este grupo es seleccionado para participar en la reproducción. El tamaño del torneo $t$ (la cantidad de individuos que compiten entre sí) es un hiperparámetro del algoritmo. En nuestro caso, utilizamos un tamaño de torneo de 4, seleccionado empíricamente.
+En nuestro enfoque, hemos utilizado un operador de selección tipo torneo (\emph{tournament}) \cite{Goldberg:1989}. Este enfoque funciona de la siguiente manera: se selecciona aleatoriamente un grupo de $t$ individuos de la población y se los pone a ``competir'' entre sí. El individuo más apto (con mejor valor de la función objetivo) dentro de este grupo es seleccionado para participar en la reproducción. El tamaño del torneo $t$ (la cantidad de individuos que compiten entre sí) es un hiperparámetro del algoritmo. En nuestro caso, utilizamos un tamaño de torneo de 4, seleccionado empíricamente.
 
 El operador de selección tipo torneo ofrece una forma eficiente de elegir individuos y típicamente da lugar una buena diversidad de individuos en la población \cite{Goldberg:1989}. Es eficiente porque los torneos pueden paralelizarse, debido a que son independientes entre si. Además, es un operador muy flexible, ya que permite adaptar la velocidad de convergencia del algoritmo variando $t$. Valores más grandes de $t$ producen una mayor probabilidad de selección de los invidividuos más aptos, lo que acelera la convergencia, y viceversa. 
 
@@ -1047,7 +1047,7 @@ Este proceso permite combinar la información genética de dos individuos selecc
 quienes heredan características de ambos progenitores.
 De este modo, el algoritmo explora nuevas combinaciones genéticas y mejora la diversidad de la población.  
 
-En nuestro enfoque, empleamos el operador de cruzamiento de dos puntos \cite{goldberg1989genetic}, ya que obtuvo los mejores resultados en nuestros experimentos.  
+En nuestro enfoque, empleamos el operador de cruzamiento de dos puntos \cite{Goldberg:1989}, ya que obtuvo los mejores resultados en nuestros experimentos.  
 La Figura \ref{fig:crossover} ilustra este procedimiento aplicado a dos individuos representados como vectores de bits.  
 En este ejemplo, los puntos de cruzamiento seleccionados son el tercer y el sexto bit.  
 El primer descendiente hereda los primeros tres bits del primer padre, los siguientes tres bits del segundo padre y los bits restantes nuevamente del primer padre.  
@@ -1069,7 +1069,7 @@ de los padres. Este mecanismo favorece la exploración del espacio de búsqueda 
 \cacho{Nuevo:}
 En nuestro algoritmo, utilizamos una tasa de cruzamiento de \( c_r = 0{,}50 \) (\emph{tasa de crossover}), 
 lo cual implica que, en cada generación, aproximadamente el 50\,\% de los individuos seleccionados para reproducción serán cruzados entre sí.  
-Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección~\ref{sec:selection}), esto equivale al:
+Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección~\ref{sec:selection}, comunmente llamados \emph{offspringSize} en los algortimos geneticos), esto equivale al:
 
 \begin{equation}
 \text{individuos\_cruzados} = r_c \cdot \text{offspringSize} = 0,50 \cdot \left(0,60 \cdot N\right)
@@ -1128,7 +1128,7 @@ El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genétic
   \label{alg:enfoqueGA}
   \begin{algorithmic}[1]
   \STATE $pop \gets$ generar población de cromosomas con un solo gen en true
-  \STATE $offspringSize \gets 0.6 \times cromosomaSize$
+  \STATE $offspringSize \gets 0.6 \times N$
   \STATE $survivorSize \gets N - offspringSize$
   \FOR{$i \gets 0$ \TO $numEvo$}
       \STATE $survivors \gets$ seleccionar $survivorSize$ por torneo de tamaño $tournamentSize$ de $pop$
@@ -1137,7 +1137,7 @@ El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genétic
           \STATE $c_1 \gets$ torneo($pop$, $tournamentSize$, $f(s)$)
           \STATE $c_2 \gets$ torneo($pop$, $tournamentSize$, $f(s)$)
           \IF{$rand() < crossoverRate$}
-            \STATE $child \gets$ multiPointCrossover($c_1$, $c_2$)
+            \STATE $child \gets$ dosPuntosCrossover($c_1$, $c_2$)
           \ELSE
             \STATE $child \gets$ más apto entre $c_1$, $c_2$
           \ENDIF
@@ -1198,40 +1198,34 @@ La población inicial se construye en la línea 1, generando cromosomas válidos
 Esta decisión inicial asegura diversidad mínima, permitiendo explorar combinaciones desde los métodos más simples hacia conjuntos más complejos 
 a lo largo de la evolución.
 
-En la línea 2 se define el tamaño de la descendencia como un 60\% del tamaño del cromosoma, 
-y el resto (40\%) se mantiene como sobrevivientes de la población actual. A partir de allí, el algoritmo entra en el bucle evolutivo que se repite durante un número máximo de generaciones $numEvo$ (línea 3).
+En la línea 2 y 3 se define el tamaño de la poblacion que va a ser la descendencia, la misma es definida como un 60\% del tamaño de la poblacion total $N$, 
+y el resto (40\%) se mantiene como sobrevivientes de la población actual. A partir de allí, el algoritmo entra en el bucle evolutivo que se repite durante un número máximo de generaciones $numEvo$ (línea 4).
 
 
-En cada iteración, se seleccionan los individuos sobrevivientes mediante un proceso de \textit{selección por torneo} (línea 4), utilizando el parámetro $tournamentSize$ como tamaño de torneo.
-A continuación, se genera una descendencia en la línea 5 a través de un ciclo de reproducción que recorre $offspringSize$ veces.
+En cada iteración, se seleccionan los individuos sobrevivientes mediante un proceso de \textit{selección por torneo} (línea 5), utilizando el parámetro $tournamentSize$ como tamaño de torneo.
+A continuación, se genera una descendencia en la línea 6 a través de un ciclo de reproducción que recorre $offspringSize$ veces.
 
 Cada nuevo individuo se genera a partir de dos padres seleccionados también mediante torneo (líneas 7-8). 
-Con una probabilidad $crossoverRate$, se aplica un operador de \textit{cruzamiento multipunto} (línea 9); en caso contrario, se elige el más apto entre los dos padres (línea 11).
-Luego de generada la descendencia, se aplica el operador de \textit{mutación} (líneas 14-17) sobre cada individuo. 
+Con una probabilidad $crossoverRate$, se aplica un operador de \textit{cruzamiento de dos puntos} (línea 11); en caso contrario, se elige el más apto entre los dos padres (línea 13).
+Luego de generada la descendencia, se aplica el operador de \textit{mutación} (líneas 17-22) sobre cada individuo. 
 La mutación se realiza gen a gen con una probabilidad $mutationRate$, y si el cromosoma mutado es diferente del original, se reemplaza.
 
-La nueva población para la siguiente generación se construye uniendo los sobrevivientes y la descendencia (línea 19). A partir de esta población, se determina el mejor cromosoma actual (línea 20).
-El algoritmo verifica si la aptitud del mejor cromosoma se mantiene constante durante un número de generaciones consecutivas igual a $maxIter$ (líneas 21 a 23). Si esto ocurre, se detiene anticipadamente.
+La nueva población para la siguiente generación se construye uniendo los sobrevivientes y la descendencia (línea 23). A partir de esta población, se determina el mejor cromosoma actual (línea 24).
+El algoritmo verifica si la aptitud del mejor cromosoma se mantiene constante durante un número de generaciones consecutivas igual a $maxIter$ (líneas 25 a 27). Si esto ocurre, se detiene anticipadamente.
 
-La \textbf{función objetivo} utilizada durante todo el proceso es la definida en la sección~\ref{sec:fitnessGE}, y tiene en cuenta tres componentes: cantidad de objetos generados, minimalidad (métodos usados) y complejidad de parámetros. 
+La función objetivo utilizada durante todo el proceso es la definida en la sección~\ref{sec:fitnessGE}, y tiene en cuenta tres componentes: cantidad de objetos generados, minimalidad (métodos usados) y complejidad de parámetros. 
 Esta función se utiliza tanto en los torneos como para evaluar los resultados de cruce y mutación.
 
-Finalmente, el mejor cromosoma encontrado se retorna como resultado del algoritmo (línea 25).
+Finalmente, el mejor cromosoma encontrado se retorna como resultado del algoritmo (línea 29).
 
 Todos los parámetros del algoritmo fueron definidos de manera experimental.
-Los valores utilizados en nuestras evaluaciones son: tamaño de población $N = 50$, tasa de cruzamiento $crossoverRate = 0.35$, tasa de mutación $mutationRate = 0.08$, número máximo de generaciones $numEvo = 20$ y iteraciones máximas $maxIter = 5$.
+Los valores utilizados en nuestras evaluaciones son: tamaño de población $N = 50$, tasa de cruzamiento $crossoverRate = 0.50$, tasa de mutación $mutationRate = 0.05$, número máximo de generaciones $numEvo = 20$ y iteraciones máximas $maxIter = 5$.
  
 Existe un compromiso al elegir un buen valor para $numEvo$: un número mayor aumenta la precisión del algoritmo pero incrementa su tiempo de ejecución, 
 mientras que un número menor lo hace más rápido pero podría no encontrar el
 mejor conjunto de generadores de objetos.
 
-Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/} varsion 5.2.0 . Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
-\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
-Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda.
-utivo y ajustes finos de sus parámetros (ej. tasas de cruzamiento/mutación) podrían optimizar los tiempos de ejecución.
-
-
-Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{\url{https://jenetics.io/}}, versión 5.2.0. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
+Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{\url{https://jenetics.io/}}, versión 5.2.0 \cacho{Esto en experimental?}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
 \emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
 Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda.
 Una característica relevante de \emph{Jenetics} es que permite realizar la evaluación de los individuos de la población en paralelo utilizando el \emph{ForkJoinPool.commonPool()}, lo que mejora notablemente el rendimiento en sistemas con múltiples núcleos. Esta paralelización se gestiona de forma transparente, sin necesidad de implementar hilos manualmente, y puede personalizarse en caso de requerirse un control más detallado del entorno de ejecución.
