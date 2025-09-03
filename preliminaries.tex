@@ -352,11 +352,43 @@ manual \cite{Pacheco07,Pacheco08}.
 \pp{Poner ejemplo de ejecución de Randoop ilustrando el algoritmo acá abajo.}
 
 
+Para ilustrar el funcionamiento de Randoop, consideremos la clase
+\texttt{java.util.LinkedList}. El generador parte de un conjunto pequeño de
+valores primitivos (por ejemplo, 0, 1, 2, $-1$, $-2$) y de los
+constructores públicos disponibles. En una primera ejecución, Randoop
+selecciona aleatoriamente el constructor \texttt{LinkedList()} y
+ejecuta la secuencia:
+\\
+\begin{lstlisting}[language=Java,basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
+LinkedList<Integer> l = new LinkedList<>();
+\end{lstlisting}
 
+Como la ejecución no produce fallos, la secuencia y el objeto resultante
+se incorporan al \emph{pool} para futuras extensiones.
 
+En una iteración posterior, Randoop elige al azar un método, por ejemplo,
+\texttt{add(Object)}. Para obtener una lista sobre la cual invocar el
+método, reutiliza la secuencia previa que construye \texttt{l}. Para el
+parámetro, toma un entero disponible en el \emph{pool} (por ejemplo, 1).
+La secuencia extendida queda:
+\\
+\begin{lstlisting}[language=Java,basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
+LinkedList<Integer> l = new LinkedList<>();
+l.add(1);
+\end{lstlisting}
 
+La ejecución es exitosa y la nueva secuencia pasa a estar disponible para
+nuevas extensiones.
 
+En otra iteración, Randoop genera una secuencia que incluye
+\texttt{l.get(2)} sobre una lista de tamaño 1. La invocación arroja una
+excepción por índice fuera de rango. Debido a su estrategia de
+\emph{feedback-directed random testing}, Randoop descarta esa secuencia
+fallida y deja de ampliarla. Solo las secuencias que ejecutan sin fallos
+se siguen extendiendo, guiando así la exploración de las secuencias de la
+API~\cite{Pacheco07,Pacheco08}.
 
+\cacho{Ver si agregar algo mas }
 %Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \textsf{Randoop}, pero en lugar de la generación aleatoria, tiene como objetivo generar \emph{todas} las secuencias de pruebas factibles (acotadas), dentro de un alcance dado. La retroalimentación de la ejecución permite a \textsf{BEAPI} descartar pruebas ilegales durante el proceso de generación. Además, al estar basado en una generación de pruebas dirigida por retroalimentación, \textsf{BEAPI} genera una secuencia de prueba para cada estructura en el conjunto exhaustivo acotado que construye y solo guarda los conjuntos de secuencias de llamadas a métodos que generan objetos válidos.
 %
 
@@ -499,3 +531,6 @@ relacionadas del estado de arte. Además, se utilizan como base para la
 definición de algunas de las técnicas presentadas. Por ejemplo, la cobertura de
 código se usa como parte de la función objetivo para el cómputo de métodos
 generadores de objetos usando Randoop \ref{sec:fitnessRandoop}.
+
+
+
