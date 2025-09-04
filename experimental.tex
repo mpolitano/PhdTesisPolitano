@@ -243,19 +243,6 @@ generadores de objectos. Esto puede atribuirse a que estas
 estructuras presentan un menor número de métodos en su API, y sus invariantes son relativamente simples en comparación con otras 
 clases evaluadas.
 
-Para la estructura \emph{Lits}, la función objetivo basada en el generador exhaustivo (\emph{GE}) tiende a incluir al menos un 
-método adicional. Este fenómeno se debe a cómo el generador maneja los valores iniciales de los arreglos internos en la clase 
-\emph{List}. En particular, \emph{Lits} forma parte de una biblioteca Java utilizada para resolver problemas de satisfacibilidad 
-booleana (SAT), y contiene colecciones que almacenan literales. Algunos métodos permiten crear o modificar arreglos con literales, 
-pero el generador exhaustivo, sujeto al \emph{scope} limitado y a los valores iniciales, no logra producir ciertos arreglos sin 
-utilizar métodos adicionales. Es importante aclarar que esto no implica que dichos métodos adicionales sean verdaderos generadores, 
-sino que bajo las restricciones actuales (como el \emph{scope} configurado), no existe otra vía para construir determinadas 
-estructuras sin agregarlos. Si se incrementa el \emph{scope} o se modifica la clase para exponer mejor sus constructores, entonces 
-se logra encontrar el conjunto minimal real \pp{Y por qué no hicimos esto en
-lugar de que calcule mal? No entiendo bien el problema, hay que charlarlo.} En contraste, la función \emph{RC} encuentra siempre el conjunto minimal, dado que su 
-evaluación no depende del \emph{scope}, sino de la cobertura lograda en ejecución.
-
-
 Para la estructura \emph{Lits}, la función objetivo basada en el generador
 exhaustivo (\emph{GE}) tiende a incluir al menos un método adicional. Este
 fenómeno se debe a cómo el generador maneja los valores iniciales de los
