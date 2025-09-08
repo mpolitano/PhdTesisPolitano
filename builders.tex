@@ -1437,4 +1437,137 @@ cada sucesor y selecciona aquel que tenga el mayor valor (líneas 30 a 38).
 % En el caso de algoritmos greedy, la función de valoración juega un papel similar pero con un enfoque más local. En lugar de trabajar con una población de soluciones, los algoritmos greedy toman decisiones en cada paso basándose en una evaluación local de las opciones disponibles. La función de valoración en un algoritmo greedy se utiliza para seleccionar la mejor opción en cada iteración o paso del algoritmo, maximizando o minimizando la función de valoración según el objetivo del problema \cite{cormen2009introduction}.
 
 
+\subsection{Uso de métodos generadores en \emph{drivers} para JPF}
 
+\cacho{No estoy seguro si esto ya lo llevo a preliminates, no tengo NCL ahi}
+Como se dicution en la sección de preliminares (\ref{sec:jpf})), \emph{Java PathFinder} (JPF) es un verificador de modelos para programas Java
+basado en exploración explícita del espacio de estados que permite implementar
+distintos análisis, entre ellos \emph{bounded model checking} (BMC) \cite{Visser04,Pasareanu10}.
+En BMC se exploran todas las ejecuciones del programa bajo entradas de tamaño
+acotado en busca de violaciones de propiedades. 
+
+Las propiedades pueden expresarse mediante la construcción \texttt{assert} de Java; si la condición es
+falsa en la ejecución corriente, se produce una violación y JPF reporta un
+contrajemplo reproducible. Para introducir elecciones y abarcar múltiples
+escenarios dentro de un mismo programa, JPF ofrece primitivas de
+no–determinismo, por ejemplo:
+
+\begin{itemize}
+\item \texttt{Verify.ignoreIf(condicion)}:Evita explorar ejecuciones cuyo estado no
+cumplen con el predicado condicion. En el programa anterior, permite ignorar todas las ejecuciones en las que la lista contiene el valor v a insertar.
+Esto es similar a agregar una precondición a la propiedad a verificar.
+\item \texttt{int i = Verify.getInt(min,max)}: Esta construcción de JPF explora todas las posibles ejecuciones del programa que resultan de asignar 
+a \emph{i} cualquier valor entre min y max. Esto significa que JPF ejecutará el código luego
+de esta instrucción con \emph{i=min}, con \emph{i=min+1, ..., i=max}. Esto introduce no
+determinismo, ya que en principio no hay garantías del orden en que se
+asignarán valores a \emph{i} (aunque JPF tiene opciones para elejir un orden de
+ejecución particular). 
+\end{itemize}
+
+% aca Verify.random(int n) \cacho{PAra que son}
+
+
+Por ejemplo, el siguiente código especifica la propiedad de que para cualquier lista de entrada \emph{t}, insertar al
+inicio un valor entero \emph{v} (\textbf{addFirst(v)}, con \emph{v} entre 0 y b, con \emph{b} el límite máximo
+en la cantidad de enteros a analizar) que no pertenece a la
+lista y luego eliminar el primer elemento de la lista (el valor agregado recientemente, ejecutando removeFirst),
+resulta en una lista con una cantidad de elementos igual a la original (antes de
+ejecutar addFirst y removeFirst; notar que la cantidad de elementos previos
+se almacena en oldSize al inicio).
+
+
+\begin{algorithm}[H]
+  \caption{Propiedad a chequear}
+  \label{alg:propiedad-a-chequear}
+  $oldSize \gets t.\texttt{size()}$\;
+  $value \gets \texttt{Verify.getInt}(0, b)$\;
+  \texttt{Verify.ignoreIf}( $t.\texttt{contains}(value)$ )\;
+  $t.\texttt{addFirst}(value)$\;
+  $t.\texttt{removeFirst}()$\;
+  \texttt{assert } $oldSize$ \texttt{ == } $t.\texttt{size}()$ \texttt{ : "different size";}\;
+\end{algorithm}
+
+
+
+% En nuestro código previo, esto permite explorar todas
+% las ejecuciones de nuestra propiedad con valores de v entre 0 y b.
+
+Para poder realizar el análisis de esta propiedad, es necesario proveer a
+\emph{JPF} los mecanismos para generar las listas de entrada del parámetro
+\(t\). Esto aplica a cualquier tipo estructurado; nótese que los valores
+enteros pueden generarse fácilmente con \verb|Verify.getInt|. Nuestro
+objetivo es construir todas las listas posibles de tamaño máximo \(b\), que
+almacenan elementos enteros en el rango \([0,b]\) (verificación exhaustiva
+acotada). Obsérvese que \(b\) es un parámetro del algoritmo, provisto por
+la persona usuaria.
+
+La generación exhaustiva acotada de estructuras para el parámetro \(t\) se
+implementa en el \emph{driver} del \textit{Algoritmo~3}. Al inicio, el
+\emph{driver} selecciona la cantidad de métodos a ejecutar,
+\(nExec \in [0,b]\). Como los métodos considerados agregan a lo sumo un
+elemento a la lista, ejecutar un máximo de \(b\) métodos resulta en listas de
+tamaño a lo sumo \(b\) (por ejemplo, ejecutar \(b\) veces
+\texttt{addFirst}). Cada iteración del ciclo corresponde a la ejecución de
+un único método, seleccionado también de manera no determinística entre
+todos los disponibles.
+
+En el caso en que la persona usuaria no conozca el conjunto de
+\emph{builders} (y no desee realizar la difícil tarea de seleccionarlos
+manualmente), la alternativa más segura para evitar descartar métodos
+relevantes es utilizar \emph{todos} los métodos disponibles en el módulo,
+como se muestra en el \textit{Algoritmo~2}. En el cuerpo del ciclo, a cada
+método se le asigna un identificador entero y se elige no determinísticamente
+un valor entre \(0\) y la cantidad total de métodos para seleccionar el
+método a ejecutar en la iteración corriente; por ejemplo, si
+\(\texttt{methodN}=3\), se ejecuta \texttt{add}. Es fácil ver que la cantidad
+de ejecuciones posibles a explorar por \emph{JPF} crece exponencialmente con
+la cantidad de métodos disponibles: por cada método que se ejecuta en una
+iteración hay \(m\) posibles métodos para la siguiente, de modo que tras
+\(k\) pasos hay \(m^{k}\) secuencias potenciales.
+
+\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverNCL},captionpos=b]
+    private static  NCL generateStructure(int scope) {
+       int maxLength = Verify.getInt(0, scope);
+       NCL t = new NCL();
+       for (int i = 1; i <= maxLength; i++) {
+          switch (Verify.random(n_methods)) {
+             case 0:
+                t.addFirst(Verify.getInt(0,scope),Verify.getInt(0,scope));
+                break;
+             case 1:
+                t.removeFirst(Verify.getInt(0,scope));
+                break;						
+             case 2:
+                t.clear();
+                break;
+             case 3:
+                t.containsValue(Verify.getInt(0,scope));
+                break;
+             ...
+             case 33: 
+                t.size(l);
+                break;
+          }
+       }
+       return t;
+    }
+\end{lstlisting}
+
+Si bien evitar este crecimiento exponencial no es posible en muchos casos, en este trabajo se propone utilizar sólo los builders detectados por el algoritmo
+genético explicado anteriormente para construir drivers, para acelerar la verificación de propiedades en JPF y mejorar su escalabilidad en casos que ocurren
+típicamente en la práctica (como el caso de NodeCachingLinkedList presentado aquí). Como se muestra en la figura Figura~\ref{fig:NCLbuilders}, sólo 3 métodos conforman un conjunto
+suficiente y minimal para la construcción de drivers para NodeCachingLinkedList. Utilizando sólo esos métodos, obtenemos el driver del algoritmo \ref{driverNCLBuilders}, que
+genera exactamente los mismos objetos de NodeCachingLinkedList que el anterior (porque los builders son suficientes y minimales), y por lo tanto JPF explora
+las mismas ejecuciones de la propiedad con ambos drivers. Sin embargo, como
+se discute en la sección experimental (\ref{sec:experimentalJPF}) eliminar métodos innecesarios del driver produce ganancias sustanciales en tiempo y escalabilidad en el análisis de nuestra
+propiedad de ejemplo usando JPF.
+
+\begin{lstlisting}[caption={Probando la propiedad \ref{alg:propiedad-a-chequear} con JPF},label={lst:driverNCLBuilders},language=Java,captionpos=b]
+    public static void main(String[] args) {
+       int scope = 3;
+       NCL t = generateStructure(scope);
+       t.addFirst(Verify.getInt(0,scope));
+       t.removeFirst(Verify.getInt(0,scope));
+       assert t.repOK();
+    }
+\end{lstlisting}

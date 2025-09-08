@@ -2,51 +2,50 @@
 
 \begin{table}[H]
 \centering
-\scriptsize
 \begin{tabular}{cccccc}
 \hline
 \multicolumn{2}{c}{\textbf{Casos}} & \multicolumn{2}{c}{\textbf{GA}} & \multicolumn{2}{c}{\textbf{HC}} \\
 \cline{3-6}
 \multicolumn{2}{c}{} & \textbf{\tiny GE} & \textbf{\tiny RC} & \textbf{\tiny GE} & \textbf{\tiny RC} \\
 \hline
-\multicolumn{2}{c}{\textbf{NCL}}            & 292/\textbf{374}   & 3622/\textbf{4829} & 40/\textbf{67}   & 645/\textbf{921}  \\
+\multicolumn{2}{c}{\textbf{NCL}}            & 292   & 3622 & 40   & 645  \\
 \multicolumn{2}{c}{\tiny \#API: 34, \#MétodosGen: 3} & & & & \\
 
-\multicolumn{2}{c}{\textbf{UFind}}          & 41/\textbf{53}     & 700/\textbf{934}   & 16/\textbf{27}   & 267/\textbf{381}  \\
+\multicolumn{2}{c}{\textbf{UFind}}          & 41     & 700    & 16  & 267  \\
 \multicolumn{2}{c}{\tiny \#API: 9, \#MétodosGen: 3}  & & & & \\
 
-\multicolumn{2}{c}{\textbf{FHeap}}          & 9/\textbf{11}      & 346/\textbf{462}   & 4/\textbf{6}     & 225/\textbf{321}  \\
+\multicolumn{2}{c}{\textbf{FHeap}}          & 9      & 346   & 4     & 225  \\
 \multicolumn{2}{c}{\tiny \#API: 7, \#MétodosGen: 3}  & & & & \\
 
-\multicolumn{2}{c}{\textbf{BTree}}          & 4/\textbf{5}       & 174/\textbf{232}   & 1/\textbf{2}     & 168/\textbf{240}  \\
+\multicolumn{2}{c}{\textbf{BTree}}          & 4       & 174   & 3    & 168  \\
 \multicolumn{2}{c}{\tiny \#API: 7, \#MétodosGen: 2}  & & & & \\
 
-\multicolumn{2}{c}{\textbf{BHeap}}          & 24/\textbf{31}     & 989/\textbf{1319}  & 6/\textbf{10}    & 273/\textbf{390}  \\
+\multicolumn{2}{c}{\textbf{BHeap}}          & 24    & 989  & 6    & 273  \\
 \multicolumn{2}{c}{\tiny \#API: 10, \#MétodosGen: 3} & & & & \\
 
-\multicolumn{2}{c}{\textbf{Lits}}           & 25/\textbf{32}     & 3429/\textbf{4572} & 7/\textbf{11}    & 394/\textbf{563}  \\
+\multicolumn{2}{c}{\textbf{Lits}}           & 25   & 3429 & 7    & 394  \\
 \multicolumn{2}{c}{\tiny \#API: 26, \#MétodosGen: 6} & & & & \\
 
-\multicolumn{2}{c}{\textbf{Sched.}}         & 73/\textbf{94}     & 1685/\textbf{2247} & 15/\textbf{24}   & 262/\textbf{374}  \\
+\multicolumn{2}{c}{\textbf{Sched.}}         & 73     & 1685 & 15   & 262  \\
 \multicolumn{2}{c}{\tiny \#API: 10, \#MétodosGen: 3} & & & & \\
 
-\multicolumn{2}{c}{\textbf{LinkedList}}     & 69/\textbf{89}     & 1637/\textbf{2182} & 8/\textbf{13}    & 302/\textbf{432}  \\
+\multicolumn{2}{c}{\textbf{LinkedList}}     & 69     & 1637 & 8    & 302 \\
 \multicolumn{2}{c}{\tiny \#API: 67, \#MétodosGen: 2} & & & & \\
 
-\multicolumn{2}{c}{\textbf{TreeMap}}        & 974/\textbf{1248}  & 3872/\textbf{5162} & 68/\textbf{113}  & 484/\textbf{691}  \\
+\multicolumn{2}{c}{\textbf{TreeMap}}        & 974  & 3872 & 68  & 484  \\
 \multicolumn{2}{c}{\tiny \#API: 61, \#MétodosGen: 3} & & & & \\
 
-\multicolumn{2}{c}{\textbf{TreeSet}}        & 75/\textbf{96}     & 2266/\textbf{3021} & 7/\textbf{11}    & 561/\textbf{801}  \\
+\multicolumn{2}{c}{\textbf{TreeSet}}        & 75     & 2266 & 7    & 561  \\
 \multicolumn{2}{c}{\tiny \#API: 34, \#MétodosGen: 3} & & & & \\
 
-\multicolumn{2}{c}{\textbf{HashSet}}        & 115/\textbf{148}   & 428/\textbf{570}   & 12/\textbf{20}   & 2690/\textbf{3842} \\
+\multicolumn{2}{c}{\textbf{HashSet}}        & 115  & 428   & 12  & 2690 \\
 \multicolumn{2}{c}{\tiny \#API: 31, \#MétodosGen: 2} & & & & \\
 
-\multicolumn{2}{c}{\textbf{HashMap}}        & 1406/\textbf{1803} & 2566/\textbf{3421} & 51/\textbf{85}   & 1202/\textbf{1532} \\
+\multicolumn{2}{c}{\textbf{HashMap}}        & 1406 & 2566 & 51   & 1202 \\
 \multicolumn{2}{c}{\tiny \#API: 45, \#MétodosGen: 2} & & & & \\
 \hline
 \end{tabular}
 
-\caption{\textbf{promedio/peor} de tiempo (s) para hallar el subconjunto suficiente de métodos generadores.}
+\caption{Tiempo en segundos para hallar el subconjunto suficiente de métodos generadores.}
 \label{tab:eficiencia}
 \end{table}

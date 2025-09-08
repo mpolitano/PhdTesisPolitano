@@ -533,4 +533,56 @@ código se usa como parte de la función objetivo para el cómputo de métodos
 generadores de objetos usando Randoop \ref{sec:fitnessRandoop}.
 
 
+\section{Java PathFinder (JPF)}
+\label{sec:jpf}
+
+\emph{Java PathFinder} (JPF) es una herramienta de verificación automatica de programas Java,
+que implementa técnicas de análisis con exploración explícita del espacio de estados.
+Entre sus aplicaciones se encuentra el \emph{bounded model checking} (BMC), que
+consiste en explorar sistemáticamente todas las ejecuciones del programa bajo
+entradas de tamaño acotado en busca de fallas~\cite{Visser04JPF,Pasareanu10SPF}.
+Los límites para el tamaño de las entradas (por ejemplo, número
+máximo de nodos de una estructura dinámica o rangos de valores primitivos) deben
+ser provistos por la persona usuaria de la herramienta. Cuando se detecta una
+falla, JPF produce un contrajemplo reproducible que facilita las tareas de
+\emph{debugging}.\footnote{\url{https://github.com/javapathfinder/jpf-core}}
+
+
+Para llevar a cabo la verificación acotada, JPF se basa en la definición de drivers: 
+combinaciones de métodos que permiten construir todas las entradas acotadas para ejecutar 
+el código bajo análisis (que usualmente requieren del uso de construcciones no deterministas del \emph{model checker}. 
+Para tipos de datos complejos (ej. estructuras dinámicas alocadas en el \emph{heap} como listas doblemente encadenadas) 
+usualmente la creación de estructuras requiere de la utilización de varias de las rutinas de la API del módulo 
+que implementa la estructura (ej. add, remove, etc.), y por lo tanto, la construcción del driver depende de estas rutinas.
+
+Sin embargo, para módulos ricos en cantidad de métodos, la selección de
+rutinas para construir el controlador no es trivial, ya que puede impactar de
+manera significativa en el análisis posterior. La intuición sugiere que es
+deseable seleccionar un conjunto de métodos tan pequeño como sea posible cuyas
+combinaciones permitan construir todas las estructuras acotadas del módulo.
+Por un lado, es importante no incluir rutinas superfluas para la construcción de
+objetos, dado que la cantidad de combinaciones posibles crece exponencialmente
+con el número de métodos considerados; por lo tanto, utilizar un subconjunto
+más pequeño mejora la eficiencia del análisis. El ejemplo más simple de
+rutinas superfluas lo constituyen los \emph{métodos puros}, que no modifican las
+estructuras sobre las que operan~\cite{Huang:2012}. Por otro lado, cuanto mayor sea
+el número de estructuras distintas que pueda crearse con el subconjunto
+seleccionado, mayor será la probabilidad de exponer errores en el código. Es
+decir, interesa seleccionar subconjuntos de métodos \emph{suficientes}, capaces
+de combinarse para construir todas las instancias acotadas posibles.
+
+Esta selección, que usualmente se realiza de forma manual, no es sencilla:
+requiere un análisis exhaustivo de las rutinas disponibles y una comprensión
+profunda de su semántica. La tarea se vuelve especialmente tediosa en módulos
+con APIs extensas, donde abundan rutinas redundantes o irrelevantes para la
+construcción de estructuras. 
+
+En esta tesis proponemos una técnica automática para identificar, a partir de la
+API de un módulo, un subconjunto \emph{suficiente} y no superfluo de métodos
+\emph{generadores} (Ver capítulo \ref{cap:builders}). Esta técnica actúa como un paso previo a la construcción de
+\emph{drivers} para \emph{bounded model checking}: al exponer únicamente los metodos generadores de objectos necesarios, 
+esto permite reducir el factor de ramificación del \emph{driver}, 
+disminuye el espacio de búsqueda y mejora la eficiencia de la
+exploración, sin perder la capacidad de generar todas las instancias acotadas
+dentro del \emph{scope}.
 
