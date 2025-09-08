@@ -290,92 +290,53 @@ para evaluar esta hipótesis.
 
 \subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
-La efectividad de nuestros algoritmos se mide en función de cuán cercanos están
-a identificar el conjunto minimal de métodos 
-generadores de objetos a partir de una API. 
-Cabe destacar que en todos los casos, nuestros algoritmos 
-logran identificar al menos un subconjunto suficiente de métodos generadores de objetos. No obstante, cuanto más reducido sea este subconjunto, el resultado se condsidera mejor desde el punto de vista de la
-usabilidad de los generadores de objetos para el análisis de programas. (véase Tabla~\ref{tab:eficiencia}).
 
-En el caso de \emph{NCL}, \textbf{GA+GE} encuentra el conjunto minimal exacto de métodos generadores en todas las ejecuciones.
-Sin embargo, con \textbf{GA+RC} el conjunto hallado tiene en promedio \(\mathbf{3{,}80}\) métodos, \pp{acá el
-promedio no es lo mejor, habría que explicar los casos por separado. Pero ya lo
-hiciste así que fue. si lo cambiamos va a ser mucho laburo.}
-lo que indica que en tres
-de las cinco ejecuciones se incluyó un método adicional no necesario.
-Por su parte, el algoritmo de \emph{Hill Climbing}
-(\emph{HC}) encuentra en todas las ejecuciones los metodos correctos con ambas
-funciones objetivo.
+Medimos la efectividad como la capacidad de cada configuración para identificar
+el \emph{conjunto minimal} de métodos generadores de la API (según el
+\emph{ground truth} indicado como \#MetodosGeneradores en la tabla). Por construcción, en
+todas las corridas nuestros algoritmos devuelven siempre un subconjunto
+suficiente (nunca omiten un generador necesario); cuando el conjunto
+devuelto coincide en tamaño con el minimal, lo consideramos exacto, y
+cuando incluye métodos adicionales lo consideramos sobredimensionado.
 
-En estructuras como \emph{UnionFind}, \emph{FibonacciHeap}, \emph{BTree}, \emph{BinomialHeap} y \emph{Scheduler}, todos los 
-algoritmos evaluados lograron encontrar el conjunto minimal exacto de métodos
-generadores de objectos. Esto puede atribuirse a que estas 
-estructuras presentan un menor número de métodos en su API, y sus invariantes son relativamente simples en comparación con otras 
-clases evaluadas.
+La Tabla~\ref{tab:efectividad} resume los tamaños promedios (sobre 5
+corridas) del conjunto hallado por cada configuración (GA/HC $\times$ GE/RC).
+Se observan cuatro patrones claros. Primero, \textbf{HC+RC} encuentra el conjunto
+\emph{minimal exacto en 12/12} sujetos. Segundo, \textbf{HC+GE} es exacto en
+\emph{11/12} sujetos y sólo sobredimensiona en \emph{Lits} (retorna 7 en lugar de
+6).\cacho{Revisar esto, no me acuerdo bien, ver el paper}
+Tercero, \textbf{GA+GE} es exacto en \emph{10/12} sujetos; sobredimensiona en
+\emph{Lits} (7 vs.\ 6) y \emph{HashMap} (2.60 vs.\ 2). Cuarto, \textbf{GA+RC} es
+exacto en \emph{8/12} sujetos y tiende a incluir métodos adicionales en
+\emph{NCL} (3.80 vs.\ 3), \emph{TreeMap} (5.60 vs.\ 3), \emph{TreeSet}
+(3.20 vs.\ 3) y \emph{HashSet} (3 vs.\ 2).
 
-Para la estructura \emph{Lits}, la función objetivo basada en el generador
-exhaustivo (\emph{GE}) tiende a incluir al menos un método adicional. Este
-fenómeno se debe a cómo el generador maneja los valores iniciales de los
-arreglos internos en la clase \emph{Lits}. En particular, \emph{Lits} forma
-parte de una biblioteca Java utilizada para resolver problemas de
-satisfacibilidad booleana (SAT), y contiene colecciones que almacenan
-literales. Algunos métodos permiten crear o modificar arreglos con literales,
-pero el generador exhaustivo, sujeto al \emph{scope} limitado y a los valores
-iniciales, no logra producir ciertos arreglos sin utilizar métodos adicionales.
-Es importante aclarar que esto no implica que dichos métodos adicionales sean
-verdaderos generadores, sino que bajo las restricciones actuales (como el
-\emph{scope} configurado), no existe otra vía para construir determinadas
-estructuras sin agregarlos. Si se incrementa el \emph{scope} o se modifica la
-clase para exponer mejor sus constructores, entonces se logra encontrar el
-conjunto minimal real \pp{Y por qué no hicimos esto en lugar de que calcule
-mal? No entiendo bien el problema, hay que charlarlo.} 
-\cacho{Nuevo}
-Para este trabajo mantuvimos un \emph{scope} fijo (\(k=5\)) para asegurar
-la comparación entre sujetos y un presupuesto de búsqueda
-constante. Aumentar \(k\) incrementa el costo de forma combinatoria. Del mismo
-modo, no modificamos la clase (p.\,ej., exponiendo constructores adicionales)
-porque alteraría el sujeto bajo prueba y sesgaría la comparación entre casos.
-Bajo estas restricciones, el desvío de \emph{GE} en \emph{Lits} se interpreta
-como una limitación operativa del criterio (no del algoritmo), que desaparece
-si se relajan las restricciones.
+Estas desviaciones tienen dos causas principales. Por un lado, en \textbf{GE} la
+evaluación se realiza por enumeración acotada; bajo scope fijo y valores
+iniciales concretos, ciertas combinaciones pueden no ser alcanzables sin
+incorporar alguna rutina adicional (como ocurre en \emph{Lits}), lo que hace que
+el conjunto devuelto sea suficiente pero no minimal. Por otro lado, en
+\textbf{RC} la métrica de cobertura puede favorecer métodos que
+aumentan rápido la cobertura de ramas/líneas aunque no sean estrictamente
+necesarios para construir todas las instancias, por lo que el algoritmo puede estabilizarse en soluciones
+ligeramente sobredimensionadas.
 
-En contraste, la función \emph{RC} encuentra siempre el conjunto minimal, dado que su
-evaluación no depende del \emph{scope}, sino de la cobertura lograda en
-ejecución.
+En el caso particular del algoritmo genético (\textbf{GA}), además de la
+estocasticidad propia de la búsqueda (selección, cruce, mutación), empleamos un
+criterio de corte del algoritmo que detiene la evolución cuando el mejor
+fitness no mejora durante 5 generaciones consecutivas (ver
+Sección~\ref{alg:approachGA}). Este criterio es eficaz para acotar el presupuesto,
+pero puede congelar soluciones suficientes levemente mayores que el
+mínimo cuando la presión selectiva ya no impulsa mejoras adicionales.
 
-En las estructuras pertenecientes al paquete \emph{java.util}, como \emph{TreeMap}, \emph{TreeSet}, \emph{HashMap}, \emph{HashSet} y \emph{LinkedList}, 
-el comportamiento de los algoritmos evaluados varía significativamente en función de la complejidad de la estructura, 
-el tamaño de la API y la función objetivo utilizada.
+En síntesis, todas las configuraciones producen conjuntos suficientes, y
+\textbf{HC+RC} además logra el mínimo exacto de forma sistemática. Cuando
+el objetivo primario es minimizar el costo de generación/análisis, recomendamos
+emplear el conjunto devuelto por \textbf{HC+RC} (minimal y suficiente); cuando el
+objetivo es maximizar la robustez frente a restricciones operativas del
+\emph{scope} o de la cobertura, \textbf{RC} ofrece estabilidad en la suficiencia,
+aun al costo de incluir ocasionalmente métodos adicionales.
 
-El algoritmo genético (\emph{GA}), en combinación con la función de cobertura (\emph{RC}), muestra una mayor tendencia a incluir métodos 
-adicionales en el conjunto resultante, especialmente en estructuras donde existen muchas formas alternativas de construir una instancia válida. 
-Por ejemplo, en \emph{TreeMap} y \emph{TreeSet}, el promedio de métodos identificados es de 5.6 y 3.2 respectivamente, 
-frente al mínimo esperado de 3. Este comportamiento puede atribuirse a la naturaleza estocástica del algoritmo genético,
-que depende de la exploración guiada por operadores evolutivos (selección, cruce y mutación) y de la presión de la función de aptitud. 
-En escenarios donde múltiples combinaciones conducen a configuraciones aceptables, pero no óptimas, el algoritmo puede converger 
-hacia soluciones suficientes pero no minimales, incluyendo métodos no esenciales
-\pp{No debería pasar esto en teoría, salvo que
-no le alcance el tiempo. Hay que charlarlo.}.
-
-Además, la propia función \emph{RC}, basada en cobertura alcanzada mediante herramientas como \emph{Randoop}, 
-puede inducir una saturación temprana al favorecer métodos que rápidamente maximizan cobertura parcial, 
-aunque no necesariamente contribuyan a una construcción mínima. Esto puede explicar, por ejemplo, los resultados observados en \emph{HashSet} y \emph{HashMap}, 
-donde se identifican más métodos de los requeridos para generar la estructura
-objetivo. \pp{No debería pasar esto en teoría. Hay que charlarlo.}.
-En el caso específico de \emph{HashMap}, incluso la función \emph{GE} tiende a incluir el método \texttt{keySet()}, 
-necesario para construir configuraciones específicas que de otro modo no serían alcanzables bajo el \emph{scope} definido. \pp{No debería pasar esto en teoría. Hay que charlarlo.}.
-
-En contraste, el algoritmo \emph{HC} muestra mayor estabilidad en la precisión, 
-logrando identificar el conjunto minimal en la mayoría de los casos, 
-independientemente de la función objetivo empleada. Su comportamiento determinista y 
-su foco en mejoras incrementales lo hacen menos propenso a incluir métodos redundantes, 
-aunque esto también puede limitar su capacidad de escape ante óptimos locales \pp{No debería pasar esto en teoría, salvo que
-no le alcance el tiempo al genético. Hay que charlarlo.}.
-
-En resumen, la precisión alcanzada por los algoritmos depende fuertemente tanto de la estrategia de búsqueda como de la función objetivo. 
-La exploración estocástica de \emph{GA} le permite descubrir soluciones diversas, 
-pero también lo expone a converger en conjuntos sobredimensionados si la presión selectiva o la función de evaluación no están cuidadosamente diseñadas. 
-Estos resultados destacan la necesidad de calibrar adecuadamente los parámetros y de considerar cuidadosamente la métrica de evaluación para lograr una identificación eficiente y precisa de métodos generadores.
 \input{tables/eficaciaBuilders.tex}
 
 \subsection{RQ3: Impacto de los generadores de objetos en el análisis de
@@ -414,13 +375,12 @@ incremento de \textbf{\(\sim 4.0\times\)} (razón de medias
 \textbf{180 s:} \texttt{SoloMetodosGeneradores} 7736 vs. \texttt{TodosLosMetodos} 1893
 (\(\times 4.09\), +5842).
 
-
 Esto muestra que, para un mismo presupuesto, el uso de \texttt{SoloMetodosGeneradores}
 permite obtener \textbf{entre \(3.75\times\) y \(4.09\times\) más objetos} en
 promedio, con una ganancia absoluta que crece al aumentar el tiempo
 presupuestado.
 
-\cacho{Ver caso Scheduler, porque paso esto}
+\cacho{Ver caso Scheduler, porque paso esto, en el paper tampoco esta explicado}
 La ventaja es consistente en la gran mayoría de los casos: en \textbf{36 de 39}
 combinaciones (92.3\%) \texttt{SoloMetodosGeneradores} supera a \texttt{TodosLosMetodos}. Si
 promediamos por clase (sobre los tres presupuestos), \texttt{SoloMetodosGeneradores} es mejor
@@ -445,9 +405,39 @@ constituye una estrategia efectiva y valiosa para potenciar la generación autom
 
 \input{tables/objectsBuilders.tex}
 
+También comparamos las \emph{suites} generadas midiendo cobertura de ramas y líneas.
+Como en el experimento anterior, contrastamos \texttt{MetodosGeneradores} contra
+\texttt{API} con Randoop por defecto, ahora con cinco presupuestos (60, 120, 180,
+300 y 600 s). Los resultados se presentan en la Tabla~\ref{tab:results-coverage}.
+En promedio sobre todas las clases y presupuestos, \texttt{MetodosGeneradores} mejora la
+\textbf{cobertura de ramas} de \textbf{104{.}0} a \textbf{120{.}9} ramas
+(\textbf{+16{.}8} ramas, \textbf{+11{.}8\%}) y la \textbf{cobertura de líneas} de
+\textbf{223{.}1} a \textbf{245{.}4} líneas (\textbf{+22{.}2} líneas, \textbf{+7{.}0\%}).
+Por presupuesto, las ganancias de ramas crecen con el tiempo
+(\(+13{.}9\), \(+15{.}1\), \(+15{.}5\), \(+19{.}5\), \(+20{.}2\) ramas para
+60, 120, 180, 300 y 600 s; equivalentes a \(+14{.}0\%\)–\(18{.}7\%\)), mientras que
+en líneas se observan mejoras de \(+8{.}97\%\) a \(+10{.}6\%\).
+\texttt{MetodosGeneradores} nunca empeora la cobertura de ramas (41/65 mejoras, 24 empates)
+y sólo en 1/65 casos la cobertura de lineas es levemente menor
+(\emph{FHeap}, 120 s); en el resto mejora (43/65) o empata (21/65).
+Los mayores incrementos aparecen en estructuras con espacio de estados complejo
+(\emph{TreeMap} y \emph{TreeSet}: \(+58\%\) y \(+59\%\) promedio en ramas,
+y \(+30\%\) y \(+34\%\) en líneas), mientras que en APIs pequeñas o ya
+saturadas (\emph{BTree}, \emph{Schedule}, \emph{UFind}) las coberturas de
+\texttt{API} y \texttt{MetodosGeneradores} son prácticamente idénticas.
+
+En conjunto, estos resultados indican que la identificación automática de
+los métodos generadores es de mucha importancia para el analisis de programas.
+Bajo el mismo presupuesto, \texttt{MetodosGeneradores} produce \(\sim 4\times\)
+más objetos distintos y alcanza coberturas de ramas y líneas mayores en promedio,
+al focalizar el generador en operaciones constructivas que exploran más
+eficientemente el espacio de estados relevante.
+\input{tables/coverageRandoop.tex}
+
+
 \subsubsection{Impacto en verificación formal con JPF}
 
-En un segundo experimento, evaluamos el impacto del uso de métodos \emph{builders} en la eficiencia 
+En un segundo experimento, evaluamos el impacto del uso de métodos métodos generadores en la eficiencia 
 del análisis de programas mediante verificación formal. Para ello, utilizamos \emph{Java PathFinder} 
 (JPF)~\cite{Visser:2005}, explicado en la seccion \ref{sec:jpf}.
 Este experimento lo evaluamos en los casos de estudio del paquete \texttt{java.util}.
@@ -465,7 +455,7 @@ encuentra en la escritura de los controladores. Queda claro que programar el con
 a partir de todos los métodos de la API es una tárea compleja que requiere
 mas conocimento del modulo bajo análisis como muestra el algoritmo 2. Para
 compensar esto, mostramos que el algoritmo que se utiliza como controlador en caso
-de obtener previamente los builders es más sencillo y entendible para el usuario.
+de obtener previamente los métodos generadores es más sencillo y entendible para el usuario.
 
 Para ilustrar este mecanismo, consideramos el análisis del método \texttt{put} de \texttt{TreeMap}. \cacho{Como explicar esto, que no es una propiedad como lo explique}
 La generación de entradas puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverAPI}, que incluye todos los métodos disponibles en la API de \texttt{TreeMap}. 
