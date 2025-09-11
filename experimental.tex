@@ -148,56 +148,10 @@ Todos los experimentos fueron ejecutados en una máquina con procesador Intel
 Core i7-6700 a 3.4\,GHz y 8\,GB de RAM, corriendo el sistema operativo
 GNU/Linux.
 
-\subsection{RQ1: Eficiencia del cómputo de generadores de objetos}
-
-Medimos la eficiencia de nuestros algoritmos en la cantidad de segundos que
-requiere la ejecución de los mismos para finalizar la búsqueda de métodos
-generadores de objetos a partir de la API. 
-%Para evaluar la eficiencia de nuestro algoritmo, 
-%llevamos a cabo experimentos utilizando conjuntos de datos de muestra y medimos el tiempo de promedio de las 5 ejecuciones necesarias 
-%para obtener las soluciones. 
-Comparamos los resultados obtenidos con la técnica evolutiva (\emph{GA}) y con
-la técnica greedy (\emph{HC}), y combinamos ambos enfoques en las distintas
-funciones objetivo propuestas (\emph{RC} y \emph{GE}). Los resultados se presentan en la Tabla \ref{tab:eficiencia}.
-
-\cacho{Nuevo esto:}
-
-Cada fila corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API (\#API) y 
-la cantidad de métodos generadores del \emph{ground truth} (\#MétodosGen). 
-Las columnas se agrupan por algoritmo (\textbf{GA} y \textbf{HC}) y, dentro de cada uno, por función 
-objetivo, \textbf{GE} y \textbf{RC}.
-Para cada configuración (algoritmo $\times$ función objetivo) reportamos el tiempo
-promedio en segundos sobre 5 ejecuciones.
-
-
-Analizando la Tabla~\ref{tab:eficiencia}, observamos que \textbf{HC} es
-generalmente más eficiente que \textbf{GA} para
-ambas funciones objetivo, \textbf{GE} y \textbf{RC}.
-Para hacer este analisis podemos considerar primero un analisis entre algortimo, con la misma funcion objetivo:
-Tomando el \emph{speedup} como \(S=\tfrac{t_{\text{GA}}}{t_{\text{HC}}}\):
-\begin{itemize}
-  \item \textbf{GE:} HC es \(\mathbf{13.1\times}\) más rápido que GA (reducción de tiempo \(\approx\)\(\mathbf{92.4\%}\)).
-  \item \textbf{RC:} HC es \(\mathbf{2.91\times}\) más rápido que GA (reducción de tiempo \(\approx\)\(\mathbf{65.6\%}\)).
-\end{itemize}
-
-Ademas podemos comparar \textbf{GE} vs. \textbf{RC} para cada algoritmo:
-\begin{itemize}
-  \item \textbf{GA:} GE es \(\mathbf{7.0\times}\) más rápida que RC (RC requiere \(\sim\)86\% más tiempo).
-  \item \textbf{HC:} GE es \(\mathbf{31.5\times}\) más rápida que RC (RC requiere \(\sim\)96.8\% más tiempo).
-\end{itemize}
-
 % En términos de analizar el peor caso, con \textbf{HC+RC} se alcanza 5162s en
 % \emph{TreeMap} (aprox 86 minutos) y 3842s en \emph{HashSet} para
 % para \textbf{HC+GA} (aprox. 64 minutos). 
 % Con \textbf{GE+GA}, se observa que el peor caso tarda 1803s (aprox 30 minutos) en \emph{HashMap} con \textbf{GE+RC} alcanza 113s para \emph{TreeMap} (aprox 2 minutos).
-
-En relación con las funciones objetivo, observamos que la basada en
-generación exhaustiva (\textbf{GE}, Sección~\ref{sec:fitnessGE})
-finaliza la búsqueda de métodos generadores en menos tiempo que la
-basada en cobertura con Randoop (\textbf{RC}, Sección~\ref{sec:fitnessRandoop}), independientemente del algoritmo usado.
-La razón es que GE evalúa por enumeración acotada (scope fijo), mientras
-que RC requiere, para cada candidato, generar y ejecutar pruebas con Randoop y
-medir cobertura, lo que incrementa el costo.
 
 %Esto se debe a que los algoritmos
 %de Hill Climbing comienzan desde abajo hacia arriba, considerando menos métodos antes de considerar más métodos, a diferencia de los 
@@ -206,25 +160,13 @@ medir cobertura, lo que incrementa el costo.
 %Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más rápidamente que el algoritmo Hill Climbing.
 %
 
-Esto se aplica a todos los algoritmos implementados. La función 
-objetivo GE termina antes en los algoritmos debido a que genera objetos 
-para un scope que debe ser especificado manualmente por el usuario. Todas tienen un \emph{timeout} de 
-30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
-la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. Esto permite
-que GE más rápida \pp{cuánto?} en comparación 
-con la función objetivo RC. En cambio, el algoritmo HC debe agotar su presupuesto de tiempo
-para cada candidato considerado.
+Esto se aplica a todos los algoritmos implementados.
 Sin embargo, la función objetivo basada en el algoritmo \textbf{HC} no requiere que el usuario provea la definición del scope, y
 podría ser más escalable que la generación exhaustiva acotada en casos donde
 la cantidad de objetos a generar crezca exponencialmente respecto de los scopes 
 (\cacho{ver si hay alguno}). Como trabajos futuros se planean realizar más experimentos 
 para evaluar esta hipótesis.
 
-En promedio, \textbf{HC} domina a \textbf{GA} para ambas funciones objetivo, con una
-ventaja especialmente marcada bajo \textbf{GE} (\(13.1\times\)). A su vez, \textbf{GE} resulta
-sistemáticamente más eficiente \cacho{CUanto?} que \textbf{RC} dentro de cada algoritmo, lo cual es consistente
-con el mayor costo de evaluación de RC (generar/ejecutar suites con Randoop y medir
-cobertura) frente a la evaluación por enumeración acotada de GE.
 
 \subsection{RQ1: Eficiencia del cómputo de generadores de objetos}
 \cacho{Nuevo esto:}
@@ -239,31 +181,58 @@ corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la A
 cada uno, por función objetivo (GE y RC). Para cada configuración
 (algoritmo~$\times$~objetivo) reportamos el promedio de 5 ejecuciones.
 
-Promediando sobre los 12 casos se obtiene: \(\text{GA+GE}=259\) s,
-\(\text{HC+GE}=19.6\) s, \(\text{GA+RC}=1809.5\) s y \(\text{HC+RC}=622.8\) s.
+
+Para comparar la eficiencia de \textbf{GA} y \textbf{HC} de manera justa, fijamos la
+misma función objetivo \(\phi \in \{\text{GE},\text{RC}\}\) y medimos el tiempo de
+ejecución por sujeto. Denotamos por \(t_{A,\phi}^{(i)}\) el tiempo (en segundos)
+que tarda el algoritmo \(A \in \{\text{GA},\text{HC}\}\) con función objetivo
+\(\phi\) en el caso de estudio \(i\) (con \(i=1,\dots,12\)). El tiempo promedio por
+configuración es
+\[
+\bar t_{A,\phi}=\frac{1}{12}\sum_{i=1}^{12} t_{A,\phi}^{(i)}.
+\]
+El \emph{speedup} de \textbf{HC} frente a \textbf{GA}, manteniendo fija \(\phi\), se
+define como
+\[
+S_{\phi}=\frac{\bar t_{\text{GA},\phi}}{\bar t_{\text{HC},\phi}}.
+\]
+
+Con los tiempos promedios observados, obtenemos:
+\(\bar t_{\text{GA},\text{GE}}=259\) s,
+\(\bar t_{\text{HC},\text{GE}}=19{.}6\) s,
+\(\bar t_{\text{GA},\text{RC}}=1809{.}5\) s y
+\(\bar t_{\text{HC},\text{RC}}=622{.}8\) s. Por lo tanto,
+\[
+S_{\text{GE}}=\frac{259}{19{.}6}=13{.}2\quad\Rightarrow\quad
+\]
+\[
+S_{\text{RC}}=\frac{1809{.}5}{622{.}8}=2{.}91\quad\Rightarrow\quad
+\]
+
 Comparando entre algoritmos con la misma función objetivo, \textbf{HC} resulta más
 eficiente que \textbf{GA} de forma sistemática. Bajo \textbf{GE}, el cociente de
-tiempos promedio indica que HC es aproximadamente \(13.2\times\) más rápido que GA,
-lo que equivale a una reducción de tiempo cercana al \(92.4\%\). Bajo \textbf{RC},
-HC es \(2.91\times\) más rápido que GA (reducción del \(65.6\%\)). A nivel de casos
+tiempos promedio indica que HC es aproximadamente \(13.2\times\) más rápido que GA. Bajo \textbf{RC},
+HC es \(2.91\times\) más rápido que GA. A nivel de casos
 individuales, HC supera a GA en todos los casos con GE y en 11 de 12 casos con RC,
-siendo \emph{HashSet} la única excepción donde GA+RC fue más veloz.
+siendo \emph{HashSet} la única excepción donde GA+RC fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
 
 Comparando entre funciones objetivo dentro de un mismo algoritmo, \textbf{GE}
 termina sensiblemente antes que \textbf{RC}. En \textbf{GA}, RC requiere en promedio
 unas \(7.0\times\) más tiempo que GE; en \textbf{HC}, RC requiere unas \(31.8\times\)
-más tiempo que GE. Este comportamiento es coherente con la naturaleza de cada
-función: GE evalúa candidatos por enumeración acotada (scope fijo), mientras que RC
-debe, para cada candidato, generar y ejecutar suites con Randoop y medir cobertura,
-lo que incrementa el costo de evaluación.
+más tiempo que GE. La función objetivo GE termina antes en los algoritmos debido a que genera objetos 
+para un scope que debe ser especificado manualmente por el usuario. Todas tienen un \emph{timeout} de 
+30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
+la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. En cambio, el la función objetivo RC debe agotar su presupuesto de tiempo
+para cada candidato considerado.
+Esto explica porque GE es más rápida en comparación con la función objetivo RC.
 
 A diferencia de \textbf{GE}, la función objetivo basada en cobertura con Randoop
 (\textbf{RC}) no requiere que el usuario fije un \emph{scope} para enumerar
 objetos. Esto puede volverla más escalable en dominios donde la cantidad de
 objetos válidos crece combinatoriamente con el scope. 
-El costo de \textbf{GE} escala con la enumeración de \emph{todas}
+El costo de \textbf{GE} escala con la enumeración de todas
 las instancias dentro del scope, mientras que \textbf{RC} evalúa cada candidato
-mediante generación/ejecución de tests \emph{sin} explorar exhaustivamente el
+mediante generación/ejecución de tests sin explorar exhaustivamente el
 espacio de objetos, lo que puede resultar más económico para scopes grandes.
 
 % Formalmente, si denotamos por $E(n)$ la cantidad de objetos válidos bajo scope $n$
@@ -281,7 +250,7 @@ objetivo, con una ventaja especialmente marcada bajo \textbf{GE}
 consistentemente más eficiente que \textbf{RC} dentro de cada algoritmo
 (\(7.0\times\) en GA y \(31.8\times\) en HC), lo que respalda el uso de GE cuando el
 objetivo es minimizar el tiempo de cómputo de los generadores.
-Sin embargo, la función objetivo basada en el algoritmo \textbf{HC} no requiere que el usuario provea la definición del scope, y
+Sin embargo, la función objetivo \textbf{RC} no requiere que el usuario provea la definición del scope, y
 podría ser más escalable que la generación exhaustiva acotada en casos donde
 la cantidad de objetos a generar crezca exponencialmente respecto de los scopes. Como trabajos futuros se planean realizar más experimentos 
 para evaluar esta hipótesis.
@@ -332,10 +301,7 @@ mínimo cuando la presión selectiva ya no impulsa mejoras adicionales.
 En síntesis, todas las configuraciones producen conjuntos suficientes, y
 \textbf{HC+RC} además logra el mínimo exacto de forma sistemática. Cuando
 el objetivo primario es minimizar el costo de generación/análisis, recomendamos
-emplear el conjunto devuelto por \textbf{HC+RC} (minimal y suficiente); cuando el
-objetivo es maximizar la robustez frente a restricciones operativas del
-\emph{scope} o de la cobertura, \textbf{RC} ofrece estabilidad en la suficiencia,
-aun al costo de incluir ocasionalmente métodos adicionales.
+emplear el conjunto devuelto por \textbf{HC+RC} (minimal y suficiente).
 
 \input{tables/eficaciaBuilders.tex}
 
@@ -357,16 +323,15 @@ configuraciones distintas: (i) utilizando toda la API disponible de la clase baj
 (\texttt{SoloMetodosGeneradores}) identificados por nuestro enfoque en el experimento anterior 
 (ver Tabla~\ref{tab:results-obj}).
 
-Para ambas configuraciones, medimos la \textit{cantidad de objetos distintos 
-generados} (\textit{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
+Para ambas configuraciones, medimos la cantidad de objetos distintos 
+generados (\textit{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
 pruebas: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la
 Tabla~\ref{tab:results-obj}.
 
 En promedio global sobre las 39 combinaciones (clase X presupuesto),
 \texttt{SoloMetodosGeneradores} genera \textbf{6355} objetos frente a \textbf{1597} de
 \texttt{TodosLosMetodos}, es decir, \textbf{+4758} objetos en promedio y un
-incremento de \textbf{\(\sim 4.0\times\)} (razón de medias
-\(6355/1597=3.98\)). Desagregando por presupuesto:
+incremento de \textbf{\(\sim 4.0\times\)} en cantidad de objetos (\(6355/1597=3.98\)). Desagregando por presupuesto:
 
 \noindent\textbf{60 s:} \texttt{SoloMetodosGeneradores} 4783 vs. \texttt{TodosLosMetodos} 1275
 (\(\times 3.75\), +3508).\\
@@ -385,54 +350,52 @@ La ventaja es consistente en la gran mayoría de los casos: en \textbf{36 de 39}
 combinaciones (92.3\%) \texttt{SoloMetodosGeneradores} supera a \texttt{TodosLosMetodos}. Si
 promediamos por clase (sobre los tres presupuestos), \texttt{SoloMetodosGeneradores} es mejor
 en \textbf{12 de 13} clases. La única excepción a nivel de clase es
-\emph{Schedule}, donde \texttt{TodosLosMetodos} produce más objetos; además, en
-\emph{Lits} la mejora es modesta. En contraste, la ganancia es muy marcada en
+\emph{Schedule}, donde \texttt{TodosLosMetodos} produce más objetos. En contraste, la ganancia es muy marcada en
 \emph{NCL} (\(\sim 15.4\times\) promedio por clase) y \emph{LinkedList}
 (\(\sim 10.5\times\)).
 
-En síntesis, \emph{en promedio} el uso exclusivo de métodos generadores
-produce \textbf{casi cuatro veces más} objetos que emplear toda la API, y lo
+En síntesis, en promedio el uso exclusivo de métodos generadores
+produce casi cuatro veces más objetos que emplear toda la API, y lo
 hace de manera robusta en la mayoría de las clases y presupuestos. Esto sugiere
-que focalizar la generación sobre operaciones constructivas efectivas mejora la
+que focalizar la generación sobre métodos constructivos efectivos mejora la
 capacidad de exploración de Randoop bajo un mismo presupuesto de tiempo,
 aumentando la diversidad de entradas disponibles para los tests.
 
 Estos hallazgos ponen de manifiesto el impacto positivo de identificar automáticamente métodos 
 generadores adecuados. Su utilización en herramientas de prueba como \emph{Randoop} mejora sustancialmente 
-la calidad y diversidad de los objetos generados, lo cual es especialmente relevante para clases con 
-estado interno complejo. Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
+la calidad y diversidad de los objetos generados. Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
 constituye una estrategia efectiva y valiosa para potenciar la generación automatizada de tests.
 
 \input{tables/objectsBuilders.tex}
 
-También comparamos las \emph{suites} generadas midiendo cobertura de ramas y líneas.
-Como en el experimento anterior, contrastamos \texttt{MetodosGeneradores} contra
-\texttt{API} con Randoop por defecto, ahora con cinco presupuestos (60, 120, 180,
-300 y 600 s). Los resultados se presentan en la Tabla~\ref{tab:results-coverage}.
-En promedio sobre todas las clases y presupuestos, \texttt{MetodosGeneradores} mejora la
-\textbf{cobertura de ramas} de \textbf{104{.}0} a \textbf{120{.}9} ramas
-(\textbf{+16{.}8} ramas, \textbf{+11{.}8\%}) y la \textbf{cobertura de líneas} de
-\textbf{223{.}1} a \textbf{245{.}4} líneas (\textbf{+22{.}2} líneas, \textbf{+7{.}0\%}).
-Por presupuesto, las ganancias de ramas crecen con el tiempo
-(\(+13{.}9\), \(+15{.}1\), \(+15{.}5\), \(+19{.}5\), \(+20{.}2\) ramas para
-60, 120, 180, 300 y 600 s; equivalentes a \(+14{.}0\%\)–\(18{.}7\%\)), mientras que
-en líneas se observan mejoras de \(+8{.}97\%\) a \(+10{.}6\%\).
-\texttt{MetodosGeneradores} nunca empeora la cobertura de ramas (41/65 mejoras, 24 empates)
-y sólo en 1/65 casos la cobertura de lineas es levemente menor
-(\emph{FHeap}, 120 s); en el resto mejora (43/65) o empata (21/65).
-Los mayores incrementos aparecen en estructuras con espacio de estados complejo
-(\emph{TreeMap} y \emph{TreeSet}: \(+58\%\) y \(+59\%\) promedio en ramas,
-y \(+30\%\) y \(+34\%\) en líneas), mientras que en APIs pequeñas o ya
-saturadas (\emph{BTree}, \emph{Schedule}, \emph{UFind}) las coberturas de
-\texttt{API} y \texttt{MetodosGeneradores} son prácticamente idénticas.
+% Ademas, comparamos las \emph{suites} generadas midiendo cobertura de ramas y líneas.
+% Como en el experimento anterior, contrastamos \texttt{MetodosGeneradores} contra
+% \texttt{API} con Randoop por defecto, ahora con cinco presupuestos (60, 120, 180,
+% 300 y 600 s). Los resultados se presentan en la Tabla~\ref{tab:results-coverage}.
+% En promedio sobre todas las clases y presupuestos, \texttt{MetodosGeneradores} mejora la
+% \textbf{cobertura de ramas} de \textbf{104{.}0} a \textbf{120{.}9} ramas
+% (\textbf{+16{.}8} ramas, \textbf{+11{.}8\%}) y la \textbf{cobertura de líneas} de
+% \textbf{223{.}1} a \textbf{245{.}4} líneas (\textbf{+22{.}2} líneas, \textbf{+7{.}0\%}).
+% Por presupuesto, las ganancias de ramas crecen con el tiempo
+% (\(+13{.}9\), \(+15{.}1\), \(+15{.}5\), \(+19{.}5\), \(+20{.}2\) ramas para
+% 60, 120, 180, 300 y 600 s; equivalentes a \(+14{.}0\%\)–\(18{.}7\%\)), mientras que
+% en líneas se observan mejoras de \(+8{.}97\%\) a \(+10{.}6\%\).
+% \texttt{MetodosGeneradores} nunca empeora la cobertura de ramas (41/65 mejoras, 24 empates)
+% y sólo en 1/65 casos la cobertura de lineas es levemente menor
+% (\emph{FHeap}, 120 s); en el resto mejora (43/65) o empata (21/65).
+% Los mayores incrementos aparecen en estructuras con espacio de estados complejo
+% (\emph{TreeMap} y \emph{TreeSet}: \(+58\%\) y \(+59\%\) promedio en ramas,
+% y \(+30\%\) y \(+34\%\) en líneas), mientras que en APIs pequeñas o ya
+% saturadas (\emph{BTree}, \emph{Schedule}, \emph{UFind}) las coberturas de
+% \texttt{API} y \texttt{MetodosGeneradores} son prácticamente idénticas.
 
-En conjunto, estos resultados indican que la identificación automática de
-los métodos generadores es de mucha importancia para el analisis de programas.
-Bajo el mismo presupuesto, \texttt{MetodosGeneradores} produce \(\sim 4\times\)
-más objetos distintos y alcanza coberturas de ramas y líneas mayores en promedio,
-al focalizar el generador en operaciones constructivas que exploran más
-eficientemente el espacio de estados relevante.
-\input{tables/coverageRandoop.tex}
+% En conjunto, estos resultados indican que la identificación automática de
+% los métodos generadores es de mucha importancia para el analisis de programas.
+% Bajo el mismo presupuesto, \texttt{MetodosGeneradores} produce \(\sim 4\times\)
+% más objetos distintos y alcanza coberturas de ramas y líneas mayores en promedio,
+% al focalizar el generador en operaciones constructivas que exploran más
+% eficientemente el espacio de estados relevante.
+% \input{tables/coverageRandoop.tex}
 
 
 \subsubsection{Impacto en verificación formal con JPF}
