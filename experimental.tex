@@ -368,34 +368,38 @@ constituye una estrategia efectiva y valiosa para potenciar la generación autom
 
 \input{tables/objectsBuilders.tex}
 
-% Ademas, comparamos las \emph{suites} generadas midiendo cobertura de ramas y líneas.
-% Como en el experimento anterior, contrastamos \texttt{MetodosGeneradores} contra
-% \texttt{API} con Randoop por defecto, ahora con cinco presupuestos (60, 120, 180,
-% 300 y 600 s). Los resultados se presentan en la Tabla~\ref{tab:results-coverage}.
-% En promedio sobre todas las clases y presupuestos, \texttt{MetodosGeneradores} mejora la
-% \textbf{cobertura de ramas} de \textbf{104{.}0} a \textbf{120{.}9} ramas
-% (\textbf{+16{.}8} ramas, \textbf{+11{.}8\%}) y la \textbf{cobertura de líneas} de
-% \textbf{223{.}1} a \textbf{245{.}4} líneas (\textbf{+22{.}2} líneas, \textbf{+7{.}0\%}).
-% Por presupuesto, las ganancias de ramas crecen con el tiempo
-% (\(+13{.}9\), \(+15{.}1\), \(+15{.}5\), \(+19{.}5\), \(+20{.}2\) ramas para
-% 60, 120, 180, 300 y 600 s; equivalentes a \(+14{.}0\%\)–\(18{.}7\%\)), mientras que
-% en líneas se observan mejoras de \(+8{.}97\%\) a \(+10{.}6\%\).
-% \texttt{MetodosGeneradores} nunca empeora la cobertura de ramas (41/65 mejoras, 24 empates)
-% y sólo en 1/65 casos la cobertura de lineas es levemente menor
-% (\emph{FHeap}, 120 s); en el resto mejora (43/65) o empata (21/65).
-% Los mayores incrementos aparecen en estructuras con espacio de estados complejo
-% (\emph{TreeMap} y \emph{TreeSet}: \(+58\%\) y \(+59\%\) promedio en ramas,
-% y \(+30\%\) y \(+34\%\) en líneas), mientras que en APIs pequeñas o ya
-% saturadas (\emph{BTree}, \emph{Schedule}, \emph{UFind}) las coberturas de
-% \texttt{API} y \texttt{MetodosGeneradores} son prácticamente idénticas.
+\cacho{Este experimento no se si agregarlo, lo saque del paper. No es tan asi, y capaz que traiga problema con el experimento de beapi. Lo mismo que los objectos de arriba, no coinciden los valores. Ver con PP}
+Además, comparamos las \emph{suites} generadas midiendo la cobertura de ramas y de líneas. 
+Al igual que en el experimento anterior, contrastamos el uso de \texttt{MétodosGen} contra 
+\texttt{API} completa con la configuración por defecto de Randoop, 
+esta vez bajo cinco presupuestos de tiempo (60, 120, 180, 300 y 600 segundos). 
+En cada configuración, construimos las \emph{suites} de prueba ya sea utilizando 
+todos los métodos de la API o únicamente los métodos generadores de objetos 
+identificados previamente. Los resultados se presentan en la Tabla~\ref{tab:results-coverage}.
+En promedio sobre todas las clases y presupuestos, \texttt{MetodosGen} mejora la
+\textbf{cobertura de ramas} de \textbf{104{.}0} a \textbf{120{.}9} ramas
+(\textbf{+16{.}8} ramas, \textbf{+11{.}8\%}) y la \textbf{cobertura de líneas} de
+\textbf{223{.}1} a \textbf{245{.}4} líneas (\textbf{+22{.}2} líneas, \textbf{+7{.}0\%}).
+Por presupuesto, las ganancias de ramas crecen con el tiempo
+(\(+13{.}9\), \(+15{.}1\), \(+15{.}5\), \(+19{.}5\), \(+20{.}2\) ramas para
+60, 120, 180, 300 y 600 s: mientras que
+en lineas se observan mejoras de \(+8{.}97\%\), \(+9{.}98\%\), \(+9{.}70\%\), \(+10{.}57\%\) y \(+10{.}57\%\) para 60, 120, 180, 300 y 600 s, respectivamente.
+\texttt{MetodosGen} nunca empeora la cobertura de ramas (41/65 mejoras, 24 empates)
+y sólo en 1/65 casos la cobertura de lineas es levemente menor
+(\emph{FHeap}, 120 s); en el resto mejora (43/65) o empata (21/65).
+Los mayores incrementos aparecen en estructuras con espacio de estados complejo
+(\emph{TreeMap} y \emph{TreeSet}: \(+58\%\) y \(+59\%\) promedio en ramas,
+y \(+30\%\) y \(+34\%\) en líneas, respectivamente), mientras que en APIs pequeñas o ya
+saturadas (\emph{BTree}, \emph{Schedule}, \emph{UFind}) las coberturas de
+\texttt{API} y \texttt{MetodosGen} son prácticamente idénticas.
 
-% En conjunto, estos resultados indican que la identificación automática de
-% los métodos generadores es de mucha importancia para el analisis de programas.
-% Bajo el mismo presupuesto, \texttt{MetodosGeneradores} produce \(\sim 4\times\)
-% más objetos distintos y alcanza coberturas de ramas y líneas mayores en promedio,
-% al focalizar el generador en operaciones constructivas que exploran más
-% eficientemente el espacio de estados relevante.
-% \input{tables/coverageRandoop.tex}
+En conjunto, estos resultados indican que la identificación automática de
+los métodos generadores es de mucha importancia para el analisis de programas.
+Bajo el mismo presupuesto, \texttt{MetodosGen} produce \(\sim 4\times\)
+más objetos distintos y alcanza coberturas de ramas y líneas mayores en promedio,
+al focalizar el generador en operaciones constructivas que exploran más
+eficientemente el espacio de estados relevante.
+\input{tables/coverageRandoop.tex}
 
 
 \subsubsection{Impacto en verificación formal con JPF}
@@ -416,17 +420,21 @@ semántica del módulo
 Como ya se mostro anteriormente, ver seccion \ref{sec:jpf}, el primer gran aporte a JPF se
 encuentra en la escritura de los controladores. Queda claro que programar el controlador
 a partir de todos los métodos de la API es una tárea compleja que requiere
-mas conocimento del modulo bajo análisis como muestra el algoritmo 2. Para
+mas conocimento de la API bajo análisis como muestra el algoritmo \ref{lst:driverNCL}. Para
 compensar esto, mostramos que el algoritmo que se utiliza como controlador en caso
-de obtener previamente los métodos generadores es más sencillo y entendible para el usuario.
+de obtener previamente los métodos generadores es más sencillo y entendible para el usuario (Ver \ref{sec:jpf-builders}).
 
-Para ilustrar este mecanismo, consideramos el análisis del método \texttt{put} de \texttt{TreeMap}. \cacho{Como explicar esto, que no es una propiedad como lo explique}
-La generación de entradas puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverAPI}, que incluye todos los métodos disponibles en la API de \texttt{TreeMap}. 
-Este enfoque asegura cobertura, pero introduce un crecimiento exponencial en el número de ejecuciones 
-a explorar, ya que cada paso del controlador puede seleccionar cualquier método de forma no 
+Para ilustrar este mecanismo, consideramos el análisis del método \texttt{put} de \texttt{TreeMap}.
+La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverBLD}.
+Para mitigar el problema de la explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
+detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{RC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
+Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
+\texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
+válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
+de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
 determinista.
 
-\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverAPI},captionpos=b]
+\begin{lstlisting}[language=Java,caption={Controlador con los métodos generadores de objectos},label={lst:driverBLD},captionpos=b]
     private static TreeMap generateStructure(int scope) {
        int maxLength = Verify.getInt(0, scope);
        TreeMap t = new TreeMap();
@@ -438,28 +446,13 @@ determinista.
              case 1:
                 t.remove(Verify.getInt(0,scope));
                 break;						
-             case 2:
-                t.clear();
-                break;
-             case 3:
-                t.containsValue(Verify.getInt(0,scope));
-                break;
-             ...
-             case 11: 
-                t.putAll(l);
-                break;
           }
        }
        return t;
     }
 \end{lstlisting}
 
-Para mitigar esta explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
-detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{RC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
-Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
-\texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
-válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
-de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
+Luego con este generador se puede verificar que el método \texttt{put} preserva el \emph{repOK} de la estructura de datos, como se muestra en ~\ref{lst:driverBLD}.
 
 \begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:driverBLD},language=Java,captionpos=b]
     public static void main(String[] args) {
@@ -475,43 +468,85 @@ Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-j
 métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad
 \pp{Agregar promedios a las tablas, y agregar los números promedios para
     justificar las conclusiones abajo.}
-. Se observa una 
-reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
+. Se observa una reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
 comprometer la cobertura de las estructuras objetivo. Esta evidencia refuerza la utilidad práctica 
 de nuestra técnica en entornos de verificación formal, donde el costo computacional de la exploración 
 del espacio de estados es un factor crítico.
 
-El patrón se mantiene de forma consistente a través de múltiples estructuras de datos de 
-\texttt{java.util}, incluyendo \texttt{HashMap}, \texttt{HashSet}, \texttt{LinkedList}, 
-\texttt{TreeMap} y \texttt{TreeSet}. Por ejemplo, en el análisis del método \texttt{remove} 
-en \texttt{HashMap}, al aumentar el \textit{scope} de 4 a 6, el número de estados explorados 
-con el controlador basado en la API completa crece de 627361 a más de 22 millones, con tiempos 
-de ejecución que alcanzan los 3011 segundos (aproximadamente 50 minutos). En cambio, utilizando únicamente los métodos generadores de objetos, 
-se recorren menos de 2.3 millones de estados, en un tiempo de análisis significativamente menor.
 
-Este mismo comportamiento se replica en otras estructuras. En el caso de \texttt{LinkedList}, 
-el uso de todos los métodos de la API lleva a una explosión de estados (más de 39 millones en 
-\textit{scope} 6), mientras que con los métodos generadores de objectos, el número de estados se reduce a aproximadamente 
-1.1 millones para el mismo scope. En términos de tiempo, esta diferencia se traduce en 2771 segundos contra apenas 221. 
-Asimismo, para \texttt{TreeMap} con el método \texttt{put}, el uso de los métodos generadores de objectos en 
-\textit{scope} 5 permite mantener el análisis por debajo de los 3100 segundos, mientras que 
-la versión con todos los métodos alcanza el límite de tiempo (TO que es igual a 5000 segundos).
 
-Además de la reducción en el tiempo de verificación y en los estados explorados, la comparación 
-entre ambos controladores confirma que el conjunto reducido de métodos generadores de objectos es suficiente 
-para generar todas las configuraciones relevantes de entrada que permiten evaluar correctamente 
-las propiedades del programa. Esto implica que, en la práctica, los métodos adicionales disponibles 
-en la API no contribuyen a la diversidad estructural de las entradas, sino que solo introducen 
-complejidad innecesaria en el espacio de búsqueda.
+% El patrón se mantiene de forma consistente a través de múltiples estructuras de datos de 
+% \texttt{java.util}, incluyendo \texttt{HashMap}, \texttt{HashSet}, \texttt{LinkedList}, 
+% \texttt{TreeMap} y \texttt{TreeSet}. Por ejemplo, en el análisis del método \texttt{remove} 
+% en \texttt{HashMap}, al aumentar el \textit{scope} de 4 a 6, el número de estados explorados 
+% con el controlador basado en la API completa crece de 627361 a más de 22 millones, con tiempos 
+% de ejecución que alcanzan los 3011 segundos (aproximadamente 50 minutos). En cambio, utilizando únicamente los métodos generadores de objetos, 
+% se recorren menos de 2.3 millones de estados, en un tiempo de análisis significativamente menor.
 
-En resumen, estos resultados evidencian que la identificación automática de métodos generadores no 
-solo mejora la calidad de las entradas en contextos como la generación de tests, sino que también 
-es una estrategia efectiva para escalar técnicas de verificación formal a estructuras de datos más 
-complejas. Al eliminar métodos superfluos y reducir el espacio de búsqueda, se mejora significativamente 
-el rendimiento de herramientas como JPF, sin sacrificar precisión ni completitud en el análisis.
+% Este mismo comportamiento se replica en otras estructuras. En el caso de \texttt{LinkedList}, 
+% el uso de todos los métodos de la API lleva a una explosión de estados (más de 39 millones en 
+% \textit{scope} 6), mientras que con los métodos generadores de objectos, el número de estados se reduce a aproximadamente 
+% 1.1 millones para el mismo scope. En términos de tiempo, esta diferencia se traduce en 2771 segundos contra apenas 221. 
+% Asimismo, para \texttt{TreeMap} con el método \texttt{put}, el uso de los métodos generadores de objectos en 
+% \textit{scope} 5 permite mantener el análisis por debajo de los 3100 segundos, mientras que 
+% la versión con todos los métodos alcanza el límite de tiempo (TO que es igual a 5000 segundos).
 
-\input{tables/tableJPFBuilders}
-\input{tables/tableJPFBuilders1}
+% Además de la reducción en el tiempo de verificación y en los estados explorados, la comparación 
+% entre ambos controladores confirma que el conjunto reducido de métodos generadores de objectos es suficiente 
+% para generar todas las configuraciones relevantes de entrada que permiten evaluar correctamente 
+% las propiedades del programa. Esto implica que, en la práctica, los métodos adicionales disponibles 
+% en la API no contribuyen a la diversidad estructural de las entradas, sino que solo introducen 
+% complejidad innecesaria en el espacio de búsqueda.
+
+% En resumen, estos resultados evidencian que la identificación automática de métodos generadores no 
+% solo mejora la calidad de las entradas en contextos como la generación de tests, sino que también 
+% es una estrategia efectiva para escalar técnicas de verificación formal a estructuras de datos más 
+% complejas. Al eliminar métodos superfluos y reducir el espacio de búsqueda, se mejora significativamente 
+% el rendimiento de herramientas como JPF, sin sacrificar precisión ni completitud en el análisis.
+
+
+Para focalizar la comparación en escenarios exigentes pero aún completables,
+en cada par clase–método tomamos los tres últimos niveles de \emph{scope}
+que todavía finalizan sin \emph{timeout} cuando se usa el \emph{driver} con toda
+la API (\textsf{TodosLosMetodos}). En casos de estudio donde no se observó \emph{timeout},
+seleccionamos los tres \emph{scopes} más altos disponibles. Con este criterio,
+los \emph{scopes} empleados fueron: \texttt{LinkedList} (4–5–6),
+\texttt{TreeMap.put} (2–3–4), \texttt{TreeMap.remove} (3–4–5),
+\texttt{TreeSet} (6–7–8), \texttt{HashMap.put} (2–3–4),
+\texttt{HashMap.remove} (3–4–5) y \texttt{HashSet} (5–6–7).
+
+En el promedio global sobre estas 30 combinaciones, el \emph{driver} con
+\textsf{MetodosGeneradores} explora \(4.68\times 10^5\) estados en \(53.0\) s, mientras que
+\textsf{TodosLosMetodos} explora \(6.59\times 10^6\) estados en \(572.9\) s. Esto supone
+una reducción promedio de \(\sim 92.9\%\) en la cantidad de estados y de
+\(\sim 90.7\%\) en tiempo. En términos relativos, \textsf{MetodosGeneradores} alcanza un
+\emph{speedup} temporal de \(\sim 10.8\times\) y reduce el espacio de estados en
+\(\sim 14.1\times\) respecto de \textsf{TodosLosMetodos}. El patrón se repite de forma
+consistente en todas las clases consideradas y se vuelve especialmente marcado en
+estructuras con APIs ricas, donde la API completa introduce combinaciones
+superfluas que amplifican la explosión combinatoria (por ejemplo, en
+\texttt{LinkedList} y \texttt{TreeSet} el uso de \textsf{TodosLosMetodos} entra en TO en
+el \emph{scope} siguiente, mientras que \textsf{MetodosGeneradores} aún completa).
+
+En cuanto a la interpretación, los resultados indican que construir \emph{drivers}
+exclusivamente con los métodos generadores identificados por nuestro enfoque
+poda de manera efectiva el factor de ramificación en los puntos de elección
+no deterministas del verificador (ej., \texttt{Verify.random}), lo que reduce
+tanto el número de estados alcanzables como el costo de retroceso durante la
+exploración. Al mismo tiempo, la suficiencia del conjunto de \textsf{MetodosGeneradores}
+garantiza que se preserva la capacidad de construir todas las instancias
+(acotadas por el \emph{scope}) relevantes para la verificación de las propiedades,
+sin sacrificar cobertura estructural dentro del alcance definido.
+
+En síntesis, los experimentos muestran que la construcción de \emph{drivers} a
+partir de los métodos generadores identificados por nuestra técnica incrementa de
+manera sustancial la eficiencia y la escalabilidad del análisis con JPF hacia
+\emph{scopes} más altos y estructuras más complejas. Esto se debe a la reducción
+de métodos utilizados en los \emph{drivers} (evitando operaciones superfluas) y a
+que, gracias a la suficiencia del conjunto elegido, se mantiene la capacidad
+de construir todas las instancias acotadas posibles en menos tiempo.
+
+\input{tables/tableJPFBuilders_short.tex}
 
 \section{Generación exhaustiva acotada basada en la API}
 \label{sec:experimentalBeapi}
