@@ -309,28 +309,29 @@ emplear el conjunto devuelto por \textbf{HC+RC} (minimal y suficiente).
 software}
 
 \subsubsection{Cantidad de objectos generados en Randoop}
+\cacho{Explico como usamos randoop? me parace que no viene al caso}
 
 En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
-identificados previamente, en el contexto de la generación automatizada de casos de prueba. 
+identificados previamente, en el contexto de la generación automatizada de casos de test. 
 Estos métodos permiten crear instancias válidas de estructuras de datos, que pueden ser utilizadas como 
 entradas en tests unitarios o tests basadas en propiedades.
 
 Para aquellos casos de estudio cuyas clases permiten medir el tamaño de los objetos generados 
 (mediante el método \texttt{size()}) y comparar objetos por igualdad (a través de \texttt{equals()}), 
-realizamos un experimento con la herramienta \emph{Randoop}. Generamos casos de prueba en dos 
+realizamos un experimento con la herramienta \emph{Randoop} (Ver preliminares, \ref{sec:feedback-directed-test-gen}). Generamos casos de test en dos 
 configuraciones distintas: (i) utilizando toda la API disponible de la clase bajo análisis 
-(denominada \texttt{}{TodosLosMetodos}), y (ii) utilizando únicamente los métodos generadores de objetos
+(denominada \texttt{TodosLosMetodos}), y (ii) utilizando únicamente los métodos generadores de objetos
 (\texttt{SoloMetodosGeneradores}) identificados por nuestro enfoque en el experimento anterior 
 (ver Tabla~\ref{tab:results-obj}).
 
 Para ambas configuraciones, medimos la cantidad de objetos distintos 
-generados (\textit{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
-pruebas: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la
+generados (\emph{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
+test: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la
 Tabla~\ref{tab:results-obj}.
 
 En promedio global sobre las 39 combinaciones (clase X presupuesto),
-\texttt{SoloMetodosGeneradores} genera \textbf{6355} objetos frente a \textbf{1597} de
-\texttt{TodosLosMetodos}, es decir, \textbf{+4758} objetos en promedio y un
+\texttt{SoloMetodosGeneradores} genera 6355 objetos frente a 1597 de
+\texttt{TodosLosMetodos}, es decir, +4758 objetos en promedio y un
 incremento de \textbf{\(\sim 4.0\times\)} en cantidad de objetos (\(6355/1597=3.98\)). Desagregando por presupuesto:
 
 \noindent\textbf{60 s:} \texttt{SoloMetodosGeneradores} 4783 vs. \texttt{TodosLosMetodos} 1275
@@ -341,12 +342,12 @@ incremento de \textbf{\(\sim 4.0\times\)} en cantidad de objetos (\(6355/1597=3.
 (\(\times 4.09\), +5842).
 
 Esto muestra que, para un mismo presupuesto, el uso de \texttt{SoloMetodosGeneradores}
-permite obtener \textbf{entre \(3.75\times\) y \(4.09\times\) más objetos} en
+permite obtener entre \(3.75\times\) y \(4.09\times\) más objetos en
 promedio, con una ganancia absoluta que crece al aumentar el tiempo
 presupuestado.
 
 \cacho{Ver caso Scheduler, porque paso esto, en el paper tampoco esta explicado}
-La ventaja es consistente en la gran mayoría de los casos: en \textbf{36 de 39}
+La ventaja es consistente en la gran mayoría de los casos: en 36 de 39
 combinaciones (92.3\%) \texttt{SoloMetodosGeneradores} supera a \texttt{TodosLosMetodos}. Si
 promediamos por clase (sobre los tres presupuestos), \texttt{SoloMetodosGeneradores} es mejor
 en \textbf{12 de 13} clases. La única excepción a nivel de clase es
@@ -362,7 +363,7 @@ capacidad de exploración de Randoop bajo un mismo presupuesto de tiempo,
 aumentando la diversidad de entradas disponibles para los tests.
 
 Estos hallazgos ponen de manifiesto el impacto positivo de identificar automáticamente métodos 
-generadores adecuados. Su utilización en herramientas de prueba como \emph{Randoop} mejora sustancialmente 
+generadores adecuados. Su utilización en herramientas de tests como \emph{Randoop} mejora sustancialmente 
 la calidad y diversidad de los objetos generados. Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
 constituye una estrategia efectiva y valiosa para potenciar la generación automatizada de tests.
 
@@ -373,13 +374,13 @@ Además, comparamos las \emph{suites} generadas midiendo la cobertura de ramas y
 Al igual que en el experimento anterior, contrastamos el uso de \texttt{MétodosGen} contra 
 \texttt{API} completa con la configuración por defecto de Randoop, 
 esta vez bajo cinco presupuestos de tiempo (60, 120, 180, 300 y 600 segundos). 
-En cada configuración, construimos las \emph{suites} de prueba ya sea utilizando 
+En cada configuración, construimos las \emph{suites} de test ya sea utilizando 
 todos los métodos de la API o únicamente los métodos generadores de objetos 
 identificados previamente. Los resultados se presentan en la Tabla~\ref{tab:results-coverage}.
 En promedio sobre todas las clases y presupuestos, \texttt{MetodosGen} mejora la
-\textbf{cobertura de ramas} de \textbf{104{.}0} a \textbf{120{.}9} ramas
-(\textbf{+16{.}8} ramas, \textbf{+11{.}8\%}) y la \textbf{cobertura de líneas} de
-\textbf{223{.}1} a \textbf{245{.}4} líneas (\textbf{+22{.}2} líneas, \textbf{+7{.}0\%}).
+cobertura de ramas de 104.0 a 120.9 ramas
+(+16.8 ramas,+11.8\%) y la cobertura de líneas de
+223.1 a 245.4 líneas (+22.2 líneas, +7.0\%).
 Por presupuesto, las ganancias de ramas crecen con el tiempo
 (\(+13{.}9\), \(+15{.}1\), \(+15{.}5\), \(+19{.}5\), \(+20{.}2\) ramas para
 60, 120, 180, 300 y 600 s: mientras que
@@ -409,7 +410,7 @@ del análisis de programas mediante verificación formal. Para ello, utilizamos 
 (JPF)~\cite{Visser:2005}, explicado en la seccion \ref{sec:jpf}.
 Este experimento lo evaluamos en los casos de estudio del paquete \texttt{java.util}.
 
-Las técnicas de verificación de modelos requieren definir \emph{controladores de prueba}, es decir, 
+Las técnicas de verificación de modelos requieren definir \emph{controladores de tests}, es decir, 
 secuencias de métodos que permitan construir las entradas sobre las que se analizará el programa. 
 Idealmente, estas secuencias deberían generarse a partir del conjunto minimal de métodos que permitan 
 construir todas las instancias posibles dentro de un alcance definido (\emph{scope}). Sin embargo, 
@@ -417,12 +418,40 @@ la selección manual de estos métodos representa una barrera significativa para
 como JPF, ya que requiere un análisis exhaustivo de la API y una comprensión detallada de la 
 semántica del módulo
 
-Como ya se mostro anteriormente, ver seccion \ref{sec:jpf}, el primer gran aporte a JPF se
+Como ya se mostro anteriormente en la seccion de preliminares (ver \ref{sec:jpf}), el primer gran aporte a JPF se
 encuentra en la escritura de los controladores. Queda claro que programar el controlador
 a partir de todos los métodos de la API es una tárea compleja que requiere
-mas conocimento de la API bajo análisis como muestra el algoritmo \ref{lst:driverNCL}. Para
+mas conocimento de la API bajo análisis como muestra el algoritmo \ref{lst:driverAPI}. Para
 compensar esto, mostramos que el algoritmo que se utiliza como controlador en caso
-de obtener previamente los métodos generadores es más sencillo y entendible para el usuario (Ver \ref{sec:jpf-builders}).
+de obtener previamente los métodos generadores es más sencillo y entendible para el usuario (Ver \ref{driverBLD}).
+
+\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverAPI},captionpos=b]
+    private static TreeMap generateStructure(int scope) {
+       int maxLength = Verify.getInt(0, scope);
+       TreeMap t = new TreeMap();
+       for (int i = 1; i <= maxLength; i++) {
+          switch (Verify.random(n_methods)) {
+             case 0:
+                t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+                break;
+             case 1:
+                t.remove(Verify.getInt(0,scope));
+                break;						
+             case 2:
+                t.clear();
+                break;
+             case 3:
+                t.containsValue(Verify.getInt(0,scope));
+                break;
+             ...
+             case 11: 
+                t.putAll(l);
+                break;
+          }
+       }
+       return t;
+    }
+\end{lstlisting}
 
 Para ilustrar este mecanismo, consideramos el análisis del método \texttt{put} de \texttt{TreeMap}.
 La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverBLD}.
@@ -432,8 +461,7 @@ Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador ba
 \texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
 válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
 de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
-determinista.
-
+\\
 \begin{lstlisting}[language=Java,caption={Controlador con los métodos generadores de objectos},label={lst:driverBLD},captionpos=b]
     private static TreeMap generateStructure(int scope) {
        int maxLength = Verify.getInt(0, scope);
@@ -463,12 +491,8 @@ Luego con este generador se puede verificar que el método \texttt{put} preserva
     }
 \end{lstlisting}
 
-Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-jpf1} y 
-\ref{tab:results-jpf2}, demuestran que los controladores construidos a partir de nuestros 
-métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad
-\pp{Agregar promedios a las tablas, y agregar los números promedios para
-    justificar las conclusiones abajo.}
-. Se observa una reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
+Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-jpf1-short}, demuestran que los controladores construidos a partir de nuestros 
+métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad. Se observa una reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
 comprometer la cobertura de las estructuras objetivo. Esta evidencia refuerza la utilidad práctica 
 de nuestra técnica en entornos de verificación formal, donde el costo computacional de la exploración 
 del espacio de estados es un factor crítico.
@@ -720,7 +744,7 @@ y resulta suficiente para sustentar las conclusiones extraídas en esta sección
 
 Los resultados muestran de forma contundente que la configuración sin optimizaciones (\textsf{NoOPT}) 
 tiene un rendimiento deficiente incluso en los estudios de caso más simples y con alcances bajos. 
-Estos \emph{scopes}, si bien pequeños, ya resultan inadecuados para generar conjuntos de prueba de 
+Estos \emph{scopes}, si bien pequeños, ya resultan inadecuados para generar conjuntos de test de 
 calidad y revelan de inmediato la falta de escalabilidad del enfoque de fuerza bruta. Esta limitación 
 es representativa de la problemática general que enfrentan las técnicas de generación exhaustiva en 
 presencia de APIs amplias y estructuras complejas.
