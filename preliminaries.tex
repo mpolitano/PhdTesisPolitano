@@ -536,53 +536,108 @@ generadores de objetos usando Randoop \ref{sec:fitnessRandoop}.
 \section{Java PathFinder (JPF)}
 \label{sec:jpf}
 
-\emph{Java PathFinder} (JPF) es una herramienta de verificación automatica de programas Java,
-que implementa técnicas de análisis con exploración explícita del espacio de estados.
-Entre sus aplicaciones se encuentra el \emph{bounded model checking} (BMC), que
-consiste en explorar sistemáticamente todas las ejecuciones del programa bajo
-entradas de tamaño acotado en busca de fallas~\cite{Visser04JPF,Pasareanu10SPF}.
-Los límites para el tamaño de las entradas (por ejemplo, número
-máximo de nodos de una estructura dinámica o rangos de valores primitivos) deben
-ser provistos por la persona usuaria de la herramienta. Cuando se detecta una
-falla, JPF produce un contrajemplo reproducible que facilita las tareas de
+\emph{Java PathFinder} (JPF) es una herramienta de verificación automática de programas Java, que implementa técnicas con
+exploración explícita del espacio de estados. Entre sus aplicaciones está el \emph{bounded model checking} (BMC), que
+consiste en explorar sistemáticamente todas las ejecuciones del programa bajo entradas de tamaño acotado en busca de fallas
+\cite{Visser05,Pasareanu:2010}. Los límites para el tamaño de las entradas (por ej., número máximo de nodos o rangos de primitivos)
+son provistos por la persona usuaria. Cuando se detecta una falla, JPF produce un contrajemplo reproducible que facilita el
 \emph{debugging}.\footnote{\url{https://github.com/javapathfinder/jpf-core}}
 
+Para realizar verificación acotada, JPF se basa en \emph{drivers} (también llamados controladores): combinaciones de métodos que permiten construir todas las
+entradas acotadas para ejecutar el código bajo análisis. En tipos de datos complejos (por ej., estructuras dinámicas en el \emph{heap}
+como listas doblemente enlazadas) la construcción suele requerir varias rutinas de la API del módulo (ejemplo, \texttt{add},
+\texttt{remove}, etc.), por lo que el diseño del \emph{driver} depende de dichas rutinas.
 
-Para llevar a cabo la verificación acotada, JPF se basa en la definición de drivers: 
-combinaciones de métodos que permiten construir todas las entradas acotadas para ejecutar 
-el código bajo análisis (que usualmente requieren del uso de construcciones no deterministas del \emph{model checker}. 
-Para tipos de datos complejos (ej. estructuras dinámicas alocadas en el \emph{heap} como listas doblemente encadenadas) 
-usualmente la creación de estructuras requiere de la utilización de varias de las rutinas de la API del módulo 
-que implementa la estructura (ej. add, remove, etc.), y por lo tanto, la construcción del driver depende de estas rutinas.
+En módulos con muchas operaciones, seleccionar rutinas para el \emph{driver} no es trivial y puede impactar fuertemente en el
+análisis posterior. Se busca un conjunto tan pequeño como sea posible cuyas combinaciones permitan construir todas las
+estructuras acotadas del módulo. Incluir rutinas superfluas incrementa exponencialmente las combinaciones y degrada la
+eficiencia. Un caso típico de rutina superflua son los métodos observadores (no modifican el estado) \cite{Huang:2012}. 
+A la vez, el subconjunto debe ser suficiente para generar todas las instancias dentro del alcance. 
+Esta selección suele hacerse manualmente, exige revisar toda la API y comprender su semántica, y se vuelve tediosa cuando
+hay redundancia o muchas operaciones irrelevantes.
 
-Sin embargo, para módulos ricos en cantidad de métodos, la selección de
-rutinas para construir el controlador no es trivial, ya que puede impactar de
-manera significativa en el análisis posterior. La intuición sugiere que es
-deseable seleccionar un conjunto de métodos tan pequeño como sea posible cuyas
-combinaciones permitan construir todas las estructuras acotadas del módulo.
-Por un lado, es importante no incluir rutinas superfluas para la construcción de
-objetos, dado que la cantidad de combinaciones posibles crece exponencialmente
-con el número de métodos considerados; por lo tanto, utilizar un subconjunto
-más pequeño mejora la eficiencia del análisis. El ejemplo más simple de
-rutinas superfluas lo constituyen los \emph{métodos puros}, que no modifican las
-estructuras sobre las que operan~\cite{Huang:2012}. Por otro lado, cuanto mayor sea
-el número de estructuras distintas que pueda crearse con el subconjunto
-seleccionado, mayor será la probabilidad de exponer errores en el código. Es
-decir, interesa seleccionar subconjuntos de métodos \emph{suficientes}, capaces
-de combinarse para construir todas las instancias acotadas posibles.
+Las propiedades pueden expresarse con \emph{assert}; si la condición resulta falsa en una ejecución, JPF reporta un
+contrajemplo. Por ejemplo, para cualquier lista de entrada \texttt{t}, insertar al inicio un entero \texttt{v} (\texttt{addFirst(v)}, con \texttt{v} en
+\([0,b]\)) que no pertenezca a la lista, y luego eliminar el primer elemento (\texttt{removeFirst()}), debe dejar el mismo tamaño.
 
-Esta selección, que usualmente se realiza de forma manual, no es sencilla:
-requiere un análisis exhaustivo de las rutinas disponibles y una comprensión
-profunda de su semántica. La tarea se vuelve especialmente tediosa en módulos
-con APIs extensas, donde abundan rutinas redundantes o irrelevantes para la
-construcción de estructuras. 
+\begin{algorithm}[H]
+  \caption{Propiedad a chequear}
+  \label{alg:propiedad-a-chequear}
+  $oldSize \gets t.\texttt{size()}$\;
+  $value \gets \texttt{Verify.getInt}(0, b)$\;
+  \texttt{Verify.ignoreIf}( $t.\texttt{contains}(value)$ )\;
+  $t.\texttt{addFirst}(value)$\;
+  $t.\texttt{removeFirst}()$\;
+  \texttt{assert } $oldSize$ \texttt{ == } $t.\texttt{size}()$
+  \texttt{ : "different size";}\;
+\end{algorithm}
 
-En esta tesis proponemos una técnica automática para identificar, a partir de la
-API de un módulo, un subconjunto \emph{suficiente} y no superfluo de métodos
-\emph{generadores} (Ver capítulo \ref{cap:builders}). Esta técnica actúa como un paso previo a la construcción de
-\emph{drivers} para \emph{bounded model checking}: al exponer únicamente los metodos generadores de objectos necesarios, 
-esto permite reducir el factor de ramificación del \emph{driver}, 
-disminuye el espacio de búsqueda y mejora la eficiencia de la
-exploración, sin perder la capacidad de generar todas las instancias acotadas
-dentro del \emph{scope}.
 
+Para introducir elecciones dentro de un mismo programa, JPF ofrece primitivas de no determinismo, como:
+\begin{itemize}
+\item \texttt{Verify.ignoreIf(condicion)}: Evita explorar ejecuciones cuyo estado no
+cumplen con el predicado condicion. En el programa anterior, permite ignorar todas las ejecuciones en las que la lista contiene el valor \emph{value} a insertar.
+Esto es similar a agregar una precondición a la propiedad a verificar.
+\item \texttt{int i = Verify.getInt(min,max)}: Esta construcción de JPF explora todas las posibles ejecuciones del programa que resultan de asignar 
+a \emph{i} cualquier valor entre min y max. Esto significa que JPF ejecutará el código luego
+de esta instrucción con \emph{i=min}, con \emph{i=min+1, ..., i=max}. Esto introduce no
+determinismo, ya que en principio no hay garantías del orden en que se
+asignarán valores a \emph{i} (aunque JPF tiene opciones para elejir un orden de
+ejecución particular). 
+\end{itemize}
+
+Para analizar la propiedad del algortimo \ref{alg:propiedad-a-chequear} , JPF necesita mecanismos para generar
+las listas del parámetro \texttt{t}. Los enteros se obtienen con
+\texttt{Verify.getInt}, pero las estructuras requieren un
+\emph{driver}. El objetivo es construir todas las listas de tamaño
+máximo \(b\), con elementos en \([0,b]\) (verificación exhaustiva
+acotada). El \emph{driver} selecciona una longitud
+\(maxLength \in [0,b]\). Como cada método considerado agrega a lo sumo
+un elemento, ejecutar a lo sumo \(b\) métodos produce listas de
+tamaño \(\le b\). En cada iteración se elige no determinísticamente
+una operación de la API y sus argumentos.
+
+Si la persona usuaria no conoce los métodos generadores (y no desea seleccionarlos manualmente), la alternativa más segura es
+usar todos los métodos del módulo, como se muestra en el algortimo \ref{lst:driverNCL}. En el
+cuerpo del ciclo, a cada operación se le asigna un identificador y se elige no determinísticamente un valor en \([0, m)\) para
+seleccionar la operación a ejecutar; por ejemplo, si
+\texttt{methodN=2}, se ejecuta \texttt{clear()}. El número de ejecuciones crece exponencialmente con \(m\) (cantidad de
+métodos): tras \(k\) pasos hay \(m^{k}\) secuencias potenciales.
+\\
+\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverNCL},captionpos=b] 
+private static NCL generateStructure(int scope) {
+  int maxLength = Verify.getInt(0, scope);
+  NCL t = new NCL();
+  for (int i = 1; i <= maxLength; i++) {
+    int n_methods = Verify.random(n_methods)
+    switch (n_methods) {
+      case 0:
+        t.addFirst(Verify.getInt(0,scope),Verify.getInt(0,scope));
+        break;
+      case 1:
+        t.removeFirst(Verify.getInt(0,scope));
+        break;
+      case 2:
+        t.clear();
+        break;
+      case 3:
+        t.containsValue(Verify.getInt(0,scope));
+        break;
+      // ...
+      case 33:
+        t.size(l);
+        break;
+      default:
+        /* no-op */
+    }
+  }
+  return t;
+}
+\end{lstlisting}
+
+
+En esta tesis proponemos una técnica automática que, dada la API de un módulo, identifica un subconjunto suficiente y no superfluo de
+métodos generadores (ver Capitulo \ref{cap:builders}). Esta técnica actúa como paso previo a la construcción del controlador
+para BMC. Al exponer sólo los métodos generadores necesarios, reduce el factor de ramificación del controlador, disminuye el
+espacio de búsqueda y mejora la eficiencia de la exploración, sin perder la capacidad de generar todas las instancias acotadas dentro
+del \emph{scope}.
