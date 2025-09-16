@@ -182,39 +182,32 @@ cada uno, por función objetivo (GE y RC). Para cada configuración
 (algoritmo~$\times$~objetivo) reportamos el promedio de 5 ejecuciones.
 
 
-Para comparar la eficiencia de \textbf{GA} y \textbf{HC} de manera justa, fijamos la
-misma función objetivo \(\phi \in \{\text{GE},\text{RC}\}\) y medimos el tiempo de
-ejecución por sujeto. Denotamos por \(t_{A,\phi}^{(i)}\) el tiempo (en segundos)
-que tarda el algoritmo \(A \in \{\text{GA},\text{HC}\}\) con función objetivo
-\(\phi\) en el caso de estudio \(i\) (con \(i=1,\dots,12\)). El tiempo promedio por
-configuración es
-\[
-\bar t_{A,\phi}=\frac{1}{12}\sum_{i=1}^{12} t_{A,\phi}^{(i)}.
-\]
-El \emph{speedup} de \textbf{HC} frente a \textbf{GA}, manteniendo fija \(\phi\), se
-define como
-\[
-S_{\phi}=\frac{\bar t_{\text{GA},\phi}}{\bar t_{\text{HC},\phi}}.
-\]
+Para comparar la eficiencia de \textbf{GA} y \textbf{HC}, utilizamos la misma 
+función objetivo (\textbf{GE} o \textbf{RC}) y medimos el tiempo de ejecución 
+en los 12 casos de estudio. A partir de estos resultados obtuvimos los siguientes 
+tiempos promedios:
 
-Con los tiempos promedios observados, obtenemos:
-\(\bar t_{\text{GA},\text{GE}}=259\) s,
-\(\bar t_{\text{HC},\text{GE}}=19{.}6\) s,
-\(\bar t_{\text{GA},\text{RC}}=1809{.}5\) s y
-\(\bar t_{\text{HC},\text{RC}}=622{.}8\) s. Por lo tanto,
-\[
-S_{\text{GE}}=\frac{259}{19{.}6}=13{.}2\quad\Rightarrow\quad
-\]
-\[
-S_{\text{RC}}=\frac{1809{.}5}{622{.}8}=2{.}91\quad\Rightarrow\quad
-\]
+\begin{itemize}
+  \item \textbf{GA+GE}: 259 segundos
+  \item \textbf{HC+GE}: 19.6 segundos
+  \item \textbf{GA+RC}: 1809.5 segundos
+  \item \textbf{HC+RC}: 622.8 segundos
+\end{itemize}
+
+Estos valores muestran con claridad que \textbf{HC} supera sistemáticamente a 
+\textbf{GA}. En particular, bajo \textbf{GE} el tiempo de \textbf{HC} es 
+aproximadamente 13 veces menor que el de \textbf{GA}, mientras que bajo 
+\textbf{RC} es casi 3 veces menor.
 
 Comparando entre algoritmos con la misma función objetivo, \textbf{HC} resulta más
 eficiente que \textbf{GA} de forma sistemática. Bajo \textbf{GE}, el cociente de
-tiempos promedio indica que HC es aproximadamente \(13.2\times\) más rápido que GA. Bajo \textbf{RC},
-HC es \(2.91\times\) más rápido que GA. A nivel de casos
-individuales, HC supera a GA en todos los casos con GE y en 11 de 12 casos con RC,
-siendo \emph{HashSet} la única excepción donde GA+RC fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
+tiempos promedio indica que \textbf{HC} es aproximadamente \(13.2\times\) más rápido que \textbf{GA}. Bajo \textbf{RC},
+\textbf{HC} es \(2.91\times\) más rápido que \textbf{GA}. A nivel de casos
+individuales, \textbf{HC} supera a \textbf{GA} en todos los casos con \textbf{GE} y en 11 de 12 casos con \textbf{RC},
+siendo \emph{HashSet} la única excepción donde \textbf{GA+RC} fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
+Esta diferencia se explica por la naturaleza de los algoritmos: HC sigue una estrategia incremental y determinista que explora de forma más directa el espacio de soluciones, 
+mientras que GA introduce variabilidad y requiere manejar poblaciones, lo que aumenta el costo computacional. 
+Así, HC resulta sistemáticamente más rápido, aunque GA podría ofrecer más diversidad de soluciones en problemas donde la exploración amplia sea crítica.
 
 Comparando entre funciones objetivo dentro de un mismo algoritmo, \textbf{GE}
 termina sensiblemente antes que \textbf{RC}. En \textbf{GA}, RC requiere en promedio
@@ -235,21 +228,7 @@ las instancias dentro del scope, mientras que \textbf{RC} evalúa cada candidato
 mediante generación/ejecución de tests sin explorar exhaustivamente el
 espacio de objetos, lo que puede resultar más económico para scopes grandes.
 
-% Formalmente, si denotamos por $E(n)$ la cantidad de objetos válidos bajo scope $n$
-% y por $B(n)$ el presupuesto (número de tests $\times$ longitud) para RC, cuando
-% $E(n)$ crece exponencialmente y $B(n)$ se mantiene acotado o crece a ritmo
-% polinomial, existe un $n_0$ tal que para todo $n \ge n_0$ el costo de evaluar un
-% candidato con \textbf{RC} será menor que con \textbf{GE}. En otras palabras, si
-% $E(n) \gg B(n)$, la evaluación por cobertura tiende a ser más escalable que la
-% enumeración acotada.
-
-
-En síntesis, \textbf{HC} domina a \textbf{GA} en eficiencia para ambas funciones
-objetivo, con una ventaja especialmente marcada bajo \textbf{GE}
-(\(\sim 13.2\times\) más rápido en promedio). A su vez, \textbf{GE} es
-consistentemente más eficiente que \textbf{RC} dentro de cada algoritmo
-(\(7.0\times\) en GA y \(31.8\times\) en HC), lo que respalda el uso de GE cuando el
-objetivo es minimizar el tiempo de cómputo de los generadores.
+Esto respalda el uso de GE cuando el objetivo es minimizar el tiempo de cómputo de los generadores.
 Sin embargo, la función objetivo \textbf{RC} no requiere que el usuario provea la definición del scope, y
 podría ser más escalable que la generación exhaustiva acotada en casos donde
 la cantidad de objetos a generar crezca exponencialmente respecto de los scopes. Como trabajos futuros se planean realizar más experimentos 
@@ -334,12 +313,22 @@ En promedio global sobre las 39 combinaciones (clase X presupuesto),
 \texttt{TodosLosMetodos}, es decir, +4758 objetos en promedio y un
 incremento de \textbf{\(\sim 4.0\times\)} en cantidad de objetos (\(6355/1597=3.98\)). Desagregando por presupuesto:
 
-\noindent\textbf{60 s:} \texttt{SoloMetodosGeneradores} 4783 vs. \texttt{TodosLosMetodos} 1275
-(\(\times 3.75\), +3508).\\
-\textbf{120 s:} \texttt{SoloMetodosGeneradores} 6546 vs. \texttt{TodosLosMetodos} 1623
-(\(\times 4.03\), +4924).\\
-\textbf{180 s:} \texttt{SoloMetodosGeneradores} 7736 vs. \texttt{TodosLosMetodos} 1893
-(\(\times 4.09\), +5842).
+En el presupuesto de \textbf{60 segundos}, la configuración con solo los 
+métodos generadores produce en promedio \textbf{4783 objetos}, mientras 
+que la basada en toda la API alcanza apenas \textbf{1275}. Esto implica 
+que con métodos generadores se obtienen más de tres veces más objetos, 
+lo que representa una diferencia de alrededor de 3500 objetos adicionales. 
+
+Con un presupuesto de \textbf{120 segundos}, los métodos generadores 
+alcanzan en promedio \textbf{6546 objetos}, frente a \textbf{1623} con 
+toda la API. En este caso, se generan aproximadamente cuatro veces más 
+objetos, lo que equivale a una ventaja de más de 4900 objetos adicionales. 
+
+Finalmente, para \textbf{180 segundos}, la configuración con métodos 
+generadores llega a \textbf{7736 objetos}, mientras que con toda la API 
+se logran \textbf{1893}. Nuevamente, la diferencia es notable: se 
+construyen casi cuatro veces más objetos, con un excedente cercano a 
+los 5800 objetos adicionales.
 
 Esto muestra que, para un mismo presupuesto, el uso de \texttt{SoloMetodosGeneradores}
 permite obtener entre \(3.75\times\) y \(4.09\times\) más objetos en
