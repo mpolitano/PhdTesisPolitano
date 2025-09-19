@@ -161,7 +161,7 @@ GNU/Linux.
 %
 
 Esto se aplica a todos los algoritmos implementados.
-Sin embargo, la función objetivo basada en el algoritmo \textbf{HC} no requiere que el usuario provea la definición del scope, y
+Sin embargo, la función objetivo basada en el algoritmo \emph{HC} no requiere que el usuario provea la definición del scope, y
 podría ser más escalable que la generación exhaustiva acotada en casos donde
 la cantidad de objetos a generar crezca exponencialmente respecto de los scopes 
 (\cacho{ver si hay alguno}). Como trabajos futuros se planean realizar más experimentos 
@@ -171,65 +171,61 @@ para evaluar esta hipótesis.
 \subsection{RQ1: Eficiencia del cómputo de generadores de objetos}
 \cacho{Nuevo esto:}
 Medimos la eficiencia como el tiempo promedio (en segundos) necesario para
-finalizar la búsqueda de métodos generadores a partir de la API. Evaluamos dos
-algoritmos de búsqueda (\textbf{GA} y \textbf{HC}) combinados con dos funciones
-objetivo: \textbf{GE} (generación exhaustiva acotada) y \textbf{RC} (cobertura con
-Randoop). Los resultados se muestran en la Tabla~\ref{tab:eficiencia}. Cada fila
+finalizar la búsqueda de métodos generadores a partir de la API. Evaluamos los dos
+algoritmos de búsqueda (\emph{GA} y \emph{HC}) combinados con dos funciones
+objetivo: \emph{FE} (Función objetivo con generación exhaustiva acotada) y \emph{FC} (Función objetivo con cobertura). 
+Los resultados se muestran en la Tabla~\ref{tab:eficiencia}. Cada fila
 corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API
 (\#API) y la cantidad de métodos generadores del \emph{ground truth}
 (\#MétodosGen). Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
-cada uno, por función objetivo (GE y RC). Para cada configuración
+cada uno, por función objetivo (FE y FC). Para cada configuración
 (algoritmo~$\times$~objetivo) reportamos el promedio de 5 ejecuciones.
 
 
-Para comparar la eficiencia de \textbf{GA} y \textbf{HC}, utilizamos la misma 
-función objetivo (\textbf{GE} o \textbf{RC}) y medimos el tiempo de ejecución 
+Para comparar la eficiencia de \emph{GA} y \emph{HC}, utilizamos la misma 
+función objetivo (\emph{FE} o \emph{FC}) y medimos el tiempo de ejecución 
 en los 12 casos de estudio. A partir de estos resultados obtuvimos los siguientes 
 tiempos promedios:
 
 \begin{itemize}
-  \item \textbf{GA+GE}: 259 segundos
-  \item \textbf{HC+GE}: 19.6 segundos
-  \item \textbf{GA+RC}: 1809.5 segundos
-  \item \textbf{HC+RC}: 622.8 segundos
+  \item \textbf{GA+FE}: 259 segundos
+  \item \textbf{HC+FE}: 19.6 segundos
+  \item \textbf{GA+FC}: 1809.5 segundos
+  \item \textbf{HC+FC}: 622.8 segundos
 \end{itemize}
 
-Estos valores muestran con claridad que \textbf{HC} supera sistemáticamente a 
-\textbf{GA}. En particular, bajo \textbf{GE} el tiempo de \textbf{HC} es 
-aproximadamente 13 veces menor que el de \textbf{GA}, mientras que bajo 
-\textbf{RC} es casi 3 veces menor.
+Estos valores muestran con claridad que \emph{HC} supera sistemáticamente a 
+\emph{GA}. En particular, bajo \emph{FE} el tiempo de \emph{HC} es 
+aproximadamente 13 veces menor que el de \emph{GA}, mientras que bajo 
+\emph{FC} es casi 3 veces menor.A nivel de casos
+individuales, \emph{HC} supera a \emph{GA} en todos los casos con \emph{FE} y en 11 de 12 casos con \emph{FC},
+siendo \emph{HashSet} la única excepción donde \emph{GA+FC} fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
+Esta diferencia se entiende por la propia naturaleza de los algoritmos.
+El algoritmo genético (\textbf{GA}) mantiene y evoluciona poblaciones completas de posibles subconjuntos, lo que implica evaluar muchos candidatos en paralelo.
+En consecuencia, puede tardar más en encontrar el subconjunto minimal de métodos generadores, ya que su búsqueda es estocástica y no siempre converge rápidamente hacia la mejor solución.
 
-Comparando entre algoritmos con la misma función objetivo, \textbf{HC} resulta más
-eficiente que \textbf{GA} de forma sistemática. Bajo \textbf{GE}, el cociente de
-tiempos promedio indica que \textbf{HC} es aproximadamente \(13.2\times\) más rápido que \textbf{GA}. Bajo \textbf{RC},
-\textbf{HC} es \(2.91\times\) más rápido que \textbf{GA}. A nivel de casos
-individuales, \textbf{HC} supera a \textbf{GA} en todos los casos con \textbf{GE} y en 11 de 12 casos con \textbf{RC},
-siendo \emph{HashSet} la única excepción donde \textbf{GA+RC} fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
-Esta diferencia se explica por la naturaleza de los algoritmos: HC sigue una estrategia incremental y determinista que explora de forma más directa el espacio de soluciones, 
-mientras que GA introduce variabilidad y requiere manejar poblaciones, lo que aumenta el costo computacional. 
-Así, HC resulta sistemáticamente más rápido, aunque GA podría ofrecer más diversidad de soluciones en problemas donde la exploración amplia sea crítica.
-
-Comparando entre funciones objetivo dentro de un mismo algoritmo, \textbf{GE}
-termina sensiblemente antes que \textbf{RC}. En \textbf{GA}, RC requiere en promedio
-unas \(7.0\times\) más tiempo que GE; en \textbf{HC}, RC requiere unas \(31.8\times\)
-más tiempo que GE. La función objetivo GE termina antes en los algoritmos debido a que genera objetos 
+En cambio, \emph{HC} sigue una estrategia incremental y determinista: parte de una solución inicial y la mejora paso a paso en el espacio de búsqueda. Esto lo vuelve más eficiente en recorrer dicho espacio y encontrar soluciones minimales con menor costo computacional. Por ello, en la mayoría de los casos, \textbf{HC} resulta más rápido que \textbf{GA}.
+Comparando entre funciones objetivo dentro de un mismo algoritmo, \emph{FE}
+termina antes que \emph{FC}. En \emph{GA}, FC requiere en promedio
+unas siete veces más tiempo que \emph{FE}; en \emph{HC}, \emph{FC} requiere unas casi 32 veces
+más tiempo que FE. La función objetivo FE termina antes en los algoritmos debido a que genera objetos 
 para un scope que debe ser especificado manualmente por el usuario. Todas tienen un \emph{timeout} de 
 30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
-la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. En cambio, el la función objetivo RC debe agotar su presupuesto de tiempo
+la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. En cambio, el la función objetivo FC debe agotar su presupuesto de tiempo
 para cada candidato considerado.
-Esto explica porque GE es más rápida en comparación con la función objetivo RC.
+Esto explica porque FE es más rápida en comparación con la función objetivo FC.
 
-A diferencia de \textbf{GE}, la función objetivo basada en cobertura con Randoop
-(\textbf{RC}) no requiere que el usuario fije un \emph{scope} para enumerar
-objetos. Esto puede volverla más escalable en dominios donde la cantidad de
+A diferencia de \emph{FE}, como la función objetivo basada en cobertura con Randoop
+(\emph{FC}) no requiere que el usuario fije un \emph{scope} para enumerar
+objetos, puede volverla más escalable en dominios donde la cantidad de
 objetos válidos crece combinatoriamente con el scope. 
-El costo de \textbf{GE} escala con la enumeración de todas
-las instancias dentro del scope, mientras que \textbf{RC} evalúa cada candidato
+El costo de \emph{FE} escala con la enumeración de todas
+las instancias dentro del scope, mientras que \emph{FC} evalúa cada candidato
 mediante generación/ejecución de tests sin explorar exhaustivamente el
 espacio de objetos, lo que puede resultar más económico para scopes grandes.
 
-Esto respalda el uso de GE cuando el objetivo es minimizar el tiempo de cómputo de los generadores.
-Sin embargo, la función objetivo \textbf{RC} no requiere que el usuario provea la definición del scope, y
+Esto respalda el uso de FE cuando el objetivo es minimizar el tiempo de cómputo de los generadores.
+Sin embargo, la función objetivo \emph{FC} no requiere que el usuario provea la definición del scope, y
 podría ser más escalable que la generación exhaustiva acotada en casos donde
 la cantidad de objetos a generar crezca exponencialmente respecto de los scopes. Como trabajos futuros se planean realizar más experimentos 
 para evaluar esta hipótesis.
@@ -248,13 +244,13 @@ devuelto coincide en tamaño con el minimal, lo consideramos exacto, y
 cuando incluye métodos adicionales lo consideramos sobredimensionado.
 
 La Tabla~\ref{tab:efectividad} resume los tamaños promedios (sobre 5
-corridas) del conjunto hallado por cada configuración (GA/HC $\times$ GE/RC).
-Se observan cuatro patrones claros. Primero, \textbf{HC+RC} encuentra el conjunto
+corridas) del conjunto hallado por cada configuración (GA/HC $\times$ GE/FE).
+Se observan cuatro patrones claros. Primero, \textbf{HC+FC} encuentra el conjunto
 \emph{minimal exacto en 12/12} sujetos. Segundo, \textbf{HC+GE} es exacto en
 \emph{11/12} sujetos y sólo sobredimensiona en \emph{Lits} (retorna 7 en lugar de
 6).\cacho{Revisar esto, no me acuerdo bien, ver el paper}
 Tercero, \textbf{GA+GE} es exacto en \emph{10/12} sujetos; sobredimensiona en
-\emph{Lits} (7 vs.\ 6) y \emph{HashMap} (2.60 vs.\ 2). Cuarto, \textbf{GA+RC} es
+\emph{Lits} (7 vs.\ 6) y \emph{HashMap} (2.60 vs.\ 2). Cuarto, \textbf{GA+FE} es
 exacto en \emph{8/12} sujetos y tiende a incluir métodos adicionales en
 \emph{NCL} (3.80 vs.\ 3), \emph{TreeMap} (5.60 vs.\ 3), \emph{TreeSet}
 (3.20 vs.\ 3) y \emph{HashSet} (3 vs.\ 2).
@@ -264,7 +260,7 @@ evaluación se realiza por enumeración acotada; bajo scope fijo y valores
 iniciales concretos, ciertas combinaciones pueden no ser alcanzables sin
 incorporar alguna rutina adicional (como ocurre en \emph{Lits}), lo que hace que
 el conjunto devuelto sea suficiente pero no minimal. Por otro lado, en
-\textbf{RC} la métrica de cobertura puede favorecer métodos que
+\textbf{FE} la métrica de cobertura puede favorecer métodos que
 aumentan rápido la cobertura de ramas/líneas aunque no sean estrictamente
 necesarios para construir todas las instancias, por lo que el algoritmo puede estabilizarse en soluciones
 ligeramente sobredimensionadas.
@@ -278,9 +274,9 @@ pero puede congelar soluciones suficientes levemente mayores que el
 mínimo cuando la presión selectiva ya no impulsa mejoras adicionales.
 
 En síntesis, todas las configuraciones producen conjuntos suficientes, y
-\textbf{HC+RC} además logra el mínimo exacto de forma sistemática. Cuando
+\textbf{HC+FE} además logra el mínimo exacto de forma sistemática. Cuando
 el objetivo primario es minimizar el costo de generación/análisis, recomendamos
-emplear el conjunto devuelto por \textbf{HC+RC} (minimal y suficiente).
+emplear el conjunto devuelto por \textbf{HC+FE} (minimal y suficiente).
 
 \input{tables/eficaciaBuilders.tex}
 
@@ -445,7 +441,7 @@ de obtener previamente los métodos generadores es más sencillo y entendible pa
 Para ilustrar este mecanismo, consideramos el análisis del método \texttt{put} de \texttt{TreeMap}.
 La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverBLD}.
 Para mitigar el problema de la explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
-detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{RC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
+detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{FC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
 Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
 \texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
 válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
