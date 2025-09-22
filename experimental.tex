@@ -173,59 +173,59 @@ para evaluar esta hipótesis.
 Medimos la eficiencia como el tiempo promedio (en segundos) necesario para
 finalizar la búsqueda de métodos generadores a partir de la API. Evaluamos los dos
 algoritmos de búsqueda (\emph{GA} y \emph{HC}) combinados con dos funciones
-objetivo: \emph{FE} (Función objetivo con generación exhaustiva acotada) y \emph{FC} (Función objetivo con cobertura). 
+objetivo: \emph{FGE} (Función objetivo con generación exhaustiva acotada) y \emph{FRC} (Función objetivo con cobertura). 
 Los resultados se muestran en la Tabla~\ref{tab:eficiencia}. Cada fila
 corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API
 (\#API) y la cantidad de métodos generadores del \emph{ground truth}
 (\#MétodosGen). Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
-cada uno, por función objetivo (FE y FC). Para cada configuración
+cada uno, por función objetivo (FGE y FRC). Para cada configuración
 (algoritmo~$\times$~objetivo) reportamos el promedio de 5 ejecuciones.
 
 
 Para comparar la eficiencia de \emph{GA} y \emph{HC}, utilizamos la misma 
-función objetivo (\emph{FE} o \emph{FC}) y medimos el tiempo de ejecución 
+función objetivo (\emph{FGE} o \emph{FRC}) y medimos el tiempo de ejecución 
 en los 12 casos de estudio. A partir de estos resultados obtuvimos los siguientes 
 tiempos promedios:
 
 \begin{itemize}
-  \item \textbf{GA+FE}: 259 segundos
-  \item \textbf{HC+FE}: 19.6 segundos
-  \item \textbf{GA+FC}: 1809.5 segundos
-  \item \textbf{HC+FC}: 622.8 segundos
+  \item \textbf{GA+FGE}: 259 segundos
+  \item \textbf{HC+FGE}: 19.6 segundos
+  \item \textbf{GA+FRC}: 1809.5 segundos
+  \item \textbf{HC+FRC}: 622.8 segundos
 \end{itemize}
 
 Estos valores muestran con claridad que \emph{HC} supera sistemáticamente a 
-\emph{GA}. En particular, bajo \emph{FE} el tiempo de \emph{HC} es 
+\emph{GA}. En particular, bajo \emph{FGE} el tiempo de \emph{HC} es 
 aproximadamente 13 veces menor que el de \emph{GA}, mientras que bajo 
-\emph{FC} es casi 3 veces menor.A nivel de casos
-individuales, \emph{HC} supera a \emph{GA} en todos los casos con \emph{FE} y en 11 de 12 casos con \emph{FC},
-siendo \emph{HashSet} la única excepción donde \emph{GA+FC} fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
+\emph{FRC} es casi 3 veces menor.A nivel de casos
+individuales, \emph{HC} supera a \emph{GA} en todos los casos con \emph{FGE} y en 11 de 12 casos con \emph{FRC},
+siendo \emph{HashSet} la única excepción donde \emph{GA+FRC} fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
 Esta diferencia se entiende por la propia naturaleza de los algoritmos.
 El algoritmo genético (\textbf{GA}) mantiene y evoluciona poblaciones completas de posibles subconjuntos, lo que implica evaluar muchos candidatos en paralelo.
 En consecuencia, puede tardar más en encontrar el subconjunto minimal de métodos generadores, ya que su búsqueda es estocástica y no siempre converge rápidamente hacia la mejor solución.
 
 En cambio, \emph{HC} sigue una estrategia incremental y determinista: parte de una solución inicial y la mejora paso a paso en el espacio de búsqueda. Esto lo vuelve más eficiente en recorrer dicho espacio y encontrar soluciones minimales con menor costo computacional. Por ello, en la mayoría de los casos, \textbf{HC} resulta más rápido que \textbf{GA}.
-Comparando entre funciones objetivo dentro de un mismo algoritmo, \emph{FE}
-termina antes que \emph{FC}. En \emph{GA}, FC requiere en promedio
-unas siete veces más tiempo que \emph{FE}; en \emph{HC}, \emph{FC} requiere unas casi 32 veces
-más tiempo que FE. La función objetivo FE termina antes en los algoritmos debido a que genera objetos 
+Comparando entre funciones objetivo dentro de un mismo algoritmo, \emph{FGE}
+termina antes que \emph{FRC}. En \emph{GA}, FRC requiere en promedio
+unas siete veces más tiempo que \emph{FGE}; en \emph{HC}, \emph{FRC} requiere unas casi 32 veces
+más tiempo que FGE. La función objetivo FGE termina antes en los algoritmos debido a que genera objetos 
 para un scope que debe ser especificado manualmente por el usuario. Todas tienen un \emph{timeout} de 
 30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
-la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. En cambio, el la función objetivo FC debe agotar su presupuesto de tiempo
+la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. En cambio, el la función objetivo FRC debe agotar su presupuesto de tiempo
 para cada candidato considerado.
-Esto explica porque FE es más rápida en comparación con la función objetivo FC.
+Esto explica porque FGE es más rápida en comparación con la función objetivo FRC.
 
-A diferencia de \emph{FE}, como la función objetivo basada en cobertura con Randoop
-(\emph{FC}) no requiere que el usuario fije un \emph{scope} para enumerar
+A diferencia de \emph{FGE}, como la función objetivo basada en cobertura con Randoop
+(\emph{FRC}) no requiere que el usuario fije un \emph{scope} para enumerar
 objetos, puede volverla más escalable en dominios donde la cantidad de
 objetos válidos crece combinatoriamente con el scope. 
-El costo de \emph{FE} escala con la enumeración de todas
-las instancias dentro del scope, mientras que \emph{FC} evalúa cada candidato
+El costo de \emph{FGE} escala con la enumeración de todas
+las instancias dentro del scope, mientras que \emph{FRC} evalúa cada candidato
 mediante generación/ejecución de tests sin explorar exhaustivamente el
 espacio de objetos, lo que puede resultar más económico para scopes grandes.
 
-Esto respalda el uso de FE cuando el objetivo es minimizar el tiempo de cómputo de los generadores.
-Sin embargo, la función objetivo \emph{FC} no requiere que el usuario provea la definición del scope, y
+Esto respalda el uso de FGE cuando el objetivo es minimizar el tiempo de cómputo de los generadores.
+Sin embargo, la función objetivo \emph{FRC} no requiere que el usuario provea la definición del scope, y
 podría ser más escalable que la generación exhaustiva acotada en casos donde
 la cantidad de objetos a generar crezca exponencialmente respecto de los scopes. Como trabajos futuros se planean realizar más experimentos 
 para evaluar esta hipótesis.
@@ -244,13 +244,13 @@ devuelto coincide en tamaño con el minimal, lo consideramos exacto, y
 cuando incluye métodos adicionales lo consideramos sobredimensionado.
 
 La Tabla~\ref{tab:efectividad} resume los tamaños promedios (sobre 5
-corridas) del conjunto hallado por cada configuración (GA/HC $\times$ GE/FE).
-Se observan cuatro patrones claros. Primero, \textbf{HC+FC} encuentra el conjunto
+corridas) del conjunto hallado por cada configuración (GA/HC $\times$ FGE/FRC).
+Se observan cuatro patrones claros. Primero, \textbf{HC+FRC} encuentra el conjunto
 \emph{minimal exacto en 12/12} sujetos. Segundo, \textbf{HC+GE} es exacto en
 \emph{11/12} sujetos y sólo sobredimensiona en \emph{Lits} (retorna 7 en lugar de
 6).\cacho{Revisar esto, no me acuerdo bien, ver el paper}
 Tercero, \textbf{GA+GE} es exacto en \emph{10/12} sujetos; sobredimensiona en
-\emph{Lits} (7 vs.\ 6) y \emph{HashMap} (2.60 vs.\ 2). Cuarto, \textbf{GA+FE} es
+\emph{Lits} (7 vs.\ 6) y \emph{HashMap} (2.60 vs.\ 2). Cuarto, \textbf{GA+FGE} es
 exacto en \emph{8/12} sujetos y tiende a incluir métodos adicionales en
 \emph{NCL} (3.80 vs.\ 3), \emph{TreeMap} (5.60 vs.\ 3), \emph{TreeSet}
 (3.20 vs.\ 3) y \emph{HashSet} (3 vs.\ 2).
@@ -260,7 +260,7 @@ evaluación se realiza por enumeración acotada; bajo scope fijo y valores
 iniciales concretos, ciertas combinaciones pueden no ser alcanzables sin
 incorporar alguna rutina adicional (como ocurre en \emph{Lits}), lo que hace que
 el conjunto devuelto sea suficiente pero no minimal. Por otro lado, en
-\textbf{FE} la métrica de cobertura puede favorecer métodos que
+\textbf{FGE} la métrica de cobertura puede favorecer métodos que
 aumentan rápido la cobertura de ramas/líneas aunque no sean estrictamente
 necesarios para construir todas las instancias, por lo que el algoritmo puede estabilizarse en soluciones
 ligeramente sobredimensionadas.
@@ -274,9 +274,9 @@ pero puede congelar soluciones suficientes levemente mayores que el
 mínimo cuando la presión selectiva ya no impulsa mejoras adicionales.
 
 En síntesis, todas las configuraciones producen conjuntos suficientes, y
-\textbf{HC+FE} además logra el mínimo exacto de forma sistemática. Cuando
+\textbf{HC+FGE} además logra el mínimo exacto de forma sistemática. Cuando
 el objetivo primario es minimizar el costo de generación/análisis, recomendamos
-emplear el conjunto devuelto por \textbf{HC+FE} (minimal y suficiente).
+emplear el conjunto devuelto por \textbf{HC+FGE} (minimal y suficiente).
 
 \input{tables/eficaciaBuilders.tex}
 
@@ -295,8 +295,8 @@ Para aquellos casos de estudio cuyas clases permiten medir el tamaño de los obj
 (mediante el método \texttt{size()}) y comparar objetos por igualdad (a través de \texttt{equals()}), 
 realizamos un experimento con la herramienta \emph{Randoop} (Ver preliminares, \ref{sec:feedback-directed-test-gen}). Generamos casos de test en dos 
 configuraciones distintas: (i) utilizando toda la API disponible de la clase bajo análisis 
-(denominada \texttt{TodosLosMetodos}), y (ii) utilizando únicamente los métodos generadores de objetos
-(\texttt{SoloMetodosGeneradores}) identificados por nuestro enfoque en el experimento anterior 
+(denominada \texttt{API}), y (ii) utilizando únicamente los métodos generadores de objetos
+(\texttt{MGO}) identificados por nuestro enfoque en el experimento anterior 
 (ver Tabla~\ref{tab:results-obj}).
 
 Para ambas configuraciones, medimos la cantidad de objetos distintos 
@@ -305,88 +305,39 @@ test: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la
 Tabla~\ref{tab:results-obj}.
 
 En promedio global sobre las 39 combinaciones (clase X presupuesto),
-\texttt{SoloMetodosGeneradores} genera 6355 objetos frente a 1597 de
-\texttt{TodosLosMetodos}, es decir, +4758 objetos en promedio y un
-incremento de \textbf{\(\sim 4.0\times\)} en cantidad de objetos (\(6355/1597=3.98\)). Desagregando por presupuesto:
+\texttt{MGO} genera 6355 objetos frente a 1597 de
+\texttt{API}, es decir, 4758 más de objetos en promedio, lo que significa un
+incremento de 4 veces en cantidad de objetos (\(6355/1597=3.98\)). Desagregando por presupuesto:
 
 En el presupuesto de \textbf{60 segundos}, la configuración con solo los 
-métodos generadores produce en promedio \textbf{4783 objetos}, mientras 
-que la basada en toda la API alcanza apenas \textbf{1275}. Esto implica 
-que con métodos generadores se obtienen más de tres veces más objetos, 
+métodos generadores produce en promedio 4783 objetos, mientras 
+que la basada en toda la API alcanza apenas 1275. Esto implica 
+que con métodos generadores se obtienen, aproximadamente, tres veces más objetos, que con toda la API,
 lo que representa una diferencia de alrededor de 3500 objetos adicionales. 
 
 Con un presupuesto de \textbf{120 segundos}, los métodos generadores 
-alcanzan en promedio \textbf{6546 objetos}, frente a \textbf{1623} con 
+alcanzan en promedio 6546 objetos, frente a 1623 con 
 toda la API. En este caso, se generan aproximadamente cuatro veces más 
-objetos, lo que equivale a una ventaja de más de 4900 objetos adicionales. 
+objetos con los \texttt{MGO} en comparación que con \texttt{API},
+lo que equivale a una ventaja de más de 4900 objetos adicionales. 
 
 Finalmente, para \textbf{180 segundos}, la configuración con métodos 
-generadores llega a \textbf{7736 objetos}, mientras que con toda la API 
-se logran \textbf{1893}. Nuevamente, la diferencia es notable: se 
-construyen casi cuatro veces más objetos, con un excedente cercano a 
-los 5800 objetos adicionales.
+generadores llega a 7736 objetos, mientras que con toda la API 
+se logran 1893. Nuevamente, la diferencia es notable, se 
+construyen casi cinco veces más objetos con los \texttt{MGO} en comparación que con \texttt{API}, 
+con un excedente cercano a los 5800 objetos adicionales.
 
-Esto muestra que, para un mismo presupuesto, el uso de \texttt{SoloMetodosGeneradores}
-permite obtener entre \(3.75\times\) y \(4.09\times\) más objetos en
-promedio, con una ganancia absoluta que crece al aumentar el tiempo
-presupuestado.
-
-\cacho{Ver caso Scheduler, porque paso esto, en el paper tampoco esta explicado}
-La ventaja es consistente en la gran mayoría de los casos: en 36 de 39
-combinaciones (92.3\%) \texttt{SoloMetodosGeneradores} supera a \texttt{TodosLosMetodos}. Si
-promediamos por clase (sobre los tres presupuestos), \texttt{SoloMetodosGeneradores} es mejor
-en \textbf{12 de 13} clases. La única excepción a nivel de clase es
-\emph{Schedule}, donde \texttt{TodosLosMetodos} produce más objetos. En contraste, la ganancia es muy marcada en
-\emph{NCL} (\(\sim 15.4\times\) promedio por clase) y \emph{LinkedList}
-(\(\sim 10.5\times\)).
-
-En síntesis, en promedio el uso exclusivo de métodos generadores
-produce casi cuatro veces más objetos que emplear toda la API, y lo
-hace de manera robusta en la mayoría de las clases y presupuestos. Esto sugiere
-que focalizar la generación sobre métodos constructivos efectivos mejora la
-capacidad de exploración de Randoop bajo un mismo presupuesto de tiempo,
-aumentando la diversidad de entradas disponibles para los tests.
-
-Estos hallazgos ponen de manifiesto el impacto positivo de identificar automáticamente métodos 
-generadores adecuados. Su utilización en herramientas de tests como \emph{Randoop} mejora sustancialmente 
-la calidad y diversidad de los objetos generados. Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
+La ventaja es consistente todos los casos. Si
+promediamos por clase (sobre los tres presupuestos), \texttt{MGO} es mejor
+en todas las clases, con ganancias especialmentes marcadas en \emph{NCL} (casi 15 veces mas en promedio por clase) y \emph{LinkedList}
+(casi 10 veces). Esto sugiere que focalizar la generación sobre métodos generadores de objetos mejora la
+capacidad de exploración de Randoop bajo un mismo presupuesto de tiempo, incrementando la diversidad de entradas disponibles para los tests.
+Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
 constituye una estrategia efectiva y valiosa para potenciar la generación automatizada de tests.
+La calidad de los objetos generados se evalúa más adelante en la Sección~\ref{sec:parametrizedTesting}, 
+donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
 
 \input{tables/objectsBuilders.tex}
-
-\cacho{Este experimento no se si agregarlo, lo saque del paper. No es tan asi, y capaz que traiga problema con el experimento de beapi. Lo mismo que los objectos de arriba, no coinciden los valores. Ver con PP}
-Además, comparamos las \emph{suites} generadas midiendo la cobertura de ramas y de líneas. 
-Al igual que en el experimento anterior, contrastamos el uso de \texttt{MétodosGen} contra 
-\texttt{API} completa con la configuración por defecto de Randoop, 
-esta vez bajo cinco presupuestos de tiempo (60, 120, 180, 300 y 600 segundos). 
-En cada configuración, construimos las \emph{suites} de test ya sea utilizando 
-todos los métodos de la API o únicamente los métodos generadores de objetos 
-identificados previamente. Los resultados se presentan en la Tabla~\ref{tab:results-coverage}.
-En promedio sobre todas las clases y presupuestos, \texttt{MetodosGen} mejora la
-cobertura de ramas de 104.0 a 120.9 ramas
-(+16.8 ramas,+11.8\%) y la cobertura de líneas de
-223.1 a 245.4 líneas (+22.2 líneas, +7.0\%).
-Por presupuesto, las ganancias de ramas crecen con el tiempo
-(\(+13{.}9\), \(+15{.}1\), \(+15{.}5\), \(+19{.}5\), \(+20{.}2\) ramas para
-60, 120, 180, 300 y 600 s: mientras que
-en lineas se observan mejoras de \(+8{.}97\%\), \(+9{.}98\%\), \(+9{.}70\%\), \(+10{.}57\%\) y \(+10{.}57\%\) para 60, 120, 180, 300 y 600 s, respectivamente.
-\texttt{MetodosGen} nunca empeora la cobertura de ramas (41/65 mejoras, 24 empates)
-y sólo en 1/65 casos la cobertura de lineas es levemente menor
-(\emph{FHeap}, 120 s); en el resto mejora (43/65) o empata (21/65).
-Los mayores incrementos aparecen en estructuras con espacio de estados complejo
-(\emph{TreeMap} y \emph{TreeSet}: \(+58\%\) y \(+59\%\) promedio en ramas,
-y \(+30\%\) y \(+34\%\) en líneas, respectivamente), mientras que en APIs pequeñas o ya
-saturadas (\emph{BTree}, \emph{Schedule}, \emph{UFind}) las coberturas de
-\texttt{API} y \texttt{MetodosGen} son prácticamente idénticas.
-
-En conjunto, estos resultados indican que la identificación automática de
-los métodos generadores es de mucha importancia para el analisis de programas.
-Bajo el mismo presupuesto, \texttt{MetodosGen} produce \(\sim 4\times\)
-más objetos distintos y alcanza coberturas de ramas y líneas mayores en promedio,
-al focalizar el generador en operaciones constructivas que exploran más
-eficientemente el espacio de estados relevante.
-\input{tables/coverageRandoop.tex}
-
 
 \subsubsection{Impacto en verificación formal con JPF}
 
@@ -395,57 +346,11 @@ del análisis de programas mediante verificación formal. Para ello, utilizamos 
 (JPF)~\cite{Visser:2005}, explicado en la seccion \ref{sec:jpf}.
 Este experimento lo evaluamos en los casos de estudio del paquete \texttt{java.util}.
 
-Las técnicas de verificación de modelos requieren definir \emph{controladores de tests}, es decir, 
-secuencias de métodos que permitan construir las entradas sobre las que se analizará el programa. 
-Idealmente, estas secuencias deberían generarse a partir del conjunto minimal de métodos que permitan 
-construir todas las instancias posibles dentro de un alcance definido (\emph{scope}). Sin embargo, 
-la selección manual de estos métodos representa una barrera significativa para el uso de herramientas 
-como JPF, ya que requiere un análisis exhaustivo de la API y una comprensión detallada de la 
-semántica del módulo
-
-Como ya se mostro anteriormente en la seccion de preliminares (ver \ref{sec:jpf}), el primer gran aporte a JPF se
-encuentra en la escritura de los controladores. Queda claro que programar el controlador
+El primer gran aporte a JPF se encuentra en la escritura de los controladores. Queda claro que programar el controlador
 a partir de todos los métodos de la API es una tárea compleja que requiere
 mas conocimento de la API bajo análisis como muestra el algoritmo \ref{lst:driverAPI}. Para
 compensar esto, mostramos que el algoritmo que se utiliza como controlador en caso
-de obtener previamente los métodos generadores es más sencillo y entendible para el usuario (Ver \ref{driverBLD}).
-
-\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverAPI},captionpos=b]
-    private static TreeMap generateStructure(int scope) {
-       int maxLength = Verify.getInt(0, scope);
-       TreeMap t = new TreeMap();
-       for (int i = 1; i <= maxLength; i++) {
-          switch (Verify.random(n_methods)) {
-             case 0:
-                t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
-                break;
-             case 1:
-                t.remove(Verify.getInt(0,scope));
-                break;						
-             case 2:
-                t.clear();
-                break;
-             case 3:
-                t.containsValue(Verify.getInt(0,scope));
-                break;
-             ...
-             case 11: 
-                t.putAll(l);
-                break;
-          }
-       }
-       return t;
-    }
-\end{lstlisting}
-
-Para ilustrar este mecanismo, consideramos el análisis del método \texttt{put} de \texttt{TreeMap}.
-La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverBLD}.
-Para mitigar el problema de la explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
-detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{FC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
-Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
-\texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
-válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
-de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
+de obtener previamente los métodos generadores es más sencillo y entendible para el usuario (Ver \ref{lst:driverBLD}).
 \\
 \begin{lstlisting}[language=Java,caption={Controlador con los métodos generadores de objectos},label={lst:driverBLD},captionpos=b]
     private static TreeMap generateStructure(int scope) {
@@ -465,9 +370,9 @@ de objetos que con la API completa, pero con un espacio de búsqueda significati
     }
 \end{lstlisting}
 
-Luego con este generador se puede verificar que el método \texttt{put} preserva el \emph{repOK} de la estructura de datos, como se muestra en ~\ref{lst:driverBLD}.
+Luego con este generador se puede verificar que el método \texttt{put} preserva el \emph{repOK} de la estructura de datos, como se muestra en ~\ref{lst:propiedadJPF}.
 
-\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:driverBLD},language=Java,captionpos=b]
+\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:propiedadJPF},language=Java,captionpos=b]
     public static void main(String[] args) {
        int scope = 3;
        TreeMap t = generateStructure(scope);
@@ -476,13 +381,20 @@ Luego con este generador se puede verificar que el método \texttt{put} preserva
     }
 \end{lstlisting}
 
-Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-jpf1-short}, demuestran que los controladores construidos a partir de nuestros 
+Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-jpf} y \ref{tab:results-jpf1}, demuestran que los controladores construidos a partir de nuestros 
 métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad. Se observa una reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
 comprometer la cobertura de las estructuras objetivo. Esta evidencia refuerza la utilidad práctica 
 de nuestra técnica en entornos de verificación formal, donde el costo computacional de la exploración 
 del espacio de estados es un factor crítico.
 
-
+% Para ilustrar este mecanismo, ponemos bajo análisis el método \texttt{put} de \texttt{TreeMap}.
+% La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverBLD}.
+% Para mitigar el problema de la explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
+% detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{FRC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
+% Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
+% \texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
+% válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
+% de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
 
 % El patrón se mantiene de forma consistente a través de múltiples estructuras de datos de 
 % \texttt{java.util}, incluyendo \texttt{HashMap}, \texttt{HashSet}, \texttt{LinkedList}, 
@@ -513,49 +425,38 @@ del espacio de estados es un factor crítico.
 % complejas. Al eliminar métodos superfluos y reducir el espacio de búsqueda, se mejora significativamente 
 % el rendimiento de herramientas como JPF, sin sacrificar precisión ni completitud en el análisis.
 
+Para focalizar la comparación en los distintos casos, 
+consideramos en cada clase–método todos los niveles de \emph{scope} que finalizan sin \emph{timeout}
+De esta manera, los resultados reflejan el comportamiento completo de cada técnica en el rango alcanzable por \emph{JPF}. 
+Cuando \textsf{API} alcanza \emph{timeout} en un determinado \emph{scope}, ese resultado indica un límite práctico 
+de escalabilidad para dicha variante
+% , mientras que \textsf{MGO} (Métodos generadores de Objetos) en general logra completar en el mismo \emph{scope}
+Así, los casos con \emph{timeout} no se eliminan del análisis, 
+sino que se interpretan como evidencia de la explosión combinatoria que introduce la API completa, 
+en contraste con la reducción sustancial que se obtiene al restringirse al conjunto suficiente de métodos generadores.
 
-Para focalizar la comparación en escenarios exigentes pero aún completables,
-en cada par clase–método tomamos los tres últimos niveles de \emph{scope}
-que todavía finalizan sin \emph{timeout} cuando se usa el \emph{driver} con toda
-la API (\textsf{TodosLosMetodos}). En casos de estudio donde no se observó \emph{timeout},
-seleccionamos los tres \emph{scopes} más altos disponibles. Con este criterio,
-los \emph{scopes} empleados fueron: \texttt{LinkedList} (4–5–6),
-\texttt{TreeMap.put} (2–3–4), \texttt{TreeMap.remove} (3–4–5),
-\texttt{TreeSet} (6–7–8), \texttt{HashMap.put} (2–3–4),
-\texttt{HashMap.remove} (3–4–5) y \texttt{HashSet} (5–6–7).
-
-En el promedio global sobre estas 30 combinaciones, el \emph{driver} con
-\textsf{MetodosGeneradores} explora \(4.68\times 10^5\) estados en \(53.0\) s, mientras que
-\textsf{TodosLosMetodos} explora \(6.59\times 10^6\) estados en \(572.9\) s. Esto supone
-una reducción promedio de \(\sim 92.9\%\) en la cantidad de estados y de
-\(\sim 90.7\%\) en tiempo. En términos relativos, \textsf{MetodosGeneradores} alcanza un
-\emph{speedup} temporal de \(\sim 10.8\times\) y reduce el espacio de estados en
-\(\sim 14.1\times\) respecto de \textsf{TodosLosMetodos}. El patrón se repite de forma
-consistente en todas las clases consideradas y se vuelve especialmente marcado en
-estructuras con APIs ricas, donde la API completa introduce combinaciones
-superfluas que amplifican la explosión combinatoria (por ejemplo, en
-\texttt{LinkedList} y \texttt{TreeSet} el uso de \textsf{TodosLosMetodos} entra en TO en
-el \emph{scope} siguiente, mientras que \textsf{MetodosGeneradores} aún completa).
-
+En el análisis global sobre estas 30 combinaciones, el \emph{driver} con
+\textsf{MGO} acumula 14070756 estados en 1591s, mientras que \textsf{API} explora 198130649 estados en 17,240 segundos,
+En promedio por casos, \textsf{MGO} explora 234513 estados en 26.5 segundos, mientras que \textsf{API} 
+explora 3302177 estados en 297.3 segundos. Esto implica que \textsf{MGO} reduce el espacio de estados en 
+92.9\%\ y el tiempo en 91\%\ aproximadamente respecto de \textsf{API}. 
+% Equivalentemente, \textsf{MGO} alcanza un \emph{speedup} de 11 veces y reduce el espacio de estados en 14 veces respecto de \textsf{API}.
+Se observa tambien, que bajo el mismo \emph{scope}, \textsf{MGO} completa en todos los casos, mientras que \textsf{API} alcanza \emph{timeout} en 9/30 combinaciones (30\%).
+Bajo el mismo \emph{scope}, \textsf{API} explora aproximadamente 1308\%\ mas de estados y tarda 984\%\ mas de tiempo que \textsf{MGO}.
+Este patrón es consistente en todas las clases.
 En cuanto a la interpretación, los resultados indican que construir \emph{drivers}
-exclusivamente con los métodos generadores identificados por nuestro enfoque
+exclusivamente con los métodos generadores identificados por nuestro enfoque,
 poda de manera efectiva el factor de ramificación en los puntos de elección
 no deterministas del verificador (ej., \texttt{Verify.random}), lo que reduce
 tanto el número de estados alcanzables como el costo de retroceso durante la
-exploración. Al mismo tiempo, la suficiencia del conjunto de \textsf{MetodosGeneradores}
+exploración. Al mismo tiempo, la suficiencia del conjunto de \textsf{MGO}
 garantiza que se preserva la capacidad de construir todas las instancias
-(acotadas por el \emph{scope}) relevantes para la verificación de las propiedades,
+(acotadas por el \emph{scope}) y de poder escalar a \emph{scope} mas altos que pueden ser 
+relevantes para la verificación de las propiedades,
 sin sacrificar cobertura estructural dentro del alcance definido.
 
-En síntesis, los experimentos muestran que la construcción de \emph{drivers} a
-partir de los métodos generadores identificados por nuestra técnica incrementa de
-manera sustancial la eficiencia y la escalabilidad del análisis con JPF hacia
-\emph{scopes} más altos y estructuras más complejas. Esto se debe a la reducción
-de métodos utilizados en los \emph{drivers} (evitando operaciones superfluas) y a
-que, gracias a la suficiencia del conjunto elegido, se mantiene la capacidad
-de construir todas las instancias acotadas posibles en menos tiempo.
-
-\input{tables/tableJPFBuilders_short.tex}
+\input{tables/tableJPFBuilders.tex}
+\input{tables/tableJPFBuilders1.tex}
 
 \section{Generación exhaustiva acotada basada en la API}
 \label{sec:experimentalBeapi}
@@ -854,7 +755,7 @@ de clase, lo que redunda en mayor confiabilidad del software verificado.
 \input{tables/bugRepOk}
 
 \subsection{RQ7: Usando BEAPI para el testing parametrizado}
-
+\ref{sec:parametrizedTesting}
 En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
 utilidad de los métodos generadores identificados mediante nuestro enfoque, particularmente 
 en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 

@@ -545,8 +545,13 @@ son provistos por la persona usuaria. Cuando se detecta una falla, JPF produce u
 
 Para realizar verificación acotada, JPF se basa en \emph{drivers} (también llamados controladores): combinaciones de métodos que permiten construir todas las
 entradas acotadas para ejecutar el código bajo análisis. En tipos de datos complejos (por ej., estructuras dinámicas en el \emph{heap}
-como listas doblemente enlazadas) la construcción suele requerir varias rutinas de la API del módulo (ejemplo, \texttt{add},
-\texttt{remove}, etc.), por lo que el diseño del \emph{driver} depende de dichas rutinas.
+como listas doblemente enlazadas) la construcción suele requerir varios métodos de la API (ejemplo, \texttt{add},
+\texttt{remove}, etc.), por lo que el diseño del \emph{driver} depende de dichos métodos.
+Idealmente, estas secuencias deberían generarse a partir del conjunto minimal de métodos que permitan 
+construir todas las instancias posibles dentro de un alcance definido (\emph{scope}). Sin embargo, 
+la selección manual de estos métodos representa una barrera significativa para el uso de herramientas 
+como JPF, ya que requiere un análisis exhaustivo de la API y una comprensión detallada de la 
+semántica del módulo
 
 En módulos con muchas operaciones, seleccionar rutinas para el \emph{driver} no es trivial y puede impactar fuertemente en el
 análisis posterior. Se busca un conjunto tan pequeño como sea posible cuyas combinaciones permitan construir todas las
@@ -598,43 +603,73 @@ tamaño \(\le b\). En cada iteración se elige no determinísticamente
 una operación de la API y sus argumentos.
 
 Si la persona usuaria no conoce los métodos generadores (y no desea seleccionarlos manualmente), la alternativa más segura es
-usar todos los métodos del módulo, como se muestra en el algortimo \ref{lst:driverNCL}. En el
+usar todos los métodos del módulo, como se muestra en el algortimo \ref{lst:driverAPI}. En el
 cuerpo del ciclo, a cada operación se le asigna un identificador y se elige no determinísticamente un valor en \([0, m)\) para
 seleccionar la operación a ejecutar; por ejemplo, si
 \texttt{methodN=2}, se ejecuta \texttt{clear()}. El número de ejecuciones crece exponencialmente con \(m\) (cantidad de
 métodos): tras \(k\) pasos hay \(m^{k}\) secuencias potenciales.
 \\
-\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverNCL},captionpos=b] 
-private static NCL generateStructure(int scope) {
-  int maxLength = Verify.getInt(0, scope);
-  NCL t = new NCL();
-  for (int i = 1; i <= maxLength; i++) {
-    int n_methods = Verify.random(n_methods)
-    switch (n_methods) {
-      case 0:
-        t.addFirst(Verify.getInt(0,scope),Verify.getInt(0,scope));
-        break;
-      case 1:
-        t.removeFirst(Verify.getInt(0,scope));
-        break;
-      case 2:
-        t.clear();
-        break;
-      case 3:
-        t.containsValue(Verify.getInt(0,scope));
-        break;
-      // ...
-      case 33:
-        t.size(l);
-        break;
-      default:
-        /* no-op */
-    }
-  }
-  return t;
-}
-\end{lstlisting}
+% \begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverNCL},captionpos=b] 
+% private static NCL generateStructure(int scope) {
+%   int maxLength = Verify.getInt(0, scope);
+%   NCL t = new NCL();
+%   for (int i = 1; i <= maxLength; i++) {
+%     int n_methods = Verify.random(n_methods)
+%     switch (n_methods) {
+%       case 0:
+%         t.addFirst(Verify.getInt(0,scope),Verify.getInt(0,scope));
+%         break;
+%       case 1:
+%         t.removeFirst(Verify.getInt(0,scope));
+%         break;
+%       case 2:
+%         t.clear();
+%         break;
+%       case 3:
+%         t.containsValue(Verify.getInt(0,scope));
+%         break;
+%       // ...
+%       case 33:
+%         t.size(l);
+%         break;
+%       default:
+%         /* no-op */
+%     }
+%   }
+%   return t;
+% }
+% \end{lstlisting}
 
+
+\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverAPI},captionpos=b]
+    private static TreeMap generateStructure(int scope) {
+       int maxLength = Verify.getInt(0, scope);
+       TreeMap t = new TreeMap();
+       for (int i = 1; i <= maxLength; i++) {
+          switch (Verify.random(n_methods)) {
+             case 0:
+                t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+                break;
+             case 1:
+                t.remove(Verify.getInt(0,scope));
+                break;						
+             case 2:
+                t.clear();
+                break;
+             case 3:
+                t.containsValue(Verify.getInt(0,scope));
+                break;
+             case 4: 
+                t.putAll(l);
+                break;
+              ...
+             default:
+                /* no-op */
+          }
+       }
+       return t;
+    }
+\end{lstlisting}
 
 En esta tesis proponemos una técnica automática que, dada la API de un módulo, identifica un subconjunto suficiente y no superfluo de
 métodos generadores (ver Capitulo \ref{cap:builders}). Esta técnica actúa como paso previo a la construcción del controlador
