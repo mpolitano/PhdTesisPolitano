@@ -47,12 +47,8 @@ disjuntos tomada de JGrapht~\cite{jgrapht}.
 También se incluyeron componentes de proyectos reales de software, como 
 \verb"Lits" de la implementación de Sat4j~\cite{sat4j}, utilizada previamente 
 en~\cite{Loncaric:2018}. \verb"Lits" implementa la interfaz \verb"ILits" y 
-administra el “vocabulario” interno del solver (variables y literales): traduce 
-literales desde DIMACS a la representación interna, registra el nivel de decisión 
-o propagación asociado a cada literal, y mantiene las listas de observación 
-(\emph{watch lists}) usadas en la propagación booleana unitaria. En la práctica, 
-esto equivale a guardar cuándo se asignó por última vez un literal y qué 
-restricciones lo observan}
+administra el  vocabulario interno del solver (variables y literales), traduce 
+literales desde DIMACS a la representación interna.}
 
 Por otro lado, se consideraron estructuras adicionales como \verb"Scheduler",
 un planificador de procesos tomado del conjunto de benchmarks SIR~\cite{sir},
@@ -66,7 +62,7 @@ package-summary.html}}, incluyendo \verb"TreeMap", \verb"TreeSet",
 
 Para evaluar la precisión de nuestros algoritmos, se construyó manualmente un
 conjunto de referencia o \emph{ground truth} que contiene los métodos
-generadores considerados minimales y suficientes en cada caso de estudio. Esta
+generadores de objetos (\emph{MGO}) considerados minimales y suficientes en cada caso de estudio. Esta
 tarea implicó un análisis detallado y manual de cada API, lo que representó un
 trabajo considerable, especialmente en los casos más complejos. La
 Tabla~\ref{tab:groundTruth} resume este conjunto de referencia, indicando para
@@ -79,7 +75,7 @@ casos ciertos métodos pueden ser intercambiables (por ejemplo,
 \subsubsection{Algoritmos evaluados.}
 
 \cacho{NUEVO:}
-El objetivo de esta sección es identificar automáticamente el subconjunto de métodos generadores de cada API. 
+El objetivo de esta sección es identificar automáticamente el subconjunto de métodos generadores de cada API (\emph{MGO}). 
 Modelamos la tarea como un problema de búsqueda sobre subconjuntos \(M \subseteq API\) y empleamos distintos algoritmos 
 para explorar ese espacio. La calidad de cada candidato \(M\) se evalúa mediante funciones objetivo 
 (\emph{fitness}) definidas en las secciones citadas.
@@ -95,18 +91,14 @@ Usamos dos funciones objetivo alternativas para evaluar cada conjunto candidato 
 que dan lugar a las variantes reportadas en las tablas:
 
 \begin{itemize}
-  \item \textbf{GE} (\emph{Generación Exhaustiva}; Sección~\ref{sec:fitnessGE}):
+  \item \textbf{FGE} (\emph{Función con Generación Exhaustiva}; Sección~\ref{sec:fitnessGE}):
 mide la cantidad/calidad de objetos distintos alcanzados mediante generación exhaustiva hasta un \emph{scope} fijado.
-  \item \textbf{RC} (\emph{Randoop Coverage}; Sección~\ref{sec:fitnessRandoop}): maximiza la cobertura de código (líneas y ramas) alcanzada por los tests generados con Randoop restringidas al conjunto candidato. 
+  \item \textbf{FRC} (\emph{Función con Randoop Coverage}; Sección~\ref{sec:fitnessRandoop}): maximiza la cobertura de código (líneas y ramas) alcanzada por los tests generados con Randoop restringidas al conjunto candidato. 
 \end{itemize}
 
 % \paragraph{Convenciones de nombres}
 % Cuando un algoritmo se evalúa con una función objetivo específica, usamos la notación \textbf{Algoritmo–Fitness}. 
 % Por ejemplo: \textbf{GA–GE}, \textbf{GA–RC}, \textbf{HC–GE}, \textbf{HC–RC}.
-
-\pp{Falta describir brevemente los algoritmos evaluados, citando las secciones
-correspondientes, y las funciones de fitness. Y darles los nombres abreviados
-que después aparecen en las tablas.}
 
 % Como se discutió en el Capítulo~\ref{cap:beapi}, nuestros algoritmos requieren
 % la configuración de diversos parámetros que influyen en su eficiencia y
@@ -160,14 +152,6 @@ GNU/Linux.
 %Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más rápidamente que el algoritmo Hill Climbing.
 %
 
-Esto se aplica a todos los algoritmos implementados.
-Sin embargo, la función objetivo basada en el algoritmo \emph{HC} no requiere que el usuario provea la definición del scope, y
-podría ser más escalable que la generación exhaustiva acotada en casos donde
-la cantidad de objetos a generar crezca exponencialmente respecto de los scopes 
-(\cacho{ver si hay alguno}). Como trabajos futuros se planean realizar más experimentos 
-para evaluar esta hipótesis.
-
-
 \subsection{RQ1: Eficiencia del cómputo de generadores de objetos}
 \cacho{Nuevo esto:}
 Medimos la eficiencia como el tiempo promedio (en segundos) necesario para
@@ -177,7 +161,7 @@ objetivo: \emph{FGE} (Función objetivo con generación exhaustiva acotada) y \e
 Los resultados se muestran en la Tabla~\ref{tab:eficiencia}. Cada fila
 corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API
 (\#API) y la cantidad de métodos generadores del \emph{ground truth}
-(\#MétodosGen). Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
+(\#MGO). Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
 cada uno, por función objetivo (FGE y FRC). Para cada configuración
 (algoritmo~$\times$~objetivo) reportamos el promedio de 5 ejecuciones.
 
@@ -236,7 +220,7 @@ para evaluar esta hipótesis.
 
 Medimos la efectividad como la capacidad de cada configuración para identificar
 el \emph{conjunto minimal} de métodos generadores de la API (según el
-\emph{ground truth} indicado como \#MetodosGeneradores en la tabla). Por construcción, en
+\emph{ground truth} indicado como \#MGO en la tabla). Por construcción, en
 todas las corridas nuestros algoritmos devuelven siempre un subconjunto
 suficiente (nunca omiten un generador necesario); cuando el conjunto
 devuelto coincide en tamaño con el minimal, lo consideramos exacto, y
