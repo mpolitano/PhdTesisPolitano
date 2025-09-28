@@ -443,32 +443,13 @@ sin sacrificar cobertura estructural dentro del alcance definido.
 \section{Generación exhaustiva acotada basada en la API}
 \label{sec:experimentalBeapi}
 
-\cacho{Esto estaba en la seccion de beapi, tengo que verlo y acomodarlo aca}
-\pp{De acá hasta el final de esta sección son resultados que se deberían
-discutir en la parte de la sección experimental que tiene los resultados de builders} 
-
-En la mayoría de nuestros casos de estudio, los métodos generadores de objetos se limitan a un 
-constructor y un único método para agregar elementos a la estructura, como ocurre en las listas 
-simplemente enlazadas.  
-
-Sin embargo, nuestro enfoque automatizado de identificación de métodos generadores evidenció que, 
-en el caso de los árboles Rojo–Negro, también es necesario incluir un método de eliminación 
-(para alcances mayores que tres).  
-Esto se debe a que este tipo de árboles requiere configuraciones específicas de equilibrio, 
-que involucran el coloreo de nodos en rojo y negro, las cuales no pueden obtenerse únicamente 
-mediante operaciones de inserción.
-
-En contraste, los árboles AVL,
-que también son estructuras balanceadas, no requieren el método de eliminación como parte de su subconjunto de métodos generadores.
-Los árboles AVL están siempre equilibrados, 
-de tal modo que para todos los nodos, la altura de la rama izquierda no debe diferir en más de una unidad de la altura de la rama derecha o viceversa. 
-Gracias a esta forma de equilibrio (o balanceo), la complejidad de una búsqueda en uno de estos árboles se mantiene siempre en orden de complejidad O(log n). 
-Para este caso de árboles, solo el constructor de la clase y una rutina de adición son suficientes. 
-Esto demuestra que la identificación de métodos generadores no es trivial de realizar manualmente.
-
-
-
-
+En esta sección evaluamos empíricamente BEAPI como técnica de bounded exhaustive generation (BGE) aplicada a APIs de clases. 
+Examinamos su eficiencia (tiempo de generación y escalabilidad con el \emph{scope}), 
+el impacto de sus optimizaciones sobre el desempeño, 
+la consistencia entre lo que puede generar la API y lo que exigen las especificaciones de invariantes (\texttt{repOK}), 
+y la utilidad de los objetos producidos para \emph{testing} parametrizado. 
+Los experimentos se diseñaron variando \emph{scopes} y presupuestos de tiempo, 
+y midiendo tanto costos (tiempo/estados) como eficacia de las suites resultantes (cobertura). 
 En la evaluación de BEAPI buscaremos responder a las siguientes preguntas de
 investigación:
 
@@ -499,7 +480,7 @@ algoritmos de generación de estructuras válidas.
 Los experimentos se llevaron a cabo en una computadora con procesador Intel Core i7-8700 
 (3.2 GHz) y 16 GB de RAM, ejecutando Ubuntu Linux 20.04. Para cada ejecución individual se estableció 
 un tiempo máximo de espera de 60 minutos. Todos los experimentos fueron diseñados para ser reproducibles, 
-y el artefacto experimental con el código fuente se encuentra disponible en: ???.
+y el artefacto experimental con el código fuente se encuentra disponible en: \cacho{Poner pagina?}
 
 Cada técnica evaluada se ejecutó sobre los mismos casos de estudio, con parámetros estandarizados 
 en términos de alcance (\textit{scope}), número de métodos disponibles, y criterios de generación. 
