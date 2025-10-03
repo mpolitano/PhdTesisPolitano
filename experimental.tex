@@ -267,6 +267,7 @@ emplear el conjunto devuelto por \textbf{HC+FGE} (minimal y suficiente).
 software}
 
 \subsubsection{Cantidad de objectos generados en Randoop}
+\label{sec:object_builders_randoop}
 
 En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
 identificados previamente, en el contexto de la generación automatizada de casos de test. 
@@ -610,7 +611,7 @@ como un enfoque de fuerza bruta.
 % y resulta suficiente para sustentar las conclusiones extraídas en esta sección.
 
 La Tabla~\ref{tab:results-realWorld} \cacho{Ver como referencias, hacer una sola tabla} resume los resultados para el conjunto \textsf{Real World} 
-(seis implementaciones ampliamente usadas: \texttt{LinkedList} —67 métodos—, \texttt{TreeSet} —34—, \texttt{TreeMap} —61—, \texttt{HashMap} —45—, \texttt{NCL} —34— y \texttt{Schedule} —12—). 
+(seis implementaciones ampliamente usadas: \texttt{LinkedList} con 67 métodos, \texttt{TreeSet} con 34 métodos, \texttt{TreeMap} con61 métodos, \texttt{HashMap} con 45 métodos, \texttt{NCL} con 34 métodos y \texttt{Schedule} con 12 métodos). 
 Resultados análogos se reportan para los demás benchmarks en las tablas correspondientes de esta sección; en conjunto, todos ellos muestran el mismo patrón y fundamentan las conclusiones presentadas.
 
 Los resultados muestran de forma contundente que la configuración sin optimizaciones (\textsf{NoOPT}) 
@@ -646,8 +647,6 @@ En \texttt{TreeMap} (scope 6) \textsf{SM/BLD} tarda 839.87 segundos versus 2901.
 En \texttt{Linkedlist} (scope 6) \textsf{SM/BLD} tarda 0.96 segundos versus 258.85,s segundos con \textsf{SM} (casi 270 veces más rapido); y en 
 \texttt{NCL} (scope 4) \textsf{SM/BLD} tarda 0.41 segundos versus 3.48,s segundos con \textsf{SM} (casi 8 veces más rapido).
 
-
-
 % Por ejemplo, para \texttt{NCL}, se logra alcanzar \textit{scope} 6 
 % en 73.78 segundos con \textsf{SM/BLD}, mientras que con \textsf{SM} apenas se alcanza \textit{scope} 4 
 % en más de 3 segundos, y \textsf{NoOPT} no logra ejecutar siquiera scopes bajos. Para \texttt{TreeSet}, 
@@ -679,7 +678,8 @@ en los tiempos de ejecución reportados para \textsf{BEAPI} en los distintos exp
 No obstante, es importante destacar que este preprocesamiento introduce una optimización significativa en 
 términos de eficiencia, con un costo computacional bajo en relación con el proceso completo de generación. 
 
-\cacho{Puse todos los casos, todos los scope como habiamos dicho de otra RQ, cualquier cosa saco info si es mucho}
+\cacho{Puse todos los casos, todos los scope como habiamos dicho de otra RQ, cualquier cosa saco info si es mucho.
+En el paper estaba una sola por tema de espacio.}
 
 \input{tables/optimizaciones}
 
@@ -693,30 +693,30 @@ de objetos que se pueden generar mediante la API y aquellos que se pueden genera
 invariante de representación.
 
 Para ello, diseñamos un procedimiento automatizado en tres pasos. En primer lugar, ejecutamos 
-\emph{BEAPI} para generar un conjunto de estructuras, denominado \texttt{SA}, utilizando únicamente 
-la API de la clase, y ejecutamos \emph{Korat} para generar un segundo conjunto, \texttt{SR}, 
+\emph{BEAPI} para generar un conjunto de estructuras, denominado \texttt{SBEAPI}, utilizando únicamente 
+la API de la clase, y ejecutamos \emph{Korat} para generar un segundo conjunto, \texttt{SKORAT}, 
 utilizando únicamente el método \texttt{repOK}. Ambas ejecuciones se realizaron con el mismo 
 \emph{scope}. En segundo lugar, canonizamos todas las estructuras de ambos conjuntos utilizando el 
 proceso de linearización (Sección~\ref{sec:stateMatching}), de modo que estructuras isomorfas puedan 
-compararse de forma directa. Finalmente, comparamos los conjuntos \texttt{SA} y \texttt{SR} para 
+compararse de forma directa. Finalmente, comparamos los conjuntos \texttt{SBEAPI} y \texttt{SKORAT} para 
 identificar diferencias que indiquen discrepancias semánticas entre la definición operativa de la 
 clase (la API) y su especificación declarativa (\texttt{repOK}).
 
-El procedimiento puede producir tres resultados distintos. Cuando \texttt{SA} $\subset$ \texttt{SR}, 
+El procedimiento puede producir tres resultados distintos. Cuando \texttt{SBEAPI} $\subset$ \texttt{SKORAT}, 
 puede deberse a que la API genera un subconjunto de las estructuras válidas, que \texttt{repOK} 
 sufre de subespecificación (es decir, permite estructuras que no deberían ser válidas), o ambos. 
-En estos casos, las estructuras que están en \texttt{SR} pero no en \texttt{SA} son evidencia potencial 
+En estos casos, las estructuras que están en \texttt{SKORAT} pero no en \texttt{SBEAPI} son evidencia potencial 
 de errores, y fueron inspeccionadas manualmente para confirmar si se trataba efectivamente de fallas 
 en \texttt{repOK}. Clasificamos estos errores como \texttt{under}, ya que el invariante permite más 
 de lo que debería.
 
-Por el contrario, cuando \texttt{SR} $\subset$ \texttt{SA}, puede indicar que \texttt{repOK} es demasiado 
+Por el contrario, cuando \texttt{SKORAT} $\subset$ \texttt{SBEAPI}, puede indicar que \texttt{repOK} es demasiado 
 restrictivo (sobreespecificado), que la API permite estructuras no válidas, o ambas cosas. En este 
-caso, se analizan las estructuras que aparecen en \texttt{SA} pero no en \texttt{SR}. Los errores 
+caso, se analizan las estructuras que aparecen en \texttt{SBEAPI} pero no en \texttt{SKORAT}. Los errores 
 confirmados manualmente en esta categoría se etiquetan como \texttt{over}.
 
 En algunos casos, se encontraron diferencias en ambas direcciones: estructuras válidas generadas por 
-\textsf{Korat} que no están presentes en \texttt{SA}, y estructuras generadas por \emph{BEAPI} que 
+\textsf{Korat} que no están presentes en \texttt{SBEAPI}, y estructuras generadas por \emph{BEAPI} que 
 no son aceptadas por \texttt{repOK}. Estas diferencias simultáneas pueden deberse a fallas en ambas 
 fuentes (API y \texttt{repOK}), o a errores más profundos de especificación. En estos casos, cuando se 
 confirma una falla manualmente, la clasificamos como \texttt{error}.
@@ -757,6 +757,7 @@ En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para d
 utilidad de los métodos generadores identificados mediante nuestro enfoque, particularmente 
 en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 
 objetos que pueden utilizarse como entradas en test suites parametrizadas.
+\cacho{Poner algo sobre el experimento de builders que generamos objetos con BEAPI y los usamos en tests parametrizados.}
 
 Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en tests 
 automatizados. En lugar de definir casos de prueba específicos para cada configuración, se 
@@ -766,17 +767,17 @@ entrada a los métodos de la clase bajo prueba.
 
 Para llevar a cabo este experimento, diseñamos una test suite parametrizada en la que cada método 
 público de la clase bajo análisis es ejercitado con objetos generados por distintas técnicas. Las 
-herramientas utilizadas para generar estos objetos fueron: la versión estándar de Randoop, que 
-genera directamente una suite de tests sin reutilizar objetos previos; una variante de Randoop 
+herramientas utilizadas para generar estos objetos fueron: la versión estándar de \emph{Randoop}, que 
+genera directamente una suite de tests sin reutilizar objetos previos; una variante de \emph{Randoop} 
 denominada \emph{R-Serialize}, que serializa los objetos construidos durante la generación de 
 tests, permitiendo su reutilización como entrada en tests parametrizados; una versión modificada 
-de Randoop que prioriza el uso de métodos generadores de objetos identificados previamente mediante 
-nuestro enfoque (denominada \emph{R-Builders}); y por último, la herramienta \emph{BEAPI}, que 
+de \emph{Randoop} que prioriza el uso de métodos generadores de objetos identificados previamente mediante 
+nuestro enfoque (denominada \emph{R-Builders}, ver sección \ref{sec:object_builders_randoop}); y por último, la herramienta \emph{BEAPI}, que 
 produce directamente un conjunto reducido pero válido de objetos a partir de su propia lógica de 
 exploración exhaustiva acotada.
 
-A fin de evaluar y comparar el impacto de cada enfoque, se utilizó un benchmark basado en clases 
-del paquete \emph{java.util}: \emph{HashSet}, \emph{HashMap}, \emph{TreeMap}, \emph{TreeSet} y \emph{LinkedList}.
+A fin de evaluar y comparar el impacto de cada enfoque, se utilizó el benchmark basado en clases 
+del paquete \emph{java.util} debido a su rica API que tienen: \emph{HashSet}, \emph{HashMap}, \emph{TreeMap}, \emph{TreeSet} y \emph{LinkedList}.
 Para cada clase se definió un invariante que permite distinguir objetos válidos de inválidos, permitiendo así evaluar la calidad de los generadores.
 
 Las métricas consideradas fueron: la cantidad de objetos válidos e inválidos generados, el tiempo 
@@ -804,6 +805,7 @@ mutación equivalente a \texttt{R-Builders}, y superior a la alcanzada por \text
 conjunto reducido de objetos, pero de alta calidad para testing, en muy poco tiempo (menos de cinco 
 segundos).
 
+\cacho{No hablo de porcentaje porq es poco, diria en algunos casos el 1\% mas, no me parece relevante ese dato}
 En términos de ejecución, mientras \texttt{R-Builders} y \texttt{R-Serialize} requieren ejecutar 
 millones de tests para alcanzar altos niveles de cobertura, \texttt{BEAPI} logra el mismo nivel 
 ejecutando apenas unos pocos miles. Esto indica que los objetos generados por \textsf{BEAPI} son 
@@ -812,17 +814,22 @@ de manera eficiente.
 
 La Tabla~\ref{tab:treeSetTools} presenta los resultados obtenidos para \texttt{TreeSet}. En 
 este caso, las diferencias comienzan a notarse con mayor claridad. \texttt{R-Builders} logra 
-una cobertura y mutación ligeramente superior a \texttt{BEAPI}. Una posible explicación para 
-este comportamiento radica en que ciertas configuraciones válidas de \texttt{TreeSet} pueden 
+una cobertura y mutación ligeramente superior a \texttt{BEAPI}. 
+
+
+Una explicación para este comportamiento radica en que ciertas configuraciones válidas de \texttt{TreeSet} pueden 
 requerir secuencias de inserciones y eliminaciones que BEAPI no alcanza debido a su 
-limitación por scope. Por el contrario, al ejecutarse sin restricciones estructurales, 
-\texttt{R-Builders} puede explorar más libremente el espacio de estados, incluso si requiere 
-pasar por configuraciones intermedias más complejas que luego se simplifican.
+limitación por scope. Las dos variantes con métodos generadores de objetos son claramente más eficientes en tiempo hasta cobertura que las demás. 
+\texttt{BEAPI} alcanza de manera estable 150 ramas y 109 mutación en solo 2 segundos (en todos los presupuestos). 
+\texttt{R-Builders} logra la mejor cobertura absoluta, pero necesita más tiempo, supera las 150 ramas recién a los 10 segundos (151 ramas, 111 mutación). 
+En contraste, \texttt{R-Serialize} tarda 40 segundos para generarar y 11 segundos para ejecutar para quedarse en 125 ramas y 109 mutación, y \textbf{Randoop} llega a menos cobertura (105 ramas) incluso con 150 y 33 segundos.
+Si comparamos, cobertura por segundo, \texttt{BEAPI} llega primero a una alta cobertura y \texttt{R-Builders} puede llegar a cubrir algun mutante mas, pero pagando un costo de tiempo mayor.
 
 El comportamiento observado se repite en la Tabla~\ref{tab:treeMapTools}, donde se evalúa la 
-clase \texttt{TreeMap}. En este caso, \texttt{R-Builders} vuelve a superar a \texttt{BEAPI} 
-en métricas de cobertura y mutación. Nuevamente, la explicación podría estar relacionada con 
-estructuras internas que BEAPI no puede construir directamente bajo un scope fijo, como 
+clase \texttt{TreeMap}. 
+En este caso, \texttt{R-Builders} obtiene más mutación que \textbf{BEAPI} (152 vs 140), es decir, mata, aproximadamente un 8\% mas de mutantes;
+en cambio, \texttt{BEAPI} logra mayor cobertura de ramas en todos los presupuestos (alrededor del 8\% más).
+Nuevamente, la explicación podría estar relacionada con estructuras internas que BEAPI no puede construir directamente bajo un scope fijo, como 
 árboles parcialmente desbalanceados que luego se ajustan mediante rotaciones o reordenamientos. 
 A pesar de estas diferencias, \texttt{BEAPI} mantiene una cobertura muy competitiva y logra 
 resultados consistentes con una fracción del esfuerzo computacional, lo que refuerza su valor 
@@ -857,26 +864,6 @@ En contextos donde el tiempo de ejecución es un factor crítico, o donde se nec
 sacrificar cobertura, \textsf{BEAPI} se posiciona como una herramienta valiosa para la generación 
 de objetos de prueba. Estos resultados también reafirman la importancia de identificar y utilizar 
 adecuadamente los métodos generadores para mejorar la calidad de los tests automatizados.
-
-
-
-
-
-
-
-
-
-
-
-
-\cacho{Esto es viejo}
-
-\cacho{ya esta en el capitulo, lo movi para alla
-}
-Para implementar el algoritmo genético, utilizamos una biblioteca muy popular en Java llamada \emph{Jenetics}\footnote{https://jenetics.io/}. Esta biblioteca está diseñada específicamente para algoritmos evolutivos y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
-
-\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama de funcionalidades para la implementación de algoritmos genéticos. Nos permitió definir y manipular genes, cromosomas y poblaciones, así como utilizar operadores genéticos como selección, cruzamiento y mutación. Además, cuenta con un sólido conjunto de herramientas de optimización y técnicas de evolución que nos permitieron adaptar el algoritmo a nuestras necesidades específicas.
-Gracias a \emph{Jenetics}, pudimos implementar el algoritmo genético de manera eficiente y efectiva, lo que nos permitió explorar y encontrar subconjuntos óptimos de métodos \emph{builders} para las diferentes estructuras de datos en nuestro estudio. Además, \emph{Jenetics} es muy fácil de usar, con una documentación completa y una comunidad activa de usuarios que proporciona soporte y ayuda. 
 
 
 % \subsubsection{Variacion de acuerdo a los Parametros}

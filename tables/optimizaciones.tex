@@ -1,3 +1,68 @@
+
+\begin{table}[H]
+\scriptsize
+
+\centering
+\begin{tabular}{ l r | r | r | r | r  }
+  \toprule
+  \multicolumn{6}{c}{\textbf{Real World}} \\
+  \midrule 
+  \textbf{Class} & \textbf{Scope} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
+  \midrule
+  NCL
+&	3	&	.10	&	.47	&	-	&	-	\\
+&	4	&	.41	&	3.48	&	-	&	-	\\
+&	5	&	3.33	&	-	&	-	&	-	\\
+&	6	&	73.78	&	-	&	-	&	-	\\
+  \midrule
+  TSet
+&	3	&	.03	&	.07	&	56.82	&	-	\\
+&	4	&	.06	&	.13	&	-	&	-	\\
+&	5	&	.11	&	.22	&	-	&	-	\\
+&	6	&	.17	&	.42	&	-	&	-	\\
+&	7	&	0.31	&	.91	&	-	&	-	\\
+&	8	&	0.74	&	2.66	&	-	&	-	\\
+&	9	&	2.23	&	7.80	&	-	&	-	\\
+&	10	&	6.88	&	26.34	&	-	&	-	\\
+&	11	&	21.52	&	86.06	&	-	&	-	\\
+&	12	&	69.98	&	276.85	&	-	&	-	\\
+&	13	&	226.66	&	887.83	&	-	&	-	\\
+    \midrule
+  TMap
+&	3	&	.11	&	.25	&	-	&	-	\\
+&	4	&	.75	&	2.36	&	-	&	-	\\
+&	5	&	15.97	&	57.64	&	-	&	-	\\
+&	6	&	839.87	&	2901.37	&	-	&	-	\\
+  \midrule
+  LList
+&	3	&	.02	&	.13	&	.64	&	-	\\
+&	4	&	.06	&	.38	&		&		\\
+&	5	&	.20	&	3.80	&		&		\\
+&	6	&	.96	&	258.85	&		&		\\
+&	7	&	12.98	&		&		&		\\
+&	8	&	286.21	&		&		&		\\
+  \midrule
+  HMap
+&	3	&	.10	&	11.49	&	-	&	-	\\
+&	4	&	.55	&		&		&		\\
+&	5	&	5.33	&		&		&		\\
+&	6	&	119.87	&		&		&		\\
+  \midrule
+  Schedule
+&	3	&	.01	&	.01	&	59.27	&	-	\\
+&	4	&	.82	&	45.55	&	-	&	-	\\
+&	5	&	1.43	&	-	&	-	&	-	\\
+&	6	&	06.01	&	-	&	-	&	-	\\
+&	7	&	23.32	&	-	&	-	&	-	\\
+  \bottomrule
+
+\end{tabular}
+\caption{Tiempos de generacion de acuerdo a las optimizaciones propuestas}
+\label{tab:results-realWorld}
+
+\end{table}
+
+
 \begin{table}[H]
 \scriptsize
 \centering
@@ -80,72 +145,6 @@
   \bottomrule
 \end{tabular}
 \end{table}
-
-\begin{table}[H]
-\scriptsize
-
-\centering
-\begin{tabular}{ l r | r | r | r | r  }
-  \toprule
-  \multicolumn{6}{c}{\textbf{Real World}} \\
-  \midrule 
-  \textbf{Class} & \textbf{Scope} & \textbf{SM/BLD} & \textbf{SM}  & \textbf{BLD} & \textbf{NoOPT}  \\
-  \midrule
-  NCL
-&	3	&	.10	&	.47	&	-	&	-	\\
-&	4	&	.41	&	3.48	&	-	&	-	\\
-&	5	&	3.33	&	-	&	-	&	-	\\
-&	6	&	73.78	&	-	&	-	&	-	\\
-  \midrule
-  TSet
-&	3	&	.03	&	.07	&	56.82	&	-	\\
-&	4	&	.06	&	.13	&	-	&	-	\\
-&	5	&	.11	&	.22	&	-	&	-	\\
-&	6	&	.17	&	.42	&	-	&	-	\\
-&	7	&	0.31	&	.91	&	-	&	-	\\
-&	8	&	0.74	&	2.66	&	-	&	-	\\
-&	9	&	2.23	&	7.80	&	-	&	-	\\
-&	10	&	6.88	&	26.34	&	-	&	-	\\
-&	11	&	21.52	&	86.06	&	-	&	-	\\
-&	12	&	69.98	&	276.85	&	-	&	-	\\
-&	13	&	226.66	&	887.83	&	-	&	-	\\
-    \midrule
-  TMap
-&	3	&	.11	&	.25	&	-	&	-	\\
-&	4	&	.75	&	2.36	&	-	&	-	\\
-&	5	&	15.97	&	57.64	&	-	&	-	\\
-&	6	&	839.87	&	2901.37	&	-	&	-	\\
-  \midrule
-  LList
-&	3	&	.02	&	.13	&	.64	&	-	\\
-&	4	&	.06	&	.38	&		&		\\
-&	5	&	.20	&	3.80	&		&		\\
-&	6	&	.96	&	258.85	&		&		\\
-&	7	&	12.98	&		&		&		\\
-&	8	&	286.21	&		&		&		\\
-  \midrule
-  HMap
-&	3	&	.10	&	11.49	&	-	&	-	\\
-&	4	&	.55	&		&		&		\\
-&	5	&	5.33	&		&		&		\\
-&	6	&	119.87	&		&		&		\\
-  \midrule
-  Schedule
-&	3	&	.01	&	.01	&	59.27	&	-	\\
-&	4	&	.82	&	45.55	&	-	&	-	\\
-&	5	&	1.43	&	-	&	-	&	-	\\
-&	6	&	06.01	&	-	&	-	&	-	\\
-&	7	&	23.32	&	-	&	-	&	-	\\
-  \bottomrule
-
-\end{tabular}
-% \caption{Tiempos de generacion de acuerdo a las optimizaciones propuestas}
-% \label{tab:results-realWorld}
-
-
-
-\end{table}
-
 
 \begin{table}
 \scriptsize
