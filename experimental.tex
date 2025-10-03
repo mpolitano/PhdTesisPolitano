@@ -809,14 +809,12 @@ segundos).
 En términos de ejecución, mientras \texttt{R-Builders} y \texttt{R-Serialize} requieren ejecutar 
 millones de tests para alcanzar altos niveles de cobertura, \texttt{BEAPI} logra el mismo nivel 
 ejecutando apenas unos pocos miles. Esto indica que los objetos generados por \textsf{BEAPI} son 
-altamente efectivos como entradas, permitiendo detectar fallas y explorar el espacio de estados 
+mas efectivos como entradas, permitiendo detectar fallas y explorar el espacio de estados 
 de manera eficiente.
 
 La Tabla~\ref{tab:treeSetTools} presenta los resultados obtenidos para \texttt{TreeSet}. En 
 este caso, las diferencias comienzan a notarse con mayor claridad. \texttt{R-Builders} logra 
 una cobertura y mutación ligeramente superior a \texttt{BEAPI}. 
-
-
 Una explicación para este comportamiento radica en que ciertas configuraciones válidas de \texttt{TreeSet} pueden 
 requerir secuencias de inserciones y eliminaciones que BEAPI no alcanza debido a su 
 limitación por scope. Las dos variantes con métodos generadores de objetos son claramente más eficientes en tiempo hasta cobertura que las demás. 
@@ -827,8 +825,8 @@ Si comparamos, cobertura por segundo, \texttt{BEAPI} llega primero a una alta co
 
 El comportamiento observado se repite en la Tabla~\ref{tab:treeMapTools}, donde se evalúa la 
 clase \texttt{TreeMap}. 
-En este caso, \texttt{R-Builders} obtiene más mutación que \textbf{BEAPI} (152 vs 140), es decir, mata, aproximadamente un 8\% mas de mutantes;
-en cambio, \texttt{BEAPI} logra mayor cobertura de ramas en todos los presupuestos (alrededor del 8\% más).
+En este caso, \texttt{R-Builders} obtiene más mutación que \textbf{BEAPI} (152 vs 140), es decir, mata, aproximadamente un 6\% mas de mutantes;
+en cambio, \texttt{BEAPI} logra mayor cobertura de ramas en todos los presupuestos (alrededor del 8\% a partir de 20 segundos de tiempo de generación).
 Nuevamente, la explicación podría estar relacionada con estructuras internas que BEAPI no puede construir directamente bajo un scope fijo, como 
 árboles parcialmente desbalanceados que luego se ajustan mediante rotaciones o reordenamientos. 
 A pesar de estas diferencias, \texttt{BEAPI} mantiene una cobertura muy competitiva y logra 
@@ -840,16 +838,20 @@ En cuanto a la Tabla~\ref{tab:linkedListTools} que presenta los resultados obten
 \texttt{LinkedList}. En este caso, se observa nuevamente que \texttt{BEAPI}, a pesar de 
 generar un número reducido de objetos, mantiene niveles constantes de cobertura y mutación. 
 Las técnicas \texttt{R-Serialize} y \texttt{R-Builders} logran cubrir las mismas ramas y casi los mismos 
-mutantes que \texttt{BEAPI}, pero requieren ejecutar un volumen mucho mayor de tests. Con respecto a la tabla ~\ref{tab:hashMapTools}, 
+mutantes que \texttt{BEAPI}, esto se debe a que las listas enlazadas son estructuras más simples,
+donde la mayoría de las configuraciones válidas pueden alcanzarse mediante secuencias cortas
+de inserciones y eliminaciones..
+
+Con respecto a la tabla ~\ref{tab:hashMapTools}, 
 correspondiente a \texttt{HashMap}, se aprecia un caso 
 similar. \texttt{BEAPI} logra altos niveles de cobertura desde tiempos de generación muy 
 reducidos, mientras que las otras técnicas necesitan un volumen considerable de objetos y 
-tests para alcanzar resultados comparables. Un aspecto distintivo de este caso es que las 
-estructuras de tipo clave-valor introducen combinaciones adicionales, y aún así, la técnica 
-mantiene su eficacia. Esto evidencia que los objetos generados por \texttt{BEAPI} no solo son 
-válidos, sino también representativos de situaciones relevantes para la clase, permitiendo 
-maximizar el valor de los tests ejecutados.
-\cacho{pensar porque R-builders le gana en mutacion a beapi, creo que eran sobren estructuras que no la usa BEAPI}
+tests para alcanzar resultados comparables. En este caso \texttt{R-Builders} obtiene un puntaje de mutación 6–7\% mayor que \texttt{BEAPI} (127–128 vs 119–120). 
+Una explicación es que varios mutantes exitosos están asociados a rutas de código y estructuras intermedias que \texttt{BEAPI} no utiliza:
+por ejemplo, secuencias largas con inserciones/eliminaciones que pasan por estados transitorios (similar a los casos de \texttt{TreeMap} y texttt{Treeset}). 
+\texttt{R-Builders}, al explorar más operaciones y estados no canónicos, tiende a tocar esos caminos y matar esos mutantes extra, aunque al costo de mucha más ejecución. 
+De hecho, en ramas \texttt{BEAPI} iguala o supera a \texttt{R-Builders} ( 122 vs 119 a partir de 
+GTime=10), reforzando la idea de que la ventaja de \texttt{R-Builders} en mutación proviene de probar más tipos de operaciones y estados que por cubrir mejor el nucleo de la estructura.
 
 Los resultados obtenidos permiten concluir que los objetos generados por \textsf{BEAPI} son 
 efectivos y eficientes para ser utilizados en tests parametrizados. Aunque la cantidad total de 
