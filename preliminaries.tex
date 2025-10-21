@@ -349,8 +349,10 @@ automáticamente una gran cantidad de casos de prueba muy rápidamente, y así
 detectar fallas que pueden pasar desapercibidas durante el testing
 manual \cite{Pacheco07,Pacheco08}.
 
-\pp{Poner ejemplo de ejecución de Randoop ilustrando el algoritmo acá abajo.}
-
+\pp{El ejemplo está bien, pero está desconectado de la explicación de arriba y
+    del algoritmo de la Figura 1. Por ejemplo, acá abajo habla de un pool que no 
+    existe en el algoritmo. Hay que relacionar cada paso de la ejecución de
+    abajo con las líneas del algoritmo de la Figura 1.}
 
 Para ilustrar el funcionamiento de Randoop, consideremos la clase
 \texttt{java.util.LinkedList}. El generador parte de un conjunto pequeño de
@@ -388,7 +390,9 @@ fallida y deja de ampliarla. Solo las secuencias que ejecutan sin fallos
 se siguen extendiendo, guiando así la exploración de las secuencias de la
 API~\cite{Pacheco07,Pacheco08}.
 
-\cacho{Ver si agregar algo mas }
+
+
+
 %Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \textsf{Randoop}, pero en lugar de la generación aleatoria, tiene como objetivo generar \emph{todas} las secuencias de pruebas factibles (acotadas), dentro de un alcance dado. La retroalimentación de la ejecución permite a \textsf{BEAPI} descartar pruebas ilegales durante el proceso de generación. Además, al estar basado en una generación de pruebas dirigida por retroalimentación, \textsf{BEAPI} genera una secuencia de prueba para cada estructura en el conjunto exhaustivo acotado que construye y solo guarda los conjuntos de secuencias de llamadas a métodos que generan objetos válidos.
 %
 
