@@ -540,37 +540,20 @@ generadores de objetos usando Randoop \ref{sec:fitnessRandoop}.
 \section{Java PathFinder (JPF)}
 \label{sec:jpf}
 
-\emph{Java PathFinder} (JPF) es una herramienta de verificación automática de programas Java, que implementa técnicas con
-exploración explícita del espacio de estados. Entre sus aplicaciones está el \emph{bounded model checking} (BMC), que
-consiste en explorar sistemáticamente todas las ejecuciones del programa bajo entradas de tamaño acotado en busca de fallas
-\cite{Visser05,Pasareanu:2010}. Los límites para el tamaño de las entradas (por ej., número máximo de nodos o rangos de primitivos)
-son provistos por la persona usuaria. Cuando se detecta una falla, JPF produce un contrajemplo reproducible que facilita el
-\emph{debugging}.\footnote{\url{https://github.com/javapathfinder/jpf-core}}
-
-Para realizar verificación acotada, JPF se basa en \emph{drivers} (también llamados controladores): combinaciones de métodos que permiten construir todas las
-entradas acotadas para ejecutar el código bajo análisis. En tipos de datos complejos (por ej., estructuras dinámicas en el \emph{heap}
-como listas doblemente enlazadas) la construcción suele requerir varios métodos de la API (ejemplo, \texttt{add},
-\texttt{remove}, etc.), por lo que el diseño del \emph{driver} depende de dichos métodos.
-Idealmente, estas secuencias deberían generarse a partir del conjunto minimal de métodos que permitan 
-construir todas las instancias posibles dentro de un alcance definido (\emph{scope}). Sin embargo, 
-la selección manual de estos métodos representa una barrera significativa para el uso de herramientas 
-como JPF, ya que requiere un análisis exhaustivo de la API y una comprensión detallada de la 
-semántica del módulo
-
-En módulos con muchas operaciones, seleccionar rutinas para el \emph{driver} no es trivial y puede impactar fuertemente en el
-análisis posterior. Se busca un conjunto tan pequeño como sea posible cuyas combinaciones permitan construir todas las
-estructuras acotadas del módulo. Incluir rutinas superfluas incrementa exponencialmente las combinaciones y degrada la
-eficiencia. Un caso típico de rutina superflua son los métodos observadores (no modifican el estado) \cite{Huang:2012}. 
-A la vez, el subconjunto debe ser suficiente para generar todas las instancias dentro del alcance. 
-Esta selección suele hacerse manualmente, exige revisar toda la API y comprender su semántica, y se vuelve tediosa cuando
-hay redundancia o muchas operaciones irrelevantes.
-
-Las propiedades pueden expresarse con \emph{assert}; si la condición resulta falsa en una ejecución, JPF reporta un
-contrajemplo. Por ejemplo, para cualquier lista de entrada \texttt{t}, insertar al inicio un entero \texttt{v} (\texttt{addFirst(v)}, con \texttt{v} en
-\([0,b]\)) que no pertenezca a la lista, y luego eliminar el primer elemento (\texttt{removeFirst()}), debe dejar el mismo tamaño.
+\emph{Java PathFinder} (JPF) es una herramienta para la verificación de
+programas Java. Entre sus aplicaciones está el \emph{bounded model checking} (BMC), que
+consiste en explorar sistemáticamente todas las ejecuciones del programa con
+entradas de tamaño acotado, y un número acotado de iteraciones de los ciclos, en busca de fallas
+\cite{Visser05,Pasareanu:2010}. Los límites para el tamaño de las entradas
+son provistos por el usuario. 
+%Estos incluyen, el número máximo de objetos para las 
+%estructuras, rangos de valores para los
+%tipos primitivos, y el número máximo de iteraciones para los ciclos.
+Cuando se detecta una falla, JPF produce un contrajemplo reproducible que facilita el
+\emph{debugging} \pp{Acá hay que citar papers de JPF.} \footnote{\url{https://github.com/javapathfinder/jpf-core}}
 
 \begin{algorithm}[H]
-  \caption{Propiedad a chequear}
+  \caption{Propiedad a verificar}
   \label{alg:propiedad-a-chequear}
   $oldSize \gets t.\texttt{size()}$\;
   $value \gets \texttt{Verify.getInt}(0, b)$\;
@@ -580,39 +563,66 @@ contrajemplo. Por ejemplo, para cualquier lista de entrada \texttt{t}, insertar 
   \texttt{assert } $oldSize$ \texttt{ == } $t.\texttt{size}()$
   \texttt{ : "different size";}\;
 \end{algorithm}
+\pp{Están feas las fuentes del algoritmo. En general el código va en texttt. 
+Acá hay una mezcla rara de cursivas con tt. Por qué es distinta la fuente de
+este programa que del driver?}
+
+El Algoritmo \ref{alg:propiedad-a-chequear} muestra un ejemplo de propiedad a
+verificar (de manera acotada) usando JPF. La propiedad indica que, para cualquier lista 
+de entrada \texttt{t}, insertar al inicio un entero \texttt{v}
+(\texttt{addFirst(v)}, con \texttt{v} en \texttt{[0,b]}) que no pertenece a la lista,
+y luego eliminar el primer elemento de la lista (\texttt{removeFirst()}), debe
+dejar una lista con el mismo tamaño que la inicial.
+La propiedad se expresa con un \emph{assert} de JPF: si la condición resulta falsa en una ejecución, JPF reporta un
+contrajemplo. En el ejemplo, la propiedad indica que la longitud de la lista
+inicial (\texttt{oldSize}) debe ser igual a la longitud de la lista al final de la
+ejecución (\texttt{t.size()}). 
+
+Notar que el Algoritmo \ref{alg:propiedad-a-chequear} usa algunas primitivas
+propias de JPF que introducen no determinismo en la exploración del programa. 
+En particular, \texttt{Verify.ignoreIf(condicion)} evita explorar ejecuciones
+que no cumplen con el predicado \texttt{condicion}. En el algoritmo, esta
+sentencia permite ignorar todas las ejecuciones en las que la lista contiene el valor \emph{value} a insertar. Esto es similar a agregar una precondición a la propiedad a verificar.
+Por otra parte, con la sentencia \texttt{int i =
+Verify.getInt(min,max)} JPF explora todas las
+posibles ejecuciones del programa que resultan de asignar a \texttt{i} cualquier
+valor entre \texttt{min} y \texttt{max}. Esto significa que JPF ejecutará el código luego
+de esta instrucción con \emph{i=min}, con \emph{i=min+1, ..., i=max}. 
+%Esto introduce no determinismo, ya que en principio no hay garantías del orden en que se
+%asignarán valores a \emph{i}. 
+%(aunque JPF tiene opciones para elejir un orden de ejecución particular).
+
+Para analizar el algortimo \ref{alg:propiedad-a-chequear}, JPF necesita mecanismos para generar
+las listas para instanciar el parámetro \texttt{t}. 
+Los tipos primitivos son fáciles de generar en JPF (por ejemplo, los enteros se
+obtienen con \texttt{Verify.getInt}), pero las estructuras dinámicas complejas
+requiren de un mecanismo diferente. Para hacer verificación exhaustiva acotada
+de la propiedad anterior, el usuario debe proveer un programa \emph{driver} que construya todas las 
+listas de tamaño máximo \(b\), con elementos en \([0,b-1]\) \pp{Si son b nodos,
+entonces son enteros entre 0 y b-1}. Así, las entradas generadas por el
+\emph{driver} son usadas por JPF para la verificación de la propiedad.
+
+Un driver básico para la propiedad del Algoritmo \ref{alg:propiedad-a-chequear} se
+muestra en la Figura \ref{lst:driverAPI} \pp{El driver tiene que coincidir con
+la propiedad de listas, no me sirve el driver de árboles para este ejemplo}. 
+El \emph{driver} selecciona primero la máxima cantidad de veces que se
+ejecutarán métodos de la API (\(maxLength \in [0,b]\)). Como cada método considerado a lo sumo
+agrega un elemento a la lista, ejecutar a lo sumo \(b\) métodos produce listas de
+tamaño hasta \(b\). Luego, el driver procede a la ejecución de \texttt{maxLength} 
+métodos de la API (línea 4 \pp{la condición está mal, debería ser $0 <= i <=
+maxLength$}). A cada operación se le asigna un
+identificador único, y se elige no determinísticamente un valor en el intervalo \([0, m)\) para
+seleccionar la operación a ejecutar (línea 5); por ejemplo, si
+se elige el valor 2, se ejecuta \texttt{clear()} \pp{Hay que ponerle nombres a
+las variables del los getInt, sino es difícil explicar para qué sirven. 
+Además, en la línea 5 es getInt, no random}.
+Más adelante, se elige no determinísticamente
+una operación de la API a ejecutar (línea 5). Por último, se eligen no
+determinísticamente valores acotados para los argumentos de la operación
+(enteros en el ejemplo), y se ejecuta la misma. Por ejemplo, \pp{Continuar con
+el ejemplo..}
 
 
-Para introducir elecciones dentro de un mismo programa, JPF ofrece primitivas de no determinismo, como:
-\begin{itemize}
-\item \texttt{Verify.ignoreIf(condicion)}: Evita explorar ejecuciones cuyo estado no
-cumplen con el predicado condicion. En el programa anterior, permite ignorar todas las ejecuciones en las que la lista contiene el valor \emph{value} a insertar.
-Esto es similar a agregar una precondición a la propiedad a verificar.
-\item \texttt{int i = Verify.getInt(min,max)}: Esta construcción de JPF explora todas las posibles ejecuciones del programa que resultan de asignar 
-a \emph{i} cualquier valor entre min y max. Esto significa que JPF ejecutará el código luego
-de esta instrucción con \emph{i=min}, con \emph{i=min+1, ..., i=max}. Esto introduce no
-determinismo, ya que en principio no hay garantías del orden en que se
-asignarán valores a \emph{i} (aunque JPF tiene opciones para elejir un orden de
-ejecución particular). 
-\end{itemize}
-
-Para analizar la propiedad del algortimo \ref{alg:propiedad-a-chequear} , JPF necesita mecanismos para generar
-las listas del parámetro \texttt{t}. Los enteros se obtienen con
-\texttt{Verify.getInt}, pero las estructuras requieren un
-\emph{driver}. El objetivo es construir todas las listas de tamaño
-máximo \(b\), con elementos en \([0,b]\) (verificación exhaustiva
-acotada). El \emph{driver} selecciona una longitud
-\(maxLength \in [0,b]\). Como cada método considerado agrega a lo sumo
-un elemento, ejecutar a lo sumo \(b\) métodos produce listas de
-tamaño \(\le b\). En cada iteración se elige no determinísticamente
-una operación de la API y sus argumentos.
-
-Si la persona usuaria no conoce los métodos generadores (y no desea seleccionarlos manualmente), la alternativa más segura es
-usar todos los métodos del módulo, como se muestra en el algortimo \ref{lst:driverAPI}. En el
-cuerpo del ciclo, a cada operación se le asigna un identificador y se elige no determinísticamente un valor en \([0, m)\) para
-seleccionar la operación a ejecutar; por ejemplo, si
-\texttt{methodN=2}, se ejecuta \texttt{clear()}. El número de ejecuciones crece exponencialmente con \(m\) (cantidad de
-métodos): tras \(k\) pasos hay \(m^{k}\) secuencias potenciales.
-\\
 % \begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverNCL},captionpos=b] 
 % private static NCL generateStructure(int scope) {
 %   int maxLength = Verify.getInt(0, scope);
@@ -645,7 +655,8 @@ métodos): tras \(k\) pasos hay \(m^{k}\) secuencias potenciales.
 % \end{lstlisting}
 
 
-\begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverAPI},captionpos=b]
+\begin{lstlisting}[language=Java,caption={Controlador usando todos los métodos
+de la API},label={lst:driverAPI},captionpos=b]
     private static TreeMap generateStructure(int scope) {
        int maxLength = Verify.getInt(0, scope);
        TreeMap t = new TreeMap();
@@ -675,8 +686,24 @@ métodos): tras \(k\) pasos hay \(m^{k}\) secuencias potenciales.
     }
 \end{lstlisting}
 
-En esta tesis proponemos una técnica automática que, dada la API de un módulo, identifica un subconjunto suficiente y no superfluo de
-métodos generadores (ver Capitulo \ref{cap:builders}). Esta técnica actúa como paso previo a la construcción del controlador
-para BMC. Al exponer sólo los métodos generadores necesarios, reduce el factor de ramificación del controlador, disminuye el
-espacio de búsqueda y mejora la eficiencia de la exploración, sin perder la capacidad de generar todas las instancias acotadas dentro
-del \emph{scope}.
+
+Este driver simple incluye todos los métodos de la API para la generación de
+estructuras. Notar que el número de ejecuciones del driver crece exponencialmente con la cantidad de
+métodos disponibles. Sin embargo, muchas de estos métodos no son necesarios si
+lo que se busca es generar estructuras de manera exhaustiva acotada. 
+En módulos con muchas operaciones, seleccionar rutinas para el \emph{driver} no es trivial y puede impactar fuertemente en el
+análisis posterior. Idealmente, se busca un conjunto tan pequeño como sea
+posible de métodos, cuyas combinaciones permitan construir todas las
+estructuras acotadas para el módulo. Incluir rutinas superfluas incrementa exponencialmente las combinaciones y degrada la eficiencia. 
+La selección de rutinas suele hacerse manualmente, lo que exige revisar minuciosamente toda la API y comprender su semántica, y se vuelve tediosa cuando hay redundancia o muchas operaciones irrelevantes.
+
+En esta tesis proponemos técnicas automáticas que, dada la API de un módulo,
+identifican un subconjunto minimal de métodos generadores de objetos (ver
+Capitulo \ref{cap:builders}). Como se muestra en la Sección \ref{} (experimentos
+de drivers), estas técnicas pueden ayudar al usuario a la 
+definición de drivers más eficientes. 
+
+%Esta técnica actúa como paso previo a la construcción del controlador
+%para BMC. Al exponer sólo los métodos generadores necesarios, reduce el factor de ramificación del controlador, disminuye el
+%espacio de búsqueda y mejora la eficiencia de la exploración, sin perder la capacidad de generar todas las instancias acotadas dentro
+%del \emph{scope}.
