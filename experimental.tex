@@ -16,11 +16,11 @@ sección \ref{sec:experimentalBeapi} se evalúa la generación exhaustiva acotad
 \label{sec:experimentalIdentificacion}
 
 En esta sección, evaluamos experimentalmente los enfoques presentados en el
-Capítulo~\ref{cap:builders}. Analizaremos la eficiencia y precision de cada
+Capítulo~\ref{cap:builders}. Analizaremos la eficiencia y precisión de cada
 algoritmo utilizando las funciones objetivo introducidas en la
-Sección~\ref{sec:fitness}. Además, mostraremos cómo los métodos identificados
-por nuestras técnicas pueden ser aprovechados en el contexto de herramientas
-de verificación de software.
+Sección~\ref{sec:fitness}. Además, mostraremos resultados preliminares sobre cómo los 
+métodos generadores de objetos pueden ser aprovechados por algunas herramientas
+automáticas de análisis de software.
 
 Con respecto a estas técnicas, las siguientes preguntas de investigación guían esta experimentación:
 
@@ -43,13 +43,11 @@ incluyendo: \verb"NCL" de Apache Commons Collections~\cite{apache};
 \verb"BinaryTree", \verb"BinomialHeap" y \verb"FibonacciHeap", extraídos
 de~\cite{Visser:2006}; y \verb"UnionFind", una implementación de conjuntos
 disjuntos tomada de JGrapht~\cite{jgrapht}.
-\cacho{
 También se incluyeron componentes de proyectos reales de software, como 
 \verb"Lits" de la implementación de Sat4j~\cite{sat4j}, utilizada previamente 
-en~\cite{Loncaric:2018}. \verb"Lits" implementa la interfaz \verb"ILits" y 
-administra el  vocabulario interno del solver (variables y literales), traduce 
-literales desde DIMACS a la representación interna.}
-
+en~\cite{Loncaric:2018}. \verb"Lits" maneja la representación interna de una
+fórmula en el SAT solver (variables y literales).
+%, y traduce literales desde DIMACS a la representación interna.
 Por otro lado, se consideraron estructuras adicionales como \verb"Scheduler",
 un planificador de procesos tomado del conjunto de benchmarks SIR~\cite{sir},
 y varias colecciones del paquete estándar \verb"java.util" de Java%
@@ -322,36 +320,16 @@ donde los utilizamos como entradas de tests parametrizados sobre las estructuras
 
 \input{tables/objectsBuilders.tex}
 
-\subsubsection{Impacto en verificación formal con JPF}
+\subsubsection{Impacto en verificación acotada usando JPF}
+\label{sec:experiments-jpf-driver}
 
 En un segundo experimento, evaluamos el impacto del uso de métodos métodos generadores en la eficiencia 
-del análisis de programas mediante verificación formal. Para ello, utilizamos \emph{Java PathFinder} 
-(JPF)~\cite{Visser:2005}, explicado en la seccion \ref{sec:jpf}.
-Este experimento lo evaluamos en los casos de estudio del paquete \texttt{java.util}.
+de la verificación acotada usando \emph{Java PathFinder}
+(JPF)~\cite{Visser:2005} (explicado en la sección \ref{sec:jpf}).
+Para este experimento preliminar, usamos como casos de estudio algunas clases
+del paquete \texttt{java.util}. 
 
-El primer gran aporte a JPF se encuentra en la escritura de los controladores. Queda claro que programar el controlador
-a partir de todos los métodos de la API es una tárea compleja que requiere
-mas conocimento de la API bajo análisis como muestra el algoritmo \ref{lst:driverAPI}. Para
-compensar esto, mostramos que el algoritmo que se utiliza como controlador en caso
-de obtener previamente los métodos generadores es más sencillo y entendible para el usuario (Ver \ref{lst:driverBLD}).
-\\
-\begin{lstlisting}[language=Java,caption={Controlador con los métodos generadores de objectos},label={lst:driverBLD},captionpos=b]
-    private static TreeMap generateStructure(int scope) {
-       int maxLength = Verify.getInt(0, scope);
-       TreeMap t = new TreeMap();
-       for (int i = 1; i <= maxLength; i++) {
-          switch (Verify.random(n_methods)) {
-             case 0:
-                t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
-                break;
-             case 1:
-                t.remove(Verify.getInt(0,scope));
-                break;						
-          }
-       }
-       return t;
-    }
-\end{lstlisting}
+\pp{Tengo que modificar que esto se trata ahora en la sección de builders.} 
 
 Luego con este generador se puede verificar que el método \texttt{put} preserva el \emph{repOK} de la estructura de datos, como se muestra en ~\ref{lst:propiedadJPF}.
 

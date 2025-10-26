@@ -599,7 +599,9 @@ obtienen con \texttt{Verify.getInt}), pero las estructuras dinámicas complejas
 requiren de un mecanismo diferente. Para hacer verificación exhaustiva acotada
 de la propiedad anterior, el usuario debe proveer un programa \emph{driver} que construya todas las 
 listas de tamaño máximo \(b\), con elementos en \([0,b-1]\) \pp{Si son b nodos,
-entonces son enteros entre 0 y b-1}. Así, las entradas generadas por el
+entonces son enteros entre 0 y b-1. No hay ninguna b en el código. Hay que
+revisar el texto de esta sección actualizando las variables por las del
+código.}. Así, las entradas generadas por el
 \emph{driver} son usadas por JPF para la verificación de la propiedad.
 
 Un driver básico para la propiedad del Algoritmo \ref{alg:propiedad-a-chequear} se
@@ -609,8 +611,11 @@ El \emph{driver} selecciona primero la máxima cantidad de veces que se
 ejecutarán métodos de la API (\(maxLength \in [0,b]\)). Como cada método considerado a lo sumo
 agrega un elemento a la lista, ejecutar a lo sumo \(b\) métodos produce listas de
 tamaño hasta \(b\). Luego, el driver procede a la ejecución de \texttt{maxLength} 
-métodos de la API (línea 4 \pp{la condición está mal, debería ser $0 <= i <=
+métodos de la API (línea 4 \pp{la inicialización está mal, debería ser $0 <= i <=
 maxLength$}). A cada operación se le asigna un
+\pp{No existe m en el algoritmo. por otro lado no cierra que sea en 0..m-1,
+porque la definición de getInt arriba dice que es en 0..m. Hay que ver cual es
+el correcto y actualizar en toda la sección, y en la sección de builders}
 identificador único, y se elige no determinísticamente un valor en el intervalo \([0, m)\) para
 seleccionar la operación a ejecutar (línea 5); por ejemplo, si
 se elige el valor 2, se ejecuta \texttt{clear()} \pp{Hay que ponerle nombres a
@@ -678,18 +683,17 @@ de la API},label={lst:driverAPI},captionpos=b]
                 t.putAll(l);
                 break;
               ...
-             default:
-                /* no-op */
           }
        }
        return t;
     }
 \end{lstlisting}
+\pp{Por qué no poner más métodos para que ocupe más espacio la figura? 
+Este ejemplo lo usé para la sección de drivers en builders}
 
 
-Este driver simple incluye todos los métodos de la API para la generación de
-estructuras. Notar que el número de ejecuciones del driver crece exponencialmente con la cantidad de
-métodos disponibles. Sin embargo, muchas de estos métodos no son necesarios si
+Este driver simple utiliza todos los métodos de la API para la generación de
+estructuras. Notar que el número de caminos a explorar por el driver crece exponencialmente con la cantidad de métodos disponibles. Sin embargo, muchas de estos métodos no son necesarios si
 lo que se busca es generar estructuras de manera exhaustiva acotada. 
 En módulos con muchas operaciones, seleccionar rutinas para el \emph{driver} no es trivial y puede impactar fuertemente en el
 análisis posterior. Idealmente, se busca un conjunto tan pequeño como sea
