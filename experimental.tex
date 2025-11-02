@@ -65,33 +65,26 @@ tarea implicó un análisis detallado y manual de cada API, lo que representó u
 trabajo considerable, especialmente en los casos más complejos. La
 Tabla~\ref{tab:groundTruth} resume este conjunto de referencia, indicando para
 cada clase el número total de métodos en su API pública (\#API) y los métodos
-identificados manualmente como generadores de objetos. Cabe destacar que en algunos
-casos ciertos métodos pueden ser intercambiables (por ejemplo,
-\texttt{addFirst} y \texttt{addLast} en \texttt{NCL}).
+identificados manualmente como generadores de objetos. 
+%Cabe destacar que en algunos
+%casos ciertos métodos pueden ser intercambiables (por ejemplo,
+%\texttt{addFirst} y \texttt{addLast} en \texttt{NCL}).
 
 
 \subsubsection{Algoritmos evaluados.}
 
-\cacho{NUEVO:}
-El objetivo de esta sección es identificar automáticamente el subconjunto de métodos generadores de cada API (\emph{MGO}). 
-Modelamos la tarea como un problema de búsqueda sobre subconjuntos \(M \subseteq API\) y empleamos distintos algoritmos 
-para explorar ese espacio. La calidad de cada candidato \(M\) se evalúa mediante funciones objetivo 
-(\emph{fitness}) definidas en las secciones citadas.
-
-\paragraph{Algoritmos}
 \begin{itemize}
-  \item \textbf{GA} (\emph{Algoritmo Genético}; véase Sección~\ref{alg:approachGA}): explora subconjuntos de métodos generadores mediante operadores de cruce y mutación, con selección por torneo.
-  \item \textbf{HC} (\emph{Hill-Climbing}; \S~\ref{alg:approachHC}): búsqueda local que parte de una solución inicial y aplica modificaciones incrementales aceptando únicamente mejoras según la función objetivo.
+  \item \textbf{GA}: el algoritmo genético descrito en la Sección~\ref{alg:approachGA}).
+  \item \textbf{HC}: el algoritmo \emph{hill-climbing} presentado en la Sección \ref{alg:approachHC}.
 \end{itemize}
 
-\paragraph{Funciones objetivo}
-Usamos dos funciones objetivo alternativas para evaluar cada conjunto candidato de métodos, 
-que dan lugar a las variantes reportadas en las tablas:
+Propusimos dos funciones objetivo para evaluar cada conjunto candidato de
+métodos: 
 
 \begin{itemize}
-  \item \textbf{FGE} (\emph{Función con Generación Exhaustiva}; Sección~\ref{sec:fitnessGE}):
-mide la cantidad/calidad de objetos distintos alcanzados mediante generación exhaustiva hasta un \emph{scope} fijado.
-  \item \textbf{FRC} (\emph{Función con Randoop Coverage}; Sección~\ref{sec:fitnessRandoop}): maximiza la cobertura de código (líneas y ramas) alcanzada por los tests generados con Randoop restringidas al conjunto candidato. 
+    \item \textbf{FGE}: función objetivo basada en generación exhaustiva
+    acotada, presentada en la Sección~\ref{sec:fitnessGE}).
+\item \textbf{FRC}: función objetivo basada en la cobertura, descrita en la Sección~\ref{sec:fitnessRandoop}. 
 \end{itemize}
 
 % \paragraph{Convenciones de nombres}
