@@ -74,7 +74,7 @@ identificados manualmente como generadores de objetos.
 \subsubsection{Algoritmos evaluados.}
 
 \begin{itemize}
-  \item \textbf{GA}: el algoritmo genético descrito en la Sección~\ref{alg:approachGA}).
+  \item \textbf{GA}: el algoritmo genético descrito en la Sección~\ref{alg:approachGA}.
   \item \textbf{HC}: el algoritmo \emph{hill-climbing} presentado en la Sección \ref{alg:approachHC}.
 \end{itemize}
 
@@ -82,53 +82,64 @@ Propusimos dos funciones objetivo para evaluar cada conjunto candidato de
 métodos: 
 
 \begin{itemize}
-    \item \textbf{FGE}: función objetivo basada en generación exhaustiva
-    acotada, presentada en la Sección~\ref{sec:fitnessGE}).
-\item \textbf{FRC}: función objetivo basada en la cobertura, descrita en la Sección~\ref{sec:fitnessRandoop}. 
+    \item \textbf{FGE}: función objetivo basada en la cantidad de objetos
+        producidos por un generador exhaustivo acotado, presentada en la Sección~\ref{sec:fitnessGE}.
+\item \textbf{FRC}: función objetivo basada en la cobertura de código, descrita en la Sección~\ref{sec:fitnessRandoop}. 
 \end{itemize}
 
-% \paragraph{Convenciones de nombres}
-% Cuando un algoritmo se evalúa con una función objetivo específica, usamos la notación \textbf{Algoritmo–Fitness}. 
-% Por ejemplo: \textbf{GA–GE}, \textbf{GA–RC}, \textbf{HC–GE}, \textbf{HC–RC}.
+Cuando un algoritmo se evalúa con una función objetivo específica, usamos la notación 
+\textbf{Algoritmo–Fitness}. 
+Esto da lugar a cuatro algoritmos a evaluar: \textbf{GA–FGE}, \textbf{GA–FRC}, \textbf{HC–FGE}, 
+\textbf{HC–FRC}. Notar que el trabajo sobre cómputo de métodos generadores
+de Politano et. al. \cite{} \pp{Tu paper de builders} presenta el algoritmo
+\textbf{GA–FGE}. Las otras variantes fueron agregadas y evaluadas de forma
+preliminar para esta tesis. 
 
-% Como se discutió en el Capítulo~\ref{cap:beapi}, nuestros algoritmos requieren
-% la configuración de diversos parámetros que influyen en su eficiencia y
-% efectividad. En particular, los parámetros más relevantes para el algoritmo
-% genético incluyen la tasa de mutación, la tasa de cruce, el tamaño de la
-% población y la estrategia de selección utilizada.
-
-\cacho{Esto es nuevo}
 Nuestros algoritmos requieren la configuración de diversos parámetros que influyen en su eficiencia y efectividad.
-En particular, para el algoritmo genético (Sección~\ref{alg:approachGA}) utilizamos una tasa de cruce de 0{,}40, una tasa de mutación de 0{,}05, 
-selección por torneo con cuatro participantes, una población de 100 individuos y 20 generaciones por ejecución. 
-Estos valores se determinaron empíricamente mediante prueba y error, priorizando la eficiencia y la estabilidad de las soluciones y se mantuvieron constantes en todos los experimentos.
+Estos valores se determinaron empíricamente mediante prueba y error, priorizando
+la eficiencia y la precisión de las soluciones y se mantuvieron constantes en todos los experimentos.
 
-Para las evaluaciones con la función objetivo basada en Randoop (Sección~\ref{sec:fitnessRandoop}), 
-fijamos un tiempo máximo de ejecución de 30 segundos por candidato 
+En particular, para el algoritmo genético (\textbf{GA})
+utilizamos una tasa de cruce de 0.40, una tasa de mutación de 0.05, 
+selección por torneo con cuatro participantes, una población de 100 individuos y
+un máximo de 20 generaciones por ejecución. 
+
+Para las evaluaciones con la función objetivo basada en cobertura (\textbf{FRC}), 
+fijamos un tiempo máximo de ejecución de Randoop de 30 segundos por candidato. 
+%Este tiempo fue suficiente para generar suites de tests y lograr buena cobertura de código en nuestros experimentos.  
+\pp{Esto de abajo no se entiende, tenemos que charlarlo:
+
 y controlamos la aleatoriedad mediante semillas. Randoop utiliza esta semilla para controlar la generación de tests y
 permitir la reproducción de resultados. Dado que Randoop introduce un grado
 considerable de aleatoriedad, optamos por utilizar dos semillas distintas para capturar la variabilidad introducida por el 
 generador aleatorio, registrándolas para permitir la reproducción de resultados. 
 Esta configuración proporciona una medida más robusta del desempeño de los algoritmos en contextos con 
-elementos no determin\'isticos.
+elementos no determin\'isticos.}
 
-En el caso de la función objetivo basada en generación exhaustiva (Sección~\ref{sec:fitnessGE}),
-el parámetro central es el \emph{scope}, entendido como la cantidad máxima de objetos por clase/tipo que pueden crearse durante la evaluación.
-En nuestros experimentos fijamos \(k=5\), es decir, un máximo de cinco objetos por tipo para cada conjunto candidato de métodos generadores. 
-Además, para evitar diferencias espurias que no reflejan cambios semánticos en la representación, 
-omitimos campos internos que no afectan la estructura lógica de los objetos generados (por ejemplo, \texttt{modCount}, común en colecciones de Java), 
-el cual sólo contabiliza modificaciones internas sin alterar la estructura observada del objeto. \pp{Yo no pondría esto último porque no recuerdo que lo
-hayamos explicado en ningún lado.} \cacho{Hay un apartado pequeño, lo podemos charlar}
+En el caso de la función objetivo basada en generación exhaustiva (\textbf{FGE}),
+el parámetro central es el \emph{scope}, entendido como la cantidad máxima de
+objetos por clase que puede crear el generador exhaustivo, y rangos de
+valores para los tipos primitivos. 
+En nuestros experimentos fijamos el scope en 5. Es decir, permitimos un máximo
+de cinco objetos por clase, y 5 valores posibles para tipos primitivos (ej. para enteros
+usamos valores entre 0 y 4). \pp{Acá tiene que haber un TO también. Sino en
+algunos casos corre el riesgo de no terminar.}
+%Además, para evitar diferencias espurias que no reflejan cambios semánticos en la representación, 
+%omitimos campos internos que no afectan la estructura lógica de los objetos generados (por ejemplo, \texttt{modCount}, común en colecciones de Java), 
+%el cual sólo contabiliza modificaciones internas sin alterar la estructura observada del objeto. \pp{Yo no pondría esto último porque no recuerdo que lo
+%hayamos explicado en ningún lado.} \cacho{Hay un apartado pequeño, lo podemos charlar}
 
-Para cada combinación de caso de estudio y función objetivo, el algoritmo
+Para cada caso de estudio y función objetivo, el algoritmo
 genético y el de \emph{Hill Climbing} fue ejecutado cinco veces con los parámetros mencionados. Los
 resultados reportados en las siguientes secciones corresponden al promedio de
 estas ejecuciones. En el caso particular de la función objetivo basada en
 generación exhaustiva, no fue necesario realizar múltiples repeticiones, dado
-que dicha evaluación es determinística bajo una misma configuración.
+que dicha evaluación es determinística bajo una misma configuración. \pp{No estoy de acuerdo con esto. El algoritmo genético es aleatorio
+independientemente de la fitness que use. Todos hay que ejecutarlos múltiples
+veces. Hablémoslo.}
 
 Todos los experimentos fueron ejecutados en una máquina con procesador Intel
-Core i7-6700 a 3.4\,GHz y 8\,GB de RAM, corriendo el sistema operativo
+Core i7-6700 a 3.4\,GHz y 8\,GB de RAM, y sistema operativo
 GNU/Linux.
 
 % En términos de analizar el peor caso, con \textbf{HC+RC} se alcanza 5162s en
@@ -143,68 +154,86 @@ GNU/Linux.
 %Hill Climbing, se debe a que la clase bajo prueba tiene pocos métodos, lo que permite que los algoritmos evolutivos converjan más rápidamente que el algoritmo Hill Climbing.
 %
 
-\subsection{RQ1: Eficiencia del cómputo de generadores de objetos}
-\cacho{Nuevo esto:}
+\subsection{RQ1: Eficiencia del cómputo de métodos generadores de objetos}
+
+\input{tables/eficienciaBuilders}
+
 Medimos la eficiencia como el tiempo promedio (en segundos) necesario para
-finalizar la búsqueda de métodos generadores a partir de la API. Evaluamos los dos
-algoritmos de búsqueda (\emph{GA} y \emph{HC}) combinados con dos funciones
-objetivo: \emph{FGE} (Función objetivo con generación exhaustiva acotada) y \emph{FRC} (Función objetivo con cobertura). 
+finalizar la búsqueda de métodos generadores a partir de la API. 
+%Evaluamos los dos
+%algoritmos de búsqueda (\emph{GA} y \emph{HC}) combinados con dos funciones
+%objetivo: \emph{FGE} (Función objetivo con generación exhaustiva acotada) y \emph{FRC} (Función objetivo con cobertura). 
 Los resultados se muestran en la Tabla~\ref{tab:eficiencia}. Cada fila
 corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API
 (\#API) y la cantidad de métodos generadores del \emph{ground truth}
 (\#MGO). Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
-cada uno, por función objetivo (FGE y FRC). Para cada configuración
-(algoritmo~$\times$~objetivo) reportamos el promedio de 5 ejecuciones.
+cada uno, por función objetivo (FGE y FRC) \pp{Actualizar la tabla con estos
+nombres}. Para cada configuración reportamos el promedio de 5 ejecuciones.
 
 Para comparar la eficiencia de \emph{GA} y \emph{HC}, utilizamos la misma 
 función objetivo (\emph{FGE} o \emph{FRC}) y medimos el tiempo de ejecución 
-en los 12 casos de estudio. A partir de estos resultados obtuvimos los siguientes 
-tiempos promedios:
+promedio sobre los 12 casos de estudio. Esto da los siguientes 
+resultados:
+A continuación, reportamos los tiempos promedio de ejecución (sobre los 12 casos
+de estudio) de los algoritmos evaluados:
 
 \begin{itemize}
   \item \textbf{GA+FGE}: 259 segundos
-  \item \textbf{HC+FGE}: 19.6 segundos
   \item \textbf{GA+FRC}: 1809.5 segundos
+  \item \textbf{HC+FGE}: 19.6 segundos
   \item \textbf{HC+FRC}: 622.8 segundos
 \end{itemize}
 
-Estos valores muestran con claridad que \emph{HC} supera sistemáticamente a 
-\emph{GA}. En particular, bajo \emph{FGE} el tiempo de \emph{HC} es 
-aproximadamente 13 veces menor que el de \emph{GA}, mientras que bajo 
-\emph{FRC} es casi 3 veces menor.A nivel de casos
-individuales, \emph{HC} supera a \emph{GA} en todos los casos con \emph{FGE} y en 11 de 12 casos con \emph{FRC},
-siendo \emph{HashSet} la única excepción donde \emph{GA+FRC} fue más veloz. \cacho{Revisar esto, no me acuerdo bien, ver el paper}
-Esta diferencia se entiende por la propia naturaleza de los algoritmos.
-El algoritmo genético (\textbf{GA}) mantiene y evoluciona poblaciones completas de posibles subconjuntos, lo que implica evaluar muchos candidatos en paralelo.
-En consecuencia, puede tardar más en encontrar el subconjunto minimal de métodos generadores, ya que su búsqueda es estocástica y no siempre converge rápidamente hacia la mejor solución.
+Estos valores muestran con claridad que \emph{HC} es sistemáticamente más rápido
+que \emph{GA}. En particular, con \emph{FGE} el tiempo de \emph{HC} es 
+aproximadamente 13 veces menor que el de \emph{GA}, mientras que usando 
+\emph{FRC} es casi 3 veces menor. 
 
-En cambio, \emph{HC} sigue una estrategia incremental y determinista: parte de una solución inicial y la mejora paso a paso en el espacio de búsqueda. Esto lo vuelve más eficiente en recorrer dicho espacio y encontrar soluciones minimales con menor costo computacional. Por ello, en la mayoría de los casos, \textbf{HC} resulta más rápido que \textbf{GA}.
-Comparando entre funciones objetivo dentro de un mismo algoritmo, \emph{FGE}
-termina antes que \emph{FRC}. En \emph{GA}, FRC requiere en promedio
+A nivel de casos
+individuales, \emph{HC} supera a \emph{GA} en todos los casos con \emph{FGE} y en 11 de 12 casos con \emph{FRC},
+siendo \emph{HashSet} la única excepción donde \emph{GA+FRC} fue más veloz.
+\cacho{Revisar esto, no me acuerdo bien, ver el paper} \pp{No hay razón real
+para esto, suena a bug. Además, el que está mal es sólo la versión con FRC. En
+el otro gana HC}.
+
+Esta diferencia se entiende por la propia naturaleza de los algoritmos.
+El algoritmo genético (\textbf{GA}) mantiene y evoluciona poblaciones de
+candidatos, lo que implica evaluar la función objetivo (que es costosa
+computacionalmente) para muchos candidatos.
+En cambio, \emph{HC} \pp{Hay que poner en typewriter la fuente de los algoritmos
+y casos de estudio en todo el texto. emph no se usa para eso, sino para resaltar
+palabras, y poner palabras en inglés} sigue una estrategia \emph{greedy}: elige la mejor opción posible entre los sucesores del candidato actual. Esto lo vuelve más eficiente.
+Sin embargo, en ciertos casos \emph{HC} podría perder precisión en el cómputo de métodos
+generadores. 
+
+Comparando las funciones objetivo, \emph{FGE}
+es más rápida que \emph{FRC}. En \emph{GA}, FRC requiere en promedio
 unas siete veces más tiempo que \emph{FGE}; en \emph{HC}, \emph{FRC} requiere unas casi 32 veces
-más tiempo que FGE. La función objetivo FGE termina antes en los algoritmos debido a que genera objetos 
-para un scope que debe ser especificado manualmente por el usuario. Todas tienen un \emph{timeout} de 
+más tiempo que \emph{FGE}. La función objetivo \emph{FGE} debido a que para
+computar MGO en nuestos casos de estudio es suficiente con generar objetos de tamaño 
+relativamente pequeño (scope 5). Además, \emph{FGE} utiliza BEAPI (ver
+sección \ref{} \pp{referencia}), que implementa mecanismos que hacen a la
+generación acotada más eficiente (generación guiada por el feedback de la
+ejecución, state matching). 
+Todas \pp{Ambas funciones?} tienen un \emph{timeout} de 
 30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
-la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. En cambio, el la función objetivo FRC debe agotar su presupuesto de tiempo
-para cada candidato considerado.
+la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. 
+En cambio, la función objetivo FRC debe generar una gran cantidad de tests en
+muchos casos para lograr una buena cobertura (notar que FRC no está guiada por
+cobertura sino que es aleatoria).
 Esto explica porque FGE es más rápida en comparación con la función objetivo FRC.
 
-A diferencia de \emph{FGE}, como la función objetivo basada en cobertura con Randoop
-(\emph{FRC}) no requiere que el usuario fije un \emph{scope} para enumerar
-objetos, puede volverla más escalable en dominios donde la cantidad de
-objetos válidos crece combinatoriamente con el scope. 
-El costo de \emph{FGE} escala con la enumeración de todas
-las instancias dentro del scope, mientras que \emph{FRC} evalúa cada candidato
-mediante generación/ejecución de tests sin explorar exhaustivamente el
-espacio de objetos, lo que puede resultar más económico para scopes grandes.
-
-Esto respalda el uso de FGE cuando el objetivo es minimizar el tiempo de cómputo de los generadores.
-Sin embargo, la función objetivo \emph{FRC} no requiere que el usuario provea la definición del scope, y
-podría ser más escalable que la generación exhaustiva acotada en casos donde
-la cantidad de objetos a generar crezca exponencialmente respecto de los scopes. Como trabajos futuros se planean realizar más experimentos 
-para evaluar esta hipótesis.
-
-\input{tables/eficienciaBuilders}
+Por otra parte, la función objetivo \emph{FRC} no requiere que el usuario provea
+la definición del scope para la generación exhaustiva acotada. Además, \emph{FRC}
+podría ser más escalable que \emph{FGE} en casos donde
+la cantidad de objetos sea demasiado grande para ser generados de manera
+exhuastiva (por ejemplo, en clases con invariantes de representación más débiles
+que los evaluados aquí). Esto se debe a que \emph{FRC} evalúa cada candidato
+mediante generación de tests sin explorar exhaustivamente el
+espacio de objetos.
+Como trabajos futuros se planean realizar más experimentos para evaluar la
+utilidad de \emph{FRC} en este tipo de casos \pp{No olvidarse de incluir esto en
+trabajos futuros}.
 
 \subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
