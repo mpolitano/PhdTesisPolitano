@@ -550,27 +550,25 @@ son provistos por el usuario.
 %estructuras, rangos de valores para los
 %tipos primitivos, y el número máximo de iteraciones para los ciclos.
 Cuando se detecta una falla, JPF produce un contrajemplo reproducible que facilita el
-\emph{debugging} \pp{Acá hay que citar papers de JPF.} \footnote{\url{https://github.com/javapathfinder/jpf-core}}
-
-\begin{algorithm}[H]
-  \caption{Propiedad a verificar}
-  \label{alg:propiedad-a-chequear}
-  $oldSize \gets t.\texttt{size()}$\;
-  $value \gets \texttt{Verify.getInt}(0, b)$\;
-  \texttt{Verify.ignoreIf}( $t.\texttt{contains}(value)$ )\;
-  $t.\texttt{addFirst}(value)$\;
-  $t.\texttt{removeFirst}()$\;
-  \texttt{assert } $oldSize$ \texttt{ == } $t.\texttt{size}()$
-  \texttt{ : "different size";}\;
-\end{algorithm}
+\emph{debugging} \cacho{\cite{Visser05,Pasareanu:2010}} \footnote{\url{https://github.com/javapathfinder/jpf-core}}
+\\
+\begin{lstlisting}[language=Java,caption={Propiedad a verificar},label={lst:propiedad},captionpos=b]
+int oldSize = t.size();
+int value = Verify.getInt(0, b);
+Verify.ignoreIf(t.contains(value));
+t.addFirst(value);
+t.removeFirst();
+assert oldSize == t.size() : "different size";
+\end{lstlisting}
+\cacho{cambie a listing de java que es como esta el driver}
 \pp{Están feas las fuentes del algoritmo. En general el código va en texttt. 
 Acá hay una mezcla rara de cursivas con tt. Por qué es distinta la fuente de
 este programa que del driver?}
 
-El Algoritmo \ref{alg:propiedad-a-chequear} muestra un ejemplo de propiedad a
+El Algoritmo \ref{lst:propiedad} muestra un ejemplo de propiedad a
 verificar (de manera acotada) usando JPF. La propiedad indica que, para cualquier lista 
-de entrada \texttt{t}, insertar al inicio un entero \texttt{v}
-(\texttt{addFirst(v)}, con \texttt{v} en \texttt{[0,b]}) que no pertenece a la lista,
+de entrada \texttt{t}, insertar al inicio un entero \texttt{value}
+(\texttt{addFirst(value)}, con \texttt{value} en \texttt{[0,b]}) que no pertenece a la lista,
 y luego eliminar el primer elemento de la lista (\texttt{removeFirst()}), debe
 dejar una lista con el mismo tamaño que la inicial.
 La propiedad se expresa con un \emph{assert} de JPF: si la condición resulta falsa en una ejecución, JPF reporta un
@@ -578,13 +576,12 @@ contrajemplo. En el ejemplo, la propiedad indica que la longitud de la lista
 inicial (\texttt{oldSize}) debe ser igual a la longitud de la lista al final de la
 ejecución (\texttt{t.size()}). 
 
-Notar que el Algoritmo \ref{alg:propiedad-a-chequear} usa algunas primitivas
+Notar que el Algoritmo \ref{lst:propiedad} usa algunas primitivas
 propias de JPF que introducen no determinismo en la exploración del programa. 
 En particular, \texttt{Verify.ignoreIf(condicion)} evita explorar ejecuciones
 que no cumplen con el predicado \texttt{condicion}. En el algoritmo, esta
 sentencia permite ignorar todas las ejecuciones en las que la lista contiene el valor \emph{value} a insertar. Esto es similar a agregar una precondición a la propiedad a verificar.
-Por otra parte, con la sentencia \texttt{int i =
-Verify.getInt(min,max)} JPF explora todas las
+Por otra parte, con la sentencia \texttt{int i = Verify.getInt(min,max)} JPF explora todas las
 posibles ejecuciones del programa que resultan de asignar a \texttt{i} cualquier
 valor entre \texttt{min} y \texttt{max}. Esto significa que JPF ejecutará el código luego
 de esta instrucción con \emph{i=min}, con \emph{i=min+1, ..., i=max}. 
@@ -592,105 +589,123 @@ de esta instrucción con \emph{i=min}, con \emph{i=min+1, ..., i=max}.
 %asignarán valores a \emph{i}. 
 %(aunque JPF tiene opciones para elejir un orden de ejecución particular).
 
-Para analizar el algortimo \ref{alg:propiedad-a-chequear}, JPF necesita mecanismos para generar
+Para analizar el algortimo \ref{lst:propiedad}, JPF necesita mecanismos para generar
 las listas para instanciar el parámetro \texttt{t}. 
 Los tipos primitivos son fáciles de generar en JPF (por ejemplo, los enteros se
 obtienen con \texttt{Verify.getInt}), pero las estructuras dinámicas complejas
 requiren de un mecanismo diferente. Para hacer verificación exhaustiva acotada
-de la propiedad anterior, el usuario debe proveer un programa \emph{driver} que construya todas las 
+de la propiedad anterior, el usuario debe proveer un programa, \emph{driver}, que construya todas las 
 listas de tamaño máximo \(b\), con elementos en \([0,b-1]\) \pp{Si son b nodos,
 entonces son enteros entre 0 y b-1. No hay ninguna b en el código. Hay que
 revisar el texto de esta sección actualizando las variables por las del
-código.}. Así, las entradas generadas por el
+código.}. \cacho{Aca queria explicar, hacer una intro por eso no esta b. Creo que lo puedo sacar porq es algo redundante con el parrafo de abajo} Así, las entradas generadas por el
 \emph{driver} son usadas por JPF para la verificación de la propiedad.
 
-Un driver básico para la propiedad del Algoritmo \ref{alg:propiedad-a-chequear} se
+Un driver básico para la propiedad del Algoritmo \ref{lst:propiedad} se
 muestra en la Figura \ref{lst:driverAPI} \pp{El driver tiene que coincidir con
-la propiedad de listas, no me sirve el driver de árboles para este ejemplo}. 
+la propiedad de listas, no me sirve el driver de árboles para este ejemplo}. \cacho{Cambie el driver a listas}
 El \emph{driver} selecciona primero la máxima cantidad de veces que se
-ejecutarán métodos de la API (\(maxLength \in [0,b]\)). Como cada método considerado a lo sumo
-agrega un elemento a la lista, ejecutar a lo sumo \(b\) métodos produce listas de
-tamaño hasta \(b\). Luego, el driver procede a la ejecución de \texttt{maxLength} 
-métodos de la API (línea 4 \pp{la inicialización está mal, debería ser $0 <= i <=
-maxLength$}). A cada operación se le asigna un
+ejecutarán métodos de la API (\(maxLength \in [0,scope]\)). Como cada método considerado a lo sumo
+agrega un elemento a la lista, ejecutar a lo sumo \(scope\) métodos produce listas de
+tamaño hasta \(scope-1\). Luego, el driver procede a la ejecución de \texttt{maxLength} 
+métodos de la API (línea 4). A cada operación se le asigna un
 \pp{No existe m en el algoritmo. por otro lado no cierra que sea en 0..m-1,
 porque la definición de getInt arriba dice que es en 0..m. Hay que ver cual es
 el correcto y actualizar en toda la sección, y en la sección de builders}
-identificador único, y se elige no determinísticamente un valor en el intervalo \([0, m)\) para
+\cacho{Es hasta m, https://wuyongzheng.github.io/jpfdoc/gov/nasa/jpf/vm/Verify.html. Lo saco lo de m, lo habia puesto como para explicar pero no se entiende}
+identificador único, y se elige no determinísticamente (\texttt{n\_methods}) para
 seleccionar la operación a ejecutar (línea 5); por ejemplo, si
-se elige el valor 2, se ejecuta \texttt{clear()} \pp{Hay que ponerle nombres a
+se elige el valor 2, se ejecuta \texttt{Verify.getInt(0, scope)} para obtener el valor entero en el rango [0, scope] para usar como argumento del método 
+\texttt{list.addLast(value)} (línea 15 y 16). 
+\pp{Hay que ponerle nombres a
 las variables del los getInt, sino es difícil explicar para qué sirven. 
-Además, en la línea 5 es getInt, no random}.
-Más adelante, se elige no determinísticamente
-una operación de la API a ejecutar (línea 5). Por último, se eligen no
-determinísticamente valores acotados para los argumentos de la operación
-(enteros en el ejemplo), y se ejecuta la misma. Por ejemplo, \pp{Continuar con
-el ejemplo..}
+Además, en la línea 5 es getInt, no random}. \cacho{cambie lo de random por getint y explique mejor}
+\pp{Continuar conel ejemplo..}
 
-
-% \begin{lstlisting}[language=Java,caption={Controlador con todos los métodos},label={lst:driverNCL},captionpos=b] 
-% private static NCL generateStructure(int scope) {
-%   int maxLength = Verify.getInt(0, scope);
-%   NCL t = new NCL();
-%   for (int i = 1; i <= maxLength; i++) {
-%     int n_methods = Verify.random(n_methods)
-%     switch (n_methods) {
-%       case 0:
-%         t.addFirst(Verify.getInt(0,scope),Verify.getInt(0,scope));
-%         break;
-%       case 1:
-%         t.removeFirst(Verify.getInt(0,scope));
-%         break;
-%       case 2:
-%         t.clear();
-%         break;
-%       case 3:
-%         t.containsValue(Verify.getInt(0,scope));
-%         break;
-%       // ...
-%       case 33:
-%         t.size(l);
-%         break;
-%       default:
-%         /* no-op */
-%     }
-%   }
-%   return t;
-% }
-% \end{lstlisting}
-
-
-\begin{lstlisting}[language=Java,caption={Controlador usando todos los métodos
-de la API},label={lst:driverAPI},captionpos=b]
-    private static TreeMap generateStructure(int scope) {
-       int maxLength = Verify.getInt(0, scope);
-       TreeMap t = new TreeMap();
-       for (int i = 1; i <= maxLength; i++) {
-          switch (Verify.random(n_methods)) {
-             case 0:
-                t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+\cacho{
+En la siguiente iteración del bucle (línea 4), JPF volverá a elegir no
+determinísticamente un nuevo método entre los disponibles (por ejemplo,
+\texttt{removeFirst()} o \texttt{offer(value)}), construyendo así distintas
+secuencias de llamadas a la API.
+Cada combinación posible de decisiones en \texttt{Verify.getInt} (tanto el
+método elegido como los valores generados) corresponde a una exploración distinta
+del espacio de búsqueda. \emph{JPF} las explora de forma exhaustiva hasta alcanzar todas
+las configuraciones de listas posibles dentro del límite de tamaño
+(\emph{scope}).
+Finalmente, el método (\texttt{generateStructure}) retorna una lista \texttt{LinkedList} que representa uno de
+esos estados posibles, sobre la cual se evaluará la propiedad del Algoritmo
+\ref{lst:propiedad}.
+}
+\\
+\begin{lstlisting}[language=Java,caption={Driver usando todos los métodos
+de la API de \texttt{LinkedList}},label={lst:driverAPI},captionpos=b]
+private static LinkedList generateStructure(int scope) {
+    int maxLength = Verify.getInt(0, scope);
+    LinkedList list = new LinkedList();
+    for (int i = 0; i <= maxLength; i++) {
+        switch (Verify.getInt(n_methods)) {
+            case 0:
+                int value = Verify.getInt(0, scope);
+                list.add(value);
                 break;
-             case 1:
-                t.remove(Verify.getInt(0,scope));
-                break;						
-             case 2:
-                t.clear();
+            case 1:
+                int value = Verify.getInt(0, scope);
+                list.addFirst(value);
                 break;
-             case 3:
-                t.containsValue(Verify.getInt(0,scope));
+            case 2:
+                int value = Verify.getInt(0, scope);
+                list.addLast(value);
                 break;
-             case 4: 
-                t.putAll(l);
+            case 3:
+                int value = Verify.getInt(0, scope);
+                list.offer(value);
                 break;
-              ...
-          }
-       }
-       return t;
+            case 4:
+                int value = Verify.getInt(0, scope);
+                list.offerFirst(value);
+                break;
+            case 5:
+                int value = Verify.getInt(0, scope);
+                list.offerLast(value);
+                break;
+            case 6:
+                list.remove();
+                break;
+            case 7:
+                list.removeFirst();
+                break;
+            case 8:
+                list.removeLast();
+                break;
+            case 9:
+                list.poll();
+                break;
+            case 10:
+                list.pollFirst();
+                break;
+            case 11:
+                list.pollLast();
+                break;
+            case 12:
+                int value = Verify.getInt(0, scope);
+                list.contains(value);
+                break;
+            case 13:
+                list.peek();
+                break;
+            case 14:
+                list.clear();
+                break;
+            ...
+        }
     }
+    return list;
+}
 \end{lstlisting}
+
 \pp{Por qué no poner más métodos para que ocupe más espacio la figura? 
 Este ejemplo lo usé para la sección de drivers en builders}
-
+\cacho{Cambie a lista y agregue mas metodos}
 
 Este driver simple utiliza todos los métodos de la API para la generación de
 estructuras. Notar que el número de caminos a explorar por el driver crece exponencialmente con la cantidad de métodos disponibles. Sin embargo, muchas de estos métodos no son necesarios si
@@ -703,7 +718,7 @@ La selección de rutinas suele hacerse manualmente, lo que exige revisar minucio
 
 En esta tesis proponemos técnicas automáticas que, dada la API de un módulo,
 identifican un subconjunto minimal de métodos generadores de objetos (ver
-Capitulo \ref{cap:builders}). Como se muestra en la Sección \ref{} (experimentos
+Capitulo \ref{cap:builders}). Como se muestra en la Sección \ref{sec:experiments-jpf-driver} (experimentos
 de drivers), estas técnicas pueden ayudar al usuario a la 
 definición de drivers más eficientes. 
 
