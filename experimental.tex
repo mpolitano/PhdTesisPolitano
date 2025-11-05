@@ -176,6 +176,8 @@ promedio sobre los 12 casos de estudio. Esto da los siguientes
 resultados:
 A continuación, reportamos los tiempos promedio de ejecución (sobre los 12 casos
 de estudio) de los algoritmos evaluados:
+\pp{Hay algunos casos en los que se supera el
+timeout! NCL y TreeMap con GA+FRC}
 
 \begin{itemize}
   \item \textbf{GA+FGE}: 259 segundos
@@ -188,7 +190,6 @@ Estos valores muestran con claridad que \emph{HC} es sistemáticamente más ráp
 que \emph{GA}. En particular, con \emph{FGE} el tiempo de \emph{HC} es 
 aproximadamente 13 veces menor que el de \emph{GA}, mientras que usando 
 \emph{FRC} es casi 3 veces menor. 
-
 A nivel de casos
 individuales, \emph{HC} supera a \emph{GA} en todos los casos con \emph{FGE} y en 11 de 12 casos con \emph{FRC},
 siendo \emph{HashSet} la única excepción donde \emph{GA+FRC} fue más veloz.
@@ -257,11 +258,13 @@ Medimos la efectividad como la capacidad de cada algoritmo para identificar
 un \emph{conjunto minimal} de métodos generadores a partir de la API. 
 La Tabla~\ref{tab:efectividad} resume los tamaños promedios (sobre 5
 corridas) del conjunto de métodos identificado por cada algoritmo evaluado. 
-Los resultados se analizaron manualmente con respecto al \emph{ground truth} (
-el número de MGOs minimales se indica como \#MGO en la tabla) y 
+Los resultados se analizaron manualmente con respecto al \emph{ground truth} 
+( el número de MGOs minimales se indica como \#MGO en la tabla) y 
 en todos los casos un conjunto de métodos generadores de objetos suficiente 
 fue generado por todos los algoritmos. Sin embargo, como puede verse en la
 tabla, algunos algoritmos incluyen algunos métodos irrelevantes en algunos casos.
+
+
 
 Se observan cuatro patrones claros. Primero, \texttf{HC+FRC} encuentra el conjunto
 \emph{minimal exacto en 12/12} sujetos. Segundo, \texttf{HC+GE} es exacto en
@@ -271,7 +274,10 @@ Tercero, \textbf{GA+GE} es exacto en \emph{10/12} sujetos; sobredimensiona en
 \emph{Lits} (7 vs.\ 6) y \emph{HashMap} (2.60 vs.\ 2). Cuarto, \textbf{GA+FGE} es
 exacto en \emph{8/12} sujetos y tiende a incluir métodos adicionales en
 \emph{NCL} (3.80 vs.\ 3), \emph{TreeMap} (5.60 vs.\ 3), \emph{TreeSet}
-(3.20 vs.\ 3) y \emph{HashSet} (3 vs.\ 2).
+(3.20 vs.\ 3) y \emph{HashSet} (3 vs.\ 2). \pp{Las conclusiones deberían ser
+    bien simples: HC+FRC y HC+FGE dan 10 puntos en todos los casos, mientras que
+    GA+FGE da razonablemente bien en la mayoría de los casos, y GA+FRC no importa 
+demasiado porque es muy lento.}
 
 Estas desviaciones tienen dos causas principales. Por un lado, en \textbf{GE} la
 evaluación se realiza por enumeración acotada; bajo scope fijo y valores
@@ -293,19 +299,17 @@ fitness no mejora durante 5 generaciones consecutivas (ver
 Sección~\ref{alg:approachGA}). Este criterio es eficaz para acotar el presupuesto,
 pero puede congelar soluciones suficientes levemente mayores que el
 mínimo cuando la presión selectiva ya no impulsa mejoras adicionales. \pp{Hay
-que arreglar Lits, y TreeMap con GA+FRC que da demasiado horrible}.
+que arreglar Lits, y TreeMap con GA+FRC que da demasiado horrible. Puede ser por
+Timeout?}.
 
 En síntesis, todas las configuraciones producen conjuntos suficientes, y
 \textbf{HC+FGE} además logra el mínimo exacto de forma sistemática. Cuando
 el objetivo primario es minimizar el costo de generación/análisis, recomendamos
 emplear el conjunto devuelto por \textbf{HC+FGE} (minimal y suficiente).
-\pp{Viendo los números de eficiencia los únicos algoritmos que importan son
-HC+FGE y GE+FGE. Los algoritmos de Randoop dan mal en tiempos, y por más que den
-bien acá les hace falta laburo. }
 
 
 
-\subsection{RQ3: Impacto de los generadores de objetos en el análisis de
+\subsection{RQ3: Impacto de los métodos generadores de objetos en el análisis de
 software}
 
 \subsubsection{Cantidad de objectos generados en Randoop}
