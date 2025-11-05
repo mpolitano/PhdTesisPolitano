@@ -235,7 +235,20 @@ Como trabajos futuros se planean realizar más experimentos para evaluar la
 utilidad de \emph{FRC} en este tipo de casos \pp{No olvidarse de incluir esto en
 trabajos futuros}.
 
-\subsection{RQ2: Precisión de los algoritmos de cómputo de generadores de objetos}
+En conclusión, \texttt{HC+FGE} computa generadores de objetos muy rápidamente en
+nuestros experimentos, en 20 segundos en promedio. \texttt{GA+FGE} es
+razonablemente rápido para esta tarea, tomando en promedio poco más de 4 minutos.
+Como el cómputo de generadores de objetos se realiza una sola vez sobre el
+código de la clase bajo análisis, previo a los análisis de código que se quieran
+llevar adelante (por ejemplo, generación de
+objetos para testing, etc.), creemos que tanto \texttt{HC+FGE} como \texttt{GA+FGE} 
+son algoritmos viables para su uso en la práctica. 
+
+Los resultados preliminares muestran que con la función objetivo
+\texttt{FRC} los algoritmos son mucho más lentos. Se deja como trabajo futuro
+estudiar formas más eficientes de implementar la función \texttt{FRC}.
+
+\subsection{RQ2: Precisión de los algoritmos de cómputo de métodos generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
 
 Medimos la efectividad como la capacidad de cada configuración para identificar
