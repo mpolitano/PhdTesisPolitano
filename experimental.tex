@@ -220,49 +220,51 @@ Todas \pp{Ambas funciones?} tienen un \emph{timeout} de
 la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. 
 En cambio, la función objetivo FRC debe generar una gran cantidad de tests en
 muchos casos para lograr una buena cobertura (notar que FRC no está guiada por
-cobertura sino que es aleatoria).
-Esto explica porque FGE es más rápida en comparación con la función objetivo FRC.
+cobertura sino que es aleatoria). \pp{Hay que ver el tema seeds, porque debe ser
+eso lo que la hace tan lenta.}
+Esto explica porque FGE es más rápida en comparación con la función objetivo FRC
+en estos experimentos.
 
-Por otra parte, la función objetivo \emph{FRC} no requiere que el usuario provea
-la definición del scope para la generación exhaustiva acotada. Además, \emph{FRC}
-podría ser más escalable que \emph{FGE} en casos donde
+Por otra parte, la función objetivo \emph{FRC} tiene la ventaja de que no requiere 
+que el usuario provea la definición del scope para la generación exhaustiva acotada. 
+Además, \emph{FRC} podría ser más escalable que \emph{FGE} en casos donde
 la cantidad de objetos sea demasiado grande para ser generados de manera
 exhuastiva (por ejemplo, en clases con invariantes de representación más débiles
-que los evaluados aquí). Esto se debe a que \emph{FRC} evalúa cada candidato
-mediante generación de tests sin explorar exhaustivamente el
-espacio de objetos.
-Como trabajos futuros se planean realizar más experimentos para evaluar la
-utilidad de \emph{FRC} en este tipo de casos \pp{No olvidarse de incluir esto en
-trabajos futuros}.
+que los evaluados aquí).
+De cualquier modo, los resultados preliminares muestran que los algoritmos 
+son mucho más lentos con la función objetivo \texttt{FRC}. Se deja como trabajo 
+futuro estudiar formas más eficientes de implementar la función \texttt{FRC}, y
+realizar más experimentos para evaluar mejor su utilidad en la práctica 
+\pp{No olvidarse de incluir esto en trabajos futuros}.
 
 En conclusión, \texttt{HC+FGE} computa generadores de objetos muy rápidamente en
-nuestros experimentos, en 20 segundos en promedio. \texttt{GA+FGE} es
-razonablemente rápido para esta tarea, tomando en promedio poco más de 4 minutos.
+nuestros experimentos, en 20 segundos en promedio. \texttt{GA+FGE} y
+\texttt{HC+FRC} son razonablemente rápidos para esta tarea, 
+tomando en promedio poco más de 4 minutos y 10 minutos, respectivamente.
+La combinación de \texttt{GA+FRC} hace que el cómputo se vuelva mucho más lento.
 Como el cómputo de generadores de objetos se realiza una sola vez sobre el
 código de la clase bajo análisis, previo a los análisis de código que se quieran
 llevar adelante (por ejemplo, generación de
-objetos para testing, etc.), creemos que tanto \texttt{HC+FGE} como \texttt{GA+FGE} 
-son algoritmos viables para su uso en la práctica. 
-
-Los resultados preliminares muestran que con la función objetivo
-\texttt{FRC} los algoritmos son mucho más lentos. Se deja como trabajo futuro
-estudiar formas más eficientes de implementar la función \texttt{FRC}.
+objetos para testing, etc.), creemos que \texttt{HC+FGE}, \texttt{GA+FGE}, y
+\texttt{HC+FRC} son algoritmos viables para su uso en la práctica. 
 
 \subsection{RQ2: Precisión de los algoritmos de cómputo de métodos generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
 
-Medimos la efectividad como la capacidad de cada configuración para identificar
-el \emph{conjunto minimal} de métodos generadores de la API (según el
-\emph{ground truth} indicado como \#MGO en la tabla). Por construcción, en
-todas las corridas nuestros algoritmos devuelven siempre un subconjunto
-suficiente (nunca omiten un generador necesario); cuando el conjunto
-devuelto coincide en tamaño con el minimal, lo consideramos exacto, y
-cuando incluye métodos adicionales lo consideramos sobredimensionado.
+\input{tables/eficaciaBuilders.tex}
 
+Medimos la efectividad como la capacidad de cada algoritmo para identificar
+un \emph{conjunto minimal} de métodos generadores a partir de la API. 
 La Tabla~\ref{tab:efectividad} resume los tamaños promedios (sobre 5
-corridas) del conjunto hallado por cada configuración (GA/HC $\times$ FGE/FRC).
-Se observan cuatro patrones claros. Primero, \textbf{HC+FRC} encuentra el conjunto
-\emph{minimal exacto en 12/12} sujetos. Segundo, \textbf{HC+GE} es exacto en
+corridas) del conjunto de métodos identificado por cada algoritmo evaluado. 
+Los resultados se analizaron manualmente con respecto al \emph{ground truth} (
+el número de MGOs minimales se indica como \#MGO en la tabla) y 
+en todos los casos un conjunto de métodos generadores de objetos suficiente 
+fue generado por todos los algoritmos. Sin embargo, como puede verse en la
+tabla, algunos algoritmos incluyen algunos métodos irrelevantes en algunos casos.
+
+Se observan cuatro patrones claros. Primero, \texttf{HC+FRC} encuentra el conjunto
+\emph{minimal exacto en 12/12} sujetos. Segundo, \texttf{HC+GE} es exacto en
 \emph{11/12} sujetos y sólo sobredimensiona en \emph{Lits} (retorna 7 en lugar de
 6).\cacho{Revisar esto, no me acuerdo bien, ver el paper}
 Tercero, \textbf{GA+GE} es exacto en \emph{10/12} sujetos; sobredimensiona en
@@ -275,11 +277,14 @@ Estas desviaciones tienen dos causas principales. Por un lado, en \textbf{GE} la
 evaluación se realiza por enumeración acotada; bajo scope fijo y valores
 iniciales concretos, ciertas combinaciones pueden no ser alcanzables sin
 incorporar alguna rutina adicional (como ocurre en \emph{Lits}), lo que hace que
-el conjunto devuelto sea suficiente pero no minimal. Por otro lado, en
-\textbf{FGE} la métrica de cobertura puede favorecer métodos que
-aumentan rápido la cobertura de ramas/líneas aunque no sean estrictamente
-necesarios para construir todas las instancias, por lo que el algoritmo puede estabilizarse en soluciones
-ligeramente sobredimensionadas.
+el conjunto devuelto sea suficiente pero no minimal \pp{Es difícil de justificar 
+    esto, deberíamos charlarlo. Pero para mi si hacés generación exhaustiva no
+te pueden faltar cosas}. 
+%Por otro lado, en
+%\textbf{FGE} la métrica de cobertura puede favorecer métodos que
+%aumentan rápido la cobertura de ramas/líneas aunque no sean estrictamente
+%necesarios para construir todas las instancias, por lo que el algoritmo puede estabilizarse en soluciones
+%ligeramente sobredimensionadas. PABLO: Esto no es cierto.
 
 En el caso particular del algoritmo genético (\textbf{GA}), además de la
 estocasticidad propia de la búsqueda (selección, cruce, mutación), empleamos un
@@ -287,14 +292,18 @@ criterio de corte del algoritmo que detiene la evolución cuando el mejor
 fitness no mejora durante 5 generaciones consecutivas (ver
 Sección~\ref{alg:approachGA}). Este criterio es eficaz para acotar el presupuesto,
 pero puede congelar soluciones suficientes levemente mayores que el
-mínimo cuando la presión selectiva ya no impulsa mejoras adicionales.
+mínimo cuando la presión selectiva ya no impulsa mejoras adicionales. \pp{Hay
+que arreglar Lits, y TreeMap con GA+FRC que da demasiado horrible}.
 
 En síntesis, todas las configuraciones producen conjuntos suficientes, y
 \textbf{HC+FGE} además logra el mínimo exacto de forma sistemática. Cuando
 el objetivo primario es minimizar el costo de generación/análisis, recomendamos
 emplear el conjunto devuelto por \textbf{HC+FGE} (minimal y suficiente).
+\pp{Viendo los números de eficiencia los únicos algoritmos que importan son
+HC+FGE y GE+FGE. Los algoritmos de Randoop dan mal en tiempos, y por más que den
+bien acá les hace falta laburo. }
 
-\input{tables/eficaciaBuilders.tex}
+
 
 \subsection{RQ3: Impacto de los generadores de objetos en el análisis de
 software}
