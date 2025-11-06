@@ -312,61 +312,60 @@ emplear el conjunto devuelto por \textbf{HC+FGE} (minimal y suficiente).
 \subsection{RQ3: Impacto de los métodos generadores de objetos en el análisis de
 software}
 
-\subsubsection{Cantidad de objectos generados en Randoop}
+\subsubsection{Generación de objetos para testing}
 \label{sec:object_builders_randoop}
 
+\input{tables/objectsBuilders.tex}
+
 En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
-identificados previamente, en el contexto de la generación automatizada de casos de test. 
-Estos métodos permiten crear instancias válidas de estructuras de datos, que pueden ser utilizadas como 
+identificados previamente \pp{por qué algoritmo?}, en el contexto de la
+generación automática de objetos para las clases evaluadas. 
+Estos objetos pueden ser utilizadas luego como 
 entradas en tests unitarios o tests basadas en propiedades.
+ 
+Para este experimento, modificamos la herramienta \emph{Randoop} (Ver
+preliminares, \ref{sec:feedback-directed-test-gen}) para que almacene los
+objetos producidos por la ejecución de los tests. La evaluación consiste en
+utilizar la variante mencionada de Randoop con toda la API de la clase bajo análisis 
+(denominamos \texttt{API} a esta técnica de generación de objetos), y compararla
+con otra versión que instruye a Randoop para que utilice sólo los MGOs \pp{Cuáles?} para
+generar tests (llamamos \texttt{MGO} a este enfoque). 
 
-Para aquellos casos de estudio cuyas clases permiten medir el tamaño de los objetos generados 
-(mediante el método \texttt{size()}) y comparar objetos por igualdad (a través de \texttt{equals()}), 
-realizamos un experimento con la herramienta \emph{Randoop} (Ver preliminares, \ref{sec:feedback-directed-test-gen}). Generamos casos de test en dos 
-configuraciones distintas: (i) utilizando toda la API disponible de la clase bajo análisis 
-(denominada \texttt{API}), y (ii) utilizando únicamente los métodos generadores de objetos
-(\texttt{MGO}) identificados por nuestro enfoque en el experimento anterior 
-(ver Tabla~\ref{tab:results-obj}).
+Para estos enfoques, definimos tres valores de presupuesto de tiempo para la generación de 
+test: 60, 120 y 180 segundos. En este experimento, medimos la cantidad de objetos distintos
+generados por los tests (\emph{No. of Objs.}), usando los métodos
+\texttt{equals()} de las clases evaluadas para descartar objetos iguales.
+Además, reportamos el tamaño del objeto más grande generado por las técnicas
+\pp{Por qué faltan los tamaños de los objetos acá? En el paper los habíamos
+puesto, o no?} (calculamos los tamaños de objetos con el método
+\texttt{size()} de las clases bajo análisis). 
+Los resultados obtenidos se resumen en la Tabla~\ref{tab:results-obj}.
 
-Para ambas configuraciones, medimos la cantidad de objetos distintos 
-generados (\emph{No. of Objs.}). Además, definimos tres valores de presupuesto de tiempo para la generación de 
-test: 60, 120 y 180 segundos. Los resultados obtenidos se resumen en la
-Tabla~\ref{tab:results-obj}.
+En promedio para todos los presupuestos, \texttt{MGO} genera 6355 objetos 
+frente a 1597 de \texttt{API}. Es decir, el uso de métodos generadores resulta
+en un incremento de 3.98 veces en la cantidad de objetos distintos producidos. 
 
-En promedio global sobre las 39 combinaciones (clase X presupuesto),
-\texttt{MGO} genera 6355 objetos frente a 1597 de
-\texttt{API}, es decir, 4758 más de objetos en promedio, lo que significa un
-incremento de 4 veces en cantidad de objetos (\(6355/1597=3.98\)). Desagregando por presupuesto:
-
-En el presupuesto de \textbf{60 segundos}, la configuración con solo los 
-métodos generadores produce en promedio 4783 objetos, mientras 
-que la basada en toda la API alcanza apenas 1275. Esto implica 
-que con métodos generadores se obtienen, aproximadamente, tres veces más objetos, que con toda la API,
-lo que representa una diferencia de alrededor de 3500 objetos adicionales. 
-
-Con un presupuesto de \textbf{120 segundos}, los métodos generadores 
-alcanzan en promedio 6546 objetos, frente a 1623 con 
-toda la API. En este caso, se generan aproximadamente cuatro veces más 
-objetos con los \texttt{MGO} en comparación que con \texttt{API},
-lo que equivale a una ventaja de más de 4900 objetos adicionales. 
-
+Desagregando por presupuesto, para \textbf{60 segundos} con métodos generadores 
+se obtienen, aproximadamente, tres veces más objetos, que con toda la API. 
+Con un presupuesto de \textbf{120 segundos}, se generan aproximadamente cuatro 
+veces más objetos con los \texttt{MGO} en comparación con la \texttt{API},
 Finalmente, para \textbf{180 segundos}, la configuración con métodos 
-generadores llega a 7736 objetos, mientras que con toda la API 
-se logran 1893. Nuevamente, la diferencia es notable, se 
-construyen casi cinco veces más objetos con los \texttt{MGO} en comparación que con \texttt{API}, 
-con un excedente cercano a los 5800 objetos adicionales.
+generadores se construyen casi cinco veces más objetos con los \texttt{MGO} en
+comparación con la \texttt{API}. Notablemente, la diferencia en la cantidad de
+objetos generados se incrementa con el presupuesto. 
 
-La ventaja es consistente todos los casos. Si
-promediamos por clase (sobre los tres presupuestos), \texttt{MGO} es mejor
-en todas las clases, con ganancias especialmentes marcadas en \emph{NCL} (casi 15 veces mas en promedio por clase) y \emph{LinkedList}
-(casi 10 veces). Esto sugiere que focalizar la generación sobre métodos generadores de objetos mejora la
-capacidad de exploración de Randoop bajo un mismo presupuesto de tiempo, incrementando la diversidad de entradas disponibles para los tests.
-Por lo tanto, concluimos que la identificación automatizada de métodos generadores de objetos 
-constituye una estrategia efectiva y valiosa para potenciar la generación automatizada de tests.
+\pp{Falta lo de size}
+
+%La ventaja es consistente todos los casos. Si
+%promediamos por clase (sobre los tres presupuestos), \texttt{MGO} es mejor
+%en todas las clases, con ganancias especialmentes marcadas en \emph{NCL} (casi 15 veces mas en promedio por clase) y \emph{LinkedList}
+%(casi 10 veces). 
+En resumen, el uso de métodos generadores de objetos mejora significativamente la
+capacidad de generación de objetos con Randoop, para un mismo presupuesto de
+tiempo.
 La calidad de los objetos generados se evalúa más adelante en la Sección~\ref{sec:parametrizedTesting}, 
 donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
 
-\input{tables/objectsBuilders.tex}
 
 \subsubsection{Impacto en verificación acotada usando JPF}
 \label{sec:experiments-jpf-driver}
