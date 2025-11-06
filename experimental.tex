@@ -360,9 +360,13 @@ objetos generados se incrementa con el presupuesto.
 %promediamos por clase (sobre los tres presupuestos), \texttt{MGO} es mejor
 %en todas las clases, con ganancias especialmentes marcadas en \emph{NCL} (casi 15 veces mas en promedio por clase) y \emph{LinkedList}
 %(casi 10 veces). 
+
 En resumen, el uso de métodos generadores de objetos mejora significativamente la
 capacidad de generación de objetos con Randoop, para un mismo presupuesto de
 tiempo.
+Es esperable que al generar objetos más diversos y más grandes, los objetos producidos por
+\texttt{MGO} ejerciten mejor el código que los generados por
+\texttt{API} si se los utiliza para testing. 
 La calidad de los objetos generados se evalúa más adelante en la Sección~\ref{sec:parametrizedTesting}, 
 donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
 
