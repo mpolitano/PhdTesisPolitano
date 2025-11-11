@@ -354,41 +354,53 @@ manual \cite{Pacheco07,Pacheco08}.
     existe en el algoritmo. Hay que relacionar cada paso de la ejecución de
     abajo con las líneas del algoritmo de la Figura 1.}
 
+    
 Para ilustrar el funcionamiento de Randoop, consideremos la clase
-\texttt{java.util.LinkedList}. El generador parte de un conjunto pequeño de
-valores primitivos (por ejemplo, 0, 1, 2, $-1$, $-2$) y de los
-constructores públicos disponibles. En una primera ejecución, Randoop
-selecciona aleatoriamente el constructor \texttt{LinkedList()} y
-ejecuta la secuencia:
+\texttt{java.util.LinkedList}. 
+\cacho{Esto es nuevo:}
+El generador comienza con un conjunto inicial de valores primitivos (por ejemplo, 0, 1, 2, –1, –2) (\cacho{Lo agrego en el algoritmo esto?}) 
+y los métodos públicos disponibles. En una primera ejecución, Randoop
+selecciona aleatoriamente el constructor \texttt{LinkedList()} (Linea 4, del algoritmo \ref{fig:randoop-algorithm}). Como no tiene parametros 
+para instanciar, se saltea la parte de las líneas 5 a 12. Luego ejecuta la secuencia (línea 14):
 \\
 \begin{lstlisting}[language=Java,basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
 LinkedList<Integer> l = new LinkedList<>();
 \end{lstlisting}
 
 Como la ejecución no produce fallos, la secuencia y el objeto resultante
-se incorporan al \emph{pool} para futuras extensiones.
+se incorporan al \emph{pool} para futuras extensiones (\texttt{prev} en el algoritmo).
 
 En una iteración posterior, Randoop elige al azar un método, por ejemplo,
-\texttt{add(Object)}. Para obtener una lista sobre la cual invocar el
-método, reutiliza la secuencia previa que construye \texttt{l}. Para el
-parámetro, toma un entero disponible en el \emph{pool} (por ejemplo, 1).
-La secuencia extendida queda:
-\\
+\texttt{add(Object)} (línea 4). Para obtener una lista sobre la cual invocar el
+método, reutiliza la secuencia previa que construye \texttt{l} (\cacho{Esto no esta muy claro en el algortimo}). Para el
+parámetro, como es de tipo primitivo, toma un entero disponible en el conjunto inicial de valores primitivos (por ejemplo, 1).
+La secuencia extendida queda (línea 13):
+
 \begin{lstlisting}[language=Java,basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
 LinkedList<Integer> l = new LinkedList<>();
 l.add(1);
 \end{lstlisting}
 
-La ejecución es exitosa y la nueva secuencia pasa a estar disponible para
-nuevas extensiones.
+
+La ejecución es exitosa (línea 14) y la nueva secuencia pasa a estar disponible para
+nuevas extensiones (Línea 22).
 
 En otra iteración, Randoop genera una secuencia que incluye
 \texttt{l.get(2)} sobre una lista de tamaño 1. La invocación arroja una
-excepción por índice fuera de rango. Debido a su estrategia de
+excepción por índice fuera de rango (línea 14). Debido a su estrategia de
 \emph{feedback-directed random testing}, Randoop descarta esa secuencia
-fallida y deja de ampliarla. Solo las secuencias que ejecutan sin fallos
+fallida y deja de ampliarla (línea 16). Solo las secuencias que ejecutan sin fallos
 se siguen extendiendo, guiando así la exploración de las secuencias de la
 API~\cite{Pacheco07,Pacheco08}.
+
+
+\cacho{Hasta aca}
+
+
+
+
+
+
 
 
 
@@ -598,7 +610,7 @@ de la propiedad anterior, el usuario debe proveer un programa, \emph{driver}, qu
 listas de tamaño máximo \(b\), con elementos en \([0,b-1]\) \pp{Si son b nodos,
 entonces son enteros entre 0 y b-1. No hay ninguna b en el código. Hay que
 revisar el texto de esta sección actualizando las variables por las del
-código.}. \cacho{Aca queria explicar, hacer una intro por eso no esta b. Creo que lo puedo sacar porq es algo redundante con el parrafo de abajo} Así, las entradas generadas por el
+código.}. \cacho{Aca quería explicar, hacer una intro por eso no esta bien. Creo que lo puedo sacar porq es algo redundante con el parrafo de abajo} Así, las entradas generadas por el
 \emph{driver} son usadas por JPF para la verificación de la propiedad.
 
 Un driver básico para la propiedad del Algoritmo \ref{lst:propiedad} se

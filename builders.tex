@@ -717,9 +717,10 @@ Para ello, se calcula la proporción de líneas y ramas cubiertas respecto del t
 y se ponderan según su importancia relativa. Así, la cobertura alcanzada por una
 test suite puede definirse como:
 
-\[
+\begin{equation}
+\label{eq:cobertura}
 \text{Cob}(M) = \alpha \cdot \frac{L_M}{L_{\text{total}}} + \beta \cdot \frac{B_M}{B_{\text{total}}}
-\]
+\end{equation}
 
 donde $\alpha$ es $0.4$ y $\beta$ es $0.6$ para darle un peso mas importante a la cobertura de ramas.
 Este enfoque es especialmente útil en casos donde el objetivo es favorecer
@@ -835,7 +836,8 @@ Usamos el algoritmo \ref{alg:fitnessRandoop} para computar $Cob$ de la siguiente
 Primero, se genera una test suite para un conjuto de métodos dado $M$, con un tiempo límite
 de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
  la cobertura de líneas y de ramas obtenida por la test suite, y se computa
- $Cob$ aplicando la fórmula \ref{} \pp{poner fórmula} con estos valores.
+ $Cob$ aplicando la fórmula \ref{eq:cobertura} con estos valores.
+\cacho{Deberia poner con equation a todas las formulas!}
 
 La función objetivo que utilizamos para evaluar la calidad de un candidato, 
 representado por un conjunto de métodos $M$, se define como una tripla al igual 
@@ -1321,12 +1323,11 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
 
 \end{algorithm}
 
-El algoritmo~\ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos . 
-La representación que hemos utilizado del problema es la explicada en la sección
-\ref{sec:estados}. Esto quiere decir que utilizamos vectores de bits para
-representar los estados. \pp{Y las funciones objetivo?}
-El proceso comienza con la función principal $computeBuilders$, que implementa
-la búsqueda. 
+El algoritmo~\ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos.
+La representación que hemos utilizado del problema es la explicada en la Sección \ref{sec:estados}, donde los estados se modelan como vectores de bits.
+Además, la búsqueda se guía mediante una de las funciones objetivo definidas en la Sección~\ref{sec:fitness}.
+El proceso comienza con la función principal \texttt{computeBuilders}, que implementa la búsqueda.
+
 La inicialización consiste en definir un estado inicial representado por un vector de ceros, 
 que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing$, junto con un valor lógico que indica que se deben considerar únicamente los métodos constructores. 
 Posteriormente, el algoritmo invoca nuevamente a $hillClimbing$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
@@ -1446,39 +1447,86 @@ propiedades para estructuras dinámicas complejas el usuario debe proveer un
 \\
 \begin{lstlisting}[language=Java,caption={Driver usando todos los métodos
 de la API},label={lst:driverAPI},captionpos=b]
-    private static TreeMap generateStructure(int scope) {
-       int maxLength = Verify.getInt(0, scope);
-       TreeMap t = new TreeMap();
-       for (int i = 0; i <= maxLength; i++) {
-          switch (Verify.getInt(n_methods)) {
-             case 0:
-                t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
+private static TreeMap<Integer, Integer> generateStructure(int scope) {
+    int maxLength = Verify.getInt(0, scope);
+    TreeMap<Integer, Integer> t = new TreeMap<>();
+    for (int i = 0; i <= maxLength; i++) {
+        switch (Verify.getInt(n_methods)) {
+            case 0:
+                t.put(Verify.getInt(0,scope), Verify.getInt(0,scope));
                 break;
-             case 1:
+            case 1:
                 t.remove(Verify.getInt(0,scope));
-                break;						
-             case 2:
+                break;
+            case 2:
                 t.clear();
                 break;
-             case 3:
+            case 3:
+                t.containsKey(Verify.getInt(0,scope));
+                break;
+            case 4:
                 t.containsValue(Verify.getInt(0,scope));
                 break;
-             case 4: 
-                t.putAll(l);
+            case 5:
+                t.get(Verify.getInt(0,scope));
                 break;
-              ...
-          }
-       }
-       return t;
+            case 6:
+                t.putIfAbsent(Verify.getInt(0,scope), Verify.getInt(0,scope));
+                break;
+            case 7:
+                t.replace(Verify.getInt(0,scope), Verify.getInt(0,scope));
+                break;
+            case 8:
+                t.isEmpty();
+                break;
+            case 9:
+                t.size();
+                break;
+            case 10:
+                t.firstKey();
+                break;
+            case 11:
+                t.lastKey();
+                break;
+            case 12:
+                t.pollFirstEntry();
+                break;
+            case 13:
+                t.pollLastEntry();
+                break;
+            case 14:
+                t.headMap(Verify.getInt(0,scope));
+                break;
+            case 15:
+                t.tailMap(Verify.getInt(0,scope));
+                break;
+            case 16:
+                t.descendingMap();
+                break;
+            case 17:
+                t.values();
+                break;
+            case 18:
+                t.entrySet();
+                break;
+            case 19:
+                t.keySet();
+                break;
+            ...
+        }
     }
+    return t;
+}
 \end{lstlisting}
+
+\cacho{Hecho}
 \pp{Poner más métodos para que ocupe más espacio la figura, y de paso se note
 más la diferencia para builders vs. no builders.}
 
 Por ejemplo, la Figura \ref{lst:driverAPI} muestra un driver para generar todos
 los posibles \texttt{TreeMap}s con hasta \texttt{scope} nodos, con elementos
-en \texttt{[0, scope-1]} \pp{Hay que ver cómo funciona el getInt y actualizar
-esto para que den las cotas}. Notar que, si no se conocen los métodos
+en \texttt{[0, scope]} \pp{Hay que ver cómo funciona el getInt y actualizar
+esto para que den las cotas}\cacho{Resuelto, es hasta scope}. Notar que, si no se conocen los métodos
 generadores de objetos del módulo, el usuario tiene que escribir el driver
 utilizando todos los métodos de la API (como en la Figura \ref{lst:driverAPI}). 
 En caso contrario, es posible que
@@ -1488,8 +1536,7 @@ bajo análisis. Por otra parte, la cantidad de caminos a explorar en el driver
 crece exponencialmente con el número de métodos (la cantidad de opciones en el
 \texttt{switch}). De esta manera, incluir métodos innecesarios para crear
 objetos impacta negativamente en el tiempo de ejecución de la verificación acotada.
-Cabe destacar que la API de \texttt{TreeMap} cuenta con \pp{XXX (poner cuántos
-metodos)} métodos.
+Cabe destacar que la API de \texttt{TreeMap} cuenta con 61 métodos.
 
 En este trabajo, se propone utilizar los métodos generadores detectados
 automáticamente por nuestros enfoques para construir drivers. El objetivo es acelerar la 
