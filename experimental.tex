@@ -108,7 +108,7 @@ Para las evaluaciones con la función objetivo basada en cobertura (\textbf{FRC}
 fijamos un tiempo máximo de ejecución de Randoop de 30 segundos por candidato. 
 %Este tiempo fue suficiente para generar suites de tests y lograr buena cobertura de código en nuestros experimentos.  
 \pp{Esto de abajo no se entiende, tenemos que charlarlo:
-\cacho{Lo cambiené un poco pero no sé si está bien:}
+\cacho{Lo cambie un poco pero no sé si está bien:}
 Randoop introduce un componente de aleatoriedad en la generación de tests. 
 Para controlar este factor y garantizar la reproducibilidad de los resultados de los experimentos con los mismo conjunto de parámetros, 
 fijamos dos semillas distintas.
@@ -214,9 +214,7 @@ Esta diferencia se entiende por la propia naturaleza de los algoritmos.
 El algoritmo genético (\texttt{GA}) mantiene y evoluciona poblaciones de
 candidatos, lo que implica evaluar la función objetivo (que es costosa
 computacionalmente) para muchos candidatos.
-En cambio, \texttt{HC} \pp{Hay que poner en typewriter la fuente de los algoritmos
-y casos de estudio en todo el texto. emph no se usa para eso, sino para resaltar
-palabras, y poner palabras en inglés} \cacho{Hecho} sigue una estrategia \emph{greedy}: elige la mejor opción posible entre los sucesores del candidato actual. Esto lo vuelve más eficiente.
+En cambio, \texttt{HC} sigue una estrategia \emph{greedy}: elige la mejor opción posible entre los sucesores del candidato actual. Esto lo vuelve más eficiente.
 Sin embargo, en ciertos casos \texttt{HC} podría perder precisión en el cómputo de métodos
 generadores. 
 
@@ -225,11 +223,11 @@ es más rápida que \texttt{FRC}. En \texttt{GA}, FRC requiere en promedio
 unas siete veces más tiempo que \texttt{FGE}; en \texttt{HC}, \texttt{FRC} requiere unas casi 32 veces
 más tiempo que \texttt{FGE}. La función objetivo \texttt{FGE} debido a que para
 computar MGO en nuestos casos de estudio es suficiente con generar objetos de tamaño 
-relativamente pequeño (scope 5). Además, \texttt{FGE} utiliza BEAPI (ver
-sección \ref{} \pp{referencia}), que implementa mecanismos que hacen a la
+relativamente pequeño (scope 5). Además, \texttt{FGE} utiliza BEAPI (\cacho{ver
+capítulo \ref{cap:beapi}}), que implementa mecanismos que hacen a la
 generación acotada más eficiente (generación guiada por el feedback de la
 ejecución, state matching). 
-Todas \pp{Ambas funciones?} tienen un \texttt{timeout} de 
+Ambas funciones tienen un \emph{timeout} de 
 30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
 la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. 
 En cambio, la función objetivo FRC debe generar una gran cantidad de tests en
@@ -327,7 +325,6 @@ el objetivo primario es minimizar el costo de generación/análisis, recomendamo
 emplear el conjunto devuelto por \textbf{HC+FGE} (minimal y suficiente).
 
 
-
 \subsection{RQ3: Impacto de los métodos generadores de objetos en el análisis de
 software}
 
@@ -336,9 +333,10 @@ software}
 
 \input{tables/objectsBuilders.tex}
 
-En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
-identificados previamente \pp{por qué algoritmo?}, en el contexto de la
-generación automática de objetos para las clases evaluadas. 
+\cacho{En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
+identificados previamente con el algoritmo de \emph{Hill Climbing} (\ref{alg:approachHC}}) 
+con la función objetivo basada en la cantidad de objetos producidos por un generador exhaustivo acotado (\ref{sec:fitnessGE}), en el contexto de la
+generación automática de objetos para las clases evaluadas}. 
 Estos objetos pueden ser utilizadas luego como 
 entradas en tests unitarios o tests basadas en propiedades.
  
@@ -354,12 +352,13 @@ Para estos enfoques, definimos tres valores de presupuesto de tiempo para la gen
 test: 60, 120 y 180 segundos. En este experimento, medimos la cantidad de objetos distintos
 generados por los tests (\emph{No. of Objs.}), usando los métodos
 \texttt{equals()} de las clases evaluadas para descartar objetos iguales.
-Además, reportamos el tamaño del objeto más grande generado por las técnicas
+\cacho{Además, reportamos el tamaño del objeto más grande generado por las técnicas
 \pp{Por qué faltan los tamaños de los objetos acá? En el paper los habíamos
 puesto, o no?} (calculamos los tamaños de objetos con el método
-\texttt{size()} de las clases bajo análisis). 
+\texttt{size()} de las clases bajo análisis). }
+\cacho{Agregar table, URGENTE!. escribir esa parte}
+
 Los resultados obtenidos se resumen en la Tabla~\ref{tab:results-obj}.
-\cacho{Agregar table, URGENTE!. Esta en las tablas, agregar y escribir esa parte}
 
 En promedio para todos los presupuestos, \texttt{MGO} genera 6355 objetos 
 frente a 1597 de \texttt{API}. Es decir, el uso de métodos generadores resulta
@@ -375,7 +374,7 @@ comparación con la \texttt{API}. Notablemente, la diferencia en la cantidad de
 objetos generados se incrementa con el presupuesto. 
 
 \pp{Falta lo de size}
-\cacho{Agregar table, URGENTE!. Esta en las tablas, agregar y escribir esa parte}
+\cacho{Agregar table, URGENTE!. escribir esa parte}
 
 %La ventaja es consistente todos los casos. Si
 %promediamos por clase (sobre los tres presupuestos), \texttt{MGO} es mejor
@@ -390,7 +389,6 @@ Es esperable que al generar objetos más diversos y más grandes, los objetos pr
 \texttt{API} si se los utiliza para testing. 
 La calidad de los objetos generados se evalúa más adelante en la Sección~\ref{sec:parametrizedTesting}, 
 donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
-
 
 \subsubsection{Impacto en verificación acotada usando JPF}
 \label{sec:experiments-jpf-driver}
