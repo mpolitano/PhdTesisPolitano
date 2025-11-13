@@ -1,6 +1,4 @@
 %!TEX root = main.tex
-\chapter*{Resumen}
-
 \begin{center}
     \Large
     \textbf{Generación Automática Eficiente de Objetos a partir de APIs de Clase}
@@ -13,23 +11,50 @@
     \textbf{Resumen}
 \end{center}
 
-
 El testing de software consiste en ejecutar código bajo diversas entradas para verificar su correctitud, 
 siendo una de las actividades más costosas y críticas en el desarrollo de software, 
-ya que puede representar más de la mitad del costo total del desarrollo del software \cacho{cita}\ref{}.
-Por ello, la automatización del testing, especialmente la generación automática de entradas, 
-es fundamental para reducir costos y mejorar la eficiencia. 
-El testing consiste en ejecutar una pieza de código cuya correctitud se desea verificar, 
-utilizando diversas entradas y verificando si los resultados observados coinciden con los esperados. 
-Esta actividad es central en el ciclo de desarrollo de software y, en proyectos reales, 
-puede representar una porción sustancial del costo total ya se en tiempo de desarrollo y en recursos humanos, 
-por lo que su automatización resulta clave. Entre las estrategias de automatización del \emph{testing}, 
-la generación exhaustiva acotada (BEG, por sus siglas en inglés) ha mostrado ser altamente efectiva para descubrir fallas, 
-ya que propone ejercitar el programa bajo todas las entradas válidas dentro de cotas dadas. 
-Sin embargo, su adopción enfrenta dos grandes obstáculos. Primero, la necesidad de escribir invariantes de representacion 
-que son aquellos que nos especifica que debe hacer el programa. Estos son difíciles y costosas de escribir. 
-Segundo, la selección manual de subconjuntos de métodos de la API que sea \cacho{Ver esto} \emph{importante} para construir todas las posibles entradas, 
-donde el espacio de combinaciones crece exponencialmente con respecto al número de métodos.
+ya que puede representar más de la mitad del costo total del proceso.
+Esta actividad es central en el ciclo de desarrollo de \emph{software} y, en proyectos reales, 
+puede representar una porción sustancial del costo total tanto en tiempo como en recursos humanos, 
+por lo que su automatización resulta clave \cite{}.
+Entre las estrategias de automatización, la generación exhaustiva acotada (BEG, por sus siglas en inglés) \cite{}
+ha mostrado ser altamente efectiva para descubrir fallas. Esta misma, propone ejercitar el programa 
+bajo todas las entradas válidas dentro de cotas dadas. 
+Sin embargo, su adopción enfrenta dos obstáculos prácticos. Primero, la necesidad de especificaciones de validez 
+(invariantes de representación), difíciles y costosas de escribir. Segundo, la selección manual de subconjuntos de 
+métodos de la API para construir drivers de generación, donde el espacio de combinaciones crece exponencialmente con el número de métodos.
+
+En este trabajo abordamos ambos problemas mediante dos aportes. 
+En primer lugar, presentamos un método para la identificación automática de métodos generadores de objectos.
+a partir de la API pública de una clase. Estos métodos son aquellos que cumplen la caracteristica de ser 
+suficientes (capaces de construir todas las instancias válidas dentro del scope) y minimales (sin métodos superfluos), esto quiere decir que nos permiten construir cualquier objecto de la API.
+Modelamos esta selección de métodos como un problema de optimización y exploramos el espacio con dos algoritmos de búsqueda, \emph{Hill Climbing} (HC) y Algoritmo Genetico (GA). 
+Para evaluar la calidad de un candidato (subconjunto de métodos), desarrollamos dos funciones objetivo. Una basada en generación exhaustiva acotada, 
+que estima la cantidad de objetos distintos que puede producir el conjunto de métodos bajo un scope dado; y la otra función es 
+basada en cobertura de código (líneas y ramas) obtenida al generar y ejecutar suites de tesst a partir de dicho conjunto de métodos. 
+La evaluación experimental sobre un conjunto representativo de clases indica que nuestras técnicas identifican 
+conjuntos de métodos, con tiempos de cómputo adecuados para su uso práctico.
+
+En segundo lugar, introducimos BEAPI, un enfoque de generación exhaustiva acotada que no requiere invariante de representacion, (comunmente llamados, \emph{repOK}). 
+BEAPI construye objetos ejecutando secuencias de método de la API de la clase bajo test 
+y aplica tres optimizaciones esenciales. La primera es una poda por realizar un buen uso de la API 
+(descarta tempranamente secuencias que producen excepciones o violaciones de contrato). 
+La segunda es por coincidencia de estados (\emph{state matching}) 
+para eliminar redundancias cuando diferentes secuencias generan el mismo objeto. 
+Y la tercera, es haciendo uso de los métodos generadores de objetos (los detectados en el primer aporte de este trabajo) 
+para restringir las combinaciones de métodos. 
+Realizamos una comparación contra la herramienta muy conocida en el estado del arte, \emph{Korat}, 
+y observamos que BEAPI alcanza niveles comparables de en cuanto a lo \cacho{exhaustivo} de la tecnica 
+y con mejores tiempos en escenarios de estructuras que tienen varias restricciones y, lo mas importante, sin requerir 
+los invariantes de representación. 
+Además, al contrastar los objetos generados por BEAPI con los aceptados por \emph{repOKs} existentes de \emph{Korat}, 
+mostramos que el enfoque puede revelar defectos en dichas especificaciones, subrayando la dificultad de escribir \emph{repOKs} correctos.
+
+En conjunto, los resultados demuestran que la selección automática de métodos generadores y BEAPI reducen la intervención manual del programador y 
+mejoran la eficiencia y escalabilidad de la generación de entradas a partir de APIs de clase. 
+Estos aportes facilitan la adopción de técnicas exhaustivas en contextos reales, tanto para testing como para verificación.
+
+\cacho{algo de lineas futura de trabajo, va aca?}
 
 
 
