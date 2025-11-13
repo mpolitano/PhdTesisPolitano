@@ -13,6 +13,26 @@
     \textbf{Resumen}
 \end{center}
 
+
+El testing de software consiste en ejecutar código bajo diversas entradas para verificar su correctitud, 
+siendo una de las actividades más costosas y críticas en el desarrollo de software, 
+ya que puede representar más de la mitad del costo total del desarrollo del software \cacho{cita}\ref{}.
+Por ello, la automatización del testing, especialmente la generación automática de entradas, 
+es fundamental para reducir costos y mejorar la eficiencia. 
+El testing consiste en ejecutar una pieza de código cuya correctitud se desea verificar, 
+utilizando diversas entradas y verificando si los resultados observados coinciden con los esperados. 
+Esta actividad es central en el ciclo de desarrollo de software y, en proyectos reales, 
+puede representar una porción sustancial del costo total ya se en tiempo de desarrollo y en recursos humanos, 
+por lo que su automatización resulta clave. Entre las estrategias de automatización del \emph{testing}, 
+la generación exhaustiva acotada (BEG, por sus siglas en inglés) ha mostrado ser altamente efectiva para descubrir fallas, 
+ya que propone ejercitar el programa bajo todas las entradas válidas dentro de cotas dadas. 
+Sin embargo, su adopción enfrenta dos grandes obstáculos. Primero, la necesidad de escribir invariantes de representacion 
+que son aquellos que nos especifica que debe hacer el programa. Estos son difíciles y costosas de escribir. 
+Segundo, la selección manual de subconjuntos de métodos de la API que sea \cacho{Ver esto} \emph{importante} para construir todas las posibles entradas, 
+donde el espacio de combinaciones crece exponencialmente con respecto al número de métodos.
+
+
+
 \vspace{0.5cm}
 
 \newpage
