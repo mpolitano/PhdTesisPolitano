@@ -36,9 +36,9 @@ Por otro lado, se define un enfoque eficiente de generación exhaustiva acotada
 de objetos basado en la API del módulo, denominado BEAPI. La generación
 exhaustiva acotada consiste en crear todos los objetos de tamaño acotado para
 el módulo, con cotas provistas por el usuario. Enfoques previos
-requiren de especificaciones formales de las propiedades que deben satisfacer
+requieren de especificaciones formales de las propiedades que deben satisfacer
 los objetos.
-En contraste, BEAPI construye objetos creando y ejecutando secuencias de invocaciones a
+En contraste, BEAPI construye objetos creando y ejecutando secuencias de invocaciones a 
 métodos (secuencias de test) de la API. BEAPI implementa tres 
 técnicas de poda claves para su eficiencia. Primero, BEAPI
 descarta secuencias de test que lanzan excepciones por el uso indebido de la
@@ -49,12 +49,10 @@ BEAPI emplea solo métodos generadores de objetos durante la generación
 
 Se evaluaron experimentalmente las técnicas propuestas, en clases que manipulan 
 objetos complejos. 
-Los resultados muestran que los enfoques de identificación de métodos
-generadores se ejecutan en tiempos
-razonables, y encuentran métodos generadores de objetos
+Los resultados muestran que los enfoques de identificación de métodos generadores se ejecutan en tiempos razonables, y encuentran métodos generadores de objetos
 suficientes y (casi) minimales (incluyen algunos métodos
 innecesarios en pocos casos). Además, se muestran resultados preliminares que
-indican que los métodos generadores de objetos son útiles para la mejorar 
+indican que los métodos generadores de objetos son útiles para mejorar 
 la generación de objetos usando técnicas de generación aleatoria y
 exhaustiva acotada de tests, y para model checking de software.
 La evaluación de BEAPI muestra que su eficiencia y escalabilidad respecto 
