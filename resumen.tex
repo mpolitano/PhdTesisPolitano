@@ -1,7 +1,7 @@
 %!TEX root = main.tex
 \begin{center}
     \Large
-    \textbf{Generación Automática Eficiente de Objetos a partir de APIs de Clase}
+    \textbf{Enfoques Eficientes de Generación Automática de Objetos a partir de APIs de Clase}
         
     \vspace{0.4cm}
     \large
@@ -10,51 +10,197 @@
     \vspace{0.9cm}
     \textbf{Resumen}
 \end{center}
+% Nuevo título: Enfoques Eficientes de Generación Automática de Objetos a partir de APIs de Clase
 
-El testing de software consiste en ejecutar código bajo diversas entradas para verificar su correctitud, 
-siendo una de las actividades más costosas y críticas en el desarrollo de software, 
-ya que puede representar más de la mitad del costo total del proceso.
-Esta actividad es central en el ciclo de desarrollo de \emph{software} y, en proyectos reales, 
-puede representar una porción sustancial del costo total tanto en tiempo como en recursos humanos, 
-por lo que su automatización resulta clave \cite{}.
-Entre las estrategias de automatización, la generación exhaustiva acotada (BEG, por sus siglas en inglés) \cite{}
-ha mostrado ser altamente efectiva para descubrir fallas. Esta misma, propone ejercitar el programa 
-bajo todas las entradas válidas dentro de cotas dadas. 
-Sin embargo, su adopción enfrenta dos obstáculos prácticos. Primero, la necesidad de especificaciones de validez 
-(invariantes de representación), difíciles y costosas de escribir. Segundo, la selección manual de subconjuntos de 
-métodos de la API para construir drivers de generación, donde el espacio de combinaciones crece exponencialmente con el número de métodos.
+Garantizar la corrección funcional del software es objetivo crucial para la
+Ingeniería de Software. Es por esto que se han desarrollado numerosas técnicas 
+automáticas de análisis de software, para asistir a los
+desarrolladores a lograr este objetivo. Muchas de estas técnicas 
+requieren producir un conjunto de objetos para alimentar el programa bajo
+análisis, como por ejemplo, el testing, el model checking de software, etc. 
+Generar un conjunto diverso de objetos para ejercitar adecuadamente el software 
+es un problema desafiante, sobre todo para programas que manipulan estructuras complejas 
+(ej. estructuras encadenadas almacenadas en el heap).
 
-En este trabajo abordamos ambos problemas mediante dos aportes. 
-En primer lugar, presentamos un método para la identificación automática de métodos generadores de objectos.
-a partir de la API pública de una clase. Estos métodos son aquellos que cumplen la caracteristica de ser 
-suficientes (capaces de construir todas las instancias válidas dentro del scope) y minimales (sin métodos superfluos), esto quiere decir que nos permiten construir cualquier objecto de la API.
-Modelamos esta selección de métodos como un problema de optimización y exploramos el espacio con dos algoritmos de búsqueda, \emph{Hill Climbing} (HC) y Algoritmo Genetico (GA). 
-Para evaluar la calidad de un candidato (subconjunto de métodos), desarrollamos dos funciones objetivo. Una basada en generación exhaustiva acotada, 
-que estima la cantidad de objetos distintos que puede producir el conjunto de métodos bajo un scope dado; y la otra función es 
-basada en cobertura de código (líneas y ramas) obtenida al generar y ejecutar suites de tesst a partir de dicho conjunto de métodos. 
-La evaluación experimental sobre un conjunto representativo de clases indica que nuestras técnicas identifican 
-conjuntos de métodos, con tiempos de cómputo adecuados para su uso práctico.
+En este trabajo, se proponen dos enfoques para contruibir a la generación de
+objetos complejos a partir de la API de un módulo. Por un lado, observamos que 
+la selección de los métodos apropiados de la API es crucial para 
+la construcción eficiente de objetos. Definimos como \emph{métodos generadores
+de objetos} a un subconjunto minimal de métodos de la API que son suficientes para 
+construir cualquier objeto para el módulo. 
+Identificar un conjunto suficiente y minimal de métodos generadores de objetos 
+de forma manual es una tarea trabajosa, por lo que se proponen enfoques para 
+llevar a cabo esta tarea de manera automática. 
 
-En segundo lugar, introducimos BEAPI, un enfoque de generación exhaustiva acotada que no requiere invariante de representacion, (comunmente llamados, \emph{repOK}). 
-BEAPI construye objetos ejecutando secuencias de método de la API de la clase bajo test 
-y aplica tres optimizaciones esenciales. La primera es una poda por realizar un buen uso de la API 
-(descarta tempranamente secuencias que producen excepciones o violaciones de contrato). 
-La segunda es por coincidencia de estados (\emph{state matching}) 
-para eliminar redundancias cuando diferentes secuencias generan el mismo objeto. 
-Y la tercera, es haciendo uso de los métodos generadores de objetos (los detectados en el primer aporte de este trabajo) 
-para restringir las combinaciones de métodos. 
-Realizamos una comparación contra la herramienta muy conocida en el estado del arte, \emph{Korat}, 
-y observamos que BEAPI alcanza niveles comparables de en cuanto a lo \cacho{exhaustivo} de la tecnica 
-y con mejores tiempos en escenarios de estructuras que tienen varias restricciones y, lo mas importante, sin requerir 
-los invariantes de representación. 
-Además, al contrastar los objetos generados por BEAPI con los aceptados por \emph{repOKs} existentes de \emph{Korat}, 
-mostramos que el enfoque puede revelar defectos en dichas especificaciones, subrayando la dificultad de escribir \emph{repOKs} correctos.
+Por otro lado, se define un enfoque eficiente de generación exhaustiva acotada
+de objetos basado en la API del módulo, denominado BEAPI. La generación
+exhaustiva acotada consiste en crear todos los objetos de tamaño acotado para
+el módulo, con cotas provistas por el usuario. Enfoques previos
+requiren de especificaciones formales de las propiedades que deben satisfacer
+los objetos.
+En contraste, BEAPI construye objetos creando y ejecutando secuencias de invocaciones a
+métodos (secuencias de test) de la API. BEAPI implementa tres 
+técnicas de poda claves para su eficiencia. Primero, BEAPI
+descarta secuencias de test que lanzan excepciones por el uso indebido de la
+API. Segundo, BEAPI implementa coincidencia de estados para descartar
+secuencias de test distintas que crean los mismos objetos. Tercero,
+BEAPI emplea solo métodos generadores de objetos durante la generación 
+(identificados automáticamente con los enfoques propuestos). 
 
-En conjunto, los resultados demuestran que la selección automática de métodos generadores y BEAPI reducen la intervención manual del programador y 
-mejoran la eficiencia y escalabilidad de la generación de entradas a partir de APIs de clase. 
-Estos aportes facilitan la adopción de técnicas exhaustivas en contextos reales, tanto para testing como para verificación.
+Se evaluaron experimentalmente las técnicas propuestas, en clases que manipulan 
+objetos complejos. 
+Los resultados muestran que los enfoques de identificación de métodos
+generadores se ejecutan en tiempos
+razonables, y encuentran métodos generadores de objetos
+suficientes y (casi) minimales (incluyen algunos métodos
+innecesarios en pocos casos). Además, se muestran resultados preliminares que
+indican que los métodos generadores de objetos son útiles para la mejorar 
+la generación de objetos usando técnicas de generación aleatoria y
+exhaustiva acotada de tests, y para model checking de software.
+La evaluación de BEAPI muestra que su eficiencia y escalabilidad respecto 
+de los scopes es comparable al mejor enfoque existente (Korat). Además, 
+se provee evidencia preliminar de que BEAPI sirve de ayuda para 
+encontrar errores en especificaciones formales de invariantes de clase, y que 
+los objetos que genera son de utilidad para el testing basado en propiedades.
 
-\cacho{algo de lineas futura de trabajo, va aca?}
+
+
+% Versión larga
+
+%A medida que el software se vuelve ubicuo gracias a los rápidos avances en la
+%tecnología, garantizar la corrección funcional del mismo se vuelve crucial.
+%Debido a esto se han desarrollado diversas técnicas automáticas de análisis de
+%software (implementadas mediante herramientas de software), para asistir a los
+%desarrolladores en distintas tareas, como por ejemplo, encontrar fallas en 
+%el software. 
+%
+%Varias técnicas de análisis requieren producir un conjunto de
+%estructuras (objetos en la terminología de la programación orientada a
+%objetos) para alimentar el programa bajo test. Entre ellas,
+%podemos mencionar el testing unitario, el testing basado en propiedades, y el model
+%checking (acotado) de software. 
+%Si los programas manipulan estructuras de datos complejas (ej. estructuras
+%encadenadas almacenadas en el heap), generar un conjunto 
+%diverso de objetos para ejercitar adecuadamente el software es un problema
+%desafiante. 
+%
+%En este trabajo, se proponen dos enfoques para contruibir a la generación de
+%objetos complejos a partir de la API de un módulo. Por un lado, observamos que 
+%la selección de los métodos apropiados de la API de un módulo es crucial para 
+%la construcción eficiente de objetos. Por esta razón, definimos el concepto
+%de \emph{métodos generadores de objetos} como un subconjunto minimal de métodos de 
+%la API que son suficientes para construir cualquier objeto para el módulo. 
+%Identificar un conjunto suficiente y minimal de métodos generadores de objetos de forma manual 
+%es una tarea trabajosa, que requiere de un análisis minucioso de la API y una comprensión profunda 
+%de la semántica del módulo. 
+%Para facilitar el trabajo del programador, se proponen distintos enfoques automáticos para 
+%identificar conjuntos suficientes y minimales de métodos generadores de objetos
+%a partir de la API. 
+%
+%Por otro lado, definimos un enfoque eficiente de generación exhaustiva acotada
+%de objetos basado en la API del módulo, denominado BEAPI. La generación
+%exhaustiva acotada consiste en crear todos los objetos de tamaño acotado para
+%el módulo, con cotas provistas por el usuario (ej. máxima cantidad de nodos en
+%estructuras enlazadas). La generación exhaustiva acotada ha mostrado ser un
+%enfoque efectivo para revelar fallas durante el testing. Enfoques previos
+%requiren de especificaciones formales de las propiedades que deben satisfacer
+%los objetos válidos, y realizan la generación en base a estas especificaciones.
+%En contraste, BEAPI construye objetos creando y ejecutando secuencias de invocaciones a
+%métodos (secuencias de test) de la API. Para hacer posible la generación eficiente a partir de la
+%API, BEAPI incluye tres técnicas de poda claves. En primer lugar, BEAPI
+%descarta secuencias de test que lanzan excepciones debido al uso indebido de la
+%API (ej. violaciones de precondiciones). 
+%En segundo lugar, BEAPI implementa coincidencia de estados para descartar
+%secuencias de test diferentes que crean los mismos objeto. En tercer lugar,
+%BEAPI emplea solo métodos generadores de objetos para la creación de secuencias
+%de test (identificados automáticamente con los algoritmos propuestos en una etapa 
+%previa a la generación exhaustiva). 
+%
+%Se realizó una evaluación experimental preliminar de los enfoques
+%propuestos, en clases cuyas instancias son objetos complejos. 
+%Los resultados muestran que los enfoques de identificación de métodos
+%generadores propuestos se ejecutan en tiempos
+%razonables para esta tarea (algunos minutos), y computan generadores de objetos
+%suficientes y minimales en la mayoría de los casos (incluyen algunos métodos
+%innecesarios en pocos casos). Además, se muestran resultados preliminares que
+%indican que los métodos generadores de objetos pueden ser útiles para la mejorar 
+%la generación de objetos en herramientas de generación aleatoria de tests
+%(Randoop), en herramientas de generación exhaustiva acotada (BEAPI), y en 
+%bounded model checking de software (usando Java Pathfinder).
+%Con respecto a BEAPI, los resultados experimentales muestran que
+%su eficiencia y escalabilidad respecto de los scopes es comparable a la mejor 
+%herramienta de generación exhaustiva acotada 
+%basada en especificaciones (Korat). Además, se muestra que 
+% BEAPI es útil para encontrar errores en 
+% especificaciones formales de invariantes de clase, y que los objetos 
+%generados por BEAPI son de utilidad en el contexto de testing basado en 
+%propiedades.
+
+
+
+
+
+%Our experimental assessment shows that BEAPI’s efficiency and scalabil-
+%ity is competitive with existing BEG approaches, without the need for
+%repOKs. We also show that BEAPI can assist the user in finding flaws in
+%repOKs, by (automatically) comparing inputs generated by BEAPI with
+%those generated from a repOK. Using this approach, we revealed several
+%errors in repOKs taken from the assessment of related tools, demonstrat-
+%ing the difficulties of writing precise repOKs for BEG.
+
+
+
+%Para builders mostramos que las técnicas:
+%- computan builders en tiempos razonables 
+%- son precisas
+%- y resultados preliminares que muestran que los builders pueden mejorar la generación de
+%objetos en herramientas como Randoop (aleatoria), y BEAPI (generación exhaustiva
+%acotada), y en la JPF (bounded model checking de software).
+%
+%Respecto a BEAPI mostramos que:
+%- su eficiencia es comparable a la mejor herramienta de generación exhaustiva acotada basada
+%en especificaciones (Korat)
+%- es útil para encontrar discrepancias entre la capacidad de generación de
+%objetos de la API y la especificación
+%- y resultados preliminares que muestran que los objetos generados por BEAPI son 
+%buenos para el testing basado en propiedades.
+
+
+%Primero, la necesidad de especificaciones de validez 
+%(invariantes de representación), difíciles y costosas de escribir. Segundo, la selección manual de subconjuntos de 
+%métodos de la API para construir drivers de generación, donde el espacio de combinaciones crece exponencialmente con el número de métodos.
+%
+%En este trabajo abordamos ambos problemas mediante dos aportes. 
+%En primer lugar, presentamos un método para la identificación automática de métodos generadores de objectos.
+%a partir de la API pública de una clase. Estos métodos son aquellos que cumplen la caracteristica de ser 
+%suficientes (capaces de construir todas las instancias válidas dentro del scope) y minimales (sin métodos superfluos), esto quiere decir que nos permiten construir cualquier objecto de la API.
+%Modelamos esta selección de métodos como un problema de optimización y exploramos el espacio con dos algoritmos de búsqueda, \emph{Hill Climbing} (HC) y Algoritmo Genetico (GA). 
+%Para evaluar la calidad de un candidato (subconjunto de métodos), desarrollamos dos funciones objetivo. Una basada en generación exhaustiva acotada, 
+%que estima la cantidad de objetos distintos que puede producir el conjunto de métodos bajo un scope dado; y la otra función es 
+%basada en cobertura de código (líneas y ramas) obtenida al generar y ejecutar suites de tesst a partir de dicho conjunto de métodos. 
+%La evaluación experimental sobre un conjunto representativo de clases indica que nuestras técnicas identifican 
+%conjuntos de métodos, con tiempos de cómputo adecuados para su uso práctico.
+%
+%En segundo lugar, introducimos BEAPI, un enfoque de generación exhaustiva acotada que no requiere invariante de representacion, (comunmente llamados, \emph{repOK}). 
+%BEAPI construye objetos ejecutando secuencias de método de la API de la clase bajo test 
+%y aplica tres optimizaciones esenciales. La primera es una poda por realizar un buen uso de la API 
+%(descarta tempranamente secuencias que producen excepciones o violaciones de contrato). 
+%La segunda es por coincidencia de estados (\emph{state matching}) 
+%para eliminar redundancias cuando diferentes secuencias generan el mismo objeto. 
+%Y la tercera, es haciendo uso de los métodos generadores de objetos (los detectados en el primer aporte de este trabajo) 
+%para restringir las combinaciones de métodos. 
+%Realizamos una comparación contra la herramienta muy conocida en el estado del arte, \emph{Korat}, 
+%y observamos que BEAPI alcanza niveles comparables de en cuanto a lo \cacho{exhaustivo} de la tecnica 
+%y con mejores tiempos en escenarios de estructuras que tienen varias restricciones y, lo mas importante, sin requerir 
+%los invariantes de representación. 
+%Además, al contrastar los objetos generados por BEAPI con los aceptados por \emph{repOKs} existentes de \emph{Korat}, 
+%mostramos que el enfoque puede revelar defectos en dichas especificaciones, subrayando la dificultad de escribir \emph{repOKs} correctos.
+%
+%En conjunto, los resultados demuestran que la selección automática de métodos generadores y BEAPI reducen la intervención manual del programador y 
+%mejoran la eficiencia y escalabilidad de la generación de entradas a partir de APIs de clase. 
+%Estos aportes facilitan la adopción de técnicas exhaustivas en contextos reales, tanto para testing como para verificación.
+%
+%\cacho{algo de lineas futura de trabajo, va aca?}
 
 
 
