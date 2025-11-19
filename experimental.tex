@@ -390,20 +390,23 @@ Es esperable que al generar objetos más diversos y más grandes, los objetos pr
 La calidad de los objetos generados se evalúa más adelante en la Sección~\ref{sec:parametrizedTesting}, 
 donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
 
-\subsubsection{Impacto en verificación acotada usando JPF}
+\subsubsection{Verificación acotada usando JPF}
 \label{sec:experiments-jpf-driver}
 
-En un segundo experimento, evaluamos el impacto del uso de métodos métodos generadores en la eficiencia 
-de la verificación acotada usando \emph{Java PathFinder}
+En un segundo experimento, evaluamos el impacto del uso de métodos generadores
+de objetos en la eficiencia de la verificación acotada usando \emph{Java PathFinder}
 (JPF)~\cite{Visser:2005} (explicado en la sección \ref{sec:jpf}).
 Para este experimento preliminar, usamos como casos de estudio algunas clases
 del paquete \texttt{java.util}. 
+Los experimentos consisten en verificar de manera exhaustiva acotada que, dada
+una estructura de datos, luego ejecución de un método de la estructura de datos
+se satisface el invariante de representación (\texttt{repOK}) de la estructura. 
+Por ejemplo, para el método \texttt{put} de \texttt{TreeMap} escribimos el
+programa de la Figura~\ref{lst:propiedadJPF} para realizar la verificación con
+JPF. \pp{Fijate que los captions de las figuras están en inglés y dicen Figure.
+Hay que configurar algo para traducirlos a español.}
 
-\pp{Tengo que modificar que esto se trata ahora en la sección de builders.} 
-
-Luego con este generador se puede verificar que el método \texttt{put} preserva el \emph{repOK} de la estructura de datos, como se muestra en ~\ref{lst:propiedadJPF}.
-
-\begin{lstlisting}[caption={Probando el método put de TreeMap con JPF},label={lst:propiedadJPF},language=Java,captionpos=b]
+\begin{lstlisting}[caption={Verificando el método put de TreeMap con JPF},label={lst:propiedadJPF},language=Java,captionpos=b]
     public static void main(String[] args) {
        int scope = 3;
        TreeMap t = generateStructure(scope);
@@ -412,11 +415,90 @@ Luego con este generador se puede verificar que el método \texttt{put} preserva
     }
 \end{lstlisting}
 
-Los resultados de los experimentos, presentados en las Tablas~\ref{tab:results-jpf} y \ref{tab:results-jpf1}, demuestran que los controladores construidos a partir de nuestros 
-métodos generadores permiten una mejora sustancial en eficiencia y escalabilidad. Se observa una reducción considerable en el tiempo de análisis y en la cantidad de estados explorados, sin 
-comprometer la cobertura de las estructuras objetivo. Esta evidencia refuerza la utilidad práctica 
-de nuestra técnica en entornos de verificación formal, donde el costo computacional de la exploración 
-del espacio de estados es un factor crítico.
+El programa primero construye todos los árboles de tamaño acotado usando un
+driver en la línea 3 (método \texttt{generateStructure}). Luego, ejecuta el
+método bajo análisis en la línea 4 (\texttt{put}), y por último verifica que se
+satisfaga el \texttt{repOK} luego de la ejecución del método en la línea 5.
+
+Para la evaluación consideramos los dos enfoques presentados en la Sección
+\ref{sec:jpf-builders} para construir los drivers. El enfoque \texttt{API} consiste en
+utilizar toda la API. Recordar que un ejemplo de driver generado con este enfoque se 
+presenta en la Figura \ref{lst:driverAPI}. Por otro lado, el enfoque
+\texttt{MGO} consiste en usar sólo los métodos generadores de objetos para
+construir los drivers, como se muestra en el ejemplo de la Figura \ref{lst:driverBLD}.
+\pp{Los métodos generadores de objetos fueron precomputados usando el algoritmo ???}.
+
+\input{tables/tableJPFBuilders.tex}
+\input{tables/tableJPFBuilders1.tex}
+
+Los resultados de los experimentos, presentados en las
+Tablas~\ref{tab:results-jpf} y \ref{tab:results-jpf1}, muestran que los
+controladores construidos a partir de los métodos generadores objetos (MGO) permiten
+una mejora significativa en la eficiencia y la escalabilidad de JPF. 
+Se observa una reducción considerable en el tiempo de análisis y en la cantidad
+de estados explorados por JPF \pp{Dice states y time en las tablas. Cambiar.}, sin 
+comprometer la cobertura de las estructuras objetivo. \pp{Qué cobertura?
+tenemos números de cobertura para mostrar que no se reduce? O algún experimento
+por el estilo?}
+
+%Para focalizar la comparación en los distintos casos, 
+%consideramos en cada clase–método todos los niveles de \emph{scope} que finalizan sin \emph{timeout}
+%De esta manera, los resultados reflejan el comportamiento completo de cada técnica en el rango alcanzable por \emph{JPF}. 
+%Cuando \textsf{API} alcanza \emph{timeout} en un determinado \emph{scope}, ese resultado indica un límite práctico 
+%de escalabilidad para dicha variante
+% , mientras que \textsf{MGO} (Métodos generadores de Objetos) en general logra completar en el mismo \emph{scope}
+
+En las tablas se muestran los resultados para los scopes en los que
+alguna de las técnicas termina antes de llegar al timeout.
+En el análisis global, considerando los scopes para los que ambas técnicas terminan
+antes del timeout, estas 30 combinaciones \pp{De donde sale el 30? Yo
+cuento muchas más}, el \emph{driver} con \textsf{MGO} explora 14070756 estados
+en 1591s, mientras que \textsf{API} visita 198130649 estados en 17,240 segundos.
+En promedio por casos, \textsf{MGO} explora 234513 estados en 26.5 segundos, mientras que \textsf{API} 
+explora 3302177 estados en 297.3 segundos. Esto implica que \textsf{MGO} reduce el espacio de estados en 
+92.9\%\ y el tiempo en 91\%\ aproximadamente respecto de \textsf{API}. 
+Se observa tambien que \textsf{API} alcanza el timeout en 9/30 combinaciones
+(30\%) \pp{son más que 9, hay que recalcular los números?}.
+
+%Bajo el mismo \emph{scope}, \textsf{API} explora aproximadamente 1308\%\ mas de estados y tarda 984\%\ mas de tiempo que \textsf{MGO}.
+%En cuanto a la interpretación, 
+
+En resumen, los resultados muestran evidencia preliminar de que construir \emph{drivers}
+exclusivamente con los métodos generadores de objetos identificados por nuestro
+enfoque \pp{cuál?}, reduce significativamente la cantidad de estados que debe
+explorar JPF, y consecuentemente reduce el tiempo de la verificación. Esto le
+permite a nuestro enfoque realizar la verificación para scopes más grandes
+en varios de los casos analizados. 
+Al mismo tiempo, la suficiencia del conjunto de \textsf{MGO}
+garantiza que se preserva la capacidad del driver \textsf{MGO} de producir todas 
+las instancias que genera el driver API. \pp{Hay que hacer un análisis de por
+    qué hay más states en API, calculo que es porque se construye la misma
+instancia muchas veces, pero lo tendremos que charlar.}
+
+
+%poda de manera efectiva el factor de ramificación en los puntos de elección
+%no deterministas del verificador (ej., \texttt{Verify.random}), lo que reduce
+%tanto el número de estados alcanzables como el costo de retroceso durante la
+%exploración. Al mismo tiempo, la suficiencia del conjunto de \textsf{MGO}
+%garantiza que se preserva la capacidad de construir todas las instancias
+%(acotadas por el \emph{scope}) y de poder escalar a \emph{scope} mas altos que pueden ser 
+%relevantes para la verificación de las propiedades,
+%sin sacrificar cobertura estructural dentro del alcance definido.
+%
+%Así, los casos con \emph{timeout} no se eliminan del análisis, 
+%sino que se interpretan como evidencia de la explosión combinatoria que introduce la API completa, 
+%en contraste con la reducción sustancial que se obtiene al restringirse al conjunto suficiente de métodos generadores.
+
+
+
+
+
+
+%Esta evidencia refuerza la utilidad práctica 
+%de nuestra técnica en entornos de verificación formal, donde el costo computacional de la exploración 
+%del espacio de estados es un factor crítico.
+
+
 
 % Para ilustrar este mecanismo, ponemos bajo análisis el método \texttt{put} de \texttt{TreeMap}.
 % La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverBLD}.
@@ -456,38 +538,8 @@ del espacio de estados es un factor crítico.
 % complejas. Al eliminar métodos superfluos y reducir el espacio de búsqueda, se mejora significativamente 
 % el rendimiento de herramientas como JPF, sin sacrificar precisión ni completitud en el análisis.
 
-Para focalizar la comparación en los distintos casos, 
-consideramos en cada clase–método todos los niveles de \emph{scope} que finalizan sin \emph{timeout}
-De esta manera, los resultados reflejan el comportamiento completo de cada técnica en el rango alcanzable por \emph{JPF}. 
-Cuando \textsf{API} alcanza \emph{timeout} en un determinado \emph{scope}, ese resultado indica un límite práctico 
-de escalabilidad para dicha variante
-% , mientras que \textsf{MGO} (Métodos generadores de Objetos) en general logra completar en el mismo \emph{scope}
-Así, los casos con \emph{timeout} no se eliminan del análisis, 
-sino que se interpretan como evidencia de la explosión combinatoria que introduce la API completa, 
-en contraste con la reducción sustancial que se obtiene al restringirse al conjunto suficiente de métodos generadores.
 
-En el análisis global sobre estas 30 combinaciones, el \emph{driver} con
-\textsf{MGO} acumula 14070756 estados en 1591s, mientras que \textsf{API} explora 198130649 estados en 17,240 segundos,
-En promedio por casos, \textsf{MGO} explora 234513 estados en 26.5 segundos, mientras que \textsf{API} 
-explora 3302177 estados en 297.3 segundos. Esto implica que \textsf{MGO} reduce el espacio de estados en 
-92.9\%\ y el tiempo en 91\%\ aproximadamente respecto de \textsf{API}. 
-% Equivalentemente, \textsf{MGO} alcanza un \emph{speedup} de 11 veces y reduce el espacio de estados en 14 veces respecto de \textsf{API}.
-Se observa tambien, que bajo el mismo \emph{scope}, \textsf{MGO} completa en todos los casos, mientras que \textsf{API} alcanza \emph{timeout} en 9/30 combinaciones (30\%).
-Bajo el mismo \emph{scope}, \textsf{API} explora aproximadamente 1308\%\ mas de estados y tarda 984\%\ mas de tiempo que \textsf{MGO}.
-Este patrón es consistente en todas las clases.
-En cuanto a la interpretación, los resultados indican que construir \emph{drivers}
-exclusivamente con los métodos generadores identificados por nuestro enfoque,
-poda de manera efectiva el factor de ramificación en los puntos de elección
-no deterministas del verificador (ej., \texttt{Verify.random}), lo que reduce
-tanto el número de estados alcanzables como el costo de retroceso durante la
-exploración. Al mismo tiempo, la suficiencia del conjunto de \textsf{MGO}
-garantiza que se preserva la capacidad de construir todas las instancias
-(acotadas por el \emph{scope}) y de poder escalar a \emph{scope} mas altos que pueden ser 
-relevantes para la verificación de las propiedades,
-sin sacrificar cobertura estructural dentro del alcance definido.
 
-\input{tables/tableJPFBuilders.tex}
-\input{tables/tableJPFBuilders1.tex}
 
 \section{Generación exhaustiva acotada basada en la API}
 \label{sec:experimentalBeapi}
