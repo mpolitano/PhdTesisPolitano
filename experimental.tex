@@ -544,71 +544,88 @@ instancia muchas veces, pero lo tendremos que charlar.}
 \section{Generación exhaustiva acotada basada en la API}
 \label{sec:experimentalBeapi}
 
-En esta sección evaluamos empíricamente BEAPI como técnica de bounded exhaustive generation (BGE) aplicada a APIs de clases. 
-Examinamos su eficiencia (tiempo de generación y escalabilidad con el \emph{scope}), 
-el impacto de sus optimizaciones sobre el desempeño, 
-la consistencia entre lo que puede generar la API y lo que exigen las especificaciones de invariantes (\texttt{repOK}), 
-y la utilidad de los objetos producidos para \emph{testing} parametrizado. 
-Los experimentos se diseñaron variando \emph{scopes} y presupuestos de tiempo, 
-y midiendo tanto costos (tiempo/estados) como eficacia de las suites resultantes (cobertura). 
-En la evaluación de BEAPI buscaremos responder a las siguientes preguntas de
+En esta sección evaluamos empíricamente la técnica de generación exhaustiva
+acotada BEAPI. 
+Examinamos su eficiencia (tiempo de generación y escalabilidad respecto de los
+\emph{scopes}) con respecto a enfoques existentes, y el impacto de las optimizaciones de BEAPI sobre su desempeño.
+También realizamos una evaluación preliminar que muestra que BEAPI puede ser útil para chequear la
+consistencia entre los objetos que puede generar la API y las restricciones que
+imponen las especificaciones formales de invariantes de representación de estructuras (\texttt{repOK}). 
+Por último, evaluamos preliminarmente que tan buenos son los objetos producidos por BEAPI en el
+contexto del \emph{testing} parametrizado.
+
+Así, en la evaluación de BEAPI buscaremos responder a las siguientes preguntas de
 investigación:
 
 \begin{itemize}
-\item \emph{RQ4}: ¿Qué tan eficiente es BEAPI para la generación exhaustiva                                                                                       
-    acotada de objetos?
-\item\emph{RQ5}: ¿Cuál es el impacto de las optimizaciones propuestas en el
-    rendimiento de BEAPI?
-\item\emph{RQ6}: ¿Puede BEAPI ayudar a encontrar discrepancias entre
-    especificaciones de invariantes de clase (repOK) y la capacidad de generación de objetos de la API?
-\item\emph{RQ7}: ¿Qué tan efectivos son los objetos producidos por BEAPI para el
-    testing parametrizado?  
+\item \emph{RQ4}: ¿Qué tan eficiente es BEAPI para la generación exhaustiva acotada de objetos?
+\item\emph{RQ5}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEAPI?
+\item\emph{RQ6}: ¿Puede BEAPI ayudar a encontrar discrepancias entre especificaciones de invariantes de clase (repOK) y la capacidad de generación de objetos de la API?
+\item\emph{RQ7}: ¿Qué tan efectivos son los objetos producidos por BEAPI para el testing parametrizado?  
 \end{itemize}
 
 \subsection{Configuración experimental}
 
-Como estudios de caso, utilizamos implementaciones de estructuras de datos tomadas de cuatro bancos 
-de pruebas reconocidos: \textsf{Korat}~\cite{Boyapati02}, \textsf{Kiasan}~\cite{Deng06}, 
-\textsf{FAJITA}~\cite{Abad13}, \textsf{ROOPS} \cacho{VER CITA}y un conjunto de clases de proyectos reales de software que la denominamos \textsf{realWorld}
-donde incluyen clases de \emph{java.util} (TreeMap, TreeSet, LinkedList, Hasmap), de \emph{Apache Commons Collections} (NodeCachingLinkedList) y un Scheduler de SIR
+Como casos de estudio, utilizamos implementaciones de estructuras de datos
+tomadas de tres benchmarks existentes: \textsf{Kiasan}~\cite{Deng06}, 
+\textsf{FAJITA}~\cite{Abad13}, \textsf{ROOPS} \cacho{VER CITA}. También
+incluimos las clases utilizadas en la evaluación de
+\textsf{Korat}~\cite{Boyapati02}, y un conjunto de clases de proyectos reales de
+software que la denominamos \textsf{Real World}, donde se incluyen clases de
+\emph{java.util} (TreeMap, TreeSet, LinkedList, Hasmap), de \emph{Apache Commons
+Collections} (NodeCachingLinkedList) y un Scheduler de SIR.
 
-Estos bancos cubren una amplia variedad de estructuras de datos complejas, tales como listas doblemente enlazadas, árboles binarios de búsqueda, 
-árboles rojo-negro, montículos binomiales, heaps de Fibonacci, entre otras. Una característica clave 
-de estos bancos es que incluyen especificaciones explícitas de invariante de clase (métodos 
-\texttt{repOK}) escritas por sus propios autores, lo que garantiza una base confiable para evaluar 
-algoritmos de generación de estructuras válidas.
+Estos casos de estudio cubren una amplia variedad de estructuras de datos complejas, tales como listas doblemente enlazadas, árboles binarios de búsqueda, 
+árboles rojo-negro, heaps binomiales, heaps de Fibonacci, entre otras. Una característica clave 
+de estos casos de estudio es que incluyen especificaciones formales de invariante de clase (métodos 
+\texttt{repOK}) escritas por sus propios autores, lo que resulta fundamental
+para realizar las comparaciones con Korat, que requiere invariantes para
+realizar la generación, y para los experimentos para responder a RQ6.
+
+Para la evaluación se utilizó el prototipo de la herramienta BEAPI, que se
+describe en la literatura en los trabajos de Politano et. al. \cite{}
+\pp{Incluir acá los dos trabajos publicados de BEAPI}. 
+
+En la comparación de eficiencia con técnicas existentes (RQ4) se utilizó Korat,
+que es la herramienta existente de generación exhaustiva acotada más eficiente
+\cite{} \pp{Buscar la cita de esto en el paper de beapi}. Tener en cuenta, como
+Korat requiere de repOKs, se emplearon los \texttt{repOK}s provistos por los autores 
+de cada caso de estudio. 
+En algunos casos se identificaron errores o especificaciones incompletas en los \texttt{repOK}s; 
+estos se señalan de forma explícita en los resultados y se analizan en más
+detalle en la Sección~\ref{sec:existing-specs-analysis} (RQ6).
+
+Para RQ7 se comparan los objetos generados por BEAPI, una técnica de generación
+aleatoria (Randoop), y una variante de Randoop que sólo usa métodos generadores de objetos
+(R-Builders). 
 
 Los experimentos se llevaron a cabo en una computadora con procesador Intel Core i7-8700 
 (3.2 GHz) y 16 GB de RAM, ejecutando Ubuntu Linux 20.04. Para cada ejecución individual se estableció 
-un tiempo máximo de espera de 60 minutos. Todos los experimentos fueron diseñados para ser reproducibles, 
-y el artefacto experimental con el código fuente se encuentra disponible en: \cacho{Poner pagina?}
+un tiempo máximo de 60 minutos. Todos los experimentos fueron diseñados para ser reproducibles, 
+y el artefacto experimental con el código fuente se encuentra disponible en:
+\cacho{Poner pagina?} \pp{Si}.
 
-Cada técnica evaluada se ejecutó sobre los mismos casos de estudio, con parámetros estandarizados 
-en términos de alcance (\textit{scope}), número de métodos disponibles, y criterios de generación. 
-Para la comparación con \textsf{Korat}, se emplearon los \texttt{repOK}s provistos por los autores 
-de cada benchmark, sin modificaciones, a fin de preservar la equivalencia semántica entre enfoques 
-y evitar sesgos en la evaluación del rendimiento. En los casos donde se identificaron errores o 
-especificaciones incompletas en los \texttt{repOK}s, estos se señalan de forma explícita en los 
-resultados y se analizan en la Sección~\ref{sec:existing-specs-analysis}.
-
-\cacho{los parametros usados en GA}
+\cacho{los parametros usados en GA} 
+\pp{Qué GA?}
 
 
 \subsection{RQ4: Eficiencia de BEAPI}
 
-Esta pregunta busca evaluar si \emph{BEAPI} es lo suficientemente eficiente como para ser una 
-alternativa viable frente a otras técnicas de generación exhaustiva acotada, en particular 
-\textsf{Korat}. Para ello, comparamos el desempeño de ambas herramientas en términos de tiempo 
-de ejecución, número de estructuras generadas y exploradas, y escalabilidad con respecto al 
-\emph{scope} de entrada.
-
-Los resultados experimentales, presentados en la Tabla~\ref{table:korat-beapi}, cubren una muestra 
-representativa de casos tomados de los bancos de pruebas \textsf{Korat}, \textsf{FAJITA}, 
-\textsf{ROOPS} y \textsf{Kiasan}. Para cada clase evaluada, informamos los tiempos de generación 
-(en segundos, columna \emph{Time}), la cantidad de estructuras válidas generadas (\emph{Generated}) y el total de estructuras exploradas 
-(\emph{Explored}) por cada técnica. Incluimos, para cada enfoque, los mayores \emph{scope} (Columna \emph{S}), alcanzado exitosamente dentro 
-del tiempo límite de 60 minutos, indicando en negrita los tiempos correspondientes a los límites 
-de escalabilidad. Vale aclarar que no se utilizo el benchamarks \textsf{realWorld} en esta sección, ya que
+En esta sección comparamos BEAPI y Korat en términos de tiempo 
+de ejecución, número de estructuras generadas y exploradas, y escalabilidad con
+respecto a los \emph{scopes}.
+Los resultados experimentales se muestran en la Tabla~\ref{table:korat-beapi}.
+\pp{No entra la tabla en una página. Hay que dividirla en 2. Además tiene muchos
+    errores, se corrieron varias líneas como FibHeap ROOPS s4, o SLList Fajita
+s 8,9 y 10. Hay que revisar todo.}
+La Tabla presenta una muestra representativa de los benchmarks
+\textsf{Korat}, \textsf{FAJITA}, \textsf{ROOPS} y \textsf{Kiasan}. \pp{Los casos
+restantes se pueden encontrar online \cite{}}.
+Para cada clase evaluada, informamos los tiempos de generación 
+(en segundos, columna \emph{Time}), la cantidad de estructuras válidas generadas (\emph{Generated}) y el total de estructuras exploradas (\emph{Explored}) por cada técnica. 
+Incluimos, para cada enfoque, los \emph{scopes} más grandes (Columna \emph{S})
+alcanzados por las técnicas antes de llegar al tiempo límite de 60 minutos. Vale
+aclarar que no se utilizó el benchamark \textsf{Real World} en esta sección, ya que
 no se dispone de \texttt{repOK}s para estas clases, lo que impide una comparación justa con \textsf{Korat}.
 
 Agrupando por banco, se observa que en el conjunto \emph{KORAT} la herramienta \emph{Korat} es más veloz en 4/6 clases (el 67\% mas veloz que \textsf{BEAPI}); 
