@@ -27,17 +27,15 @@ se presenta un ejemplo que ilustra el problema que se aborda con la técnica pro
 La Sección \ref{sec:beapi-overview} presenta un panorama general de 
 BEAPI. La Sección \ref{sec:scope} describe la definición del scope para la
 técnica, y \ref{sec:defensiveProgramming} aborda como BEAPI evita construir
-objetos inválidos si la API se programa de manera defensiva \cite{Liskov00}.
+objetos inválidos si la API se programa de manera defensiva  \cite{Liskov00}.
 Luego, en las Secciones \ref{sec:stateMatching} y
  \ref{sec:buildersOptimization} se describen las optimizaciones implementadas en
  BEAPI, que son claves para mejorar su eficiencia, y le permiten a BEAPI 
 lograr un rendimiento comparable al de las técnicas basadas en especificaciones
-(como \emph{Korat}\cite{Boyapati02}). Finalmente, en la Sección 
-\ref{sec:beapiTechnique} se presenta un pseudocódigo del algoritmo de BEAPI.
+(como \emph{Korat}\cite{Boyapati02}). Finalmente, en la Sección \ref{sec:beapiTechnique} se presenta un pseudocódigo del algoritmo de BEAPI.
 
 
-\section[Motivación]{Motivación}
-\label{sec:motivating-example}
+\section[Motivación]{Motivación}\label{sec:motivating-example}
 
 
 \begin{figure}[!thb]
@@ -92,29 +90,28 @@ parámetro una estructura y devuelve
 Cuando se trata de implementaciones de estructuras de datos (un caso típico de
 aplicación de la generación exhaustiva acotada), la especificación describe las
 propiedades que debe satisfacer la representación de la estructura, por lo que 
-el método que define la especificación usualmente se denomina \emph{repOK}~\cite{Boyapati02}. 
+el método que define la especificación usualmente se denomina \emph{repOK} \cite{Boyapati02}. 
 
 Para ilustrar las dificultades que implica escribir estas especificaciones de
 forma precisa para el usuario de la herramienta, consideramos el método 
 \emph{repOK} de la clase \texttt{NodeCachingLinkedList} (NCL) de Apache, que se
-muestra en la Figura~\ref{fig:NCL-repOK}. 
+muestra en la Figura \ref{fig:NCL-repOK}. 
 Este ejemplo proviene del benchmark \emph{ROOPS}, que ha sido ampliamente
-utilizado para evaluar herramientas automáticas de testing/análisis de software 
-\cite{Pasareanu:2010,Rosner15,Galeotti:2010,galeotti2020,Boyapati02,Khurshid01}.
+utilizado para evaluar herramientas automáticas de testing/análisis de software \cite{Pasareanu:2010,Rosner15,Galeotti:2010,galeotti2020,Boyapati02,Khurshid01}.
 
-Como se explicó en el Capítulo~\ref{cap:builders}, NCL posee una lista
+Como se explicó en el Capítulo \ref{cap:builders}, NCL posee una lista
 principal, implementada usando una lista circular doblemente enlazada, 
 y una lista auxiliar simplemente enlazada que actúa como caché de nodos
 previamente eliminados de la lista principal. Esta caché permite reutilizar 
 nodos eliminados, evitando la sobrecarga de recolección de basura en aplicaciones con frecuentes inserciones y eliminaciones.
 
 El método \texttt{repOK} verifica la validez estructural de una instancia de
-NCL. Sin embargo, como se muestra en la Figura~\ref{fig:NCL-repOK}, el
+NCL. Sin embargo, como se muestra en la Figura \ref{fig:NCL-repOK}, el
 autor del código en ROOPS olvidó describir algunas restricciones que deben
 cumplir las instancias de NCL. Más específicamente, el autor omitió las
 restricciones que indican que: el nodo ficticio de la lista principal debe tener el
 valor \texttt{null} (líneas 3 y 4), y que los nodos de la caché no deben 
-contener datos (líneas 28 y 29)). Como se discute más adelante, la omisión de estas 
+contener datos (líneas 28 y 29). Como se discute más adelante, la omisión de estas 
 condiciones conduce a la generación de una gran cantidad de estructuras
 inválidas por parte de Korat.
 
@@ -152,12 +149,12 @@ inválidas por parte de Korat.
 \end{figure}
 
 
-En la Figura~\ref{fig:repOK} se muestran ejemplos de instancias válidas e inválidas, lo cual facilita entender visualmente las propiedades que deben estar reflejadas en la especificación.
+En la Figura \ref{fig:repOK} se muestran ejemplos de instancias válidas e inválidas, lo cual facilita entender visualmente las propiedades que deben estar reflejadas en la especificación.
 
 Las líneas 2 a 10 del método \texttt{repOK} se centran en la verificación de aspectos estructurales básicos. Se asegura la existencia del 
 nodo ficticio, y que debe estar correctamente conectado (se omite que debe contener el valor
 \texttt{null}). 
-En el ejemplo de la Figura~\ref{fig:repOKa}, la instancia de la izquierda es
+En el ejemplo de la Figura \ref{fig:repOKa}, la instancia de la izquierda es
 válida; la de la derecha es inválida porque no posee un nodo ficticio, lo cual
 es detectado por la condición de la línea 2.
 
@@ -166,7 +163,7 @@ del nodo ficticio debe eventualmente volver a él, y que cada nodo debe tener en
 siguiente. En otras palabras, si avanzamos a través de la lista desde el primer elemento, llegaremos eventualmente al
 último elemento y luego volveremos al primer elemento. Además, se asegura que la cantidad de nodos visitados coincida con el valor del campo \texttt{size}.
 
-En la Figura~\ref{fig:repOKb} se pueden observar ejemplos de instancias que satisfacen o no esta sección de restricciones del método.
+En la Figura \ref{fig:repOKb} se pueden observar ejemplos de instancias que satisfacen o no esta sección de restricciones del método.
 La instancia de la izquierda muestra una lista principal correctamente construida, mientras que la instancia de la derecha presenta el error de que la lista principal no es circular.  
 En esta instancia, el campo \emph{next} del nodo final no apunta nuevamente al nodo ficticio, lo que rompe la propiedad de circularidad de la estructura.  
 Esta restricción está controlada en las líneas 15 y 16 del método \texttt{repOK}.
@@ -237,7 +234,7 @@ desarrollado la técnica BEAPI, que se detalla en las secciones siguientes.
   \label{fig:beapi-overview}
 \end{figure}
 
-La Figura~\ref{fig:beapi-overview} muestra una visión general de la técnica 
+La Figura \ref{fig:beapi-overview} muestra una visión general de la técnica 
 \textsf{BEAPI} (\emph{Bounded Exhaustive generation from program APIs}), que implementa un enfoque 
 de generación exhaustiva acotada de objetos mediante invocaciones a métodos de
 la API de un módulo. 
@@ -256,16 +253,16 @@ Como entradas, \textsf{BEAPI} recibe:
 Como salidas, \textsf{BEAPI} produce:
 \begin{itemize}
     \item un conjunto exhaustivo acotado de objetos para los scopes dados;
-    \item una suite de tests \texttt{JUnit}~\cite{junit} con las secuencias de test 
+    \item una suite de tests \texttt{JUnit} \cite{junit} con las secuencias de test 
         que genera \textsf{BEAPI} para crear los objetos de salida del punto anterior;
     \item otra suite con tests que revelan errores (si los hubiera) en los métodos utilizados 
         para la generación.
 \end{itemize}
 
 \textsf{BEAPI} explota la idea de generación de tests dirigida por retroalimentación 
-(\emph{feedback-directed test generation} \cite{Pacheco07,PaPacheco08}, ver Sección~\ref{sec:feedback-directed-test-gen}). 
+(\emph{feedback-directed test generation} \cite{Pacheco07,Pacheco08}, ver Sección \ref{sec:feedback-directed-test-gen}). 
 Al igual que otros enfoques de generación de tests basados en la API, 
-\textsf{BEAPI} construye secuencias de test \cite{Pacheco07,PaPacheco08}(secuencias de invocaciones a
+\textsf{BEAPI} construye secuencias de test \cite{Pacheco07,Pacheco08} (secuencias de invocaciones a
 métodos de la API), y las ejecuta para producir objetos.
 
 %\textsf{BEAPI} aborda las dificultades de escribir especificaciones formales 
@@ -273,7 +270,7 @@ métodos de la API), y las ejecuta para producir objetos.
 %rutinas de la API y aplicando técnicas de poda para mejorar la eficiencia y 
 %permitir la escalabilidad a alcances mayores.
 
-A grandes rasgos, el módulo \emph{generador de secuencias de test} (Figura~\ref{fig:beapi-overview}) 
+A grandes rasgos, el módulo \emph{generador de secuencias de test} (Figura \ref{fig:beapi-overview}) 
 comienza creando todas las secuencias de test posibles de longitud 1 (con una
 única invocación a un método). Los valores primitivos definidos como parte del
 scope son utilizados para instanciar los parámetros de los métodos en las
@@ -301,7 +298,7 @@ la secuencia en una de cuatro categorías:
 
 Los casos (3) y (4) corresponden a ejecuciones exitosas, es decir, secuencias que finalizan sin lanzar excepciones. 
 En estos casos, los objetos almacenados en las variables al finalizar la
-ejecución de la secuencia de test son \emph{canonizados} \ref{sec:stateMatching}
+ejecución de la secuencia de test son \emph{canonizados}  \ref{sec:stateMatching}
 y se verifica si ya han sido generados previamente, o si exceden los límites
 permitidos por los scopes. 
 Si esto último ocurre (caso 3), tanto la secuencia como los objetos que produce son descartados. 
@@ -312,7 +309,7 @@ se almacena como caso de test en la suite retornada por BEAPI,
 y los objetos generados se agregan al conjunto de objetos de salida.
 
 Los casos (1) y (2) corresponden a ejecuciones que no finalizan correctamente y lanzan excepciones. 
-Siguiendo la propuesta de Randoop~\cite{Pacheco07}, el tipo de excepción permite distinguir entre lo que BEAPI considera errores (o \emph{bugs}) 
+Siguiendo la propuesta de Randoop \cite{Pacheco07}, el tipo de excepción permite distinguir entre lo que BEAPI considera errores (o \emph{bugs}) 
 y violaciones de precondiciones. 
 Por defecto, BEAPI interpreta las excepciones \texttt{IllegalArgumentException} y \texttt{IllegalStateException} como violaciones de precondiciones, mientras que considera el resto de las
 excepciones como errores en los métodos usados para la generación.
@@ -323,11 +320,11 @@ mientras que las secuencias que revelan errores (caso 1)
 son reportadas y retornadas al usuario. De forma similar a Randoop, 
 es posible mejorar la capacidad de detección de errores proveyendo manualmente
 especificaciones formales, como un método que implemente un predicado
-\texttt{repOK} tal y como se describió en la sección anterior ~\cite{Pacheco07}.
+\texttt{repOK} tal y como se describió en la sección anterior  \cite{Pacheco07}.
 
 BEAPI puede configurarse para habilitar o deshabilitar dos optimizaciones clave: 
 la coincidencia de estados (ver Sección \ref{sec:stateMatching}) y el uso de métodos generadores de objetos
-precomputados (ver Sección \ref{sec:buildersOptimization}) . 
+precomputados (ver Sección \ref{sec:buildersOptimization}). 
 Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy ineficiente 
 y solo terminar en tiempos razonables para scopes pequeños (por ejemplo, scope 3). 
 En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
@@ -342,7 +339,7 @@ Encontrar una secuencia de invocaciones a métodos de la API que construya una e
 y en particular es costoso computacionalmente \cite{Braione17}. Adicionalmente, requiere
 de un esfuerzo importante si se lleva a cabo de manera manual. 
 Por lo tanto, a menudo los objetos generados por enfoques basados en
-especificaciones se "hardcodean" cuando se usan como entradas para test, por
+especificaciones se ``hardcodean'' cuando se usan como entradas para test, por
 ejemplo, mediante el uso de algún mecanismo como reflexión en Java. Esto hace
 que los tests sean más difíciles de entender y mantener, ya que dependen de los
 detalles de implementación de bajo nivel de las estructuras \cite{Braione17} (en
@@ -377,8 +374,8 @@ Figura, \emph{max.objects=3} indica que BEAPI sólo admitirá secuencias de test
 generen listas con hasta 3 objetos de tipo NCL, y 3 objetos de tipo Node. Las
 secuencias de test que crean estructuras que 
 exceden estos límites (para cualquier clase) se descartan, al igual que los
-objetos creados por las mismas por exceder los scopes. Como ejemplo, la Figura
-\ref{sec:scope} muestra una secuencia de test generada usando el método constructor
+objetos creados por las mismas por exceder los scopes. Como ejemplo, la Figura \ref{sec:scope} 
+muestra una secuencia de test generada usando el método constructor
 de la clase NCL, y el método \emph{add}. Recordar que estamos considerando un scope de 3. 
 Esto quiere decir que cuando se genera alguna estructura con más de 3 nodos, como es en 
 el caso de la última secuencia de test de la Figura, esta es descartada por exceder el 
@@ -437,8 +434,7 @@ que deba invocar al método \emph{add}, BEAPI lo llamará instanciando su parám
 
 
 Podemos indicarle a \emph{BEAPI} que ignore algunos campos en el proceso de
-linealización de objetos (ver más adelante en la sección
-\ref{sec:stateMatching}), que se lleva a cabo luego de la ejecución de las
+linealización de objetos (ver más adelante en la sección \ref{sec:stateMatching}), que se lleva a cabo luego de la ejecución de las
 secuencias de test. Esto permite al usuario controlar qué partes de la
 estructura del objeto son relevantes para la coincidencia de estados. Por
 ejemplo, la línea 4 hace que \emph{BEAPI} omita el tamaño máximo predeterminado
@@ -520,7 +516,7 @@ Figura \ref{fig:NCL-repOK} (como ocurre con \textsf{Korat}), \textsf{BEAPI} se
 apoya en la asunción de que los métodos de la API que se usan para la generación
 (por ejemplo, los generadores de objetos) sólo construyen objetos correctos.
 Típicamente, esto es posible gracias a la adopción del estilo llamado
-\emph{programación defensiva}~\cite{Liskov00} en la definición de los métodos. 
+\emph{programación defensiva} \cite{Liskov00} en la definición de los métodos. 
 La programación defensiva es una técnica que promueve la verificación de
 precondiciones en los métodos públicos de la API, de modo que los errores 
 relacionados con el uso incorrecto de la API puedan ser detectados y reportados
@@ -545,7 +541,7 @@ public Object removeIndex(int index) {
 \label{fig:algoProgDefensiva}
 \end{figure}
 
-El código mostrado en la Figura~\ref{fig:algoProgDefensiva} ejemplifica la
+El código mostrado en la Figura \ref{fig:algoProgDefensiva} ejemplifica la
 técnica de programación defensiva. 
 El método \texttt{removeIndex} de la clase \texttt{NodeCachingLinkedList} verifica que el índice especificado se encuentre dentro de los límites de la lista. 
 Si la condición no se cumple, se lanza una excepción que permite a
@@ -589,7 +585,7 @@ que ya han sido generadas por una secuencia anterior, no es necesario seguir
 extendiendo la nueva secuencia con sucesivas invocaciones a otros métodos, ya 
 que esto no producirá nuevos objetos distintos.
 
-En la Figura~\ref{fig:stateMatching}, se puede observar de manera más clara este
+En la Figura \ref{fig:stateMatching}, se puede observar de manera más clara este
 problema de generación de estructuras redundantes.
 Cada nodo del árbol representa una secuencia test generada por \texttt{BEAPI}
 para \texttt{NodeCachingLinkedList}. 
@@ -725,8 +721,8 @@ int[] lin(O root, Heap<O, E> heap, int scope, Map ids, Regex omitFields) {
 
 La Figura\ref{alg:linearization} muestra el algoritmo de linealización utilizado
 por \textsf{BEAPI}, una versión modificada del algoritmo original para reportar
-cuando los objetos exceden el \emph{scope}, e ignorar ciertos campos de los objetos (para la versión original, véase 
-\cite{Xie04}). El procedimiento \texttt{linearize} inicia un recorrido en
+cuando los objetos exceden el \emph{scope}, e ignorar ciertos campos de los objetos (para la versión original, véase \cite{Xie04}). 
+El procedimiento \texttt{linearize} inicia un recorrido en
 profundidad del heap a partir de la raíz, invocando 
 \texttt{lin} en la línea 3. Para canonizar el heap, \texttt{lin} asigna
 identificadores únicos a cada objeto nuevo que visita. El mapa 
@@ -793,7 +789,7 @@ Aunque la \emph{escalada de colinas} puede ser menos preciso en algunos casos,
 ya que puede incluir algunos métodos que no son necesarios entre los generadores
 de objetos retornados, en nuestros experimentos el algoritmo funcionó muy bien y
 computó consistentemente conjuntos suficientes de métodos generadores (ver
-Sección \ref{sec:experimentalIdentificacion}. 
+Sección \ref{sec:experimentalIdentificacion}). 
 % Nuestro objetivo aquí es evaluar el impacto de utilizar builders para la generación exhaustiva acotada (BEG) a partir de una API.
 Para la identificación de métodos generadores, utilizamos como función objetivo
 a BEAPI como generador exhaustivo acotado. Esta función objetivo se explicó en
@@ -810,8 +806,7 @@ para encontrar la mayor parte de las fallas es suficiente ejercitar el software
 con estructuras de tamaño relativamente pequeño \cite{Andoni02}. También es
 similar a la técnica llamada \emph{transcoping}, propuesta en \cite{Rosner13}.
 En todos nuestros casos de estudio, un \emph{scope} de 5 fue suficiente para
-computar los métodos generadores de objetos con precisión (ver Sección
-\ref{sec:experimentalIdentificacion}.
+computar los métodos generadores de objetos con precisión (ver Sección \ref{sec:experimentalIdentificacion}).
 Después de identificar eficientemente los métodos generadores usando un scope
 pequeño, podemos ejecutar \textsf{BEAPI} con métodos generadores identificados
 como parámetro utilizando scopes más grandes. Esto permite que \textsf{BEAPI}
@@ -872,7 +867,7 @@ entradas una lista de métodos, \texttt{methods}; el alcance de la generación
 puede utilizar representados como secuencias de test (ej. \texttt{int i = 1;} para
 el valor 1 entero),
 \texttt{primitives} (las secuencias de test se crean automáticamente a partir de las opciones de
-configuración \texttt{int.range}, \texttt{strings}, etc., como se muestra en la Figura~\ref{fig:NCL-fin-BEAPI}); 
+configuración \texttt{int.range}, \texttt{strings}, etc., como se muestra en la Figura \ref{fig:NCL-fin-BEAPI}); 
 y una expresión regular que describe los atributos que se deben omitir en la canonización de las estructuras, \texttt{omitFields}. 
 Notar que se pueden pasar métodos de más de una clase en \texttt{methods} si se desean generar objetos para varias clases en la misma ejecución de \textsf{BEAPI},
 por ejemplo, cuando los métodos de una clase toman objetos de otra clase como parámetros. 
@@ -913,13 +908,12 @@ genera una excepción que representa un uso inválido de la API (\texttt{excepti
 o su ejecución es exitosa y crea nuevos objetos \texttt{o$_1$,$\ldots$,o$_n$}. 
 En el caso en que la secuencia representa una falla, se lanza una excepción y
 \texttt{newSeq} se presenta al usuario como evidencia de la falla (línea 15). 
-Si se lanza una excepción que corresponde a un mal uso de la API (ver Sección
-\ref{sec:defensiveProgramming}), \texttt{BEAPI} descarta la secuencia de test
+Si se lanza una excepción que corresponde a un mal uso de la API (ver Sección \ref{sec:defensiveProgramming}), \texttt{BEAPI} descarta la secuencia de test
 (línea 16) y continúa con la creación de la próxima secuencia. 
 De lo contrario, la ejecución de \texttt{newSeq} genera nuevos objetos
 \texttt{o$_1$,$\ldots$,o$_n$,o$_r$} (o valores de tipos primitivos) 
 que se canonizan con la función \texttt{makeCanonical} (línea 17), que ejecuta
-\texttt{linearize} de la Figura~\ref{alg:linearization} por cada objeto en \texttt{o$_1$,$\ldots$,o$_n$,o$_r$}. 
+\texttt{linearize} de la Figura \ref{alg:linearization} por cada objeto en \texttt{o$_1$,$\ldots$,o$_n$,o$_r$}. 
 Si alguno de los objetos producidos por \texttt{newSeq} excede el scope,
 \texttt{makeCanonical} establece \texttt{outOfScope} en verdadero, \textsf{BEAPI} descarta \texttt{newSeq} 
 y continúa con la siguiente secuencia de test (línea 18).
@@ -942,15 +936,15 @@ Este proceso se repite para los restantes objetos canónicos \texttt{c$_2$,$\ldo
 %Por ejemplo, \\
 %\texttt{IllegalArgumentException} y \texttt{IllegalStateException} corresponden a usos incorrectos de la API, y el resto de las excepciones se consideran fallos de manera predeterminada. 
 %La implementación de \textsf{BEAPI} permite al usuario seleccionar las excepciones que corresponden a fallos y aquellas que no, configurando los parámetros correspondientes. 
-%Como se mencionó en la Sección~\ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no se pueden ejecutar con entradas inválidas. 
+%Como se mencionó en la Sección \ref{sec:motivating-example}, \textsf{BEAPI} asume que los métodos de la API lanzan excepciones cuando no se pueden ejecutar con entradas inválidas. 
 %Sostenemos que esta es una práctica común, llamada programación defensiva \cite{Liskov00}, 
 %que todos los programadores deberían seguir, ya que resulta en un código más robusto y 
 %mejora las pruebas de software en general \cite{Ammann16} (además de ayudar a las herramientas de generación de tests automatizadas). 
-%También argumentamos en la Sección~\ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que escribir \texttt{repOK}s precisos (y eficientes) para BEG, 
+%También argumentamos en la Sección \ref{sec:motivating-example} que el esfuerzo de especificación requerido para la programación defensiva es mucho menor que escribir \texttt{repOK}s precisos (y eficientes) para BEG, 
 %y esto era cierto después de inspeccionar manualmente el código fuente de nuestros casos de estudio. 
 %Por otro lado, ten en cuenta que \textsf{BEAPI} puede utilizar especificaciones formales para revelar errores en la API, por ejemplo, 
 %ejecutando \texttt{repOK} y comprobando que devuelve verdadero en cada objeto generado del tipo correspondiente (como en Randoop \cite{Pacheco07}). 
-%Sin embargo, las especificaciones utilizadas para encontrar errores no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} subespecificado de \texttt{NCL} de la Sección~\ref{sec:motivating-example} 
+%Sin embargo, las especificaciones utilizadas para encontrar errores no necesitan ser muy precisas (por ejemplo, el \texttt{repOK} subespecificado de \texttt{NCL} de la Sección \ref{sec:motivating-example} 
 %es válido para encontrar errores), ni estar escritas de una manera particular (como lo requiere \textsf{Korat}). 
 
 Notar que, en caso de que sea necesario, se pueden incorporar fácilmente otros
@@ -1040,14 +1034,14 @@ tipos de especificaciones provistas por el usuario en \textsf{BEAPI}. Como por e
 
 % El archivo de primitivas (opción \texttt{-l}) define los valores que BEAPI puede usar como argumentos al invocar métodos. 
 % Se pueden especificar valores para tipos como \texttt{int}, \texttt{float}, \texttt{double} y \texttt{String}. 
-% El formato de este archivo proviene de Randoop~\cite{randoop}.
+% El formato de este archivo proviene de Randoop \cite{randoop}.
 
 % \paragraph{Métodos constructores.}  
 % Dado que la cantidad de combinaciones posibles de secuencias crece exponencialmente con el número de métodos disponibles, 
 % BEAPI permite restringir el conjunto de métodos mediante un archivo que se pasa con la opción \texttt{-m}. 
 % Si no se especifica, se utilizará toda la API de la clase objetivo. Es importante proveer un conjunto \emph{suficiente} de métodos constructores, 
 % es decir, aquellos que permiten generar todos los objetos factibles de la clase. 
-% Estos conjuntos pueden calcularse automáticamente con herramientas externas~\cite{builder}, 
+% Estos conjuntos pueden calcularse automáticamente con herramientas externas \cite{builder}, 
 % y BEAPI ya incluye ejemplos precomputados para los casos de estudio utilizados en su evaluación empírica.
 
 
@@ -1056,7 +1050,7 @@ tipos de especificaciones provistas por el usuario en \textsf{BEAPI}. Como por e
 % BEAPI puede configurarse para habilitar o deshabilitar dos optimizaciones clave: 
 % la coincidencia de estados y el uso de métodos generadores predefinidos. 
 % Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy ineficiente 
-% y ser capaz de generar entradas únicamente para alcances pequeños (por ejemplo, de tamaño 3) en tiempos razonables~\cite{Politano20}. 
+% y ser capaz de generar entradas únicamente para alcances pequeños (por ejemplo, de tamaño 3) en tiempos razonables \cite{Politano20}. 
 % En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
 
 % El resultado de la ejecución de BEAPI es una suite de tests en formato \texttt{JUnit}. 
