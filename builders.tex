@@ -62,7 +62,7 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
 \cacho{Esto es nuevo}
 \begin{itemize}
     \item \textbf{Métodos constructores:}
-    Los métodos constructores (líneas 0-2 en la Tabla~\ref{tab:ncl-api}) permiten crear nuevos objetos del tipo. Estos son:
+    Los métodos constructores (líneas 0-2 en la Tabla \ref{tab:ncl-api}) permiten crear nuevos objetos del tipo. Estos son:
     \begin{itemize}
         \item \texttt{NCL()}: Crea una lista vacía.
         \item \texttt{NCL(int)}: Crea una lista vacía. El parámetro define el
@@ -101,7 +101,7 @@ constructores y los modificadores. Por ejemplo, una lista inicializada con
 \texttt{remove(Object)} y \texttt{clear()} permiten mover nodos de la lista
 principal a la lista cache.
 
-La Figura~\ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLinkedList. A continuación, se presentan las secuencias de métodos generadores que permiten construir cada una de las configuraciones:
+La Figura \ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLinkedList. A continuación, se presentan las secuencias de métodos generadores que permiten construir cada una de las configuraciones:
 
 \begin{figure}[H]
     \centering
@@ -151,8 +151,8 @@ La Figura~\ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
 \section{Métodos Generadores de Objetos y sus Propiedades}
 
 %\pp{Definición de generadores de objetos}
-Se puede observar que, a pesar de que la API de NCL es muy compleja, como se observa en la Tabla~\ref{tab:ncl-api}, no todos los métodos son necesarios para construir objetos. 
-Por ejemplo, combinaciones de los métodos mostrados en la Figura~\ref{fig:NCLbuilders}, con los parámetros adecuados, son suficientes para generar cualquier instancia de NCL.
+Se puede observar que, a pesar de que la API de NCL es muy compleja, como se observa en la Tabla \ref{tab:ncl-api}, no todos los métodos son necesarios para construir objetos. 
+Por ejemplo, combinaciones de los métodos mostrados en la Figura \ref{fig:NCLbuilders}, con los parámetros adecuados, son suficientes para generar cualquier instancia de NCL.
 \vspace{5pt} 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders, caption=Conjunto de métodos generadores de objetos para NCL]
   (0)  NodeCachingLinkedList()
@@ -162,9 +162,9 @@ Por ejemplo, combinaciones de los métodos mostrados en la Figura~\ref{fig:NCLbu
 
 Una vez inicializada la instancia de NCL con el constructor, se pueden insertar elementos en la lista utilizando el método \texttt{addFirst}. Adicionalmente, el método \texttt{removeFirst} permite crear instancias que posean nodos en la lista caché (eliminando el nodo de la lista principal). 
 
-De esta manera, los métodos de la Figura~\ref{fig:NCLbuilders} conforman un conjunto \emph{suficiente de métodos generadores de objetos}, es decir, son conjuntos de métodos que permiten generar todos los objetos posibles de NCL. Por simplicidad, llamaremos \emph{generadores de objetos} a estos métodos.
+De esta manera, los métodos de la Figura \ref{fig:NCLbuilders} conforman un conjunto \emph{suficiente de métodos generadores de objetos}, es decir, son conjuntos de métodos que permiten generar todos los objetos posibles de NCL. Por simplicidad, llamaremos \emph{generadores de objetos} a estos métodos.
 
-Notar que pueden existir distintos subconjuntos suficientes de generadores de objetos, como por ejemplo los que se muestran en las Figuras~\ref{fig:NCLbuilders2} y~\ref{fig:NCLnoMin1}. 
+Notar que pueden existir distintos subconjuntos suficientes de generadores de objetos, como por ejemplo los que se muestran en las Figuras \ref{fig:NCLbuilders2} y \ref{fig:NCLnoMin1}. 
 \vspace{5pt} 
 \begin{lstlisting}[numbers=none,label=fig:NCLbuilders2, caption=Otros métodos generadores de objetos, frame=tb , basicstyle=\scriptsize, xleftmargin=0pt]
   (0)  NodeCachingLinkedList()
@@ -173,7 +173,7 @@ Notar que pueden existir distintos subconjuntos suficientes de generadores de ob
 \end{lstlisting}
 
 
-En particular, la Figura~\ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}, es decir, métodos que pueden quitarse sin perder la propiedad de suficiencia del conjunto resultante. Por ejemplo, podemos eliminar \texttt{remove(Object)} y los métodos restantes siguen siendo generadores de objetos suficientes (similarmente, podríamos eliminar \texttt{removeFirst()}). 
+En particular, la Figura \ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}, es decir, métodos que pueden quitarse sin perder la propiedad de suficiencia del conjunto resultante. Por ejemplo, podemos eliminar \texttt{remove(Object)} y los métodos restantes siguen siendo generadores de objetos suficientes (similarmente, podríamos eliminar \texttt{removeFirst()}). 
 \vspace{5pt} 
 
 \begin{lstlisting}[numbers=none,label=fig:NCLnoMin1, caption=Métodos generadores de objetos suficientes pero no minimales, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
@@ -184,20 +184,20 @@ En particular, la Figura~\ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}
 \end{lstlisting}
 
 Estamos interesados en conjuntos de métodos generadores de objetos \emph{minimales}, es decir, en conjuntos generadores de objetos suficientes con la menor cantidad posible de métodos. En otras palabras, los generadores de objetos son minimales si la exclusión de cualquiera de los métodos hace imposible la creación de ciertas instancias del módulo.
-Así, las Figuras~\ref{fig:NCLbuilders} y ~\ref{fig:NCLbuilders2} muestran ejemplos de generadores de objetos suficientes y minimales.
+Así, las Figuras \ref{fig:NCLbuilders} y \ref{fig:NCLbuilders2} muestran ejemplos de generadores de objetos suficientes y minimales.
 
 Notar que muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos sobre los que operan, ni son útiles para crear nuevos objetos. 
 Debido a que estos métodos observadores siempre son superfluos y nunca deben incluirse en un conjunto de generadores de objetos minimal. Por esta razón, nuestros enfoques de identificación de métodos generadores intentan reconocerlos de antemano y descartarlos.
 
 También, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
-la lista principal de NCL (ver Tabla~\ref{tab:ncl-api}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos posibles. En cambio, \texttt{add(Object)}, \texttt{addFirst(Object)}, \texttt{addLast(Object)} toman un único parámetro. Si bien cualquiera de estas rutinas sirve para generar los mismos objetos de NCL, hay más formas de invocar a \texttt{add(int,Object)}. Esto usualmente redunda en una pérdida de eficiencia en la construcción de objetos por parte de un análisis automático de programas. Similarmente, elegiremos métodos con parámetros más simples (por ejemplo, parámetros de tipo primitivo), que otros con parámetros más complejos (por ejemplo, parámetros de tipo referencia) siempre y cuando los métodos permitan construir los mismos objetos.
+la lista principal de NCL (ver Tabla \ref{tab:ncl-api}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos posibles. En cambio, \texttt{add(Object)}, \texttt{addFirst(Object)}, \texttt{addLast(Object)} toman un único parámetro. Si bien cualquiera de estas rutinas sirve para generar los mismos objetos de NCL, hay más formas de invocar a \texttt{add(int,Object)}. Esto usualmente redunda en una pérdida de eficiencia en la construcción de objetos por parte de un análisis automático de programas. Similarmente, elegiremos métodos con parámetros más simples (por ejemplo, parámetros de tipo primitivo), que otros con parámetros más complejos (por ejemplo, parámetros de tipo referencia) siempre y cuando los métodos permitan construir los mismos objetos.
 
 De la discusión anterior se desprende que preferimos los métodos con menor número de parámetros, y con parámetros más fáciles de instanciar en los generadores de objetos (siempre que se mantengan las propiedades de suficiencia y minimalidad de los generadores). 
 En nuestro ejemplo anterior, elegiremos \texttt{add(Object)} (o \texttt{addFirst(Object)} o \texttt{addLast(Object)}) en lugar de \\
 \texttt{add(int,Object)} 
 como parte de un conjunto suficiente y minimal de generadores de objetos.
 
-Para concluir esta sección, es importante destacar que identificar manualmente un conjunto suficiente y minimal de métodos generadores de objetos es una tarea difícil y trabajosa, que requiere inspeccionar minuciosamente el código fuente del módulo y las formas en las que los métodos interactúan entre sí para generar objetos. Esto se dificulta aún más cuando los módulos cuentan con APIs ricas, como en nuestro ejemplo motivador (ver Tabla~\ref{tab:ncl-api}). 
+Para concluir esta sección, es importante destacar que identificar manualmente un conjunto suficiente y minimal de métodos generadores de objetos es una tarea difícil y trabajosa, que requiere inspeccionar minuciosamente el código fuente del módulo y las formas en las que los métodos interactúan entre sí para generar objetos. Esto se dificulta aún más cuando los módulos cuentan con APIs ricas, como en nuestro ejemplo motivador (ver Tabla \ref{tab:ncl-api}). 
 Para facilitar la tarea del desarrollador, en las secciones siguientes proponemos enfoques automáticos para identificar conjuntos de métodos generadores de objetos.
 
 \pp{Quizás esto sirva para explicar la explosión de combinaciones de métodos en los análisis de programas? Hay que pensarlo..} 
@@ -213,7 +213,7 @@ Nos enfrentamos a un problema de optimización, donde apuntamos a encontrar el m
 Esta definición es la de los algoritmos de búsqueda local \cite{Russell:2009}.
 Para abordar este problema desarrollamos dos algoritmos de búsqueda, cada uno con su enfoque único. Estos algoritmos nos permiten explorar el espacio de búsqueda de manera eficiente y efectiva.
 
-El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica. \cite{Goldberg:1989}
+El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica \cite{Goldberg:1989}
 %, este algoritmo se enfoca en generar conjuntos de métodos generadores que puedan dar lugar a configuraciones más grandes y diversas de objetos. 
 La naturaleza basada en la evolución de este enfoque permite encontrar soluciones prometedoras y adaptarse a diferentes situaciones.
 
@@ -282,12 +282,12 @@ public class NodeCachingLinkedList {
 % \ref{tab:ncl-api}.
 
 \cacho{Es nuevo}
-En el ejemplo motivador presentado en la Sección~\ref{sec:motivacionBuilders} y en la Tabla~\ref{tab:ncl-api}, se puede observar que existen numerosos métodos clasificados como observadores. 
+En el ejemplo motivador presentado en la Sección \ref{sec:motivacionBuilders} y en la Tabla \ref{tab:ncl-api}, se puede observar que existen numerosos métodos clasificados como observadores. 
 Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental identificar este tipo de métodos, ya que no contribuyen a la construcción de nuevos objetos: no modifican el estado del sistema ni crean nuevas instancias útiles para el objetivo. 
 Por lo tanto, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de métodos generadores de objetos, y pueden descartarse de forma segura.
 
-Para automatizar la identificación de estos métodos, hemos utilizado la herramienta de análisis estático \emph{Infer}~\footnote{\url{https://fbinfer.com/}}, desarrollada por Facebook. 
-\emph{Infer} ofrece funcionalidades avanzadas para analizar código fuente y clasificar métodos como observadores~\cite{Huang:2012} (también denominados \emph{métodos puros} en la bibliografía~\cite{Salcianu:2005}).
+Para automatizar la identificación de estos métodos, hemos utilizado la herramienta de análisis estático \emph{Infer} \footnote{\url{https://fbinfer.com/}}, desarrollada por Facebook. 
+\emph{Infer} ofrece funcionalidades avanzadas para analizar código fuente y clasificar métodos como observadores \cite{Huang:2012} (también denominados \emph{métodos puros} en la bibliografía \cite{Salcianu:2005}).
 La clasificación se realiza mediante un análisis estático que infiere efectos secundarios sobre el estado de los objetos, sin necesidad de ejecutar el código.
 
 Si bien \emph{Infer} puede generar falsos negativos —por ejemplo, no clasificar como observador a un método que en realidad sí lo es, como \texttt{iterator()}—, su comportamiento es conservador y evita falsos positivos. 
@@ -295,10 +295,10 @@ Es decir, rara vez clasificará como observador a un método que en realidad tie
 Esta característica lo convierte en una herramienta extremadamente útil como filtro preliminar, su bajo costo computacional permite eliminar rápidamente una gran cantidad de métodos irrelevantes, 
 lo que reduce de forma significativa el espacio de búsqueda de nuestros algoritmos sin comprometer la corrección del análisis.
 
-La Tabla~\ref{tab:ncl-api} presenta la clasificación manual de los métodos de la clase 
+La Tabla \ref{tab:ncl-api} presenta la clasificación manual de los métodos de la clase 
 \texttt{NodeCachingLinkedList}, distinguiendo cuáles se comportan como observadores y cuáles no, 
 a partir del análisis de su implementación. 
-Posteriormente, en la Tabla~\ref{tab:ncl-infer-comparacion} se muestra la comparación con el análisis 
+Posteriormente, en la Tabla \ref{tab:ncl-infer-comparacion} se muestra la comparación con el análisis 
 automatizado realizado por \emph{Infer}. 
 En esta segunda tabla, la columna adicional \emph{Infer} indica el resultado provisto por la herramienta, 
 lo que permite identificar tanto los aciertos como las discrepancias respecto de la clasificación manual.
@@ -481,8 +481,8 @@ Dado un candidato $C$ que representa un subconjunto de métodos $M$ de la API,
 nuestra función objetivo intenta calcular el número de objetos que se pueden construir utilizando combinaciones de métodos en $M$. 
 Los candidatos con valores de aptitud más altos se estima que construyen más objetos que aquellos que tienen valores de aptitud más pequeños.
 
-Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $C$ realizando una generación exhaustiva acotada \cite{Politano20} usando los métodos en $M$. La función objetivo asigna un puntaje a $C$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos.
-Nuestro enfoque utiliza un generador exhaustivo acotado eficiente basado en métodos de la API \cite{Politano20}. Este generador se denomina BEAPI y es una de las contribuciones principales de este trabajo (ver Capítulo \ref{cap:beapi}).
+Así, la primera función objetivo propuesta evalúa la capacidad de generación de objetos de un candidato $C$ realizando una generación exhaustiva acotada \cite{Politano23} usando los métodos en $M$. La función objetivo asigna un puntaje a $C$ basándose en la cantidad de objetos únicos producidos durante la generación exhaustiva acotada. Esto refleja la diversidad de objetos que se pueden generar utilizando los métodos dados. Los subconjuntos de métodos que generan más objetos serán los candidatos preferidos para ser elegidos por nuestro algoritmo como generadores de objetos.
+Nuestro enfoque utiliza un generador exhaustivo acotado eficiente basado en métodos de la API \cite{Politano23}. Este generador se denomina BEAPI y es una de las contribuciones principales de este trabajo (ver Capítulo \ref{cap:beapi}).
 Dado un conjunto de métodos $M$ en un candidato $C$, BEAPI explora todas las secuencias de métodos acotadas que se pueden construir usando métodos de $M$. La cota consiste de un número máximo $m$ de métodos dado por el usuario, y de un conjunto de valores primitivos empleados para instanciar los parámetros de tipo primitivo en los métodos en $M$ (e.g., enteros de \( 0 \) a \( k-1 \)).
 BEAPI utiliza cada uno de estos valores para instanciar cada parámetro del tipo correspondiente. 
 BEAPI cuenta la cantidad de objetos distintos creados por la ejecución de cada una de las secuencias exploradas. 
@@ -586,7 +586,7 @@ En el primer caso, analizamos dos conjuntos de métodos:
 
 
 Ambos conjuntos tienen en común el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo Object, 
-con peso 6 según la Tabla~\ref{fig:rankParameters}. 
+con peso 6 según la Tabla \ref{fig:rankParameters}. 
 Los demás métodos no tienen parámetros, por lo tanto:
 
 \[
@@ -599,7 +599,7 @@ Como el peso total de la API es 72, se obtiene:
 P(M_1) = P(M_2) = 72 - 6 = 66
 \]
 
-La API contiene un total de 20 métodos (ver Tabla~\ref{tab:ncl-api-infer}). Como \( M_1 \) utiliza 3 de ellos y \( M_2 \) solo 2, se obtiene:
+La API contiene un total de 20 métodos (ver Tabla \ref{tab:ncl-api-infer}). Como \( M_1 \) utiliza 3 de ellos y \( M_2 \) solo 2, se obtiene:
 
 \[
 R(M_1) = 20 - 3 = 17 \quad \text{y} \quad R(M_2) = 20 - 2 = 18
@@ -727,8 +727,7 @@ Este enfoque es especialmente útil en casos donde el objetivo es favorecer
 métodos que sean útiles para generar tests que ejerciten la mayor cantidad
 posible de ramas del código.
 En el contexto de nuestra tesis, hemos realizado modificaciones en la
-herramienta \emph{Randoop} (descrita en la sección
-\ref{sec:feedback-directed-test-gen})
+herramienta \emph{Randoop} (descrita en la sección \ref{sec:feedback-directed-test-gen})
 de manera que las test suites generadas sean de utilidad para averiguar si un conjunto de 
 métodos dados es un buen conjunto de métodos generadores.
 
@@ -754,7 +753,7 @@ matching activado esto?}. Esta ejecución utiliza un 40\% del tiempo total
 asignado, \texttt{S} (ver $S_1$ en la línea 2). 
 La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
 producir estas secuencias de test. Esta función realiza su tarea utilizando 
-la estrategia de generación aleatoria descrita en la Sección~\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
+la estrategia de generación aleatoria descrita en la Sección \ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
 
 \clearpage
 \begin{algorithm}[H]
@@ -883,7 +882,7 @@ Volvamos al ejemplo que usamos durante este capítulo. Consideremos los siguient
 
 
 \cacho{Nuevo esto:}
-Al ejecutar el algoritmo~\ref{alg:fitnessRandoop} con cada conjunto como entrada, se generan suites de tests que luego son evaluadas utilizando herramientas de análisis de cobertura. 
+Al ejecutar el algoritmo \ref{alg:fitnessRandoop} con cada conjunto como entrada, se generan suites de tests que luego son evaluadas utilizando herramientas de análisis de cobertura. 
 El resultado, expresado como la tripla \( \langle Cob, R, P \rangle \), se detalla a continuación:
 
 \[
@@ -896,7 +895,7 @@ Para \( M_1 \), se cubrieron 192 líneas y 101 ramas (\(Cob = 293\)), para \( M_
 Para la redundancia de métodos, tal cual la seccion anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
 El conjunto \( M_1 \) contiene 3 métodos, por lo que \( R(M_1) = 20 - 3 = 17 \) y el conjunto \( M_2 \) contiene 2 métodos, entonces \( R(M_2) = 20 - 2 = 18 \).
 
-En cuanto a los parámetros, ambos conjuntos tienen la misma complejidad de parámetros, ya que ambos conjuntos incluyen únicamente el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo \texttt{Object}, con un peso de 6 según la Tabla~\ref{fig:rankParameters}. 
+En cuanto a los parámetros, ambos conjuntos tienen la misma complejidad de parámetros, ya que ambos conjuntos incluyen únicamente el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo \texttt{Object}, con un peso de 6 según la Tabla \ref{fig:rankParameters}. 
 Los demás métodos no tienen parámetros. Por lo tanto, el peso total de parámetros en ambos conjuntos es \( W(M_1) = W(M_2) = 6 \), y como el peso total de la API es \( W(API) = 72 \), se obtiene \( P = 72 - 6 = 66 \) en ambos casos.
 
 En este caso, el conjunto \( M_1 \) logra una mejor cobertura, lo cual alcanza este valor para elegirlo como mejor candidato. 
@@ -922,7 +921,7 @@ desventajas en la práctica.
 \cacho{Nuevo esto:}
 
 En esta sección presentamos el proceso completo para identificar automáticamente métodos generadores de objetos a partir de la clase objetivo (target class). 
-La Figura~\ref{fig:builders-overview} muestra una visión general del enfoque propuesto.
+La Figura \ref{fig:builders-overview} muestra una visión general del enfoque propuesto.
 
 \cacho{Debo charlar con PP para ver la imagen y mejorarla. Creo que queda mejor al principio de todo el capitulo. Falta mejorar nombres en la imagen pero es para tener una idea}
 
@@ -1071,7 +1070,7 @@ de los padres. Este mecanismo favorece la exploración del espacio de búsqueda 
 \cacho{Nuevo:}
 En nuestro algoritmo, utilizamos una tasa de cruzamiento de \( c_r = 0{,}50 \) (\emph{tasa de crossover}), 
 lo cual implica que, en cada generación, aproximadamente el 50\,\% de los individuos seleccionados para reproducción serán cruzados entre sí.  
-Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección~\ref{sec:selection}, comunmente llamados \emph{offspringSize} en los algortimos geneticos), esto equivale al:
+Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección \ref{sec:selection}, comunmente llamados \emph{offspringSize} en los algortimos geneticos), esto equivale al:
 
 \begin{equation}
 \text{individuos\_cruzados} = r_c \cdot \text{offspringSize} = 0,50 \cdot \left(0,60 \cdot N\right)
@@ -1091,7 +1090,7 @@ Este mecanismo, denominado \emph{mutación por inversión de bits}, es especialm
 \cacho{
 En representaciones binarias, como la que usamos, se aplica la \emph{mutación por inversión de bits}.  
 Cada bit tiene una probabilidad $m_P$ de cambiar su valor (de ‘0’ a ‘1’ o viceversa).  
-La Figura~\ref{fig:mutation} muestra un ejemplo donde se modifican los bits en las posiciones 1, 4, 5 y 7.
+La Figura \ref{fig:mutation} muestra un ejemplo donde se modifican los bits en las posiciones 1, 4, 5 y 7.
 La probabilidad $m_P$ suele mantenerse baja para evitar alteraciones drásticas que perjudiquen la convergencia.  
 En nuestro caso, usamos $m_P = 0{,}05$, lo que significa que cada bit tiene un 5\% de probabilidad de mutar.
 Este valor fue determinado experimentalmente para equilibrar la exploración y la preservación de soluciones prometedoras.
@@ -1120,7 +1119,7 @@ Este tipo de variaciones permite explorar diferentes combinaciones de subconjunt
     \end{figure}
 \subsubsection{Pseudocódigo del algoritmo genético}
 
-El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que definimos para la búsqueda de métodos generadores de objetos.
+El algoritmo \ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genético que definimos para la búsqueda de métodos generadores de objetos.
 
 \cacho{TODO ESTO ES NUEVO:}
 
@@ -1194,7 +1193,7 @@ El algoritmo~\ref{alg:enfoqueGA} muestra un pseudocódigo del algoritmo genétic
 
 Los elementos descritos a continuación corresponden a las partes constitutivas del algoritmo genético implementado en nuestro enfoque 
 para identificar subconjuntos de métodos generadores. 
-El algoritmo~\ref{alg:enfoqueGA} sigue la estructura típica de un algoritmo evolutivo, adaptado específicamente a nuestro problema.
+El algoritmo \ref{alg:enfoqueGA} sigue la estructura típica de un algoritmo evolutivo, adaptado específicamente a nuestro problema.
 
 La población inicial se construye en la línea 1, generando cromosomas válidos, donde cada uno representa un subconjunto de métodos con exactamente un método activo.
 Esta decisión inicial asegura diversidad mínima, permitiendo explorar combinaciones desde los métodos más simples hacia conjuntos más complejos 
@@ -1215,7 +1214,7 @@ La mutación se realiza gen a gen con una probabilidad $mutationRate$, y si el c
 La nueva población para la siguiente generación se construye uniendo los sobrevivientes y la descendencia (línea 23). A partir de esta población, se determina el mejor cromosoma actual (línea 24).
 El algoritmo verifica si la aptitud del mejor cromosoma se mantiene constante durante un número de generaciones consecutivas igual a $maxIter$ (líneas 25 a 27). Si esto ocurre, se detiene anticipadamente.
 
-La función objetivo utilizada durante todo el proceso es la definida en la sección~\ref{sec:fitnessGE}, y tiene en cuenta tres componentes: cantidad de objetos generados, minimalidad (métodos usados) y complejidad de parámetros. 
+La función objetivo utilizada durante todo el proceso es la definida en la sección \ref{sec:fitnessGE}, y tiene en cuenta tres componentes: cantidad de objetos generados, minimalidad (métodos usados) y complejidad de parámetros. 
 Esta función se utiliza tanto en los torneos como para evaluar los resultados de cruce y mutación.
 
 Finalmente, el mejor cromosoma encontrado se retorna como resultado del algoritmo (línea 29).
@@ -1323,9 +1322,9 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
 
 \end{algorithm}
 
-El algoritmo~\ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos.
+El algoritmo \ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos.
 La representación que hemos utilizado del problema es la explicada en la Sección \ref{sec:estados}, donde los estados se modelan como vectores de bits.
-Además, la búsqueda se guía mediante una de las funciones objetivo definidas en la Sección~\ref{sec:fitness}.
+Además, la búsqueda se guía mediante una de las funciones objetivo definidas en la Sección \ref{sec:fitness}.
 El proceso comienza con la función principal \texttt{computeBuilders}, que implementa la búsqueda.
 
 La inicialización consiste en definir un estado inicial representado por un vector de ceros, 
