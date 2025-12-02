@@ -2,7 +2,6 @@
 \chapter[Evaluaci\'on]{Evaluaci\'on}
 \label{cap:experimental}
 
-
 En los capítulos \ref{cap:builders} y \ref{cap:beapi} presentamos enfoques para
 identificar automáticamente un conjunto de métodos generadores de objetos, y una
 técnica novedosa de generación exhaustiva acotada basada en la API. 
@@ -16,9 +15,9 @@ sección \ref{sec:experimentalBeapi} se evalúa la generación exhaustiva acotad
 \label{sec:experimentalIdentificacion}
 
 En esta sección, evaluamos experimentalmente los enfoques presentados en el
-Capítulo~\ref{cap:builders}. Analizaremos la eficiencia y precisión de cada
+Capítulo \ref{cap:builders}. Analizaremos la eficiencia y precisión de cada
 algoritmo utilizando las funciones objetivo introducidas en la
-Sección~\ref{sec:fitness}. Además, mostraremos resultados preliminares sobre cómo los 
+Sección \ref{sec:fitness}. Además, mostraremos resultados preliminares sobre cómo los 
 métodos generadores de objetos pueden ser aprovechados por algunas herramientas
 automáticas de análisis de software.
 
@@ -39,17 +38,17 @@ Con respecto a estas técnicas, las siguientes preguntas de investigación guía
 
 La evaluación se llevó a cabo sobre un conjunto de clases Java 
  que manipulan estructuras dinámicas complejas,
-incluyendo: \verb"NCL" de Apache Commons Collections~\cite{apache};
+incluyendo: \verb"NCL" de Apache Commons Collections \cite{apache};
 \verb"BinaryTree", \verb"BinomialHeap" y \verb"FibonacciHeap", extraídos
-de~\cite{Visser:2006}; y \verb"UnionFind", una implementación de conjuntos
-disjuntos tomada de JGrapht~\cite{jgrapht}.
+de \cite{Visser:2006}; y \verb"UnionFind", una implementación de conjuntos
+disjuntos tomada de JGrapht \cite{jgrapht}.
 También se incluyeron componentes de proyectos reales de software, como 
-\verb"Lits" de la implementación de Sat4j~\cite{sat4j}, utilizada previamente 
-en~\cite{Loncaric:2018}. \verb"Lits" maneja la representación interna de una
+\verb"Lits" de la implementación de Sat4j \cite{sat4j}, utilizada previamente 
+en \cite{Loncaric:2018}. \verb"Lits" maneja la representación interna de una
 fórmula en el SAT solver (variables y literales).
 %, y traduce literales desde DIMACS a la representación interna.
 Por otro lado, se consideraron estructuras adicionales como \verb"Scheduler",
-un planificador de procesos tomado del conjunto de benchmarks SIR~\cite{sir},
+un planificador de procesos tomado del conjunto de benchmarks SIR \cite{sir},
 y varias colecciones del paquete estándar \verb"java.util" de Java%
 \footnote{\url{https://docs.oracle.com/javase/8/docs/api/java/util/
 package-summary.html}}, incluyendo \verb"TreeMap", \verb"TreeSet",
@@ -63,7 +62,7 @@ conjunto de referencia o \emph{ground truth} que contiene los métodos
 generadores de objetos (\emph{MGO}) considerados minimales y suficientes en cada caso de estudio. Esta
 tarea implicó un análisis detallado y manual de cada API, lo que representó un
 trabajo considerable, especialmente en los casos más complejos. La
-Tabla~\ref{tab:groundTruth} resume este conjunto de referencia, indicando para
+Tabla \ref{tab:groundTruth} resume este conjunto de referencia, indicando para
 cada clase el número total de métodos en su API pública (\#API) y los métodos
 identificados manualmente como generadores de objetos. 
 %Cabe destacar que en algunos
@@ -74,7 +73,7 @@ identificados manualmente como generadores de objetos.
 \subsubsection{Algoritmos evaluados.}
 
 \begin{itemize}
-  \item \textbf{GA}: el algoritmo genético descrito en la Sección~\ref{alg:approachGA}.
+  \item \textbf{GA}: el algoritmo genético descrito en la Sección \ref{alg:approachGA}.
   \item \textbf{HC}: el algoritmo \emph{hill-climbing} presentado en la Sección \ref{alg:approachHC}.
 \end{itemize}
 
@@ -83,8 +82,8 @@ métodos:
 
 \begin{itemize}
     \item \textbf{FGE}: función objetivo basada en la cantidad de objetos
-        producidos por un generador exhaustivo acotado, presentada en la Sección~\ref{sec:fitnessGE}.
-\item \textbf{FRC}: función objetivo basada en la cobertura de código, descrita en la Sección~\ref{sec:fitnessRandoop}. 
+        producidos por un generador exhaustivo acotado, presentada en la Sección \ref{sec:fitnessGE}.
+\item \textbf{FRC}: función objetivo basada en la cobertura de código, descrita en la Sección \ref{sec:fitnessRandoop}. 
 \end{itemize}
 
 Cuando un algoritmo se evalúa con una función objetivo específica, usamos la notación 
@@ -177,7 +176,7 @@ finalizar la búsqueda de métodos generadores a partir de la API.
 %Evaluamos los dos
 %algoritmos de búsqueda (\emph{GA} y \emph{HC}) combinados con dos funciones
 %objetivo: \emph{FGE} (Función objetivo con generación exhaustiva acotada) y \emph{FRC} (Función objetivo con cobertura). 
-Los resultados se muestran en la Tabla~\ref{tab:eficiencia}. Cada fila
+Los resultados se muestran en la Tabla \ref{tab:eficiencia}. Cada fila
 corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API
 (\#API) y la cantidad de métodos generadores del \emph{ground truth}
 (\#MGO). Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
@@ -267,10 +266,10 @@ objetos para testing, etc.), creemos que \texttt{HC+FGE}, \texttt{GA+FGE}, y
 
 Medimos la efectividad como la capacidad de cada algoritmo para identificar
 un \emph{conjunto minimal} de métodos generadores a partir de la API. 
-La Tabla~\ref{tab:efectividad} resume los tamaños promedios (sobre 5
+La Tabla \ref{tab:efectividad} resume los tamaños promedios (sobre 5
 corridas) del conjunto de métodos identificado por cada algoritmo evaluado. 
 Los resultados se analizaron manualmente con respecto al \emph{ground truth} 
-( el número de MGOs minimales se indica como \#MGO en la tabla) y 
+(el número de MGOs minimales se indica como \#MGO en la tabla) y 
 en todos los casos un conjunto de métodos generadores de objetos suficiente 
 fue generado por todos los algoritmos. Sin embargo, como puede verse en la
 tabla, algunos algoritmos incluyen algunos métodos irrelevantes en algunos casos.
@@ -313,7 +312,7 @@ En el caso particular del algoritmo genético (\texttt{GA}), además de la
 estocasticidad propia de la búsqueda (selección, cruce, mutación), empleamos un
 criterio de corte del algoritmo que detiene la evolución cuando el mejor
 fitness no mejora durante 5 generaciones consecutivas (ver
-Sección~\ref{alg:approachGA}). Este criterio es eficaz para acotar el presupuesto,
+Sección \ref{alg:approachGA}). Este criterio es eficaz para acotar el presupuesto,
 pero puede congelar soluciones suficientes levemente mayores que el
 mínimo cuando la presión selectiva ya no impulsa mejoras adicionales. \pp{Hay
 que arreglar Lits, y TreeMap con GA+FRC que da demasiado horrible. Puede ser por
@@ -334,7 +333,7 @@ software}
 \input{tables/objectsBuilders.tex}
 
 \cacho{En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
-identificados previamente con el algoritmo de \emph{Hill Climbing} (\ref{alg:approachHC}}) 
+identificados previamente con el algoritmo de \emph{Hill Climbing}(\ref{alg:approachHC})} 
 con la función objetivo basada en la cantidad de objetos producidos por un generador exhaustivo acotado (\ref{sec:fitnessGE}), en el contexto de la
 generación automática de objetos para las clases evaluadas}. 
 Estos objetos pueden ser utilizadas luego como 
@@ -358,7 +357,7 @@ puesto, o no?} (calculamos los tamaños de objetos con el método
 \texttt{size()} de las clases bajo análisis). }
 \cacho{Agregar table, URGENTE!. escribir esa parte}
 
-Los resultados obtenidos se resumen en la Tabla~\ref{tab:results-obj}.
+Los resultados obtenidos se resumen en la Tabla \ref{tab:results-obj}.
 
 En promedio para todos los presupuestos, \texttt{MGO} genera 6355 objetos 
 frente a 1597 de \texttt{API}. Es decir, el uso de métodos generadores resulta
@@ -387,7 +386,7 @@ tiempo.
 Es esperable que al generar objetos más diversos y más grandes, los objetos producidos por
 \texttt{MGO} ejerciten mejor el código que los generados por
 \texttt{API} si se los utiliza para testing. 
-La calidad de los objetos generados se evalúa más adelante en la Sección~\ref{sec:parametrizedTesting}, 
+La calidad de los objetos generados se evalúa más adelante en la Sección \ref{sec:parametrizedTesting}, 
 donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
 
 \subsubsection{Verificación acotada usando JPF}
@@ -395,14 +394,14 @@ donde los utilizamos como entradas de tests parametrizados sobre las estructuras
 
 En un segundo experimento, evaluamos el impacto del uso de métodos generadores
 de objetos en la eficiencia de la verificación acotada usando \emph{Java PathFinder}
-(JPF)~\cite{Visser:2005} (explicado en la sección \ref{sec:jpf}).
+(JPF) \cite{Visser:2005} (explicado en la sección \ref{sec:jpf}).
 Para este experimento preliminar, usamos como casos de estudio algunas clases
 del paquete \texttt{java.util}. 
 Los experimentos consisten en verificar de manera exhaustiva acotada que, dada
 una estructura de datos, luego ejecución de un método de la estructura de datos
 se satisface el invariante de representación (\texttt{repOK}) de la estructura. 
 Por ejemplo, para el método \texttt{put} de \texttt{TreeMap} escribimos el
-programa de la Figura~\ref{lst:propiedadJPF} para realizar la verificación con
+programa de la Figura \ref{lst:propiedadJPF} para realizar la verificación con
 JPF. \pp{Fijate que los captions de las figuras están en inglés y dicen Figure.
 Hay que configurar algo para traducirlos a español.}
 
@@ -420,26 +419,26 @@ driver en la línea 3 (método \texttt{generateStructure}). Luego, ejecuta el
 método bajo análisis en la línea 4 (\texttt{put}), y por último verifica que se
 satisfaga el \texttt{repOK} luego de la ejecución del método en la línea 5.
 
-Para la evaluación consideramos los dos enfoques presentados en la Sección
-\ref{sec:jpf-builders} para construir los drivers. El enfoque \texttt{API} consiste en
+Para la evaluación consideramos los dos enfoques presentados en la Sección \ref{sec:jpf-builders} para construir los drivers. El enfoque \texttt{API} consiste en
 utilizar toda la API. Recordar que un ejemplo de driver generado con este enfoque se 
 presenta en la Figura \ref{lst:driverAPI}. Por otro lado, el enfoque
 \texttt{MGO} consiste en usar sólo los métodos generadores de objetos para
 construir los drivers, como se muestra en el ejemplo de la Figura \ref{lst:driverBLD}.
-\pp{Los métodos generadores de objetos fueron precomputados usando el algoritmo ???}.
+\cacho{Nuevo}Los métodos generadores de objetos fueron precomputados usando el algoritmo de \emph{Hill Climbing} (\ref{alg:approachHC}) 
+con la función objetivo que utiliza los objectos que produce el generador exhaustivo acotado (\ref{sec:fitnessGE})
 
 \input{tables/tableJPFBuilders.tex}
 \input{tables/tableJPFBuilders1.tex}
 
 Los resultados de los experimentos, presentados en las
-Tablas~\ref{tab:results-jpf} y \ref{tab:results-jpf1}, muestran que los
+Tablas \ref{tab:results-jpf} y \ref{tab:results-jpf1}, muestran que los
 controladores construidos a partir de los métodos generadores objetos (MGO) permiten
 una mejora significativa en la eficiencia y la escalabilidad de JPF. 
 Se observa una reducción considerable en el tiempo de análisis y en la cantidad
-de estados explorados por JPF \pp{Dice states y time en las tablas. Cambiar.}, sin 
+de estados explorados por JPF, sin 
 comprometer la cobertura de las estructuras objetivo. \pp{Qué cobertura?
 tenemos números de cobertura para mostrar que no se reduce? O algún experimento
-por el estilo?}
+por el estilo?} \cacho{Lo sacamos, no hay nada de esto, la idea era como decir que no se pierden estructuras, que se aseguran que estan las mismas y mas}
 
 %Para focalizar la comparación en los distintos casos, 
 %consideramos en cada clase–método todos los niveles de \emph{scope} que finalizan sin \emph{timeout}
@@ -450,7 +449,7 @@ por el estilo?}
 
 En las tablas se muestran los resultados para los scopes en los que
 alguna de las técnicas termina antes de llegar al timeout.
-En el análisis global, considerando los scopes para los que ambas técnicas terminan
+En el análisis global, considerando los \emph{scopes} para los que ambas técnicas terminan
 antes del timeout, estas 30 combinaciones \pp{De donde sale el 30? Yo
 cuento muchas más}, el \emph{driver} con \textsf{MGO} explora 14070756 estados
 en 1591s, mientras que \textsf{API} visita 198130649 estados en 17,240 segundos.
@@ -465,7 +464,8 @@ Se observa tambien que \textsf{API} alcanza el timeout en 9/30 combinaciones
 
 En resumen, los resultados muestran evidencia preliminar de que construir \emph{drivers}
 exclusivamente con los métodos generadores de objetos identificados por nuestro
-enfoque \pp{cuál?}, reduce significativamente la cantidad de estados que debe
+enfoque \pp{cuál?} \cacho{nuevo}(usando el algoritmo de \emph{Hill Climbing} (\ref{alg:approachHC}) 
+con la función objetivo del generador exhaustivo acotado (\ref{sec:fitnessGE})), reduce significativamente la cantidad de estados que debe
 explorar JPF, y consecuentemente reduce el tiempo de la verificación. Esto le
 permite a nuestro enfoque realizar la verificación para scopes más grandes
 en varios de los casos analizados. 
@@ -501,10 +501,10 @@ instancia muchas veces, pero lo tendremos que charlar.}
 
 
 % Para ilustrar este mecanismo, ponemos bajo análisis el método \texttt{put} de \texttt{TreeMap}.
-% La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en ~\ref{lst:driverBLD}.
+% La generación de entradas para probar este método puede realizarse mediante un controlador como el mostrado en la immplentación mostrada en  \ref{lst:driverBLD}.
 % Para mitigar el problema de la explosión combinatoria, propusimos utilizar únicamente los métodos generadores 
-% detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{FRC} (ver Sección~\ref{sec:experimentalIdentificacionPrecision}). 
-% Como se muestra en el framento de codigo ~\ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
+% detectados automáticamente por nuestro enfoque con el algoritmo de \emph{HC} y la funcion objetivo de \emph{FRC} (ver Sección \ref{sec:experimentalIdentificacionPrecision}). 
+% Como se muestra en el framento de codigo  \ref{lst:driverBLD}, el controlador basado exclusivamente en los métodos generadores de objectos de 
 % \texttt{TreeMap} selecciona sólo dos métodos, suficientes y minimal, para generar todas las instancias 
 % válidas dentro del alcance definido. En consecuencia, JPF puede explorar las mismas configuraciones 
 % de objetos que con la API completa, pero con un espacio de búsqueda significativamente más reducido.
@@ -567,10 +567,10 @@ investigación:
 \subsection{Configuración experimental}
 
 Como casos de estudio, utilizamos implementaciones de estructuras de datos
-tomadas de tres benchmarks existentes: \textsf{Kiasan}~\cite{Deng06}, 
-\textsf{FAJITA}~\cite{Abad13}, \textsf{ROOPS} \cacho{VER CITA}. También
+tomadas de tres benchmarks existentes: \textsf{Kiasan} \cite{Deng06}, 
+\textsf{FAJITA} \cite{Abad13}, \textsf{ROOPS} \cacho{VER CITA}. También
 incluimos las clases utilizadas en la evaluación de
-\textsf{Korat}~\cite{Boyapati02}, y un conjunto de clases de proyectos reales de
+\textsf{Korat} \cite{Boyapati02}, y un conjunto de clases de proyectos reales de
 software que la denominamos \textsf{Real World}, donde se incluyen clases de
 \emph{java.util} (TreeMap, TreeSet, LinkedList, Hasmap), de \emph{Apache Commons
 Collections} (NodeCachingLinkedList) y un Scheduler de SIR.
@@ -583,17 +583,17 @@ para realizar las comparaciones con Korat, que requiere invariantes para
 realizar la generación, y para los experimentos para responder a RQ6.
 
 Para la evaluación se utilizó el prototipo de la herramienta BEAPI, que se
-describe en la literatura en los trabajos de Politano et. al. \cite{}
-\pp{Incluir acá los dos trabajos publicados de BEAPI}. 
+describe en la literatura en los trabajos de Politano et. al. \cite{Politano23, Politano24}
+
 
 En la comparación de eficiencia con técnicas existentes (RQ4) se utilizó Korat,
 que es la herramienta existente de generación exhaustiva acotada más eficiente
-\cite{} \pp{Buscar la cita de esto en el paper de beapi}. Tener en cuenta, como
+\cite{Boyapati:2002} \pp{Buscar la cita de esto en el paper de beapi} \cacho{Hecho}. Tener en cuenta, como
 Korat requiere de repOKs, se emplearon los \texttt{repOK}s provistos por los autores 
 de cada caso de estudio. 
 En algunos casos se identificaron errores o especificaciones incompletas en los \texttt{repOK}s; 
 estos se señalan de forma explícita en los resultados y se analizan en más
-detalle en la Sección~\ref{sec:existing-specs-analysis} (RQ6).
+detalle en la Sección \ref{sec:existing-specs-analysis} (RQ6).
 
 Para RQ7 se comparan los objetos generados por BEAPI, una técnica de generación
 aleatoria (Randoop), y una variante de Randoop que sólo usa métodos generadores de objetos
@@ -602,19 +602,14 @@ aleatoria (Randoop), y una variante de Randoop que sólo usa métodos generadore
 Los experimentos se llevaron a cabo en una computadora con procesador Intel Core i7-8700 
 (3.2 GHz) y 16 GB de RAM, ejecutando Ubuntu Linux 20.04. Para cada ejecución individual se estableció 
 un tiempo máximo de 60 minutos. Todos los experimentos fueron diseñados para ser reproducibles, 
-y el artefacto experimental con el código fuente se encuentra disponible en:
-\cacho{Poner pagina?} \pp{Si}.
-
-\cacho{los parametros usados en GA} 
-\pp{Qué GA?}
-
+y el artefacto experimental con el código fuente se encuentra disponible en: \url{https://github.com/mpolitano/bounded-exhaustive-api}
 
 \subsection{RQ4: Eficiencia de BEAPI}
 
 En esta sección comparamos BEAPI y Korat en términos de tiempo 
 de ejecución, número de estructuras generadas y exploradas, y escalabilidad con
 respecto a los \emph{scopes}.
-Los resultados experimentales se muestran en la Tabla~\ref{table:korat-beapi}.
+Los resultados experimentales se muestran en la Tabla \ref{table:korat-beapi}.
 \pp{No entra la tabla en una página. Hay que dividirla en 2. Además tiene muchos
     errores, se corrieron varias líneas como FibHeap ROOPS s4, o SLList Fajita
 s 8,9 y 10. Hay que revisar todo.}
@@ -667,14 +662,14 @@ en la definición de \emph{scope}.
 
 Cabe destacar dos tipos de excepciones en los resultados. En primer lugar, algunos casos incluyen 
 \texttt{repOK}s con errores, que impactan negativamente en la eficiencia de \textsf{Korat}; estos 
-casos están sombreados en la tabla y se analizan más en detalle en la Sección~\ref{sec:existing-specs-analysis}. 
+casos están sombreados en la tabla y se analizan más en detalle en la Sección \ref{sec:existing-specs-analysis}. 
 Un caso ilustrativo es el de \texttt{BinHeap}, donde \textsf{Korat} alcanza el \emph{scope} 8 utilizando 
 el \texttt{repOK} de \texttt{ROOPS}, el \emph{scope} 10 con el de \texttt{FAJITA}, y el \emph{scope} 11 
 con su propia especificación, todas ellas equivalentes en términos de estructuras generadas. Esto evidencia 
 la sensibilidad de \textsf{Korat} a la forma en que se escriben los \texttt{repOK}s, los cuales, si están 
 ajustados específicamente para su motor de búsqueda, pueden mejorar significativamente su rendimiento. 
 No obstante, cuando los \texttt{repOK}s presentan errores o están mal diseñados, su impacto negativo 
-puede ser severo, como se analiza en profundidad en la Sección~\ref{sec:existing-specs-analysis}.
+puede ser severo, como se analiza en profundidad en la Sección \ref{sec:existing-specs-analysis}.
 
 En segundo lugar, en estructuras como \texttt{RBT} y \texttt{FibHeap}, la diferencia semántica en la 
 noción de \emph{scope} entre ambas técnicas produce discrepancias. Por ejemplo, hay estructuras de 
@@ -721,13 +716,13 @@ como un enfoque de fuerza bruta.
 % Para este análisis, nos enfocamos en el benchmark \texttt{Real World}, que incluye seis 
 % implementaciones reales de estructuras de datos ampliamente utilizadas: \texttt{LinkedList} 
 % (67 métodos en la API), \texttt{TreeSet} (34), \texttt{TreeMap} (61), \texttt{HashMap} (45), \texttt{NCL} (34) y 
-% \texttt{Schedule} (12). La Tabla~\ref{tab:results-realWorld} 
+% \texttt{Schedule} (12). La Tabla \ref{tab:results-realWorld} 
 % resume los resultados obtenidos. Cabe mencionar que se realizaron experimentos equivalentes para 
 % el resto de los benchmarks utilizados en este capítulo, pero se omiten en las tablas en esta tesis por motivos de espacio.
 % El conjunto \texttt{Real World} representa adecuadamente el comportamiento observado en los demás casos, 
 % y resulta suficiente para sustentar las conclusiones extraídas en esta sección.
 
-La Tabla~\ref{tab:results-realWorld} \cacho{Ver como referencias, hacer una sola tabla} resume los resultados para el conjunto \textsf{Real World} 
+La Tabla \ref{tab:results-realWorld} \cacho{Ver como referencias, hacer una sola tabla} resume los resultados para el conjunto \textsf{Real World} 
 (seis implementaciones ampliamente usadas: \texttt{LinkedList} con 67 métodos, \texttt{TreeSet} con 34 métodos, \texttt{TreeMap} con 61 métodos, \texttt{HashMap} con 45 métodos, \texttt{NCL} con 34 métodos y \texttt{Schedule} con 12 métodos). 
 Resultados análogos se reportan para los demás benchmarks en las tablas correspondientes de esta sección; en conjunto, todos ellos muestran el mismo patrón y fundamentan las conclusiones presentadas.
 
@@ -814,7 +809,7 @@ Para ello, diseñamos un procedimiento automatizado en tres pasos. En primer lug
 la API de la clase, y ejecutamos \emph{Korat} para generar un segundo conjunto, \texttt{SKORAT}, 
 utilizando únicamente el método \texttt{repOK}. Ambas ejecuciones se realizaron con el mismo 
 \emph{scope}. En segundo lugar, canonizamos todas las estructuras de ambos conjuntos utilizando el 
-proceso de linearización (Sección~\ref{sec:stateMatching}), de modo que estructuras isomorfas puedan 
+proceso de linearización (Sección \ref{sec:stateMatching}), de modo que estructuras isomorfas puedan 
 compararse de forma directa. Finalmente, comparamos los conjuntos \texttt{SBEAPI} y \texttt{SKORAT} para 
 identificar diferencias que indiquen discrepancias semánticas entre la definición operativa de la 
 clase (la API) y su especificación declarativa (\texttt{repOK}).
@@ -845,7 +840,7 @@ alcance debido a restricciones de balanceo interno que requieren secuencias más
 \emph{scope} establecido. Estos casos se identificaron y descartaron manualmente, observando que al 
 aumentar el \emph{scope}, las estructuras de \textsf{Korat} sí aparecen en la salida de \emph{BEAPI}.
 
-Los resultados del experimento se resumen en la Tabla~\ref{table:bugs}. Encontramos errores en 9 de 
+Los resultados del experimento se resumen en la Tabla \ref{table:bugs}. Encontramos errores en 9 de 
 los 26 métodos \texttt{repOK} analizados. Esta proporción evidencia la dificultad de escribir 
 invariantes de representación correctos, incluso en bibliotecas diseñadas por expertos, y pone de 
 manifiesto el valor de \textsf{BEAPI} como herramienta de apoyo para detectar inconsistencias.
@@ -911,7 +906,7 @@ interpretarse con cautela.
 
 \input{tables/randoopvsBeapi}
 
-La Tabla~\ref{tab:hashSetTools} muestra una comparativa de diferentes técnicas aplicadas sobre 
+La Tabla \ref{tab:hashSetTools} muestra una comparativa de diferentes técnicas aplicadas sobre 
 \texttt{HashSet}. Se observa que al priorizar métodos generadores de objectos en Randoop, \emph{R-Builders}, la cantidad de 
 objetos generados se incrementa significativamente (más de 300\% en comparación con la versión 
 estándar, \emph{R-Serialize}), lo cual impacta positivamente en la cobertura, principalmente en tiempos de generacion más cortos.
@@ -929,7 +924,7 @@ ejecutando apenas unos pocos miles. Esto indica que los objetos generados por \t
 mas efectivos como entradas, permitiendo detectar fallas y explorar el espacio de estados 
 de manera eficiente.
 
-La Tabla~\ref{tab:treeSetTools} presenta los resultados obtenidos para \texttt{TreeSet}. En 
+La Tabla \ref{tab:treeSetTools} presenta los resultados obtenidos para \texttt{TreeSet}. En 
 este caso, las diferencias comienzan a notarse con mayor claridad. \texttt{R-Builders} logra 
 una cobertura y mutación ligeramente superior a \texttt{BEAPI}. 
 Una explicación para este comportamiento radica en que ciertas configuraciones válidas de \texttt{TreeSet} pueden 
@@ -940,7 +935,7 @@ limitación por scope. Las dos variantes con métodos generadores de objetos son
 En contraste, \texttt{R-Serialize} tarda 40 segundos para generarar y 11 segundos para ejecutar para quedarse en 125 ramas y 109 mutación, y \textbf{Randoop} llega a menos cobertura (105 ramas) incluso con 150 y 33 segundos.
 Si comparamos, cobertura por segundo, \texttt{BEAPI} llega primero a una alta cobertura y \texttt{R-Builders} puede llegar a cubrir algun mutante mas, pero pagando un costo de tiempo mayor.
 
-El comportamiento observado se repite en la Tabla~\ref{tab:treeMapTools}, donde se evalúa la 
+El comportamiento observado se repite en la Tabla \ref{tab:treeMapTools}, donde se evalúa la 
 clase \texttt{TreeMap}. 
 En este caso, \texttt{R-Builders} obtiene más mutación que \textbf{BEAPI} (152 vs 140), es decir, mata, aproximadamente un 6\% mas de mutantes;
 en cambio, \texttt{BEAPI} logra mayor cobertura de ramas en todos los presupuestos (alrededor del 8\% a partir de 20 segundos de tiempo de generación).
@@ -951,7 +946,7 @@ resultados consistentes con una fracción del esfuerzo computacional, lo que ref
 como técnica efectiva, especialmente en contextos donde se requiere control y exhaustividad 
 estructural.
 
-En cuanto a la Tabla~\ref{tab:linkedListTools} que presenta los resultados obtenidos para la clase 
+En cuanto a la Tabla \ref{tab:linkedListTools} que presenta los resultados obtenidos para la clase 
 \texttt{LinkedList}. En este caso, se observa nuevamente que \texttt{BEAPI}, a pesar de 
 generar un número reducido de objetos, mantiene niveles constantes de cobertura y mutación. 
 Las técnicas \texttt{R-Serialize} y \texttt{R-Builders} logran cubrir las mismas ramas y casi los mismos 
@@ -959,7 +954,7 @@ mutantes que \texttt{BEAPI}, esto se debe a que las listas enlazadas son estruct
 donde la mayoría de las configuraciones válidas pueden alcanzarse mediante secuencias cortas
 de inserciones y eliminaciones..
 
-Con respecto a la tabla ~\ref{tab:hashMapTools}, 
+Con respecto a la tabla  \ref{tab:hashMapTools}, 
 correspondiente a \texttt{HashMap}, se aprecia un caso 
 similar. \texttt{BEAPI} logra altos niveles de cobertura desde tiempos de generación muy 
 reducidos, mientras que las otras técnicas necesitan un volumen considerable de objetos y 
