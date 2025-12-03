@@ -613,93 +613,72 @@ Los resultados experimentales se muestran en la Tabla \ref{table:korat-beapi}.
 \pp{No entra la tabla en una página. Hay que dividirla en 2. Además tiene muchos
     errores, se corrieron varias líneas como FibHeap ROOPS s4, o SLList Fajita
 s 8,9 y 10. Hay que revisar todo.}
-La Tabla presenta una muestra representativa de los benchmarks
-\textsf{Korat}, \textsf{FAJITA}, \textsf{ROOPS} y \textsf{Kiasan}. \pp{Los casos
+La Tabla presenta una muestra representativa de los resultados para los benchmarks
+\textsf{Korat}, \textsf{FAJITA}, \textsf{ROOPS} y \textsf{Kiasan} (intentamos mantener la misma proporción de casos buenos y malos para cada técnica en los datos que reportamos). \pp{Los casos
 restantes se pueden encontrar online \cite{}}.
 Para cada clase evaluada, informamos los tiempos de generación 
 (en segundos, columna \emph{Time}), la cantidad de estructuras válidas generadas (\emph{Generated}) y el total de estructuras exploradas (\emph{Explored}) por cada técnica. 
-Incluimos, para cada enfoque, los \emph{scopes} más grandes (Columna \emph{S})
-alcanzados por las técnicas antes de llegar al tiempo límite de 60 minutos. Vale
+Incluimos, para cada enfoque, los \emph{scopes} más grandes (columna \emph{S})
+alcanzados por las técnicas antes de llegar al tiempo límite de 60 minutos. De
+esta manera, si surgieran problemas de escalabilidad, podrían identificarse fácilmente. Vale
 aclarar que no se utilizó el benchamark \textsf{Real World} en esta sección, ya que
 no se dispone de \texttt{repOK}s para estas clases, lo que impide una comparación justa con \textsf{Korat}.
 
-Agrupando por banco, se observa que en el conjunto \emph{KORAT} la herramienta \emph{Korat} es más veloz en 4/6 clases (el 67\% mas veloz que \textsf{BEAPI}); 
-en \textsf{FAJITA}, \emph{BEAPI} supera a \emph{Korat} en 3/4 (75\%); en \emph{ROOPS}, \emph{BEAPI} lo hace en 5/7 (71\%); 
-y en \textsf{Kiasan}, \textsf{Korat} es más rápido en 6/7 (86\%). 
-En términos cualitativos, \emph{BEAPI} tiende a rendir mejor en estructuras fuertemente restringidas (pocas instancias válidas), 
-mientras que \textsf{Korat} conserva ventaja cuando el dominio válido crece con rapidez.
+Para obtener resultados de rendimiento adecuados para \textsf{BEAPI}, realizamos
+testing exhaustivo de los métodos de la API de las clases para asegurar que
+sean correctos. No intentamos modificar los \texttt{repOK} de ninguna manera, ya que eso alteraría el rendimiento de \textsf{Korat}, y uno de nuestros objetivos aquí es evaluar el rendimiento de \textsf{Korat} utilizando \texttt{repOK}s escritos por distintos programadores.
 
-A modo de ejemplo, cuando \emph{BEAPI} prevalece lo hace con reducciones de tiempo muy pronunciadas. Veamos un ejemplo,
-en \textsf{FAJITA} con el caso de \emph{AVL}:
-Para scope 10, Korat demora 163.50 segundos mientras que BEAPI tarda 1.92 segundos. 
-Dicho de otro modo, \emph{BEAPI} es aproximadamente 85 veces más rápido. 
-Para scope 11 en el mismo caso, los tiempos son 1271.23 frente a 5.80 segundos, \emph{BEAPI}
-es unas 219 veces más rapido. 
+Es esperable que existan diferencias en las estructuras exploradas, dado que los
+espacios de búsqueda de \textsf{Korat} y \textsf{BEAPI} son distintos. Sin
+embargo, para el mismo caso de estudio y el mismo scope, cabría esperar que
+ambos enfoques generen la misma cantidad de estructuras válidas. Esto ocurre en
+la mayoría de los experimentos, con dos tipos notables de excepciones. Primero,
+hay casos en los que el \texttt{repOK} contiene errores; estos casos aparecen
+sombreados en las tablas (los errores de los invariantes se analizan en 
+profundidad en la Sección \ref{sec:existing-specs-analysis}).
 
-A la inversa, cuando \textsf{Korat} domina (típico en su propio banco de pruebas), las ventajas también son claras. 
-Por ejemplo, \textsf{KORAT} para el caso \textsf{DLList}:
-Para scope 6 \emph{Korat} tarda 0.24 segundos mientras que \emph{BEAPI} demora 7.11 segundos. 
-Dicho de otro modo, \textsf{Korat} es aproximadamente 30 veces más rápido. 
+Segundo, la noción ligeramente diferente de scope
+utilizada por cada técnica puede causar discrepancias. Esto solo sucede para
+Árboles Rojo-Negro (\texttt{RBT}) y montículos de Fibonacci (\texttt{FibHeap}),
+que se muestran en negrita. En estos casos, ciertas estructuras de tamaño $n$
+solo pueden generarse a partir de estructuras más grandes, mediante inserciones
+seguidas de eliminaciones y luego nuevas inserciones, para producir
+configuraciones de balance específicas. \textsf{BEAPI} descarta secuencias generadas 
+tan pronto como superan el tamaño máximo de la estructura, por lo que no puede generar 
+estas estructuras.
 
-Los resultados muestran un comportamiento mixto. En estructuras con restricciones fuertes —como los 
-árboles rojo-negro (\texttt{RBT}) y los árboles binarios de búsqueda (\texttt{BST})— \emph{BEAPI} 
-supera a \textsf{Korat}, al explorar menos estados y terminar en menos tiempo. Esto ocurre porque 
-en estas estructuras el número de configuraciones válidas es más bajo, lo que permite a \emph{BEAPI} 
-recorrer el espacio de soluciones de forma eficiente. Por el contrario, en estructuras más permisivas, 
-como listas doblemente enlazadas (\texttt{DLList}) o montículos binomiales (\texttt{BinHeap}), 
-\textsf{Korat} logra un mejor rendimiento gracias a su estrategia de poda temprana basada en 
-\texttt{repOK}.
+En resumen, la Tabla \ref{table:korat-beapi} muestra que para el benchmark \emph{KORAT} la
+herramienta \emph{Korat} es más veloz en 4 de 6 clases; 
+en \textsf{FAJITA}, \emph{BEAPI} supera a \emph{Korat} en 3 de 4 casos; en
+\emph{ROOPS}, \emph{BEAPI} lo hace en 5 de 7 casos; 
+y en \textsf{Kiasan}, \textsf{Korat} es más rápido en 6 de 7 clases.
+Observamos que \textsf{BEAPI} muestra un mejor rendimiento en estructuras con
+invariantes de representación más fuertes, 
+como \texttt{RBT} y árboles binarios de búsqueda (\texttt{BST}); a menudo estos
+casos presentan una cantidad de relativamente más chica de estructuras válidas.
 
-En estos experimentos, se aseguraron condiciones comparables: los \texttt{repOK}s utilizados con 
-\textsf{Korat} fueron los provistos originalmente por los autores de cada benchmark y no se 
-modificaron para este estudio, evitando así alterar la eficiencia inherente a la técnica. 
-Para \emph{BEAPI}, se probó exhaustivamente que los métodos de la API empleados fueran correctos 
-y suficientes para el análisis. Como era de esperarse, pueden existir diferencias en los conjuntos 
-de estructuras exploradas por cada técnica, debido a los distintos espacios de búsqueda que inducen. 
-Sin embargo, para un mismo caso y alcance, ambas herramientas deberían generar la misma cantidad 
-de estructuras válidas, salvo en casos donde hay errores en los \texttt{repOK}s o diferencias sutiles 
-en la definición de \emph{scope}.
+En los casos con invariantes más débiles, en los que la cantidad de estructuras
+válidas crece más rápidamente con respecto al scope, como las listas doblemente
+enlazadas (\texttt{DLList}), \textsf{Korat} suele ser más eficiente. Un mayor 
+número de estructuras válidas implica que \textsf{BEAPI} debe crear un número
+mayor de secuencias de test totales, lo que impacta negativamente en su rendimiento.
 
-Cabe destacar dos tipos de excepciones en los resultados. En primer lugar, algunos casos incluyen 
-\texttt{repOK}s con errores, que impactan negativamente en la eficiencia de \textsf{Korat}; estos 
-casos están sombreados en la tabla y se analizan más en detalle en la Sección \ref{sec:existing-specs-analysis}. 
-Un caso ilustrativo es el de \texttt{BinHeap}, donde \textsf{Korat} alcanza el \emph{scope} 8 utilizando 
-el \texttt{repOK} de \texttt{ROOPS}, el \emph{scope} 10 con el de \texttt{FAJITA}, y el \emph{scope} 11 
-con su propia especificación, todas ellas equivalentes en términos de estructuras generadas. Esto evidencia 
-la sensibilidad de \textsf{Korat} a la forma en que se escriben los \texttt{repOK}s, los cuales, si están 
-ajustados específicamente para su motor de búsqueda, pueden mejorar significativamente su rendimiento. 
-No obstante, cuando los \texttt{repOK}s presentan errores o están mal diseñados, su impacto negativo 
-puede ser severo, como se analiza en profundidad en la Sección \ref{sec:existing-specs-analysis}.
-
-En segundo lugar, en estructuras como \texttt{RBT} y \texttt{FibHeap}, la diferencia semántica en la 
-noción de \emph{scope} entre ambas técnicas produce discrepancias. Por ejemplo, hay estructuras de 
-tamaño $n$ que solo pueden obtenerse mediante secuencias que superan temporalmente dicho tamaño 
-(inserciones seguidas de eliminaciones y nuevas inserciones para provocar reordenamientos de balanceo). 
-Como \emph{BEAPI} descarta automáticamente las secuencias que exceden el \emph{scope} máximo, no puede 
-llegar a estas configuraciones, mientras que \textsf{Korat} sí lo logra.
-
-Un aspecto clave que influye en la eficiencia de \emph{BEAPI} es la cantidad de estructuras válidas 
-generables para un determinado alcance. A medida que crece esta cardinalidad, aumenta también el 
-número de secuencias que \emph{BEAPI} debe evaluar, lo cual impacta directamente en su tiempo de 
-ejecución. Sin embargo, un punto a favor de \emph{BEAPI} es que no depende de la eficiencia del 
-\texttt{repOK}; esto lo hace más robusto ante especificaciones incorrectas o mal escritas, mientras 
-que \textsf{Korat} puede verse severamente afectado por ellas.
-
-% En cuanto al rendimiento observado, \textsf{Korat} muestra mejor desempeño en 4 de los 6 casos 
-% pertenecientes a su propio banco de pruebas. En el benchmark \textsf{FAJITA}, \emph{BEAPI} supera 
-% a \textsf{Korat} en 3 de 4 casos, mientras que en \textsf{ROOPS} lo hace en 5 de 7. Finalmente, 
-% en el banco \textsf{Kiasan}, \textsf{Korat} resulta más rápido en 6 de 7 casos. Esta tendencia confirma 
-% que \emph{BEAPI} ofrece un mejor rendimiento en estructuras altamente restringidas —donde el número 
-% de configuraciones válidas es reducido— mientras que \textsf{Korat} mantiene la ventaja en dominios 
-% más amplios, donde la cantidad de estructuras válidas crece de forma acelerada. Esto se debe a que 
-% en tales escenarios, \emph{BEAPI} debe generar y evaluar muchas más secuencias de entrada en cada 
-% iteración, lo cual penaliza su desempeño.
+Como era de esperarse, la manera en que están escritos los \texttt{repOK} tiene
+un impacto significativo en el rendimiento de \textsf{Korat}. Por ejemplo, para
+montículos binomiales (\texttt{BinHeap}), \textsf{Korat} alcanza scope 8 usando
+el \texttt{repOK} de \texttt{Roops}, scope 10 con el de \texttt{FAJITA} y scope
+11 con el de \texttt{Korat} (todos equivalentes en cuanto a las estructuras
+generadas). En la mayoría de los casos, los \texttt{repOK} del benchmark de
+\texttt{Korat} resultan en un mejor rendimiento, ya que están afinados
+específicamente para su uso con \textsf{Korat} (estos \texttt{repOK}s producen
+    que la estrategia de poda de estructuras inválidas de \textsf{Korat} se
+ejecute con más frecuencia, reduciendo significativamente la cantidad de
+estructuras exploradas). 
 
 En conclusión, \emph{BEAPI} es una herramienta eficiente para la generación exhaustiva acotada. 
-Ofrece tiempos competitivos y, en varios casos, mejores que \textsf{Korat}, especialmente cuando 
-se trata de estructuras con invariantes complejas o bajo número de soluciones. Su independencia 
-respecto al \texttt{repOK} lo vuelve una alternativa robusta y complementaria para contextos donde 
-la calidad de la especificación no está garantizada.
+En general, presenta una eficiencia y una escalabilidad comparable a la de
+\textsf{Korat}, sin requerir de un \texttt{repOK} formal para la generación. 
+
 \input{tables/tableEficienciaBEAPI.tex}
 
 \subsection{RQ5: Impacto de las optimizaciones propuestas}
