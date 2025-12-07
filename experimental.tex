@@ -583,12 +583,39 @@ para realizar las comparaciones con Korat, que requiere invariantes para
 realizar la generación, y para los experimentos para responder a RQ6.
 
 Para la evaluación se utilizó el prototipo de la herramienta BEAPI, que se
-describe en la literatura en los trabajos de Politano et. al. \cite{Politano23, Politano24}
-
+describe en la literatura en los trabajos de Politano et. al. \cite{Politano23,
+Politano24}.
+En BEAPI la identificación de métodos generadores de objetos se
+realiza en una etapa previa a la generación de objetos, usando el algoritmo
+\pp{Poner cual de los algoritmos de la tesis usamos. Charlemoslo}. 
+Para esta etapa, se empléo un scope de 5 en todos los casos, y el tiempo máximo de ejecución del 
+enfoque de identificación fue de 65 segundos en los benchmarks \textsf{Kiasan},
+\textsf{FAJITA}, \textsf{ROOPS} y \textsf{Korat} (para el caso SLL de ROOPS, con 11
+métodos), y de 132 segundos en \textsf{Real World} (para TreeMap, que tiene 32
+métodos). Verificamos manualmente que los métodos identificados incluyeran un
+conjunto suficiente de métodos generadores de objetos en todos los casos.
+/pp{Hay que ver qué hacer con esto: Reportamos los tiempos de identificación de
+builders en el sitio web del artículo [26]. Tenemos una sección experimental
+entera con resultados de builders, hay que linkearlos con eso me parece en
+lugar de citar el paper.}
+Nótese que la generación exhaustiva acotada suele realizarse de manera
+incremental, para scopes cada vez más grandes, y que los generadores de objetos identificados 
+pueden reutilizarse en las distintas ejecuciones. Por lo tanto, los 
+tiempos de identificación de generadores de objetos se amortizan a través de las 
+diferentes ejecuciones, lo que dificulta calcular cuánto agregan dichos tiempos 
+a los tiempos totales de ejecución de BEAPI en cada caso. Por esta razón, no incluimos 
+los tiempos de identificación de builders en los tiempos de ejecución de BEAPI en ninguno 
+de los experimentos de las secciones a continuación. Además, para los scopes más
+grandes y las estructuras más complejas —que son los más importantes para
+evaluar la eficiencia de la generación exhaustiva acotada— el tiempo de identificación 
+de métodos generadores de objetos suele ser relativamente pequeño en relación con los 
+tiempos de generación.
 
 En la comparación de eficiencia con técnicas existentes (RQ4) se utilizó Korat,
 que es la herramienta existente de generación exhaustiva acotada más eficiente
-\cite{Boyapati:2002} \pp{Buscar la cita de esto en el paper de beapi} \cacho{Hecho}. Tener en cuenta, como
+\cite{Boyapati:2002} \pp{Buscar la cita de esto en el paper de beapi}
+\cacho{Hecho} \pp{No es la cita a Korat. Es la cita al paper que evalua Korat
+contra otras técnicas de BEG}. Tener en cuenta, como
 Korat requiere de repOKs, se emplearon los \texttt{repOK}s provistos por los autores 
 de cada caso de estudio. 
 En algunos casos se identificaron errores o especificaciones incompletas en los \texttt{repOK}s; 
@@ -686,95 +713,66 @@ En general, presenta una eficiencia y una escalabilidad comparable a la de
 \subsection{RQ5: Impacto de las optimizaciones propuestas}
 \label{sec:optimizations}
 
+\input{tables/optimizaciones}
+\pp{Hay errores de formato en las tablas. Algunas líneas están incompletas. Y
+faltan guiones de TOs.}
+
 En esta pregunta de investigación evaluamos el impacto que tienen las optimizaciones propuestas 
-de \emph{BEAPI} en su rendimiento general frente al enfoque de generación exhaustiva tradicional. 
-Concretamente, analizamos cuatro configuraciones de la herramienta: \textsf{SM/BLD}, que habilita tanto 
-la coincidencia de estados (\emph{State Matching}) como la identificación de métodos generadores de objetos (\emph{builders}); 
-\textsf{SM}, que activa únicamente la coincidencia de estados; \textsf{BLD}, que habilita únicamente 
-la identificación de métodos generadores de objetos; y \textsf{NoOPT}, que desactiva ambas optimizaciones, funcionando 
-como un enfoque de fuerza bruta.
+de \emph{BEAPI} en su rendimiento. 
+Concretamente, analizamos cuatro configuraciones de la herramienta:
+\textsf{CI/MGO}, \pp{cambiar SM/BLD por CI/MGO así queda igual en toda la
+tesis. Chequear en toda la tesis.} que habilita tanto 
+la coincidencia de estados (\emph{CI}) como la identificación de métodos
+generadores de objetos (\emph{MGO}); 
+\textsf{CI}, que activa únicamente la coincidencia de estados; \textsf{MGO}, que habilita únicamente 
+la identificación de métodos generadores de objetos; y \textsf{NoOPT}, que desactiva ambas optimizaciones.
 
-% Para este análisis, nos enfocamos en el benchmark \texttt{Real World}, que incluye seis 
-% implementaciones reales de estructuras de datos ampliamente utilizadas: \texttt{LinkedList} 
-% (67 métodos en la API), \texttt{TreeSet} (34), \texttt{TreeMap} (61), \texttt{HashMap} (45), \texttt{NCL} (34) y 
-% \texttt{Schedule} (12). La Tabla \ref{tab:results-realWorld} 
-% resume los resultados obtenidos. Cabe mencionar que se realizaron experimentos equivalentes para 
-% el resto de los benchmarks utilizados en este capítulo, pero se omiten en las tablas en esta tesis por motivos de espacio.
-% El conjunto \texttt{Real World} representa adecuadamente el comportamiento observado en los demás casos, 
-% y resulta suficiente para sustentar las conclusiones extraídas en esta sección.
-
-La Tabla \ref{tab:results-realWorld} \cacho{Ver como referencias, hacer una sola tabla} resume los resultados para el conjunto \textsf{Real World} 
-(seis implementaciones ampliamente usadas: \texttt{LinkedList} con 67 métodos, \texttt{TreeSet} con 34 métodos, \texttt{TreeMap} con 61 métodos, \texttt{HashMap} con 45 métodos, \texttt{NCL} con 34 métodos y \texttt{Schedule} con 12 métodos). 
-Resultados análogos se reportan para los demás benchmarks en las tablas correspondientes de esta sección; en conjunto, todos ellos muestran el mismo patrón y fundamentan las conclusiones presentadas.
+La Tabla \ref{tab:results-realWorld} \cacho{Ver como referencias, hacer una sola
+tabla} resume los resultados para el conjunto \textsf{Real World} \pp{Y las
+otras? Meté una tabla por benchmark y referencialas por separado}.
+% PABLO: Esto está en la configuración experimental
+%(seis implementaciones ampliamente usadas: \texttt{LinkedList} con 67 métodos, \texttt{TreeSet} con 34 métodos, \texttt{TreeMap} con 61 métodos, \texttt{HashMap} con 45 métodos, \texttt{NCL} con 34 métodos y \texttt{Schedule} con 12 métodos). 
+%Resultados análogos se reportan para los demás benchmarks en las tablas correspondientes de esta sección; en conjunto, todos ellos muestran el mismo patrón y fundamentan las conclusiones presentadas.
 
 Los resultados muestran de forma contundente que la configuración sin optimizaciones (\textsf{NoOPT}) 
-tiene un rendimiento deficiente incluso en los estudios de caso más simples y con alcances bajos. 
-Estos \emph{scopes}, si bien pequeños, ya resultan inadecuados para generar conjuntos de test de 
-calidad y revelan de inmediato la falta de escalabilidad del enfoque de fuerza bruta. Esta limitación 
-es representativa de la problemática general que enfrentan las técnicas de generación exhaustiva en 
-presencia de APIs amplias y estructuras complejas.
+tiene un rendimiento deficiente en general, inclusive en los estudios de caso más simples y
+para los scopes más pequeños. 
+Los \emph{scopes} pequeños (3) resultan inadecuados para generar conjuntos de
+objetos útiles para revelar errores. 
+\textsf{NoOPT} evidencia los problemas de escalabilidad que enfrentan 
+las técnicas de generación exhaustiva en presencia de APIs ricas y estructuras complejas.
 
-Entre las optimizaciones propuestas, la coincidencia de estados (\textsf{SM}) demuestra ser la más 
-impactante a nivel general. Por sí sola, permite escalar a alcances considerablemente mayores y reduce 
-los tiempos de ejecución en varios órdenes de magnitud respecto a \textsf{NoOPT}. Su efecto se vuelve 
-crítico en aquellas estructuras donde múltiples secuencias de llamadas a métodos pueden generar el mismo estado 
-intermedio, lo que genera redundancia innecesaria si no se cuenta con un mecanismo de detección y poda 
-de estados previamente explorados.
+De las optimizaciones propuestas, la coincidencia de estados (\textsf{CI})
+es la que mayor impacto tiene en la eficiencia de BEAPI (comparar los resultados
+de NoOPT y CI). Por sí sola, permite escalar a scopes considerablemente más
+grandes y reduce los tiempos de ejecución en varios órdenes de magnitud con respecto a \textsf{NoOPT}. 
+Esto muestra que eliminar secuencias de test redundantes, es decir, que producen
+los mismos objetos, es crucial para la eficiencia de BEAPI.
 
-La segunda optimización, la identificación previa de métodos \emph{builders} (\textsf{BLD}), adquiere 
-mayor relevancia a medida que se incrementa la cantidad de métodos disponibles en la API. En 
-estructuras reales como \texttt{TreeMap}, \texttt{LinkedList} o \texttt{HashMap}, donde existen 
-docenas de métodos públicos con efectos variados, limitar la generación de secuencias a combinaciones 
-de constructores válidos tiene un impacto significativo en la eficiencia del proceso de generación. 
-Aunque por sí sola esta optimización no siempre permite escalar a scopes altos, su combinación con la 
-coincidencia de estados resulta esencial para lograr tiempos razonables de ejecución.
+La segunda optimización, el uso de métodos generadores de objetos
+(\textsf{MGO}), es mucho más relevante en casos donde el número de métodos en la API es grande (más de 10), y de manera notable en las estructuras de datos del mundo real (con 20 o más métodos). En 
+estructuras del benchmark \textsf{Real World} \pp{Hay una mezcla de fuentes
+importante en todo el texto. Hay que definir qué fuente para cada cosa y usarla
+siempre igual.} como \texttt{TreeMap}, \texttt{LinkedList} o \texttt{HashMap}, donde existen 
+decenas de métodos públicos, limitar la generación de secuencias a combinaciones 
+de MGOs tiene un impacto significativo en la eficiencia del proceso de
+generación. Como era esperable, en las clases que tienen pocos métodos, el impacto de utilizar MGOs es 
+relativamente pequeño.
 
-El mayor beneficio se observa en la configuración \textsf{SM/BLD}, donde ambas optimizaciones están 
-habilitadas. En esta configuración, \emph{BEAPI} escala significativamente mejor, alcanzando scopes 
-mucho mayores en todos los casos analizados, con tiempos de ejecución hasta cientos de veces menores 
-que con las demás configuraciones.
-
-Donde la tabla lo permite comparar directamente, se observan reducciones de tiempo muy pronunciadas frente a \textsf{SM} solo: 
-por ejemplo, en \texttt{TreeSet} (scope 13) \textsf{SM/BLD} tarda 226.66 segundos versus 887.83 segundos con \textsf{SM}  (casi 4 veces más rapido con las optimizaciones).
-En \texttt{TreeMap} (scope 6) \textsf{SM/BLD} tarda 839.87 segundos versus 2901.37,s segundos con \textsf{SM} (casi 3.5 veces más rapido);
-En \texttt{Linkedlist} (scope 6) \textsf{SM/BLD} tarda 0.96 segundos versus 258.85,s segundos con \textsf{SM} (casi 270 veces más rapido); y en 
-\texttt{NCL} (scope 4) \textsf{SM/BLD} tarda 0.41 segundos versus 3.48,s segundos con \textsf{SM} (casi 8 veces más rapido).
-
-% Por ejemplo, para \texttt{NCL}, se logra alcanzar \textit{scope} 6 
-% en 73.78 segundos con \textsf{SM/BLD}, mientras que con \textsf{SM} apenas se alcanza \textit{scope} 4 
-% en más de 3 segundos, y \textsf{NoOPT} no logra ejecutar siquiera scopes bajos. Para \texttt{TreeSet}, 
-% el contraste es aún más pronunciado: \textsf{SM/BLD} alcanza \textit{scope} 13 en 226 segundos, mientras 
-% que \textsf{SM} requiere casi 900 segundos para el mismo alcance.
-
-Estos resultados evidencian que las optimizaciones propuestas no solo reducen tiempos de ejecución, 
-sino que amplían sustancialmente los límites de escalabilidad de la herramienta. Sin estas mejoras, 
-\emph{BEAPI} se comporta como un generador exhaustivo tradicional, enfrentando rápidamente la explosión 
-combinatoria del espacio de búsqueda al aumentar el número de métodos o el tamaño de las secuencias. 
-En cambio, con las optimizaciones activadas, la técnica logra mantener el proceso dentro de márgenes 
-computacionalmente viables incluso en contextos realistas y exigentes.
-
-En conclusión, la activación conjunta de coincidencia de estados e identificación de \emph{builders} 
-resulta crucial para obtener un rendimiento competitivo. Estas optimizaciones transforman a \emph{BEAPI} 
-en una herramienta capaz de escalar a scopes altos sin sacrificar exhaustividad ni precisión, 
-permitiendo su aplicación efectiva en casos de uso reales.
-
-% Cabe destacar, que para todos los experimentos presentados en esta sección, se empleó un \emph{scope} fijo de 5 durante la 
-% identificación de métodos generadores de objectos, y el tiempo máximo requerido por esta etapa fue de 132 segundos, 
-% correspondiente a la estructura \emph{TreeMap}, que posee 61 métodos públicos. Verificamos manualmente que, 
-% en todos los casos, el conjunto de métodos identificados fuera suficiente para construir los objetos válidos.
-
-Cabe señalar que la identificación de métodos generadores se realiza típicamente una única vez por clase, 
-y puede reutilizarse en múltiples ejecuciones posteriores de \emph{BEAPI}. En consecuencia, su costo se 
-amortiza a lo largo del tiempo, para los scopes más grandes, que son los más importantes, el tiempo de identificación de 
-métodos generadores es insignificante en relación con los tiempos de generación.Por esta razón, decidimos no incluir los tiempos de identificación 
-en los tiempos de ejecución reportados para \textsf{BEAPI} en los distintos experimentos.
-No obstante, es importante destacar que este preprocesamiento introduce una optimización significativa en 
-términos de eficiencia, con un costo computacional bajo en relación con el proceso completo de generación. 
-
-\cacho{Puse todos los casos, todos los scope como habiamos dicho de otra RQ, cualquier cosa saco info si es mucho.
-En el paper estaba una sola por tema de espacio.}
-
-\input{tables/optimizaciones}
+El mayor beneficio se observa en la configuración \textsf{CI/MGO}, donde ambas optimizaciones están 
+habilitadas. En esta configuración, \emph{BEAPI} es significativamente más
+rápido, y alcanza scopes mucho mayores que \textsf{NoOPT} en todos los casos
+analizados.
+Por ejemplo, en \textsf{ROOPS}, \textsf{CI/MGO} es más de un orden de magnitud
+más rápido que \textsf{CI} en AVL y RBT, y alcanza al menos un scope adicional
+en NCL, LList, y RBT. 
+En \textsf{Real World}, el uso de MGOs permitió que \textsf{CI/MGO} escalara a
+scopes significativamente mayores en todos los casos excepto TreeMap y TreeSet
+\pp{se llaman distinto en la tabla}, donde igualmente \textsf{CI/MGO} muestra
+una reducción importante en los tiempos de ejecución. 
+En general, las optimizaciones propuestas tienen un impacto crucial en el
+rendimiento y la escalabilidad de BEAPI, y ambas deben habilitarse para obtener
+buenos resultados en la práctica.
 
 
 \subsection{RQ6: BEAPI para analizar invariantes de representación}
