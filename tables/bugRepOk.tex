@@ -6,40 +6,45 @@
 \toprule
 \textbf{Bench.} & \textbf{Clase}   & \textbf{Descripción del Error} &   \textbf{Tipo} \\
 \midrule
-Korat    &     RBTree   & El color de la raíz debería ser rojo & under  \\
+Korat    &     RBTree   & El color de la raíz debería ser negro & under  \\
 \midrule
-\multirow{12}{*}{Roops} & \multirow{4}{*}{NCL} & Los valores de las claves en la caché deben estar\\&& establecidos en nulo & under\\ 
+\multirow{12}{*}{Roops} & \multirow{3}{*}{NCL} & Las claves en la
+caché deben ser \texttt{null} & under\\ 
 \cdashline{3-4}    
-                        &                  & El valor clave del nodo ficticio en la lista principal\\&& debería ser nulo & under \\ 
+                        &                  & La clave del nodo ficticio en la lista principal \\&&debe ser \texttt{null}  & under \\ 
 \cline{2-4} 
-                        & BinTree              & El padre del nodo raíz debería ser nulo & under \\ 
+                        & BinTree              & El padre del nodo raíz debería ser \texttt{null} & under \\ 
 \cline{2-4} 
-                        & RBT                  & El color de la raíz no debería ser rojo  & under\\ 
+                        & RBT                  & El color de la raíz no debería ser negro  & under\\ 
 \cline{2-4} 
-                        & \multirow{3}{*}{AVL} & El cálculo de la altura es incorrecto\\&& (las hojas tienen asignado el valor incorrecto) & error\\ 
+                        & \multirow{3}{*}{AVL} & El cálculo de la altura es
+                        incorrecto\\&& (las hojas tienen asignado un valor incorrecto) & error\\ 
 \cdashline{3-4} 
-                        &                      & No se deben permitir valores clave repetidos  &   under\\ 
+                        &                      & No se deben permitir claves repetidas  &   under\\ 
 \cline{2-4} 
-                        & \multirow{9}{*}{FibHeap} & Los campos izquierdo y derecho de los nodos \\&&no deben ser nulos & under\\ 
+                        & \multirow{9}{*}{FibHeap} & Los campos izquierdo y derecho de los nodos \\&&no deben ser \texttt{null} & under\\ 
 \cdashline{3-4} 
-                        &                      & El nodo mínimo siempre debe contener el valor mínimo \\&&en el heap & under \\  
+                        &                      & El nodo mínimo siempre debe
+                        contener el valor mínimo \\&&del heap & under \\  
 \cdashline{3-4}
                         
                         &                      & Si un nodo no tiene hijos, su grado debería ser cero & under \\ 
 \cdashline{3-4} 
                         &                      & Los nodos hijos deben tener claves más pequeñas \\&&que sus padres &  under\\ 
 \cdashline{3-4} 
-                        &                      & Se obliga a que los campos de los padres de todos \\&&los nodos sean nulos & over\\
+                        &                      & Se obliga a que los campos de los padres de todos \\&&los nodos sean \texttt{null} & over\\
 \cdashline{3-4} 
-                        &                      & Se rechaza el heap con el nodo mínimo establecido en nulo    & over   \\ 
+                        &                      & Se rechaza el heap con el nodo
+                        mínimo igual a \texttt{null}    & over   \\ 
 \midrule
-\multirow{2}{*}{Kiasan} & DisjSetFast  & La clasificación de la raíz puede ser inválida  & under  \\ 
+\multirow{2}{*}{Kiasan} & DisjSetFast  & El ``rank'' de la raíz puede ser inválido  & under  \\ 
 \cline{2-4} 
 
 \cline{3-4} 
                         & BinaryHeap   & La primera posición de un arreglo (ficticio)\\&& puede contener un elemento &   under \\ 
 \midrule
-Fajita                  & AVL          & El cálculo de la altura es incorrecto \\&&(las hojas tienen asignado el valor incorrecto)  & error \\ 
+Fajita                  & AVL          & El cálculo de la altura es incorrecto
+\\&&(las hojas tienen asignado un valor incorrecto)  & error \\ 
 \bottomrule
 \end{tabular}
 \caption{Resumen de los errores encontrados en las \texttt{repOKs} utilizando \textsf{BEAPI}}

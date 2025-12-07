@@ -632,6 +632,8 @@ un tiempo máximo de 60 minutos. Todos los experimentos fueron diseñados para s
 y el artefacto experimental con el código fuente se encuentra disponible en: \url{https://github.com/mpolitano/bounded-exhaustive-api}
 
 \subsection{RQ4: Eficiencia de BEAPI}
+\label{sec:beapi-eficiencia}
+
 
 En esta sección comparamos BEAPI y Korat en términos de tiempo 
 de ejecución, número de estructuras generadas y exploradas, y escalabilidad con
@@ -775,69 +777,86 @@ rendimiento y la escalabilidad de BEAPI, y ambas deben habilitarse para obtener
 buenos resultados en la práctica.
 
 
-\subsection{RQ6: BEAPI para analizar invariantes de representación}
+\subsection{RQ6: Análisis de invariantes de representación usando BEAPI}
 \label{sec:existing-specs-analysis}
 
 Esta pregunta de investigación evalúa si \textsf{BEAPI} puede ser útil para asistir a los usuarios 
-en la detección de fallas en los métodos \texttt{repOK}, a través de la comparación entre el conjunto 
+en la detección de fallas en los métodos \texttt{repOK} (descripciones formales de los invariantes 
+de representación de las clases), a través de la comparación entre el conjunto 
 de objetos que se pueden generar mediante la API y aquellos que se pueden generar a partir del 
 invariante de representación.
 
-Para ello, diseñamos un procedimiento automatizado en tres pasos. En primer lugar, ejecutamos 
+Para ello, diseñamos el siguiente procedimiento automatizado. En primer lugar, ejecutamos 
 \emph{BEAPI} para generar un conjunto de estructuras, denominado \texttt{SBEAPI}, utilizando únicamente 
 la API de la clase, y ejecutamos \emph{Korat} para generar un segundo conjunto, \texttt{SKORAT}, 
-utilizando únicamente el método \texttt{repOK}. Ambas ejecuciones se realizaron con el mismo 
-\emph{scope}. En segundo lugar, canonizamos todas las estructuras de ambos conjuntos utilizando el 
-proceso de linearización (Sección \ref{sec:stateMatching}), de modo que estructuras isomorfas puedan 
-compararse de forma directa. Finalmente, comparamos los conjuntos \texttt{SBEAPI} y \texttt{SKORAT} para 
-identificar diferencias que indiquen discrepancias semánticas entre la definición operativa de la 
-clase (la API) y su especificación declarativa (\texttt{repOK}).
+utilizando únicamente el método \texttt{repOK}. Ambas ejecuciones se realizan
+para un mismo \emph{scope}. En segundo lugar, canonizamos todas las estructuras
+en ambos conjuntos utilizando el proceso de linearización (Sección
+\ref{sec:stateMatching}), de modo que las estructuras isomorfas puedan 
+compararse de forma directa. Finalmente, verificamos si los conjuntos
+\texttt{SBEAPI} y \texttt{SKORAT} son iguales o no.  
 
-El procedimiento puede producir tres resultados distintos. Cuando \texttt{SBEAPI} $\subset$ \texttt{SKORAT}, 
-puede deberse a que la API genera un subconjunto de las estructuras válidas, que \texttt{repOK} 
+El procedimiento anterior puede producir tres resultados. Cuando \texttt{SBEAPI} $\subset$ \texttt{SKORAT}, 
+puede deberse a que la API genera un subconjunto de las estructuras válidas, a que \texttt{repOK} 
 sufre de subespecificación (es decir, permite estructuras que no deberían ser válidas), o ambos. 
-En estos casos, las estructuras que están en \texttt{SKORAT} pero no en \texttt{SBEAPI} son evidencia potencial 
-de errores, y fueron inspeccionadas manualmente para confirmar si se trataba efectivamente de fallas 
-en \texttt{repOK}. Clasificamos estos errores como \texttt{under}, ya que el invariante permite más 
-de lo que debería.
+En estos casos, las estructuras que están en \texttt{SKORAT} pero no en
+\texttt{SBEAPI} son evidencia de potenciales errores, y el usuario debe
+analizarlas manualmente para determinar el origen del problema. Como en este
+experimento \textsf{BEAPI} se ejecutó con métodos generadores de objetos que son
+correctos, el error debe estar presente en el \texttt{repOK}.
+Clasificamos estos errores como \texttt{under} \pp{Yo lo reemplazaría por sub,
+así queda en castellano},
+ya que el invariante permite más estructuras de las que debería.
 
-Por el contrario, cuando \texttt{SKORAT} $\subset$ \texttt{SBEAPI}, puede indicar que \texttt{repOK} es demasiado 
-restrictivo (sobreespecificado), que la API permite estructuras no válidas, o ambas cosas. En este 
-caso, se analizan las estructuras que aparecen en \texttt{SBEAPI} pero no en \texttt{SKORAT}. Los errores 
-confirmados manualmente en esta categoría se etiquetan como \texttt{over}.
+Por el contrario, cuando \texttt{SKORAT} $\subset$ \texttt{SBEAPI}, puede
+indicar que el \texttt{repOK} es demasiado restrictivo (sobreespecificado), que 
+la API genera estructuras inválidas, o ambas cosas a la vez. Las estructuras en
+\texttt{SBEAPI} que no pertenecen a \texttt{SKORAT} son testigos del error, y
+nuevamente deben ser analizadas manualmente por el usuario. Nuevamente, como la
+los métodos utilizados por \textsf{BEAPI} son correctos, el error en este caso
+debe estar en el \texttt{repOK}. Reportamos los
+errores de sobreespecificación en los \texttt{repOK}s (confirmados manualmente)
+que fueron evidenciados por estas estructuras como \texttt{over} \pp{Yo lo
+    reemplazaría por sobre, así queda en castellano}.
 
-En algunos casos, se encontraron diferencias en ambas direcciones: estructuras válidas generadas por 
-\textsf{Korat} que no están presentes en \texttt{SBEAPI}, y estructuras generadas por \emph{BEAPI} que 
-no son aceptadas por \texttt{repOK}. Estas diferencias simultáneas pueden deberse a fallas en ambas 
-fuentes (API y \texttt{repOK}), o a errores más profundos de especificación. En estos casos, cuando se 
-confirma una falla manualmente, la clasificamos como \texttt{error}.
+En algunos casos, se encontraron diferencias en ambas direcciones: estructuras
+en \texttt{SKORAT} que no están presentes en \texttt{SBEAPI}, y estructuras \texttt{SBEAPI} que no 
+pertenecen a  \texttt{SKORAT}. Estas diferencias pueden deberse a fallas en la
+API, fallas en el \texttt{repOK}, o ambas. Reportamos las fallas en los
+\texttt{repOK}s confirmadas manualmente que fueron evidenciadas por dichas
+estructuras simplemente como \emph{error} (el \texttt{repOK} describe un
+conjunto de estructuras distinto del que debería, ya que la API es correcta).
 
-Cabe destacar que diferencias menores en la definición de \emph{scope} entre los enfoques pueden 
-producir "falsos positivos" en esta comparación. Esto ocurrió solamente en las estructuras 
-\texttt{RBT} y \texttt{FibHeap}, donde \emph{BEAPI} no generó ciertas estructuras válidas dentro del 
-alcance debido a restricciones de balanceo interno que requieren secuencias más largas que el 
-\emph{scope} establecido. Estos casos se identificaron y descartaron manualmente, observando que al 
-aumentar el \emph{scope}, las estructuras de \textsf{Korat} sí aparecen en la salida de \emph{BEAPI}.
+Cabe destacar que las diferencias entre las definiciones de scope en los
+enfoques pueden provocar discrepancias entre los conjuntos \texttt{SBEAPI} y
+\texttt{SKORAT}. Esto sólo ocurrió en las estructuras \texttt{RBT} y
+\texttt{FibHeap}, donde \textsf{BEAPI} generó un conjunto más chico de 
+estructuras que \textsf{Korat} para el mismo scope, debido a restricciones de balance 
+(como se explicó en la Sección \ref{sec:beapi-eficiencia}). Sin embargo, estos "falsos positivos" 
+debido a diferencias de scope pueden revelarse fácilmente, dado que todas las estructuras generadas 
+por \textsf{Korat} siempre estaban incluidas en las generadas por \textsf{BEAPI} 
+cuando se utilizaba un scope mayor para este último. Usando este criterio, descartamos manualmente 
+los "falsos positivos" en \texttt{RBT} y \texttt{FibHeap}.
 
-Los resultados del experimento se resumen en la Tabla \ref{table:bugs}. Encontramos errores en 9 de 
-los 26 métodos \texttt{repOK} analizados. Esta proporción evidencia la dificultad de escribir 
-invariantes de representación correctos, incluso en bibliotecas diseñadas por expertos, y pone de 
-manifiesto el valor de \textsf{BEAPI} como herramienta de apoyo para detectar inconsistencias.
+Los resultados del experimento se resumen en la Tabla \ref{table:bugs}. Se
+encontraron errores en 9 de los 26 \texttt{repOK} analizados usando el enfoque
+descrito anteriormente.  En particular, se detectaron errores de
+subespecificación en clases como \texttt{RBTree}, \texttt{AVL},
+\texttt{BinTree}, \texttt{FibHeap} y \texttt{NCL}, en los que el \texttt{repOK}
+admiten estructuras inválidas.  También se identificaron casos de
+sobreespecificación, como en \texttt{FibHeap}, donde el método \texttt{repOK}
+rechaza heaps válidos cuyo nodo mínimo es \texttt{null}. Finalmente, se
+encontraron errores en las definiciones de altura en clases como \texttt{AVL},
+donde las hojas están inicializadas con valores inconsistentes con la
+implementación. \pp{Chequear la tabla, hice algunos cambios pequeños en el texto
+y puedo haber empeorado el formato}
 
-En particular, se detectaron errores de subespecificación en clases como \texttt{RBTree}, \texttt{AVL}, 
-\texttt{BinTree}, \texttt{FibHeap} y \texttt{NCL}, donde \texttt{repOK} permite estructuras 
-incompletas, con campos nulos o claves no válidas, que no pueden ser generadas mediante la API 
-original. También se identificaron casos de sobreespecificación, como en \texttt{FibHeap}, donde 
-el método \texttt{repOK} rechaza heaps válidos cuyo nodo mínimo es nulo de forma transitoria. 
-Finalmente, se confirmaron errores estructurales en las definiciones de altura y ordenamiento en 
-clases como \texttt{AVL}, donde las hojas están mal inicializadas o los cálculos son inconsistentes 
-con la implementación.
+Este experimento muestra la dificultad de escribir invariantes de representación correctos y eficientes 
+para la generación exhaustiva acotada.  
+%Incluso, por autores de benchmarks de testing tomados de la literatura. 
+Los errores descubiertos evidencian que los problemas en los \texttt{repOK}s son difíciles de 
+detectar manualmente, y que \textsf{BEAPI} puede ser de gran ayuda para esta tarea.
 
-En conclusión, \emph{BEAPI} no solo es útil para generar estructuras exhaustivamente, sino que 
-también actúa como un verificador complementario de especificaciones de invariante, permitiendo 
-descubrir errores difíciles de detectar mediante revisión manual o prueba dinámica convencional. 
-Este enfoque ofrece una vía práctica y automatizada para mejorar la calidad de las especificaciones 
-de clase, lo que redunda en mayor confiabilidad del software verificado.
 
 \input{tables/bugRepOk}
 
