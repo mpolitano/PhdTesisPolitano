@@ -860,8 +860,19 @@ detectar manualmente, y que \textsf{BEAPI} puede ser de gran ayuda para esta tar
 
 \input{tables/bugRepOk}
 
-\subsection{RQ7: Usando BEAPI para el testing parametrizado}
+\subsection{RQ7: Evaluación de BEAPI y MGOs en el testing parametrizado}
 \label{sec:parametrizedTesting}
+
+\pp{Acá los nombres de las técnicas tienen que coincidir con los de la sección
+    5.1.4 (RQ3). Además los budgets tienen que ser los mismos que en esa sección (60, 120 y 180,
+    como mínimo. Sino parece que estamos eligiendo los budgets a propósito para
+    que nos den bien los números. Y una vez que estén los números escribo como
+    interpretar los resultados.
+    Tenemos que charlar urgente.
+}
+
+\pp{Y no olvidarse de mencionar todas las técnicas en la configuración
+ experimental.}
 
 En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
 utilidad de los métodos generadores identificados mediante nuestro enfoque, particularmente 
@@ -900,7 +911,7 @@ tiempo total de ejecución de la test suite (\emph{T(Seg)}), la cobertura de ram
 que la test suite parametrizada es común a los enfoques \emph{R-Serialize}, \emph{R-Builders} 
 y \emph{BEAPI}, permitiendo así una comparación justa sobre los objetos generados. En el caso de 
 \emph{Randoop}, la herramienta genera su propia test suite, por lo que los resultados deben 
-interpretarse con cautela.
+interpretarse con cautela. \pp{Qué son valid e invalid? Por qué están acá?}
 
 \input{tables/randoopvsBeapi}
 
@@ -976,107 +987,5 @@ En contextos donde el tiempo de ejecución es un factor crítico, o donde se nec
 sacrificar cobertura, \textsf{BEAPI} se posiciona como una herramienta valiosa para la generación 
 de objetos de prueba. Estos resultados también reafirman la importancia de identificar y utilizar 
 adecuadamente los métodos generadores para mejorar la calidad de los tests automatizados.
-
-
-% \subsubsection{Variacion de acuerdo a los Parametros}
-
-% Ademas, examinamos la sensibilidad de los parámetros del Algoritmo Genético y exploramos los usos de los builders generados. Los resultados obtenidos proporcionaron información valiosa sobre el rendimiento y la utilidad de nuestra técnica en la generación de builders y su aplicación en diversas tareas.
-
-% Nuestra comparacion se basa en medir la cantidad de tiempo que le lleva a cada Algortimo terminar la ejecucio, en la cantidad de candidatos que evalua la funcion de valoracion y cuan bueno es en eficacia para encontrar el minimo y suficiente subconjunto de metodos que pudimos observar en nuestro ground truth \cacho{Agregar seccion}. Ejecutamos el algoritmo 10 veces con el resto de los parametros que no esta en evaluacion con un valor promedio (Crossover=0.5, mutation 0.1, Tournanament 4).
-% Tambien utilizamos 30 segundos para la fitness con randoop y scope 6 para BEAPI.
-
-% En la tabla \ref{tab:CrossOverGA} se puede observar como se comporta el algoritmo cuando se utiliza diferente rate para el operador de CrossOver. 
-
-
-
-% \subsection{Uso de BEAPI para analizar especificaciones}
-% \label{sec:existing-specs-analysis}
-% \input{tables/bugRepOk}
-% La RQ3 aborda si \textsf{BEAPI} puede ser útil para ayudar al usuario a encontrar fallas en \texttt{repOK}s, mediante la comparación del conjunto de objetos que se pueden generar utilizando la API y el conjunto de objetos generados a partir de utilizar un invariante, como es el caso del \texttt{repOK}. Diseñamos el siguiente procedimiento automatizado. Primero, ejecutamos \emph{BEAPI} para generar un conjunto, \texttt{SA}, 
-% de estructuras a partir de la API, y utilizamos \emph{Korat} para generar un conjunto, \texttt{SR}, a partir de \texttt{repOK}, 
-% utilizando el mismo ámbito para ambas herramientas. En segundo lugar,  . En tercer lugar, comparamos 
-%  los conjuntos \texttt{SA} y \texttt{SR} en cuanto a igualdad. Las diferencias en esta comparación 
-%  señalan una discrepancia entre \texttt{repOK} y la API. Existen tres posibles resultados para este 
-%  procedimiento automatizado. Si \texttt{SA} $\subset$ \texttt{SR}, es posible que la API genere un 
-%  subconjunto de las estructuras válidas, que \texttt{repOK} sufra de subespecificación (\texttt(under)) 
-%  (restricciones faltantes), o ambos. En este caso, las estructuras en \texttt{SR} que no pertenecen a
-%   \texttt{SA} son evidencia del problema, y el usuario debe analizarlas manualmente para descubrir 
-%   dónde está el error. Aquí, informamos los errores de subespecificación (confirmados manualmente) 
-%   en \emph{repOK}s que son evidenciados por las estructuras mencionadas. En contraste, cuando \texttt{SR}
-%    $\subset$ \texttt{SA}, puede ser el caso de que la API genere un superconjunto de las estructuras válidas
-%    , que \texttt{repOK} sufra de sobreespecificación, \texttt(over), (\texttt{repOK} es demasiado restrictivo)
-%    , o ambos. Las estructuras en \texttt{SA} que no pertenecen a \texttt{SR} podrían indicar la raíz del error,
-%     y nuevamente deben ser analizadas manualmente por el usuario. Informamos los errores de sobreespecificación 
-%     (confirmados manualmente) en \texttt{repOK}s que son evidenciados por estas estructuras. 
-%     Finalmente, puede darse el caso de que haya estructuras en \texttt{SR} que no pertenecen 
-%     a \texttt{SA}, y que haya estructuras (distintas de las anteriores) en \texttt{SA} que no
-%      pertenecen a \texttt{SR}. Estos pueden ser debidos a fallos en la API, fallas en \texttt{repOK}, 
-%      o ambos. Informamos las fallas confirmadas manualmente en \texttt{repOK}s que son evidenciadas por
-%       tales estructuras simplemente como errores (\texttt{repOK} describe un conjunto de estructuras 
-%       diferente al que debería). Observa que las diferencias en las definiciones de ámbito de los enfoques 
-%       pueden hacer que los conjuntos \texttt{SA} y \texttt{SR} difieran. Esto solo fue el caso en las 
-%       estructuras \texttt{RBT} y \texttt{FibHeap}, donde \textsf{BEAPI} generó un conjunto más pequeño de 
-%       estructuras para el mismo ámbito que \textsf{Korat} debido a restricciones de balance (como se explica
-%        en la Sección \ref{sec:evaluation-vs-korat}). Sin embargo, estos "falsos positivos" se pueden revelar 
-%        fácilmente, ya que todas las estructuras generadas por \textsf{Korat} siempre estuvieron incluidas en
-%         las estructuras generadas por \textsf{BEAPI} si se utilizaba un ámbito más amplio para este último
-%          enfoque. Utilizando esta información, descartamos manualmente los "falsos positivos" debido a las 
-%          diferencias de ámbito en \texttt{RBT} y \texttt{FibHeap}.
-
-% Los resultados de este experimento se resumen en la Tabla \ref{table:bugs}. Encontramos fallas en 9 de 26 \texttt{repOK}s utilizando el enfoque descrito anteriormente. El alto número de fallas descubiertas evidencia que los problemas en \texttt{repOK}s son difíciles de encontrar manualmente, y que \textsf{BEAPI} puede ser de gran ayuda para esta tarea.
-
-% \subsection{Comparativa de BEAPI con otras tecnicas de generacion de test}
-
-% \hspace{1cm}
-
-% En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la utilidad de los métodos builders identificados en el contexto del análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos builders se consideran objetos clave que pueden ser utilizados como entradas en test parametrizadas.
-
-% Los test parametrizados son una técnica utilizada en el campo de la generación automatizada de casos de prueba para aumentar la eficiencia y la cobertura de las pruebas. En lugar de escribir casos de prueba individuales para cada escenario posible, los test parametrizados permiten definir un conjunto de parámetros que se utilizan para generar automáticamente múltiples casos de prueba.
-
-% En el contexto de la evaluación experimental, se utilizó la técnica de test parametrizados para alimentar una test suite con objetos creados por diferentes técnicas. Esto significa que se definieron parámetros que representan diferentes características o propiedades de los objetos, y luego se generaron automáticamente casos de prueba utilizando estos parámetros.
-
-% Los test parametrizados son una técnica poderosa en la generación automatizada de casos de prueba, ya que permiten explorar diferentes combinaciones de parámetros y generar una variedad de casos de prueba de manera eficiente. En el contexto de la evaluación experimental, se utilizaron para evaluar y comparar el desempeño de diferentes técnicas en la generación de objetos y su impacto en la calidad de las pruebas.
-
-% Para llevar a cabo este experimento, se creó una test suite parametrizada que serviría como marco de prueba para evaluar los distintos enfoques. Esta test suite parametrizada fue, básicamente, crear un test por método que contiene la clase y ejercitarlos con los objetos creados por las diferentes técnicas. Se utilizaron varias técnicas y herramientas para generar los objetos necesarios. En primer lugar, se empleó la conocida herramienta \texttt{Randoop} utilizando como es su forma estander, con todos los métodos disponibles en su API, lo que da lugar a una suite de pruebas tradicional generada por Randoop. En este caso no se utiliza una test suite parametrizada, ya que \texttt{Randoop}  no genera objetos, sino que crea sus propias tests suite.
-
-% Ahora si, se utilizó una variante de Randoop llamada \texttt{R-Serialize} para serializar las secuencias de pruebas generadas anteriormente. Esto permitió generar objetos que, a su vez, se utilizaron para alimentar la test suite parametrizada, ampliando así el alcance de los casos de prueba. Estos objetos fueron generados utilizando todos los métodos de la API de Randoop, tal como se hizo en el enfoque anterior.
-
-% Otra herramienta utilizada en el experimento fue una versión modificada de \texttt{Randoop}, diseñada específicamente para utilizar únicamente los métodos builders identificados previamente mediante nuestro enfoque (\ref{cap:builders}). Los objetos generados por esta variante especial de Randoop también se serializaron y se incorporaron a la test suite parametrizada, permitiendo una comparación directa entre los objetos generados por los builders identificados y los generados sin utilizar la información de estos métodos builders.
-
-% Por último, se emplearon los objetos generados por la herramienta \texttt{BEAPI}. Estos objetos, creados utilizando su propia API, se integraron en la test suite parametrizada para evaluar su efectividad en la generación de casos de prueba. De esta manera, se obtuvo una visión completa y comparativa de las diferentes técnicas utilizadas en términos de generación de objetos y su impacto en la calidad de las pruebas.
-
-% Mediante este enfoque meticuloso y riguroso, se buscó determinar la capacidad de los builders identificados para mejorar la generación automatizada de casos de prueba y, en última instancia, contribuir a la mejora de la calidad del análisis de programas. Los resultados obtenidos en esta evaluación experimental proporcionaron información valiosa sobre la utilidad y efectividad de los builders en el contexto del análisis de programas, abriendo así nuevas oportunidades para futuras investigaciones y desarrollos en este campo.
-
-% A continuación, se realiza la comparativa de las diferentes herramientas utilizadas en el benchmark de \emph{java.util} previamente mencionado. Los casos de estudio son: \emph{HashSet}, \emph{HashMap}, \emph{TreeMap}, \emph{TreeSet} y \emph{LinkedList}. La tabla de resultados muestra varias métricas, como el tiempo en segundos (\texttt{GTime}) que es tiempo que lleva generar estos objectos/tests, la herramienta utilizada (\texttt{Tool}), la cantidad de objetos válidos generados (\texttt{Valid}) y la cantidad de objetos inválidos generados (\texttt{Invalid}).
-% Es importante destacar que se definió un invariante para cada clase bajo evaluación, el cual establece qué estructuras son válidas e inválidas. Todos los objetos generados fueron sometidos a la prueba de estos invariantes para determinar su validez. Sin embargo, es importante mencionar que la técnica \texttt{Randoop} genera directamente una test suite en lugar de objetos individuales, por lo que no se aplica directamente el concepto de validez e invalidez a los casos generados por esta herramienta.
-
-% Además, se realiza una comparación en función de la cantidad de tests generados por cada técnica. Esta medida se refleja en las columnas \texttt{Test}, \texttt{T(Seg)}, que indica la cantidad de tests que se ejecutan y sus respectivos segundos que son necesarios para ejecutar la test suite parametrizada, o no (en el caso de \texttt{Ranndop}), correspondiente.
-
-% Finalmente, se evalúa la calidad de las test suites generadas mediante la comparación de la cobertura de ramas y la cantidad de mutantes eliminados. Estas métricas permiten determinar qué tan efectivas son las test suites en términos de su capacidad para cubrir diferentes ramas del código y eliminar mutantes generados para introducir fallas.
-
-% A continuación analizaremos caso por caso con sus respectivas tablas.
-
-% \input{tables/randoopvsBeapi}
-
-
-% En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la utilidad de los metodos builders identificados en el contexto del análisis de programas, específicamente en la generación automatizada de casos de prueba. Estos builders se consideran objetos clave que pueden ser utilizados como entradas en test parametrizadas. 
-% Los test parametrizados son una técnica utilizada en el campo de la generación automatizada de casos de prueba para aumentar la eficiencia y la cobertura de las pruebas. En lugar de escribir casos de prueba individuales para cada escenario posible, los test parametrizados permiten definir un conjunto de parámetros que se utilizan para generar automáticamente múltiples casos de prueba.
-% En el contexto de la evaluación experimental, se utilizó la técnica de test parametrizados para alimentar una test suite con objetos creados por diferentes técnicas. Esto significa que se definieron parámetros que representan diferentes características o propiedades de los objetos, y luego se generaron automáticamente casos de prueba utilizando estos parámetros.
-% Los test parametrizados son una técnica poderosa en la generación automatizada de casos de prueba, ya que permiten explorar diferentes combinaciones de parámetros y generar una variedad de casos de prueba de manera eficiente. En el contexto de la evaluación experimental, se utilizaron para evaluar y comparar el desempeño de diferentes técnicas en la generación de objetos y su impacto en la calidad de las pruebas.
-
-% Para llevar a cabo este experimento, se creó una test suite parametrizada que serviría como marco de prueba para evaluar los distintos enfoques. Esta test suite parametrizada fue, basicamente, crear un test por metodos que contiene la clase y ejercitalos con los objectos creados por las distintas técnicas. Se utilizaron varias técnicas y herramientas para generar los objetos necesarios. En primer lugar, se empleó la conocida herramienta \texttt{Randoop}, utilizando todos los métodos disponibles en su API estándar, lo que dio lugar a una suite de pruebas tradicional generada por Randoop.
-
-% Además, se utilizó una variante de Randoop llamada \texttt{R-Serialize} para serializar las secuencias de pruebas generadas anteriormente. Esto permitió generar objetos que, a su vez, se utilizaron para alimentar la test suite parametrizada, ampliando así el alcance de los casos de prueba. Estos objetos fueron generados utilizando todos los métodos de la API de Randoop, tal como se hizo en el enfoque anterior.
-
-% Otra herramienta utilizada en el experimento fue una versión modificada de \texttt{Randoop}, diseñada específicamente para utilizar únicamente los métodos builders identificados previamente mediante nuestro enfoque (\ref{cap:builders}). Los objetos generados por esta variante especial de Randoop también se serializaron y se incorporaron a la test suite parametrizada, permitiendo una comparación directa entre los objetos generados por los builders identificados y los generados sin utilizar la informacion de estos metodos builders.
-
-% Por último, se emplearon los objetos generados por la herramienta \texttt{BEAPI}. Estos objetos, creados utilizando su propia API, se integraron en la test suite parametrizada para evaluar su efectividad en la generación de casos de prueba. De esta manera, se obtuvo una visión completa y comparativa de las diferentes técnicas utilizadas en términos de generación de objetos y su impacto en la calidad de las pruebas.
-
-% Mediante este enfoque meticuloso y riguroso, se buscó determinar la capacidad de los builders identificados para mejorar la generación automatizada de casos de prueba y, en última instancia, contribuir a la mejora de la calidad del análisis de programas. Los resultados obtenidos en esta evaluación experimental proporcionaron información valiosa sobre la utilidad y efectividad de los builders en el contexto del análisis de programas, abriendo así nuevas oportunidades para futuras investigaciones y desarrollos en este campo.
-
-
-%  A continuacion hacemos la comparativa de las diferentes tools, explicada en el parrafo anterior, en el benchmarks de \emph{java.util} utilizado previamente. Los casos de estudios son; \emph{HashSet},\emph{HashMap},\emph{TreeMap},\emph{TreeSet}, \emph{LinkedList}. La comparacion se realiza sobre, \texttt{GTime}, que representa el tiempo en milisegundos, \texttt{Tool} indica la herramienta utilizada, \texttt{Valid} muestra la cantidad de objectos válidos, \texttt{Invalid} muestra la cantidad de objetos inválidos que son generados. Para saber que objetos son válidos e inválidos, escribimos un invariante para cada clase bajo evaluacion, y este nos dice que estructura es valida y que estructura es invalida. Puede observar que para la tecnica \texttt{Randoo} esto no cuenta, ya que recuerde que aqui utilizamos la tool \texttt{Randoop} que generan test suite directamnete y no objectos. Ademas, BEAPI siempre va a generar objectos validos, esto se debe a que como estos objectos son construidos desde la API, no hay posibilidad de generar objectos invalidos. Vale aclarar que estos objectos tambien fueron puesto bajo prueba del mismo invariante que escribimos para cada clase. 
-%  Ademas, comparamos de acuerdo a la cantidad de test que cada tecnica genera. Para realizar esta medida, en las tools que utilizan la test suite parametrizada, indica la cantidad de test que se ejecutan y es un valor de que tiene relacion con los objectos que se alimentan a la test suite. En base a esto \texttt{T(Seg)} es la cantidad de segundo que lleva ejecutar esta test suite.
-%  Por ultimo, comparamos que tan buena es estas test suite, comprando la cobertura de ramas y de mutantes que matan.
 
 
