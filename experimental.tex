@@ -52,8 +52,7 @@ un planificador de procesos tomado del conjunto de benchmarks SIR \cite{sir},
 y varias colecciones del paquete estándar \verb"java.util" de Java%
 \footnote{\url{https://docs.oracle.com/javase/8/docs/api/java/util/
 package-summary.html}}, incluyendo \verb"TreeMap", \verb"TreeSet",
-\verb"HashMap",\\
- \verb"HashSet" y \verb"LinkedList". 
+\verb"HashMap", \verb"HashSet" y \verb"LinkedList". 
 
 \input{tables/groundTruth}
 
@@ -90,7 +89,7 @@ Cuando un algoritmo se evalúa con una función objetivo específica, usamos la 
 \textbf{Algoritmo–Fitness}. 
 Esto da lugar a cuatro algoritmos a evaluar: \textbf{GA–FGE}, \textbf{GA–FRC}, \textbf{HC–FGE}, 
 \textbf{HC–FRC}. Notar que el trabajo sobre cómputo de métodos generadores
-de Politano et. al. \cite{Ponzio19} \pp{Tu paper de builders} presenta el algoritmo
+de Politano et. al. \cite{Ponzio19} presenta el algoritmo
 \textbf{GA–FGE}. Las otras variantes fueron agregadas y evaluadas de forma
 preliminar para esta tesis. 
 
@@ -106,7 +105,7 @@ un máximo de 20 generaciones por ejecución.
 Para las evaluaciones con la función objetivo basada en cobertura (\textbf{FRC}), 
 fijamos un tiempo máximo de ejecución de Randoop de 30 segundos por candidato. 
 %Este tiempo fue suficiente para generar suites de tests y lograr buena cobertura de código en nuestros experimentos.  
-\pp{Esto de abajo no se entiende, tenemos que charlarlo:
+\pp{Esto de abajo no se entiende, tenemos que charlarlo:}
 \cacho{Lo cambie un poco pero no sé si está bien:}
 Randoop introduce un componente de aleatoriedad en la generación de tests. 
 Para controlar este factor y garantizar la reproducibilidad de los resultados de los experimentos con los mismo conjunto de parámetros, 
