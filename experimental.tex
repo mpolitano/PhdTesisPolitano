@@ -151,9 +151,9 @@ podría presentar pequeños efectos de no-determinismo (por ejemplo, diferencias
 que podrían influir en el tiempo de ejecución. Sin embargo, estos efectos son marginales y no afectan la precisión de los resultados, 
 dado que la generación exhaustiva siempre produce el mismo conjunto de objetos para una configuración dada. }
 
-Todos los experimentos fueron ejecutados en una máquina con procesador Intel
-Core i7-6700 a 3.4\,GHz y 8\,GB de RAM, y sistema operativo
-GNU/Linux.
+Todos los experimentos fueron ejecutados en una máquina con procesador Intel Core i7-6700
+(4 núcleos, 8 hilos, frecuencia de hasta 4 GHz, 8 MB de caché, sexta generación),
+8,GB de RAM y sistema operativo GNU/Linux.
 
 % En términos de analizar el peor caso, con \textbf{HC+RC} se alcanza 5162s en
 % \emph{TreeMap} (aprox 86 minutos) y 3842s en \emph{HashSet} para
@@ -168,7 +168,7 @@ GNU/Linux.
 %
 
 \subsection{RQ1: Eficiencia del cómputo de métodos generadores de objetos}
-
+\label{sec:eficienciaBuilders}
 \input{tables/eficienciaBuilders}
 
 Medimos la eficiencia como el tiempo promedio (en segundos) necesario para
@@ -188,14 +188,11 @@ promedio sobre los 12 casos de estudio. Esto da los siguientes
 resultados:
 A continuación, reportamos los tiempos promedio de ejecución (sobre los 12 casos
 de estudio) de los algoritmos evaluados:
-\pp{Hay algunos casos en los que se supera el
-timeout! NCL y TreeMap con GA+FRC}
-\cacho{Chequear los experimentos!}
 \begin{itemize}
-  \item \textbf{GA+FGE}: 259 segundos
-  \item \textbf{GA+FRC}: 1809.5 segundos
-  \item \textbf{HC+FGE}: 19.6 segundos
-  \item \textbf{HC+FRC}: 622.8 segundos
+  \item \textbf{GA+FGE}: 258.9 segundos
+  \item \textbf{GA+FRC}: 1744.2 segundos
+  \item \textbf{HC+FGE}: 19.7 segundos
+  \item \textbf{HC+FRC}: 597.8 segundos
 \end{itemize}
 
 Estos valores muestran con claridad que \texttt{HC} es sistemáticamente más rápido
@@ -344,7 +341,7 @@ preliminares, \ref{sec:feedback-directed-test-gen}) para que almacene los
 objetos producidos por la ejecución de los tests. La evaluación consiste en
 utilizar la variante mencionada de Randoop con toda la API de la clase bajo análisis 
 (denominamos \texttt{API} a esta técnica de generación de objetos), y compararla
-con otra versión que instruye a Randoop para que utilice sólo los MGOs \pp{Cuáles?} para
+con otra versión que instruye a Randoop para que utilice sólo los MGOs \pp{Cuáles?} \cacho{, identificados en \ref{sec:experimentalIdentificacionPrecision},} para
 generar tests (llamamos \texttt{MGO} a este enfoque). 
 
 Para estos enfoques, definimos tres valores de presupuesto de tiempo para la generación de 
@@ -372,6 +369,7 @@ generadores se construyen casi cinco veces más objetos con los \texttt{MGO} en
 comparación con la \texttt{API}. Notablemente, la diferencia en la cantidad de
 objetos generados se incrementa con el presupuesto. 
 
+\cacho{Para observar la ganancia de los objectos, se mide en la seccion XXX, donde consideramos no solo la tecnica de randoop y randoop con builder sino que consideramos veapi y randoop tradicional}
 \pp{Falta lo de size}
 \cacho{Agregar table, URGENTE!. escribir esa parte}
 
@@ -403,7 +401,7 @@ se satisface el invariante de representación (\texttt{repOK}) de la estructura.
 Por ejemplo, para el método \texttt{put} de \texttt{TreeMap} escribimos el
 programa de la Figura \ref{lst:propiedadJPF} para realizar la verificación con
 JPF. \pp{Fijate que los captions de las figuras están en inglés y dicen Figure.
-Hay que configurar algo para traducirlos a español.}
+Hay que configurar algo para traducirlos a español.} \cacho{Hecho}
 
 \begin{lstlisting}[caption={Verificando el método put de TreeMap con JPF},label={lst:propiedadJPF},language=Java,captionpos=b]
     public static void main(String[] args) {
@@ -447,17 +445,18 @@ por el estilo?} \cacho{Lo sacamos, no hay nada de esto, la idea era como decir q
 %de escalabilidad para dicha variante
 % , mientras que \textsf{MGO} (Métodos generadores de Objetos) en general logra completar en el mismo \emph{scope}
 
+\cacho{Estaba mal lo habia hecho solo para un caso, Charlarlo con Pablo como lo explico}
+
 En las tablas se muestran los resultados para los scopes en los que
 alguna de las técnicas termina antes de llegar al timeout.
 En el análisis global, considerando los \emph{scopes} para los que ambas técnicas terminan
-antes del timeout, estas 30 combinaciones \pp{De donde sale el 30? Yo
-cuento muchas más}, el \emph{driver} con \textsf{MGO} explora 14070756 estados
+antes del timeout, estas 61 combinaciones, el \emph{driver} con \textsf{MGO} explora 14070756 estados
 en 1591s, mientras que \textsf{API} visita 198130649 estados en 17,240 segundos.
 En promedio por casos, \textsf{MGO} explora 234513 estados en 26.5 segundos, mientras que \textsf{API} 
 explora 3302177 estados en 297.3 segundos. Esto implica que \textsf{MGO} reduce el espacio de estados en 
 92.9\%\ y el tiempo en 91\%\ aproximadamente respecto de \textsf{API}. 
-Se observa tambien que \textsf{API} alcanza el timeout en 9/30 combinaciones
-(30\%) \pp{son más que 9, hay que recalcular los números?}.
+Se observa tambien que \textsf{API} alcanza el timeout en 9/61 combinaciones
+(14\%) \pp{son más que 9, hay que recalcular los números?}. 
 
 %Bajo el mismo \emph{scope}, \textsf{API} explora aproximadamente 1308\%\ mas de estados y tarda 984\%\ mas de tiempo que \textsf{MGO}.
 %En cuanto a la interpretación, 
@@ -565,6 +564,7 @@ investigación:
 \end{itemize}
 
 \subsection{Configuración experimental}
+\ref{sec:confExperimentalBeapi}
 
 Como casos de estudio, utilizamos implementaciones de estructuras de datos
 tomadas de tres benchmarks existentes: \textsf{Kiasan} \cite{Deng06}, 
@@ -585,19 +585,25 @@ realizar la generación, y para los experimentos para responder a RQ6.
 Para la evaluación se utilizó el prototipo de la herramienta BEAPI, que se
 describe en la literatura en los trabajos de Politano et. al. \cite{Politano23,
 Politano24}.
-En BEAPI la identificación de métodos generadores de objetos se
-realiza en una etapa previa a la generación de objetos, usando el algoritmo
-\pp{Poner cual de los algoritmos de la tesis usamos. Charlemoslo}. 
-Para esta etapa, se empléo un scope de 5 en todos los casos, y el tiempo máximo de ejecución del 
-enfoque de identificación fue de 65 segundos en los benchmarks \textsf{Kiasan},
-\textsf{FAJITA}, \textsf{ROOPS} y \textsf{Korat} (para el caso SLL de ROOPS, con 11
-métodos), y de 132 segundos en \textsf{Real World} (para TreeMap, que tiene 32
-métodos). Verificamos manualmente que los métodos identificados incluyeran un
-conjunto suficiente de métodos generadores de objetos en todos los casos.
-/pp{Hay que ver qué hacer con esto: Reportamos los tiempos de identificación de
+
+\cacho{Lo mejore un poco}
+En BEAPI, la identificación de métodos generadores de objetos se realiza en una 
+etapa previa a la generación exhaustiva, utilizando el algoritmo de 
+\emph{Hill Climbing} con la función objetivo basada en el generador exhaustivo acotado. (ver Sección: \ref{sec:eficienciaBuilders})
+\pp{Poner cual de los algoritmos de la tesis usamos. Charlemoslo}, 
+Para esta etapa, se empleó un \emph{scope} de 5 en todos los casos. 
+El tiempo máximo requerido por el proceso de identificación fue de 
+26 segundos en los benchmarks \textsf{Kiasan}, \textsf{FAJITA}, \textsf{ROOPS} y 
+\textsf{Korat} (siendo el caso más costoso SLL de ROOPS, con 11 métodos), 
+y de 62 segundos en los benchmarks \textsf{Real World} (siendo TreeMap, 
+con 32 métodos, el más costoso). 
+En todos los casos verificamos manualmente que los métodos identificados 
+constituyeran un conjunto suficiente de métodos generadores de objetos.
+\pp{Hay que ver qué hacer con esto: Reportamos los tiempos de identificación de
 builders en el sitio web del artículo [26]. Tenemos una sección experimental
 entera con resultados de builders, hay que linkearlos con eso me parece en
-lugar de citar el paper.}
+lugar de citar el paper.} \cacho{Se deberia sacar, lo agregue como referencia}
+
 Nótese que la generación exhaustiva acotada suele realizarse de manera
 incremental, para scopes cada vez más grandes, y que los generadores de objetos identificados 
 pueden reutilizarse en las distintas ejecuciones. Por lo tanto, los 
@@ -613,7 +619,7 @@ tiempos de generación.
 
 En la comparación de eficiencia con técnicas existentes (RQ4) se utilizó Korat,
 que es la herramienta existente de generación exhaustiva acotada más eficiente
-\cite{Boyapati:2002} \pp{Buscar la cita de esto en el paper de beapi}
+\cite{Siddiqui09} 
 \cacho{Hecho} \pp{No es la cita a Korat. Es la cita al paper que evalua Korat
 contra otras técnicas de BEG}. Tener en cuenta, como
 Korat requiere de repOKs, se emplearon los \texttt{repOK}s provistos por los autores 
@@ -626,8 +632,11 @@ Para RQ7 se comparan los objetos generados por BEAPI, una técnica de generació
 aleatoria (Randoop), y una variante de Randoop que sólo usa métodos generadores de objetos
 (R-Builders). 
 
-Los experimentos se llevaron a cabo en una computadora con procesador Intel Core i7-8700 
-(3.2 GHz) y 16 GB de RAM, ejecutando Ubuntu Linux 20.04. Para cada ejecución individual se estableció 
+Los experimentos se llevaron a cabo en una computadora con procesador Intel Core i7-8700
+(6 núcleos, 12 threads, frecuencia de hasta 4.6 GHz, 12 MB de caché, octava generación),
+16 GB de RAM y sistema operativo Ubuntu Linux 20.04.
+
+Para cada ejecución individual se estableció 
 un tiempo máximo de 60 minutos. Todos los experimentos fueron diseñados para ser reproducibles, 
 y el artefacto experimental con el código fuente se encuentra disponible en: \url{https://github.com/mpolitano/bounded-exhaustive-api}
 
@@ -638,7 +647,7 @@ y el artefacto experimental con el código fuente se encuentra disponible en: \u
 En esta sección comparamos BEAPI y Korat en términos de tiempo 
 de ejecución, número de estructuras generadas y exploradas, y escalabilidad con
 respecto a los \emph{scopes}.
-Los resultados experimentales se muestran en la Tabla \ref{table:korat-beapi}.
+Los resultados experimentales se muestran en la Tabla \ref{table:korat-beapi} y \ref{table:korat-beapi1}.
 \pp{No entra la tabla en una página. Hay que dividirla en 2. Además tiene muchos
     errores, se corrieron varias líneas como FibHeap ROOPS s4, o SLList Fajita
 s 8,9 y 10. Hay que revisar todo.}
@@ -711,6 +720,7 @@ En general, presenta una eficiencia y una escalabilidad comparable a la de
 \textsf{Korat}, sin requerir de un \texttt{repOK} formal para la generación. 
 
 \input{tables/tableEficienciaBEAPI.tex}
+\input{tables/tableEficienciaBEAPI1.tex}
 
 \subsection{RQ5: Impacto de las optimizaciones propuestas}
 \label{sec:optimizations}
@@ -723,15 +733,15 @@ En esta pregunta de investigación evaluamos el impacto que tienen las optimizac
 de \emph{BEAPI} en su rendimiento. 
 Concretamente, analizamos cuatro configuraciones de la herramienta:
 \textsf{CI/MGO}, \pp{cambiar SM/BLD por CI/MGO así queda igual en toda la
-tesis. Chequear en toda la tesis.} que habilita tanto 
+tesis. Chequear en toda la tesis.} \cacho{Hecho} que habilita tanto 
 la coincidencia de estados (\emph{CI}) como la identificación de métodos
 generadores de objetos (\emph{MGO}); 
 \textsf{CI}, que activa únicamente la coincidencia de estados; \textsf{MGO}, que habilita únicamente 
 la identificación de métodos generadores de objetos; y \textsf{NoOPT}, que desactiva ambas optimizaciones.
 
-La Tabla \ref{tab:results-realWorld} \cacho{Ver como referencias, hacer una sola
-tabla} resume los resultados para el conjunto \textsf{Real World} \pp{Y las
+La Tabla \ref{tab:results-realWorld} resume los resultados para el conjunto \textsf{Real World} \pp{Y las
 otras? Meté una tabla por benchmark y referencialas por separado}.
+\cacho{Hago analisis por cada una?}
 % PABLO: Esto está en la configuración experimental
 %(seis implementaciones ampliamente usadas: \texttt{LinkedList} con 67 métodos, \texttt{TreeSet} con 34 métodos, \texttt{TreeMap} con 61 métodos, \texttt{HashMap} con 45 métodos, \texttt{NCL} con 34 métodos y \texttt{Schedule} con 12 métodos). 
 %Resultados análogos se reportan para los demás benchmarks en las tablas correspondientes de esta sección; en conjunto, todos ellos muestran el mismo patrón y fundamentan las conclusiones presentadas.
@@ -769,8 +779,7 @@ Por ejemplo, en \textsf{ROOPS}, \textsf{CI/MGO} es más de un orden de magnitud
 más rápido que \textsf{CI} en AVL y RBT, y alcanza al menos un scope adicional
 en NCL, LList, y RBT. 
 En \textsf{Real World}, el uso de MGOs permitió que \textsf{CI/MGO} escalara a
-scopes significativamente mayores en todos los casos excepto TreeMap y TreeSet
-\pp{se llaman distinto en la tabla}, donde igualmente \textsf{CI/MGO} muestra
+scopes significativamente mayores en todos los casos excepto TMap y TSet, donde igualmente \textsf{CI/MGO} muestra
 una reducción importante en los tiempos de ejecución. 
 En general, las optimizaciones propuestas tienen un impacto crucial en el
 rendimiento y la escalabilidad de BEAPI, y ambas deben habilitarse para obtener
@@ -804,8 +813,8 @@ En estos casos, las estructuras que están en \texttt{SKORAT} pero no en
 analizarlas manualmente para determinar el origen del problema. Como en este
 experimento \textsf{BEAPI} se ejecutó con métodos generadores de objetos que son
 correctos, el error debe estar presente en el \texttt{repOK}.
-Clasificamos estos errores como \texttt{under} \pp{Yo lo reemplazaría por sub,
-así queda en castellano},
+Clasificamos estos errores como \texttt{sub} \pp{Yo lo reemplazaría por sub,
+así queda en castellano}, \cacho{Hecho}
 ya que el invariante permite más estructuras de las que debería.
 
 Por el contrario, cuando \texttt{SKORAT} $\subset$ \texttt{SBEAPI}, puede
@@ -816,8 +825,8 @@ nuevamente deben ser analizadas manualmente por el usuario. Nuevamente, como la
 los métodos utilizados por \textsf{BEAPI} son correctos, el error en este caso
 debe estar en el \texttt{repOK}. Reportamos los
 errores de sobreespecificación en los \texttt{repOK}s (confirmados manualmente)
-que fueron evidenciados por estas estructuras como \texttt{over} \pp{Yo lo
-    reemplazaría por sobre, así queda en castellano}.
+que fueron evidenciados por estas estructuras como \texttt{sobre} \pp{Yo lo
+    reemplazaría por sobre, así queda en castellano}.\cacho{Hecho}
 
 En algunos casos, se encontraron diferencias en ambas direcciones: estructuras
 en \texttt{SKORAT} que no están presentes en \texttt{SBEAPI}, y estructuras \texttt{SBEAPI} que no 
@@ -849,7 +858,7 @@ rechaza heaps válidos cuyo nodo mínimo es \texttt{null}. Finalmente, se
 encontraron errores en las definiciones de altura en clases como \texttt{AVL},
 donde las hojas están inicializadas con valores inconsistentes con la
 implementación. \pp{Chequear la tabla, hice algunos cambios pequeños en el texto
-y puedo haber empeorado el formato}
+y puedo haber empeorado el formato} \cacho{Hecho}
 
 Este experimento muestra la dificultad de escribir invariantes de representación correctos y eficientes 
 para la generación exhaustiva acotada.  
@@ -874,12 +883,14 @@ detectar manualmente, y que \textsf{BEAPI} puede ser de gran ayuda para esta tar
 
 \pp{Y no olvidarse de mencionar todas las técnicas en la configuración
  experimental.}
-
+\cacho{Lo charlamos, los tiempos son relativos, es algo diferente el experimento.}
 En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
 utilidad de los métodos generadores identificados mediante nuestro enfoque, particularmente 
 en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 
 objetos que pueden utilizarse como entradas en test suites parametrizadas.
-\cacho{Poner algo sobre el experimento de builders que generamos objetos con BEAPI y los usamos en tests parametrizados.}
+\cacho{En el experimento de MGO (ver \ref{sec:object_builders_randoop}), generamos los objetos utilizando BEAPI y los empleamos posteriormente en un conjunto de tests parametrizados, con el objetivo de evaluar su impacto tanto en la cobertura como en la detección de fallos.}
+
+\cacho{Cabe destacar que los resultados presentados en esta sección difieren de los reportados en la Sección~XXX, dado que los experimentos fueron ejecutados en máquinas distintas (ver~\ref{sec:confExperimentalBeapi}).}
 
 Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en tests 
 automatizados. En lugar de definir casos de prueba específicos para cada configuración, se 

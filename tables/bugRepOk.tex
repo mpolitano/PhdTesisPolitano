@@ -5,43 +5,42 @@
 \begin{tabular}{ll|ll}
 \toprule
 \textbf{Bench.} & \textbf{Clase}   & \textbf{Descripción del Error} &   \textbf{Tipo} \\
-\midrule
-Korat    &     RBTree   & El color de la raíz debería ser negro & under  \\
+Korat    &     RBTree   & El color de la raíz debería ser negro & sub  \\
 \midrule
 \multirow{12}{*}{Roops} & \multirow{3}{*}{NCL} & Las claves en la
-caché deben ser \texttt{null} & under\\ 
+caché deben ser \texttt{null} & sub\\ 
 \cdashline{3-4}    
-                        &                  & La clave del nodo ficticio en la lista principal \\&&debe ser \texttt{null}  & under \\ 
+                        &                  & La clave del nodo ficticio en la lista principal \\&&debe ser \texttt{null}  & sub \\ 
 \cline{2-4} 
-                        & BinTree              & El padre del nodo raíz debería ser \texttt{null} & under \\ 
+                        & BinTree              & El padre del nodo raíz debería ser \texttt{null} & sub \\ 
 \cline{2-4} 
-                        & RBT                  & El color de la raíz no debería ser negro  & under\\ 
+                        & RBT                  & El color de la raíz no debería ser negro  & sub\\ 
 \cline{2-4} 
                         & \multirow{3}{*}{AVL} & El cálculo de la altura es
                         incorrecto\\&& (las hojas tienen asignado un valor incorrecto) & error\\ 
 \cdashline{3-4} 
-                        &                      & No se deben permitir claves repetidas  &   under\\ 
+                        &                      & No se deben permitir claves repetidas  &   sub\\ 
 \cline{2-4} 
-                        & \multirow{9}{*}{FibHeap} & Los campos izquierdo y derecho de los nodos \\&&no deben ser \texttt{null} & under\\ 
+                        & \multirow{9}{*}{FibHeap} & Los campos izquierdo y derecho de los nodos \\&&no deben ser \texttt{null} & sub\\ 
 \cdashline{3-4} 
                         &                      & El nodo mínimo siempre debe
-                        contener el valor mínimo \\&&del heap & under \\  
+                        contener el valor mínimo \\&&del heap & sub \\  
 \cdashline{3-4}
                         
-                        &                      & Si un nodo no tiene hijos, su grado debería ser cero & under \\ 
+                        &                      & Si un nodo no tiene hijos, su grado debería ser cero & sub \\ 
 \cdashline{3-4} 
-                        &                      & Los nodos hijos deben tener claves más pequeñas \\&&que sus padres &  under\\ 
+                        &                      & Los nodos hijos deben tener claves más pequeñas \\&&que sus padres &  sub\\ 
 \cdashline{3-4} 
-                        &                      & Se obliga a que los campos de los padres de todos \\&&los nodos sean \texttt{null} & over\\
+                        &                      & Se obliga a que los campos de los padres de todos \\&&los nodos sean \texttt{null} & sobre\\
 \cdashline{3-4} 
                         &                      & Se rechaza el heap con el nodo
-                        mínimo igual a \texttt{null}    & over   \\ 
+                        mínimo igual a \texttt{null}    & sobre   \\ 
 \midrule
-\multirow{2}{*}{Kiasan} & DisjSetFast  & El ``rank'' de la raíz puede ser inválido  & under  \\ 
+\multirow{2}{*}{Kiasan} & DisjSetFast  & El ``rank'' de la raíz puede ser inválido  & sub  \\ 
 \cline{2-4} 
 
 \cline{3-4} 
-                        & BinaryHeap   & La primera posición de un arreglo (ficticio)\\&& puede contener un elemento &   under \\ 
+                        & BinaryHeap   & La primera posición de un arreglo (ficticio)\\&& puede contener un elemento &   sub \\ 
 \midrule
 Fajita                  & AVL          & El cálculo de la altura es incorrecto
 \\&&(las hojas tienen asignado un valor incorrecto)  & error \\ 

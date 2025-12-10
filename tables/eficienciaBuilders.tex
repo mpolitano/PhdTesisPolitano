@@ -1,51 +1,62 @@
-\setlength{\tabcolsep}{4pt} 
-
 \begin{table}[H]
 \centering
-\begin{tabular}{cccccc}
+{
+\begin{tabular}{c c c c c c}
 \hline
 \multicolumn{2}{c}{\textbf{Casos}} & \multicolumn{2}{c}{\textbf{GA}} & \multicolumn{2}{c}{\textbf{HC}} \\
-\cline{3-6}
+\hline
 \multicolumn{2}{c}{} & \textbf{\tiny FGE} & \textbf{\tiny FRC} & \textbf{\tiny FGE} & \textbf{\tiny FRC} \\
 \hline
-\multicolumn{2}{c}{\textbf{NCL}}            & 292   & 3622 & 40   & 645  \\
-\multicolumn{2}{c}{\tiny \#API: 34, \#MGO: 3} & & & & \\
+
+\multicolumn{2}{c}{\textbf{NCL}}            & 292   & 3242 & 40   & 645  \\
+\multicolumn{2}{c}{ \#API: 34, \#MGO: 3} \\
+\hline
 
 \multicolumn{2}{c}{\textbf{UFind}}          & 41     & 700    & 16  & 267  \\
-\multicolumn{2}{c}{\tiny \#API: 9, \#MGO: 3}  & & & & \\
+\multicolumn{2}{c}{ \#API: 9, \#MGO: 3}  \\
+\hline
 
 \multicolumn{2}{c}{\textbf{FHeap}}          & 9      & 346   & 4     & 225  \\
-\multicolumn{2}{c}{\tiny \#API: 7, \#MGO: 3}  & & & & \\
+\multicolumn{2}{c}{ \#API: 7, \#MGO: 3}  \\
+\hline
 
 \multicolumn{2}{c}{\textbf{BTree}}          & 4       & 174   & 3    & 168  \\
-\multicolumn{2}{c}{\tiny \#API: 7, \#MGO: 2}  & & & & \\
+\multicolumn{2}{c}{ \#API: 7, \#MGO: 2}  \\
+\hline
 
 \multicolumn{2}{c}{\textbf{BHeap}}          & 24    & 989  & 6    & 273  \\
-\multicolumn{2}{c}{\tiny \#API: 10, \#MGO: 3} & & & & \\
+\multicolumn{2}{c}{ \#API: 10, \#MGO: 3} \\
+\hline
 
 \multicolumn{2}{c}{\textbf{Lits}}           & 25   & 3429 & 7    & 394  \\
-\multicolumn{2}{c}{\tiny \#API: 26, \#MGO: 6} & & & & \\
+\multicolumn{2}{c}{ \#API: 26, \#MGO: 6} \\
+\hline
 
 \multicolumn{2}{c}{\textbf{Sched.}}         & 73     & 1685 & 15   & 262  \\
-\multicolumn{2}{c}{\tiny \#API: 10, \#MGO: 3} & & & & \\
+\multicolumn{2}{c}{ \#API: 10, \#MGO: 3} \\
+\hline
 
 \multicolumn{2}{c}{\textbf{LinkedList}}     & 69     & 1637 & 8    & 302 \\
-\multicolumn{2}{c}{\tiny \#API: 67, \#MGO: 2} & & & & \\
+\multicolumn{2}{c}{ \#API: 67, \#MGO: 2} \\
+\hline
 
-\multicolumn{2}{c}{\textbf{TreeMap}}        & 974  & 3872 & 68  & 484  \\
-\multicolumn{2}{c}{\tiny \#API: 61, \#MGO: 3} & & & & \\
+\multicolumn{2}{c}{\textbf{TreeMap}}        & 974  & 3469 & 68  & 484  \\
+\multicolumn{2}{c}{ \#API: 61, \#MGO: 3} \\
+\hline
 
 \multicolumn{2}{c}{\textbf{TreeSet}}        & 75     & 2266 & 7    & 561  \\
-\multicolumn{2}{c}{\tiny \#API: 34, \#MGO: 3} & & & & \\
+\multicolumn{2}{c}{ \#API: 34, \#MGO: 3} \\
+\hline
 
 \multicolumn{2}{c}{\textbf{HashSet}}        & 115  & 428   & 12  & 2690 \\
-\multicolumn{2}{c}{\tiny \#API: 31, \#MGO: 2} & & & & \\
+\multicolumn{2}{c}{ \#API: 31, \#MGO: 2} \\
+\hline
 
 \multicolumn{2}{c}{\textbf{HashMap}}        & 1406 & 2566 & 51   & 1202 \\
-\multicolumn{2}{c}{\tiny \#API: 45, \#MGO: 2} & & & & \\
+\multicolumn{2}{c}{ \#API: 45, \#MGO: 2} \\
 \hline
 \end{tabular}
-
+}
 \caption{Tiempo en segundos para hallar el subconjunto suficiente de métodos generadores.}
 \label{tab:eficiencia}
 \end{table}
