@@ -208,7 +208,7 @@ Adicionalmente, la herramienta que implementa BEAPI se presenta en el trabajo de
 \cite{Politano24}.
 
 Evaluamos experimentalmente los enfoques propuestos de identificación de métodos
-generadores de objetos, en un benchmark de clases Java con estados complejos 
+generadores de objetos (ver Sección \ref{sec:experimentalIdentificacion}), en un benchmark de clases Java con estados complejos 
 tomadas de la literatura. 
 Los resultados muestran que, en nuestros casos de estudio, los enfoques 
 se ejecutan en tiempos razonables, y logran una buena precisión para la tarea
@@ -220,8 +220,7 @@ indican que los métodos generadores de objetos identificados son útiles para m
 la generación de objetos usando técnicas de generación aleatoria de y
 exhaustiva acotada de tests, y para hacer \emph{model checking} (acotado) de software.
 
-Evaluamos experimentalmente BEAPI y mostramos que su eficiencia y escalabilidad
-son comparables a las del mejor enfoque exhaustivo acotado actual (Korat), sin
+Por último, evaluamos experimentalmente BEAPI (ver Sección \ref{sec:experimentalBeapi}) y mostramos que su eficiencia y escalabilidad son comparables a las del mejor enfoque exhaustivo acotado actual (Korat), sin
 necesidad de proveer especificaciones formales para la estructuras (invariantes
 de representación de clases, también denominados repOK).
 También mostramos que BEAPI puede ser útil para encontrar errores en los repOKs, 
@@ -232,7 +231,7 @@ algunos benchmarks tomados de la literatura que fueron usados para la
 evaluación de herramientas relacionadas.
 Esto proporciona evidencia sobre la dificultad de escribir repOKs, en particular, los repOKs 
 precisos requeridos por las herramientas de generación acotada como Korat.
-Por último, proveemos evidencia preliminar que muestra que los objetos generados por BEAPI 
+Adicionalmente, proveemos evidencia preliminar que muestra que los objetos generados por BEAPI 
 son útiles para el testing basado en propiedades.
 
 
