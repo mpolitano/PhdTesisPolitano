@@ -48,15 +48,49 @@ herramienta de generación de entradas y construir estructuras para el análisis
 de programas (drivers para model checking de software, entradas para tests
 unitarios, o para tests parametrizados, etc.), tiene un impacto crucial en
 en el rendimiento del análisis. Por esta razón, definimos el concepto de \emph{métodos generadores de objetos} como un subconjunto \(B\) de métodos, extraídos de la API de un módulo \(M\), que pueden emplearse para crear cualquier entrada para \(M\) en un análisis automatizado de programas  (por ejemplo, un driver para model checking de software). 
-Claramente, cuanto mayor sea el número de estructuras diferentes que se puedan crear con \(B\), mayores serán las posibilidades de encontrar errores en \(M\). Decimos que un conjunto de métodos generadores de objetos es suficiente si estos pueden usarse en combinación para construir todas las estructuras posibles de \(M\). Por lo tanto, los generadores de objetos suficientes son la mejor opción posible para encontrar errores. Cabe notar que \(B\) puede contener rutinas superfluas. Una rutina superflua \(s\) es aquella tal que los objetos del módulo pueden construirse usando las rutinas en $B - \{s\}$ (el ejemplo más simple son las rutinas que nunca cambian el estado de los objetos, también denominados métodos puros u observadores \cite{Boyapati02}). Llamamos \emph{minimal} a un conjunto de generadores de objetos \(B\) que no contiene rutinas superfluas. La minimalidad es importante porque proporcionar rutinas superfluas a una herramienta de análisis automático suele impactar negativamente en su eficiencia (la cantidad de formas posibles de combinar \(k\) rutinas usualmente aumenta exponencialmente con respecto a \(k\)). 
+Claramente, cuanto mayor sea el número de estructuras diferentes que se puedan
+crear con \(B\), mayores serán las posibilidades de encontrar errores en \(M\).
+Decimos que un conjunto de métodos generadores de objetos es suficiente si estos
+pueden usarse en combinación para construir todas las estructuras posibles de
+\(M\). Por lo tanto, los generadores de objetos suficientes son la mejor opción
+posible para encontrar errores. Cabe notar que \(B\) puede contener métodos
+superfluos. Una método superfluo \(s\) es aquel tal que los objetos del módulo
+pueden construirse usando los métodos en $B - \{s\}$ (el ejemplo más simple son
+los métodos que nunca cambian el estado de los objetos, también denominados puros 
+u observadores \cite{Boyapati02}). Llamamos \emph{minimal} a un conjunto de
+generadores de objetos \(B\) que no contiene métodos superfluos. La minimalidad
+es importante porque proporcionar métodos superfluos a una herramienta de
+análisis automático suele impactar negativamente en su eficiencia (la cantidad
+de formas posibles de combinar \(k\) métodos crece exponencialmente con respecto a \(k\)). 
 
-Identificar un conjunto suficiente y minimal de métodos generadores de objetos de forma manual requiere de un análisis minucioso de las rutinas disponibles y una comprensión profunda de la semántica del módulo. Esto es especialmente difícil para módulos con APIs ricas, donde hay muchas rutinas y mucha redundancia en la API. Para facilitar la tarea del desarrollador, en este trabajo se proponen distintos enfoques automáticos para identificar conjuntos suficientes y minimales de métodos generadores de objetos, con distintas características. Exploramos aquí el uso de un algoritmo evolutivo y de un algoritmo codicioso (basado en hill climbing), con diferentes funciones objetivo que utilizan técnicas de generación automáticas de test. Además de buscar generadores de objetos suficientes y minimales, nuestros enfoques también tienen en cuenta otras características de los métodos, como la cantidad y la complejidad de sus parámetros, de modo que se favorecen las rutinas “más simples” en la búsqueda. El objetivo es elegir métodos generadores que puedan ser utilizados de manera más fácil y eficiente en los análisis de programas.
+Identificar un conjunto suficiente y minimal de métodos generadores de objetos
+de forma manual requiere de un análisis minucioso de la API y una comprensión
+profunda de la semántica del módulo. Esto es especialmente difícil para módulos
+con APIs ricas, donde hay muchos métodos y mucha redundancia en la API. Para
+facilitar la tarea del desarrollador, en este trabajo se proponen distintos
+enfoques automáticos para identificar conjuntos suficientes y minimales de
+métodos generadores de objetos, con distintas características. Exploramos aquí
+el uso de un algoritmo evolutivo y de un algoritmo codicioso (basado en hill
+climbing), con diferentes funciones objetivo que utilizan técnicas de generación
+automáticas de test. Además de buscar generadores de objetos suficientes y
+minimales, nuestros enfoques también tienen en cuenta otras características de
+los métodos, como la cantidad y la complejidad de sus parámetros, de modo que se
+favorecen los métodos ``más simples'' en la búsqueda. El objetivo es elegir métodos generadores que puedan ser utilizados de manera más fácil y eficiente en los análisis de programas.
 
 Dado que el número de instancias de un módulo de software es potencialmente infinito,
-% y los análisis de programas que abordamos también están limitados en cuanto al número de estructuras que pueden emplear, 
-nuestros algoritmos se limitan a explorar conjunto acotado de estructuras para \(M\) \cite{Boyapati02} (por ejemplo, todas las instancias de una lista enlazada con hasta \(k\) nodos). El valor de la función objetivo para un conjunto de rutinas \(R\) se basa en el número de estructuras acotadas que se pueden generar utilizando combinaciones de estas rutinas, mediante técnicas automáticas de generación de tests. Experimentamos con dos formas distintas de computar la función objetivo, una se basa en una modificación de una herramienta de generación de casos de prueba aleatorios (Randoop \cite{Pacheco07}) para generar la mayor cantidad posible de estructuras acotadas a partir de \(R\), permitiendo como máximo \(k\) objetos de cada tipo en las estructuras (por ejemplo, todas las instancias de listas enlazadas con hasta \(k\) nodos). \pp{Esto es así Cacho?} Otra se basa en una técnica eficiente de generación exhaustiva acotada basada en la API, denominada BEAPI, que definimos en este trabajo (ver más adelante).
-Nuestra evaluación experimental muestra que usando cotas razonables, los algoritmos definidos son eficientes, y computan métodos generadores de objetos suficientes y minimales con precisión (siempre computan generadores de objetos suficientes, y en la mayoría de los casos los generadores de objetos identificados son minimales, o tienen muy pocos métodos superfluos).
-
+se proponen dos formas distintas de computar la función objetivo para realizar la
+búsqueda. Una se basa en una técnica eficiente de generación exhaustiva acotada basada en la API,
+denominada BEAPI (una de las contribuciones principales de este trabajo; ver más
+adelante). El valor de la función objetivo para un conjunto de
+métodos \(R\) se basa en el número de estructuras acotadas que se pueden generar
+con BEAPI usando los métodos en \(R\).
+La otra propuesta consiste en generar tests aleatoriamente usando una versión
+modificada de una herramienta aleatoria de generación de tests (Randoop
+\cite{Pacheco07}) para usar los métodos en \(R\) como generadores de objetos, y medir
+la cobertura de código obtenida por las test suites generadas. La intuición es
+que, si \(R\) incluye los métodos generadores de objetos, la cobertura obtenida 
+debería ser mayor.
+Nuestra evaluación experimental muestra que usando cotas razonables, los algoritmos definidos son eficientes, y computan métodos generadores de objetos suficientes y minimales con precisión (siempre computan generadores de objetos suficientes, y en la mayoría de los casos los generadores de objetos identificados son minimales, o tienen pocos métodos superfluos).
 
 % TODO: Introducir BEAPI
 Por otro lado, se observa que muchos de los enfoques de generación automática de
@@ -169,7 +203,9 @@ Otra ventaja de BEAPI respecto a los enfoques basados en especificaciones es que
 
 \pp{TODO: Evaluación experimental de builders cuando tengamos la sección
     experimental}
-Evaluamos nuestro enfoque experimentalmente en un conjunto de clases Java con estados complejos, extraídas de la literatura. Los resultados muestran que, en nuestros casos de estudio, nuestro enfoque identifica conjuntos de rutinas que son suficientes y minimales, en un tiempo aceptable \pp{Cuánto en promedio?}. También evaluamos el impacto de nuestro enfoque en un análisis automatizado, concretamente, en la generación de casos de prueba para tests parametrizados \pp{No hicimos esto según entiendo}. Comparamos cómo se comporta la herramienta de generación de casos de prueba aleatorios Randoop cuando se le proporciona la API completa del módulo, frente a proporcionarle únicamente los constructores identificados por nuestro enfoque. Los resultados indican que, en este último caso, Randoop generó más objetos (y más grandes), dentro de un tiempo límite fijo.
+Evaluamos nuestro enfoque experimentalmente en un conjunto de clases Java con
+estados complejos, extraídas de la literatura. Los resultados muestran que, en
+nuestros casos de estudio, nuestro enfoque identifica conjuntos de métodos que son suficientes y minimales, en un tiempo aceptable \pp{Cuánto en promedio?}. También evaluamos el impacto de nuestro enfoque en un análisis automatizado, concretamente, en la generación de casos de prueba para tests parametrizados \pp{No hicimos esto según entiendo}. Comparamos cómo se comporta la herramienta de generación de casos de prueba aleatorios Randoop cuando se le proporciona la API completa del módulo, frente a proporcionarle únicamente los constructores identificados por nuestro enfoque. Los resultados indican que, en este último caso, Randoop generó más objetos (y más grandes), dentro de un tiempo límite fijo.
 
 
 \pp{TODO: Evaluación experimental de BEAPI cuando tengamos la sección

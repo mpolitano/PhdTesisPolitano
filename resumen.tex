@@ -12,7 +12,7 @@
 \end{center}
 % Nuevo título: Enfoques Eficientes de Generación Automática de Objetos a partir de APIs de Clase
 
-Garantizar la corrección funcional del software es objetivo crucial para la
+Garantizar la corrección funcional del software es un objetivo crucial para la
 Ingeniería de Software. Numerosas técnicas 
 automáticas de análisis de software se han desarrollado para ayudar a los
 desarrolladores a lograr este objetivo. Muchas de estas técnicas 
@@ -20,7 +20,7 @@ requieren producir un conjunto de objetos para alimentar el programa bajo
 análisis (por ejemplo, técnicas de testing, de model checking de software,
 etc.). Generar un conjunto diverso de objetos para ejercitar adecuadamente el software 
 es un problema desafiante, sobre todo para programas que manipulan estructuras complejas 
-(ej. estructuras encadenadas almacenadas en el heap).
+(por ejemplo, estructuras encadenadas almacenadas en el heap).
 
 En este trabajo, se proponen dos enfoques para contruibir a la generación de
 objetos complejos a partir de la API de un módulo. Por un lado, observamos que 
@@ -39,7 +39,7 @@ el módulo, con cotas provistas por el usuario. Enfoques previos
 requieren de especificaciones formales de las propiedades que deben satisfacer
 los objetos.
 En contraste, BEAPI construye objetos creando y ejecutando secuencias de invocaciones a 
-métodos (secuencias de test) de la API. BEAPI implementa tres 
+métodos de la API (secuencias de test). BEAPI implementa tres 
 técnicas de poda claves para su eficiencia. Primero, BEAPI
 descarta secuencias de test que lanzan excepciones por el uso indebido de la
 API. Segundo, BEAPI implementa coincidencia de estados para descartar
@@ -51,7 +51,7 @@ Se evaluaron experimentalmente las técnicas propuestas, en clases que manipulan
 objetos complejos. 
 Los resultados muestran que los enfoques de identificación de métodos generadores se ejecutan en tiempos razonables, y encuentran métodos generadores de objetos
 suficientes y (casi) minimales (incluyen algunos métodos
-innecesarios en pocos casos). Además, se muestran resultados preliminares que
+irrelevantes en pocos casos). Además, se muestran resultados preliminares que
 indican que los métodos generadores de objetos son útiles para mejorar 
 la generación de objetos usando técnicas de generación aleatoria y
 exhaustiva acotada de tests, y para model checking de software.
