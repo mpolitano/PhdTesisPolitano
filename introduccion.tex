@@ -92,6 +92,9 @@ que, si \(R\) incluye los métodos generadores de objetos, la cobertura obtenida
 debería ser mayor.
 Nuestra evaluación experimental muestra que usando cotas razonables, los algoritmos definidos son eficientes, y computan métodos generadores de objetos suficientes y minimales con precisión (siempre computan generadores de objetos suficientes, y en la mayoría de los casos los generadores de objetos identificados son minimales, o tienen pocos métodos superfluos).
 
+Parte de los trabajos realizados sobre identificación de métodos generadores de objetos
+fueron publicados en el trabajo de Politano et. al. \cite{Ponzio19}. 
+
 % TODO: Introducir BEAPI
 Por otro lado, se observa que muchos de los enfoques de generación automática de
 entradas actuales incluyen componentes aleatorios, los cuales evitan realizar una exploración 
@@ -196,21 +199,60 @@ propiedades de las entradas válidas (por ejemplo, no requiere de la definición
 de un invariante de representación). En cambio, en BEAPI 
 requiere un esfuerzo mínimo de especificación en la mayoría de los casos (incluidos nuestros estudios de estudios), que consiste en 
 hacer que los métodos de la API lancen excepciones en presencia de entradas
-inválidas. Este estilo de programación se denomina "programación defensiva", 
+inválidas. Este estilo de programación se denomina ``programación defensiva'', 
 fue popularizado por Liskov \cite{Liskov00}, y es ampliamente recomendado para el desarrollo de APIs robustas. 
 Otra ventaja de BEAPI respecto a los enfoques basados en especificaciones es que produce secuencias de test para crear las entradas correspondientes utilizando métodos de la API, lo que facilita la creación de tests, y mejora la legibilidad y mantenibilidad de los mismos \cite{Braione17}. Esto es en contraste con las técnicas existentes, en las que las estructuras son codificadas directamente en los tests (como grafos) usando mecanismos de bajo nivel del lenguaje de programación (como reflexión en Java \cite{landman2017}).
 
+La técnica BEAPI se publicó en el artículo de Politano et. al. \cite{Politano23}.
+Adicionalmente, la herramienta que implementa BEAPI se presenta en el trabajo de Politano et. al.
+\cite{Politano24}.
 
-\pp{TODO: Evaluación experimental de builders cuando tengamos la sección
-    experimental}
-Evaluamos nuestro enfoque experimentalmente en un conjunto de clases Java con
-estados complejos, extraídas de la literatura. Los resultados muestran que, en
-nuestros casos de estudio, nuestro enfoque identifica conjuntos de métodos que son suficientes y minimales, en un tiempo aceptable \pp{Cuánto en promedio?}. También evaluamos el impacto de nuestro enfoque en un análisis automatizado, concretamente, en la generación de casos de prueba para tests parametrizados \pp{No hicimos esto según entiendo}. Comparamos cómo se comporta la herramienta de generación de casos de prueba aleatorios Randoop cuando se le proporciona la API completa del módulo, frente a proporcionarle únicamente los constructores identificados por nuestro enfoque. Los resultados indican que, en este último caso, Randoop generó más objetos (y más grandes), dentro de un tiempo límite fijo.
+Evaluamos experimentalmente los enfoques propuestos de identificación de métodos
+generadores de objetos, en un benchmark de clases Java con estados complejos 
+tomadas de la literatura. 
+Los resultados muestran que, en nuestros casos de estudio, los enfoques 
+se ejecutan en tiempos razonables, y logran una buena precisión para la tarea
+: siempre encuentran generadores de objetos suficientes, y en la mayoría de los
+casos los generadores de objetos reportados también son minimales 
+(incluyen pocos métodos irrelevantes en pocos casos). 
+Además, se muestran resultados experimentales preliminares que
+indican que los métodos generadores de objetos identificados son útiles para mejorar 
+la generación de objetos usando técnicas de generación aleatoria de y
+exhaustiva acotada de tests, y para hacer \emph{model checking} (acotado) de software.
+
+Evaluamos experimentalmente BEAPI y mostramos que su eficiencia y escalabilidad
+son comparables a las del mejor enfoque exhaustivo acotado actual (Korat), sin
+necesidad de proveer especificaciones formales para la estructuras (invariantes
+de representación de clases, también denominados repOK).
+También mostramos que BEAPI puede ser útil para encontrar errores en los repOKs, 
+comparando los conjuntos de entradas generados por BEAPI utilizando la API 
+con los conjuntos de entradas generados por Korat a partir de un repOK. 
+Mediante este procedimiento, encontramos varios errores en repOKs empleados en
+algunos benchmarks tomados de la literatura que fueron usados para la
+evaluación de herramientas relacionadas.
+Esto proporciona evidencia sobre la dificultad de escribir repOKs, en particular, los repOKs 
+precisos requeridos por las herramientas de generación acotada como Korat.
+Por último, proveemos evidencia preliminar que muestra que los objetos generados por BEAPI 
+son útiles para el testing basado en propiedades.
 
 
-\pp{TODO: Evaluación experimental de BEAPI cuando tengamos la sección
-    experimental}
-Evaluamos experimentalmente BEAPI y mostramos que su eficiencia y escalabilidad son comparables a las del mejor enfoque exhaustivo acotado actual (Korat), sin necesidad de proveer especificaciones formales para la estructuras (repOKs). También mostramos que BEAPI puede ser útil para encontrar fallos en los repOKs, comparando los conjuntos de entradas generados por BEAPI utilizando la API con los conjuntos de entradas generados por Korat a partir de un repOK. Usando este procedimiento, encontramos varios errores en los repOKs empleados en la evaluación experimental de herramientas relacionadas, proporcionando así evidencia sobre la dificultad de escribir repOKs (en particular, los repOKs precisos requeridos por las herramientas de generación acotada).
+% Resumen de la evaluación:
+%
+% los enfoques de identificación de métodos generadores:
+% - se ejecutan en tiempos razonables, 
+% - son precisos para la identificación de métodos generadores de objetos 
+% - los métodos generadores de objetos son útiles para:
+%     - mejorar la generación de objetos usando técnicas de generación aleatoria 
+%     - y exhaustiva acotada de tests, 
+%     - y para model checking de software
+% 
+% 
+% BEAPI: 
+% - eficiencia y escalabilidad comparable a Korat
+% - BEAPI sirve de ayuda para:
+%     - encontrar errores en especificaciones formales de invariantes de clase 
+%     - genera objetos útiles para el testing basado en propiedades
+
 
 
 % Contribuciones:
