@@ -167,6 +167,7 @@ Todos los experimentos fueron ejecutados en una máquina con procesador Intel Co
 
 \subsection{RQ1: Eficiencia del cómputo de métodos generadores de objetos}
 \label{sec:eficienciaBuilders}
+\cacho{La tabla ya fue cambiada, revisar el texto. Hashset estaba cambiado lo corri y evidentemente estaba mal.}
 \input{tables/eficienciaBuilders}
 
 Medimos la eficiencia como el tiempo promedio (en segundos) necesario para
@@ -186,20 +187,21 @@ promedio sobre los 12 casos de estudio. Esto da los siguientes
 resultados:
 A continuación, reportamos los tiempos promedio de ejecución (sobre los 12 casos
 de estudio) de los algoritmos evaluados:
+\cacho{Estos valores tambien ya fueron actualizados}
 \begin{itemize}
   \item \textbf{GA+FGE}: 258.9 segundos
-  \item \textbf{GA+FRC}: 1744.2 segundos
+  \item \textbf{GA+FRC}: 1895.5 segundos
   \item \textbf{HC+FGE}: 19.7 segundos
-  \item \textbf{HC+FRC}: 597.8 segundos
+  \item \textbf{HC+FRC}: 434.2 segundos
 \end{itemize}
 
 Estos valores muestran con claridad que \texttt{HC} es sistemáticamente más rápido
 que \texttt{GA}. En particular, con \texttt{FGE} el tiempo de \texttt{HC} es 
 aproximadamente 13 veces menor que el de \texttt{GA}, mientras que usando 
 \texttt{FRC} es casi 3 veces menor. 
+\cacho{Cambie aca}
 A nivel de casos
-individuales, \texttt{HC} supera a \texttt{GA} en todos los casos con \texttt{FGE} y en 11 de 12 casos con \emph{FRC},
-siendo \texttt{HashSet} la única excepción donde \texttt{GA+FRC} fue más veloz.
+individuales, \texttt{HC} supera a \texttt{GA} en todos los casos tanto con \texttt{FGE} y con \emph{FRC}
 \cacho{Revisar esto, no me acuerdo bien, ver el paper} \pp{No hay razón real
 para esto, suena a bug. Además, el que está mal es sólo la versión con FRC. En
 el otro gana HC}.
@@ -257,6 +259,7 @@ objetos para testing, etc.), creemos que \texttt{HC+FGE}, \texttt{GA+FGE}, y
 \subsection{RQ2: Precisión de los algoritmos de cómputo de métodos generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
 
+\cacho{Modifique la tabla, revisar el texto}
 \input{tables/eficaciaBuilders.tex}
 
 Medimos la efectividad como la capacidad de cada algoritmo para identificar
@@ -290,6 +293,7 @@ Por último, \texttt{GA+FRC} muestra un comportamiento correcto pero con un cost
 por lo que no resulta competitivo en términos de eficiencia.
 }
 
+\cacho{Revisar esto, cambie la tabla, arregle lits (tiene pinta de TO) y treemap, me da alguna vez algun metodo de mas, se mete un metodo que se usa para cubrir codigo que no es importante}
 Estas desviaciones tienen dos causas principales. Por un lado, en \texttt{GE} la
 evaluación se realiza por enumeración acotada; bajo scope fijo y valores
 iniciales concretos, ciertas combinaciones pueden no ser alcanzables sin
@@ -346,11 +350,11 @@ Para estos enfoques, definimos tres valores de presupuesto de tiempo para la gen
 test: 60, 120 y 180 segundos. En este experimento, medimos la cantidad de objetos distintos
 generados por los tests (\emph{No. of Objs.}), usando los métodos
 \texttt{equals()} de las clases evaluadas para descartar objetos iguales.
-\cacho{Además, reportamos el tamaño del objeto más grande generado por las técnicas
-\pp{Por qué faltan los tamaños de los objetos acá? En el paper los habíamos
-puesto, o no?} (calculamos los tamaños de objetos con el método
-\texttt{size()} de las clases bajo análisis). }
-\cacho{Agregar table, URGENTE!. escribir esa parte}
+% \cacho{Además, reportamos el tamaño del objeto más grande generado por las técnicas
+% \pp{Por qué faltan los tamaños de los objetos acá? En el paper los habíamos
+% puesto, o no?} (calculamos los tamaños de objetos con el método
+% \texttt{size()} de las clases bajo análisis). }
+% \cacho{Agregar table, URGENTE!. escribir esa parte}
 
 Los resultados obtenidos se resumen en la Tabla \ref{tab:results-obj}.
 
@@ -368,6 +372,7 @@ comparación con la \texttt{API}. Notablemente, la diferencia en la cantidad de
 objetos generados se incrementa con el presupuesto. 
 
 \cacho{Para observar la calidad de los objectos, se mide en la seccion \ref{sec:parametrizedTesting}, donde consideramos no solo la tecnica de Randoop y Randoop con MGO sino que, tambien, consideramos BEAPI.}
+\cacho{Correr experimentos nuevos budgets agregarlos aca}
 \pp{Falta lo de size}
 \cacho{Agregar table, URGENTE!. escribir esa parte}
 
@@ -447,6 +452,7 @@ por el estilo?} \cacho{Lo sacamos, no hay nada de esto, la idea era como decir q
 
 En las tablas se muestran los resultados para los scopes en los que
 alguna de las técnicas termina antes de llegar al timeout.
+\cacho{Calcular de nuevo el promedio de sumar todos los casos y todos los tiempos}
 En el análisis global, considerando los \emph{scopes} para los que ambas técnicas terminan
 antes del timeout, estas 61 combinaciones, el \emph{driver} con \textsf{MGO} explora 14070756 estados
 en 1591s, mientras que \textsf{API} visita 198130649 estados en 17,240 segundos.
@@ -590,11 +596,15 @@ etapa previa a la generación exhaustiva, utilizando el algoritmo de
 \emph{Hill Climbing} con la función objetivo basada en el generador exhaustivo acotado. (ver Sección: \ref{sec:eficienciaBuilders})
 \pp{Poner cual de los algoritmos de la tesis usamos. Charlemoslo}, 
 Para esta etapa, se empleó un \emph{scope} de 5 en todos los casos. 
-El tiempo máximo requerido por el proceso de identificación fue de 
-26 segundos en los benchmarks \textsf{Kiasan}, \textsf{FAJITA}, \textsf{ROOPS} y 
-\textsf{Korat} (siendo el caso más costoso SLL de ROOPS, con 11 métodos), 
-y de 62 segundos en los benchmarks \textsf{Real World} (siendo TreeMap, 
-con 32 métodos, el más costoso). 
+\cacho{Nuevo esto, saque lo de todos los benchmarks para que no haya confunsion}
+ El tiempo máximo requerido por el proceso de identificación fue de 68 segundos en el peor caso 
+ (en el benchmarks \textsf{Real World}, el caso de estudio TreeMap, que tiene 32 métodos en su API).
+% con 32 métodos, el más costoso). 
+% El tiempo máximo requerido por el proceso de identificación fue de 
+% 26 segundos en los benchmarks \textsf{Kiasan}, \textsf{FAJITA}, \textsf{ROOPS} y 
+% \textsf{Korat} (siendo el caso más costoso SLL de ROOPS, con 11 métodos), 
+% y de 68 segundos en los benchmarks \textsf{Real World} (siendo TreeMap, 
+% con 32 métodos, el más costoso). 
 En todos los casos verificamos manualmente que los métodos identificados 
 constituyeran un conjunto suficiente de métodos generadores de objetos.
 \pp{Hay que ver qué hacer con esto: Reportamos los tiempos de identificación de
@@ -649,6 +659,8 @@ Los resultados experimentales se muestran en la Tabla \ref{table:korat-beapi} y 
 \pp{No entra la tabla en una página. Hay que dividirla en 2. Además tiene muchos
     errores, se corrieron varias líneas como FibHeap ROOPS s4, o SLList Fajita
 s 8,9 y 10. Hay que revisar todo.}
+
+\cacho{Hecho, FALTA CONTROLAR Y QUE ESTEN LOS MISMO CASOS QUE EN LA RQ siguiente}
 La Tabla presenta una muestra representativa de los resultados para los benchmarks
 \textsf{Korat}, \textsf{FAJITA}, \textsf{ROOPS} y \textsf{Kiasan} (intentamos mantener la misma proporción de casos buenos y malos para cada técnica en los datos que reportamos). \pp{Los casos
 restantes se pueden encontrar online \cite{}. Queda raro que esta tabla sea la
