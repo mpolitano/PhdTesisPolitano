@@ -358,23 +358,24 @@ generados por los tests (\emph{No. of Objs.}), usando los métodos
 
 Los resultados obtenidos se resumen en la Tabla \ref{tab:results-obj}.
 
-En promedio para todos los presupuestos, \texttt{MGO} genera 6355 objetos 
-frente a 1597 de \texttt{API}. Es decir, el uso de métodos generadores resulta
-en un incremento de 3.98 veces en la cantidad de objetos distintos producidos. 
-
+En promedio para todos los presupuestos, \texttt{R-Serialize-MGO} genera 1347505 objetos 
+frente a 880601 de \texttt{R-Serialize-API}. Es decir, el uso de métodos generadores resulta
+en un incremento de 1.53 veces en la cantidad de objetos distintos producidos. 
+\cacho{Actulice valores}
 Desagregando por presupuesto, para \textbf{60 segundos} con métodos generadores 
-se obtienen, aproximadamente, tres veces más objetos, que con toda la API. 
-Con un presupuesto de \textbf{120 segundos}, se generan aproximadamente cuatro 
+se obtienen, aproximadamente, dos veces más objetos, que con toda la API. 
+Con un presupuesto de \textbf{120 segundos}, se generan aproximadamente 1.5 
 veces más objetos con los \texttt{MGO} en comparación con la \texttt{API},
 Finalmente, para \textbf{180 segundos}, la configuración con métodos 
-generadores se construyen casi cinco veces más objetos con los \texttt{MGO} en
-comparación con la \texttt{API}. Notablemente, la diferencia en la cantidad de
-objetos generados se incrementa con el presupuesto. 
+generadores se construyen casi 1.37 veces más objetos con los \texttt{MGO} en
+comparación con la \texttt{API}. Esta diferencias es debido a que, al aumentar el presupuesto, Randoop tiene más tiempo para explorar la API completa y generar más objetos,
+reduciendo la ventaja relativa de usar sólo los métodos generadores de objetos.
 
-\cacho{Para observar la calidad de los objectos, se mide en la seccion \ref{sec:parametrizedTesting}, donde consideramos no solo la tecnica de Randoop y Randoop con MGO sino que, tambien, consideramos BEAPI.}
-\cacho{Correr experimentos nuevos budgets agregarlos aca}
-\pp{Falta lo de size}
-\cacho{Agregar table, URGENTE!. escribir esa parte}
+
+% \cacho{Todo esto es nuevo}
+% Utilizamos los objectos que produce Randoop con los dos enfoques para medir la diversidad de los objectos generados.
+
+% \cacho{Para observar la calidad de los objectos, se mide en la seccion \ref{sec:parametrizedTesting}, donde consideramos no solo la tecnica de Randoop y Randoop con MGO sino que, tambien, consideramos BEAPI.}
 
 %La ventaja es consistente todos los casos. Si
 %promediamos por clase (sobre los tres presupuestos), \texttt{MGO} es mejor
@@ -387,15 +388,63 @@ tiempo.
 Es esperable que al generar objetos más diversos y más grandes, los objetos producidos por
 \texttt{MGO} ejerciten mejor el código que los generados por
 \texttt{API} si se los utiliza para testing. 
-La calidad de los objetos generados se evalúa más adelante en la Sección \ref{sec:parametrizedTesting}, 
+La calidad de los objetos generados se evalúa más adelante en la siguiente Sección \ref{sec:experiments-builders-parameterized}, 
 donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
 
 \subsubsection{Testing parametrizado}
 \label{sec:experiments-builders-parameterized}
 
+En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
+utilidad de los métodos generadores identificados mediante nuestro enfoque, particularmente 
+en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 
+objetos que pueden utilizarse como entradas en test suites parametrizadas.
+
+Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en tests 
+automatizados. En lugar de definir casos de prueba específicos para cada configuración, se 
+establece una única prueba que se ejecuta múltiples veces con distintos parámetros. En nuestro 
+contexto, dichos parámetros son objetos generados por distintas técnicas, los cuales sirven como 
+entrada a los métodos de la clase bajo prueba.
+
+Para llevar a cabo este experimento, diseñamos una test suite parametrizada en la que cada método 
+público de la clase bajo análisis es ejercitado con objetos generados por distintas técnicas. Las 
+herramientas utilizadas para generar estos objetos fueron: la versión estándar de \emph{Randoop}, que 
+genera directamente una suite de tests sin reutilizar objetos previos; una variante de \emph{Randoop} 
+denominada \emph{R-Serialize-API}, que serializa los objetos construidos durante la generación de 
+tests, permitiendo su reutilización como entrada en tests parametrizados; una versión modificada 
+de \emph{Randoop} que prioriza el uso de métodos generadores de objetos identificados previamente mediante 
+nuestro enfoque (denominada \emph{R-Serialize-MGO}, ver sección \ref{sec:object_builders_randoop}); 
+
+% y por último, la herramienta \emph{BEAPI}, que 
+% produce directamente un conjunto reducido pero válido de objetos a partir de su propia lógica de 
+% exploración exhaustiva acotada.
 \pp{Cacho: Agregar tablas de Randoop, R-Serialize-API, R-Serialize-MGO.}
 
 \pp{Pablo: Describir estas técnicas en configuración experimental.}
+
+
+A fin de evaluar y comparar el impacto de cada enfoque, se utilizó el benchmark basado en clases 
+del paquete \emph{java.util} debido a su rica API que tienen: \emph{HashSet}, \emph{HashMap}, \emph{TreeMap}, \emph{TreeSet} y \emph{LinkedList}.
+Ademas, para poder utilizar todos los \emph{benchamark} se necesita escribir test parametrizados para todos, siendo esta, una tarea laboriosa.
+Las métricas consideradas fueron: el tiempo 
+de generación (\emph{GTime}), este tiempo es el que se le da cada herramienta para ejecutar.
+Ademas se tuvo en cuenta las metricas de la cantidad de casos de prueba ejecutados (\emph{Test}), el 
+tiempo total de ejecución de la test suite (\emph{T(Seg)}), la cobertura de ramas alcanzada 
+(\emph{Ramas}) y la cantidad de mutantes eliminados (\emph{Mutacion}). Es importante destacar 
+que la test suite parametrizada es común a los enfoques \emph{R-Serialize}, \emph{R-Builders}, permitiendo así una comparación justa sobre los objetos generados. En el caso de 
+\emph{Randoop}, la herramienta genera su propia test suite, por lo que los resultados deben 
+interpretarse con cautela.
+
+
+\input{tables/randoopvsBuilders}
+
+Las tablas anteriores, demuestran que los resultados obtenidos con \texttt{R-Serialize-MGO} son consistentemente superiores a los alcanzados por \texttt{R-Serialize-API} y \texttt{Randoop} en todos los casos evaluados. 
+\texttt{R-Serialize-MGO} mejora la cobertura de ramas y mutación con sus objetos generados a partir de los métodos generadores identificados previamente.
+En particular, se obtiene una mejora en las clases \texttt{TreeSet}, \texttt{TreeMap} y \texttt{HashMap} y logrando empatar con \texttt{R-Serialize-API} en \texttt{LinkedList} y \texttt{HashSet}.
+Estos resultados evidencian que los métodos generadores de objetos identificados son efectivos para producir entradas de alta calidad para testing, mejorando la capacidad de detección de fallas.
+Ademas, podemos afirmar que los MGO son utiles para mejorar las herramientas de testing automatico como Randoop.
+
+
+\cacho{Explico tabla por tabla?}
 
 \subsubsection{Verificación acotada usando JPF}
 \label{sec:experiments-jpf-driver}
@@ -898,93 +947,135 @@ detectar manualmente, y que \textsf{BEAPI} puede ser de gran ayuda para esta tar
     responder RQ7. Tenemos que charlar urgente.
 }
 
+
+
 \pp{Y no olvidarse de mencionar todas las técnicas en la configuración
  experimental.}
 \cacho{Lo charlamos, los tiempos son relativos, es algo diferente el experimento.}
-En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
-utilidad de los métodos generadores identificados mediante nuestro enfoque, particularmente 
-en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 
-objetos que pueden utilizarse como entradas en test suites parametrizadas.
-\cacho{En el experimento de MGO (ver \ref{sec:object_builders_randoop}), generamos los objetos utilizando BEAPI y los empleamos posteriormente en un conjunto de tests parametrizados, con el objetivo de evaluar su impacto tanto en la cobertura como en la detección de fallos.}
 
-\cacho{Cabe destacar que los resultados presentados en esta sección difieren de los reportados en la Sección~XXX, dado que los experimentos fueron ejecutados en máquinas distintas (ver~\ref{sec:confExperimentalBeapi}).}
+\cacho{Nuevo todo esto}
 
-Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en tests 
-automatizados. En lugar de definir casos de prueba específicos para cada configuración, se 
-establece una única prueba que se ejecuta múltiples veces con distintos parámetros. En nuestro 
-contexto, dichos parámetros son objetos generados por distintas técnicas, los cuales sirven como 
-entrada a los métodos de la clase bajo prueba.
+En el experimento de MGO (ver \ref{sec:object_builders_randoop}), generamos objetos utilizando los MGO y toda la API junto con la herramienta \texttt{Randoop} y los empleamos posteriormente en un conjunto de tests parametrizados, con el objetivo de evaluar su impacto en la cobertura.
 
-Para llevar a cabo este experimento, diseñamos una test suite parametrizada en la que cada método 
-público de la clase bajo análisis es ejercitado con objetos generados por distintas técnicas. Las 
-herramientas utilizadas para generar estos objetos fueron: la versión estándar de \emph{Randoop}, que 
-genera directamente una suite de tests sin reutilizar objetos previos; una variante de \emph{Randoop} 
-denominada \emph{R-Serialize}, que serializa los objetos construidos durante la generación de 
-tests, permitiendo su reutilización como entrada en tests parametrizados; una versión modificada 
-de \emph{Randoop} que prioriza el uso de métodos generadores de objetos identificados previamente mediante 
-nuestro enfoque (denominada \emph{R-Builders}, ver sección \ref{sec:object_builders_randoop}); y por último, la herramienta \emph{BEAPI}, que 
-produce directamente un conjunto reducido pero válido de objetos a partir de su propia lógica de 
-exploración exhaustiva acotada.
+En esta seccion, evaluamos la calidad de los objetos generados por BEAPI en el contexto del testing parametrizado.
+Para ello, comparamos BEAPI con los mismo enfoques de generación aleatoria utilizados en la Sección \ref{sec:object_builders_randoop}:
 
-A fin de evaluar y comparar el impacto de cada enfoque, se utilizó el benchmark basado en clases 
-del paquete \emph{java.util} debido a su rica API que tienen: \emph{HashSet}, \emph{HashMap}, \emph{TreeMap}, \emph{TreeSet} y \emph{LinkedList}.
-Para cada clase se definió un invariante que permite distinguir objetos válidos de inválidos, permitiendo así evaluar la calidad de los generadores.
 
-Las métricas consideradas fueron: la cantidad de objetos válidos e inválidos generados, el tiempo 
-de generación (\emph{GTime}), este tiempo es el que se le da cada herramienta para ejecutar. Vale aclarar,
-que en el caso de BEAPI, este tiempo es el equivalente a cierto scope. Vale recordar al lector, que BEAPI, al ser un generador exhaustivo,
-tiene limite de scope y no de tiempo para generar. 
-Ademas se tuvo en cuenta las metricas de la cantidad de casos de prueba ejecutados (\emph{Test}), el 
-tiempo total de ejecución de la test suite (\emph{T(Seg)}), la cobertura de ramas alcanzada 
-(\emph{Ramas}) y la cantidad de mutantes eliminados (\emph{Mutacion}). Es importante destacar 
-que la test suite parametrizada es común a los enfoques \emph{R-Serialize}, \emph{R-Builders} 
-y \emph{BEAPI}, permitiendo así una comparación justa sobre los objetos generados. En el caso de 
-\emph{Randoop}, la herramienta genera su propia test suite, por lo que los resultados deben 
-interpretarse con cautela. \pp{Qué son valid e invalid? Por qué están acá?}
+% A fin de evaluar y comparar el impacto de cada enfoque, se utilizó el benchmark basado en clases 
+% del paquete \emph{java.util} debido a su rica API que tienen: \emph{HashSet}, \emph{HashMap}, \emph{TreeMap}, \emph{TreeSet} y \emph{LinkedList}.
+% Para cada clase se definió un invariante que permite distinguir objetos válidos de inválidos, permitiendo así evaluar la calidad de los generadores.
 
 \input{tables/randoopvsBeapi}
 
-La Tabla \ref{tab:hashSetTools} muestra una comparativa de diferentes técnicas aplicadas sobre 
-\texttt{HashSet}. Se observa que al priorizar métodos generadores de objectos en Randoop, \emph{R-Builders}, la cantidad de 
-objetos generados se incrementa significativamente (más de 300\% en comparación con la versión 
-estándar, \emph{R-Serialize}), lo cual impacta positivamente en la cobertura, principalmente en tiempos de generacion más cortos.
 
-En contraste, \textsf{BEAPI} genera sólo 32 objetos válidos, pero logra una cobertura de ramas y 
-mutación equivalente a \texttt{R-Builders}, y superior a la alcanzada por \texttt{R-Serialize} y 
+Vale aclarar,
+que en el caso de BEAPI, este tiempo es el equivalente a lo que obtenido hasta maximizar cobertura. Vale recordar al lector, que BEAPI, al ser un generador exhaustivo,
+tiene limite de scope y no de tiempo para generar.  (scope 5 en todos los casos).
+
+
+
+La Tabla \ref{tab:hashSetTools_beapi} muestra una comparativa de diferentes técnicas aplicadas sobre 
+\texttt{HashSet}. \textsf{BEAPI} logra una cobertura de ramas y 
+mutación equivalente a \texttt{R-Serialize-MGO}, y superior a la alcanzada por \texttt{R-Serialize-API} y 
 \texttt{Randoop} en lapsos de tiempo cortos. Esta eficiencia evidencia que BEAPI puede generar un 
 conjunto reducido de objetos, pero de alta calidad para testing, en muy poco tiempo (menos de cinco 
-segundos).
-
-\cacho{No hablo de porcentaje porq es poco, diria en algunos casos el 1\% mas, no me parece relevante ese dato}
-En términos de ejecución, mientras \texttt{R-Builders} y \texttt{R-Serialize} requieren ejecutar 
-millones de tests para alcanzar altos niveles de cobertura, \texttt{BEAPI} logra el mismo nivel 
-ejecutando apenas unos pocos miles. Esto indica que los objetos generados por \textsf{BEAPI} son 
+segundos).Esto indica que los objetos generados por \textsf{BEAPI} son 
 mas efectivos como entradas, permitiendo detectar fallas y explorar el espacio de estados 
 de manera eficiente.
 
-La Tabla \ref{tab:treeSetTools} presenta los resultados obtenidos para \texttt{TreeSet}. En 
-este caso, las diferencias comienzan a notarse con mayor claridad. \texttt{R-Builders} logra 
-una cobertura y mutación ligeramente superior a \texttt{BEAPI}. 
-Una explicación para este comportamiento radica en que ciertas configuraciones válidas de \texttt{TreeSet} pueden 
-requerir secuencias de inserciones y eliminaciones que BEAPI no alcanza debido a su 
-limitación por scope. Las dos variantes con métodos generadores de objetos son claramente más eficientes en tiempo hasta cobertura que las demás. 
-\texttt{BEAPI} alcanza de manera estable 150 ramas y 109 mutación en solo 2 segundos (en todos los presupuestos). 
-\texttt{R-Builders} logra la mejor cobertura absoluta, pero necesita más tiempo, supera las 150 ramas recién a los 10 segundos (151 ramas, 111 mutación). 
-En contraste, \texttt{R-Serialize} tarda 40 segundos para generarar y 11 segundos para ejecutar para quedarse en 125 ramas y 109 mutación, y \textbf{Randoop} llega a menos cobertura (105 ramas) incluso con 150 y 33 segundos.
-Si comparamos, cobertura por segundo, \texttt{BEAPI} llega primero a una alta cobertura y \texttt{R-Builders} puede llegar a cubrir algun mutante mas, pero pagando un costo de tiempo mayor.
+% \cacho{No hablo de porcentaje porq es poco, diria en algunos casos el 1\% mas, no me parece relevante ese dato}
+% En términos de ejecución, mientras \texttt{R-Builders} y \texttt{R-Serialize} requieren ejecutar 
+% millones de tests para alcanzar altos niveles de cobertura, \texttt{BEAPI} logra el mismo nivel 
+% ejecutando apenas unos pocos miles. 
 
-El comportamiento observado se repite en la Tabla \ref{tab:treeMapTools}, donde se evalúa la 
-clase \texttt{TreeMap}. 
-En este caso, \texttt{R-Builders} obtiene más mutación que \textbf{BEAPI} (152 vs 140), es decir, mata, aproximadamente un 6\% mas de mutantes;
-en cambio, \texttt{BEAPI} logra mayor cobertura de ramas en todos los presupuestos (alrededor del 8\% a partir de 20 segundos de tiempo de generación).
-Nuevamente, la explicación podría estar relacionada con estructuras internas que BEAPI no puede construir directamente bajo un scope fijo, como 
-árboles parcialmente desbalanceados que luego se ajustan mediante rotaciones o reordenamientos. 
-A pesar de estas diferencias, \texttt{BEAPI} mantiene una cobertura muy competitiva y logra 
-resultados consistentes con una fracción del esfuerzo computacional, lo que refuerza su valor 
-como técnica efectiva, especialmente en contextos donde se requiere control y exhaustividad 
-estructural.
+La Tabla \ref{tab:treeSetTools_beapi} presenta los resultados obtenidos para \texttt{TreeSet}. En 
+este caso, las diferencias comienzan a notarse con mayor claridad. 
+\texttt{BEAPI} alcanza una cobertura de ramas y mutación mejor en cuanto a mutantes matados con respecto a las otras tecnicas.
+En el caso de la tabla \ref{tab:treeMapTools_beapi}, se observa que se mantiene la tendencia de que los objectos generados por BEAPI son efectivos para testing parametrizado, logrando coberturas competitivas con tiempos de generación muy bajos.
+En este caso, \texttt{BEAPI} alcanza una cobertura de ramas y mutación superior pero se necesitaron 30 segundos, lo cual sigue siendo un tiempo bajo ya que la mejor tecnica (\texttt{R-Serialize-MGO}) necesita 180 segundos para lograr una cobertura similar.
 
-En cuanto a la Tabla \ref{tab:linkedListTools} que presenta los resultados obtenidos para la clase 
+% \texttt{R-Builders} logra 
+% una cobertura y mutación ligeramente superior a \texttt{BEAPI}. 
+% Una explicación para este comportamiento radica en que ciertas configuraciones válidas de \texttt{TreeSet} pueden 
+% requerir secuencias de inserciones y eliminaciones que BEAPI no alcanza debido a su 
+% limitación por scope. Las dos variantes con métodos generadores de objetos son claramente más eficientes en tiempo hasta cobertura que las demás. 
+% \texttt{BEAPI} alcanza de manera estable 150 ramas y 109 mutación en solo 2 segundos (en todos los presupuestos). 
+% \texttt{R-Builders} logra la mejor cobertura absoluta, pero necesita más tiempo, supera las 150 ramas recién a los 10 segundos (151 ramas, 111 mutación). 
+% En contraste, \texttt{R-Serialize} tarda 40 segundos para generarar y 11 segundos para ejecutar para quedarse en 125 ramas y 109 mutación, y \textbf{Randoop} llega a menos cobertura (105 ramas) incluso con 150 y 33 segundos.
+% Si comparamos, cobertura por segundo, \texttt{BEAPI} llega primero a una alta cobertura y \texttt{R-Builders} puede llegar a cubrir algun mutante mas, pero pagando un costo de tiempo mayor.
+
+% El comportamiento observado se repite en la Tabla \ref{tab:treeMapTools}, donde se evalúa la 
+% clase \texttt{TreeMap}. 
+% En este caso, \texttt{R-Builders} obtiene más mutación que \textbf{BEAPI} (152 vs 140), es decir, mata, aproximadamente un 6\% mas de mutantes;
+% en cambio, \texttt{BEAPI} logra mayor cobertura de ramas en todos los presupuestos (alrededor del 8\% a partir de 20 segundos de tiempo de generación).
+% Nuevamente, la explicación podría estar relacionada con estructuras internas que BEAPI no puede construir directamente bajo un scope fijo, como 
+% árboles parcialmente desbalanceados que luego se ajustan mediante rotaciones o reordenamientos. 
+% A pesar de estas diferencias, \texttt{BEAPI} mantiene una cobertura muy competitiva y logra 
+% resultados consistentes con una fracción del esfuerzo computacional, lo que refuerza su valor 
+% como técnica efectiva, especialmente en contextos donde se requiere control y exhaustividad 
+% estructural.
+
+En cuanto a la Tabla \ref{tab:linkedListTools_beapi} que presenta los resultados obtenidos para la clase 
+\texttt{LinkedList}. En este caso, se observa nuevamente que \texttt{BEAPI}, a pesar de 
+generar un número reducido de objetos, mantiene niveles constantes de cobertura y mutación. 
+Las técnicas \texttt{R-Serialize-API} y \texttt{R-Serialize-MGO} logran cubrir las mismas ramas y casi los mismos 
+mutantes que \texttt{BEAPI}, esto se debe a que las listas enlazadas son estructuras más simples,
+donde la mayoría de las configuraciones válidas pueden alcanzarse mediante secuencias cortas
+de inserciones y eliminaciones.
+
+Con respecto a la tabla  \ref{tab:hashMapTools_beapi}, 
+correspondiente a \texttt{HashMap}, se aprecia un caso 
+similar. \texttt{BEAPI} logra altos niveles de cobertura con tiempos de generación de 89 segundos, para alcanzar el maximo de cobertura que se puede obtener.
+En este caso \texttt{R-Serialize-MGO} se acerca a ese valor pero no llega al mismo en 180 segundos.
+
+
+Los resultados obtenidos permiten concluir que los objetos generados por \textsf{BEAPI} son 
+efectivos y eficientes para ser utilizados en tests parametrizados. Aunque la cantidad total de 
+objetos generados es menor, su calidad y representatividad permiten alcanzar los máximos niveles 
+de cobertura con una mínima ejecución. Además, se observa que guiar a generadores aleatorios como 
+Randoop mediante la identificación previa de métodos generadores de objectos también mejora significativamente 
+la cobertura. Esto hace que se reafirme el valor del otro aporte de esta tesis: la identificación automática de métodos generadores.
+Este conocimiento no solo permite mejorar herramientas existentes como Randoop (caso de \texttt{R-Builders}), 
+sino que también da lugar a técnicas completamente nuevas como \textsf{BEAPI}, 
+
+En contextos donde el tiempo de ejecución es un factor crítico, o donde se necesita eficiencia sin 
+sacrificar cobertura, \textsf{BEAPI} se posiciona como una herramienta valiosa para la generación 
+de objetos de prueba. Estos resultados también reafirman la importancia de identificar y utilizar 
+adecuadamente los métodos generadores para mejorar la calidad de los tests automatizados.
+
+
+
+
+
+
+
+
+
+
+
+
+% \texttt{R-Builders} logra 
+% una cobertura y mutación ligeramente superior a \texttt{BEAPI}. 
+% Una explicación para este comportamiento radica en que ciertas configuraciones válidas de \texttt{TreeSet} pueden 
+% requerir secuencias de inserciones y eliminaciones que BEAPI no alcanza debido a su 
+% limitación por scope. Las dos variantes con métodos generadores de objetos son claramente más eficientes en tiempo hasta cobertura que las demás. 
+% \texttt{BEAPI} alcanza de manera estable 150 ramas y 109 mutación en solo 2 segundos (en todos los presupuestos). 
+% \texttt{R-Builders} logra la mejor cobertura absoluta, pero necesita más tiempo, supera las 150 ramas recién a los 10 segundos (151 ramas, 111 mutación). 
+% En contraste, \texttt{R-Serialize} tarda 40 segundos para generarar y 11 segundos para ejecutar para quedarse en 125 ramas y 109 mutación, y \textbf{Randoop} llega a menos cobertura (105 ramas) incluso con 150 y 33 segundos.
+% Si comparamos, cobertura por segundo, \texttt{BEAPI} llega primero a una alta cobertura y \texttt{R-Builders} puede llegar a cubrir algun mutante mas, pero pagando un costo de tiempo mayor.
+
+% El comportamiento observado se repite en la Tabla \ref{tab:treeMapTools}, donde se evalúa la 
+% clase \texttt{TreeMap}. 
+% En este caso, \texttt{R-Builders} obtiene más mutación que \textbf{BEAPI} (152 vs 140), es decir, mata, aproximadamente un 6\% mas de mutantes;
+% en cambio, \texttt{BEAPI} logra mayor cobertura de ramas en todos los presupuestos (alrededor del 8\% a partir de 20 segundos de tiempo de generación).
+% Nuevamente, la explicación podría estar relacionada con estructuras internas que BEAPI no puede construir directamente bajo un scope fijo, como 
+% árboles parcialmente desbalanceados que luego se ajustan mediante rotaciones o reordenamientos. 
+% A pesar de estas diferencias, \texttt{BEAPI} mantiene una cobertura muy competitiva y logra 
+% resultados consistentes con una fracción del esfuerzo computacional, lo que refuerza su valor 
+% como técnica efectiva, especialmente en contextos donde se requiere control y exhaustividad 
+% estructural.
+
+En cuanto a la Tabla \ref{tab:linkedListTools_Builders} que presenta los resultados obtenidos para la clase 
 \texttt{LinkedList}. En este caso, se observa nuevamente que \texttt{BEAPI}, a pesar de 
 generar un número reducido de objetos, mantiene niveles constantes de cobertura y mutación. 
 Las técnicas \texttt{R-Serialize} y \texttt{R-Builders} logran cubrir las mismas ramas y casi los mismos 
@@ -1016,5 +1107,4 @@ En contextos donde el tiempo de ejecución es un factor crítico, o donde se nec
 sacrificar cobertura, \textsf{BEAPI} se posiciona como una herramienta valiosa para la generación 
 de objetos de prueba. Estos resultados también reafirman la importancia de identificar y utilizar 
 adecuadamente los métodos generadores para mejorar la calidad de los tests automatizados.
-
 
