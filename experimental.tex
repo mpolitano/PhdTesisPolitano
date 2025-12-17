@@ -288,25 +288,28 @@ software}
 
 \input{tables/objectsBuilders.tex}
 
-\cacho{En esta sección evaluamos la utilidad práctica de los métodos generadores de objetos 
-identificados previamente con el algoritmo de \emph{Hill Climbing}(\ref{alg:approachHC}) 
-con la función objetivo basada en la cantidad de objetos producidos por un generador exhaustivo acotado (\ref{sec:fitnessGE}), en el contexto de la
-generación automática de objetos para las clases evaluadas}. 
-Estos objetos pueden ser utilizadas luego como 
-entradas en tests unitarios o tests basadas en propiedades.
+En esta sección evaluamos la utilidad práctica de los métodos generadores 
+de objetos en el contexto de la generación automática de objetos usando Randoop. 
+Para esto utilizamos los generadores de objetos identificados con el 
+algoritmo de \emph{Hill Climbing} (Sección \ref{alg:approachHC}) y la función objetivo 
+basada en la cantidad de objetos producidos por un generador exhaustivo acotado 
+(Sección \ref{sec:fitnessGE}). En la sección siguiente veremos que estos objetos 
+pueden ser utilizadas luego como entradas en tests basados en propiedades.
  
-Para este experimento, modificamos la herramienta \emph{Randoop} (Ver
-preliminares, \ref{sec:feedback-directed-test-gen}) para que almacene los
+Para este experimento, modificamos la herramienta \emph{Randoop} (ver
+Sección \ref{sec:feedback-directed-test-gen}) para que almacene los
 objetos producidos por la ejecución de los tests. La evaluación consiste en
-utilizar la variante mencionada de Randoop con toda la API de la clase bajo análisis 
-(denominamos \texttt{API} a esta técnica de generación de objetos), y compararla
-con otra versión que instruye a Randoop para que utilice sólo los MGOs \pp{Cuáles?} \cacho{, identificados en \ref{sec:experimentalIdentificacionPrecision},} para
-generar tests (llamamos \texttt{MGO} a este enfoque). 
+utilizar la variante mencionada de Randoop con toda la API de la clase bajo
+análisis. Denominamos \texttt{RSer-API} a esta técnica de generación de objetos 
+(una versión de Randoop que usa la API completa y serializa objetos). Por otro
+lado, se utiliza otra versión que instruye a Randoop para que utilice sólo los MGOs para
+generar tests, denominada \texttt{RSer-MGO} (una versión de Randoop que usa solo MGOs 
+y serializa objetos). 
 
 Para estos enfoques, definimos tres valores de presupuesto de tiempo para la generación de 
-test: 60, 120 y 180 segundos. En este experimento, medimos la cantidad de objetos distintos
-generados por los tests (\emph{No. of Objs.}), usando los métodos
-\texttt{equals()} de las clases evaluadas para descartar objetos iguales.
+objetos: 60, 120 y 180 segundos. En este experimento, medimos la cantidad de objetos distintos
+generados por los tests (\emph{Num. Objetos}) (usamos los métodos \texttt{equals()} de las 
+clases evaluadas para descartar objetos iguales).
 % \cacho{Además, reportamos el tamaño del objeto más grande generado por las técnicas
 % \pp{Por qué faltan los tamaños de los objetos acá? En el paper los habíamos
 % puesto, o no?} (calculamos los tamaños de objetos con el método
@@ -314,20 +317,17 @@ generados por los tests (\emph{No. of Objs.}), usando los métodos
 % \cacho{Agregar table, URGENTE!. escribir esa parte}
 
 Los resultados obtenidos se resumen en la Tabla \ref{tab:results-obj}.
-
-En promedio para todos los presupuestos, \texttt{R-Serialize-MGO} genera 1347505 objetos 
-frente a 880601 de \texttt{R-Serialize-API}. Es decir, el uso de métodos generadores resulta
-en un incremento de 1.53 veces en la cantidad de objetos distintos producidos. 
-\cacho{Actulice valores}
-Desagregando por presupuesto, para \textbf{60 segundos} con métodos generadores 
+En promedio, para un mismo presupuesto de generación \texttt{RSer-MGO} 
+produce 1.45 veces más objetos que \texttt{RSer-API}. 
+Desagregando por presupuesto, para 60 segundos con métodos generadores 
 se obtienen, aproximadamente, dos veces más objetos, que con toda la API. 
-Con un presupuesto de \textbf{120 segundos}, se generan aproximadamente 1.5 
-veces más objetos con los \texttt{MGO} en comparación con la \texttt{API},
-Finalmente, para \textbf{180 segundos}, la configuración con métodos 
-generadores se construyen casi 1.37 veces más objetos con los \texttt{MGO} en
-comparación con la \texttt{API}. Esta diferencias es debido a que, al aumentar el presupuesto, Randoop tiene más tiempo para explorar la API completa y generar más objetos,
-reduciendo la ventaja relativa de usar sólo los métodos generadores de objetos.
-
+Con un presupuesto de 120 segundos, se generan aproximadamente 1.5 
+veces más objetos con \texttt{RSer-MGO} en comparación con \texttt{RSer-API},
+Finalmente, para 180 segundos, se construyen casi 1.37 veces más objetos 
+con \texttt{RSer-MGO} en comparación con \texttt{RSer-API}. 
+%Esta diferencias es debido a que, al aumentar el presupuesto, Randoop tiene más tiempo para explorar la API completa y generar más objetos,
+%reduciendo la ventaja relativa de usar sólo los métodos generadores de objetos.
+%
 
 % \cacho{Todo esto es nuevo}
 % Utilizamos los objectos que produce Randoop con los dos enfoques para medir la diversidad de los objectos generados.
@@ -340,15 +340,15 @@ reduciendo la ventaja relativa de usar sólo los métodos generadores de objetos
 %(casi 10 veces). 
 
 En resumen, el uso de métodos generadores de objetos mejora significativamente la
-capacidad de generación de objetos con Randoop, para un mismo presupuesto de
-tiempo.
-Es esperable que al generar objetos más diversos y más grandes, los objetos producidos por
-\texttt{MGO} ejerciten mejor el código que los generados por
-\texttt{API} si se los utiliza para testing. 
-La calidad de los objetos generados se evalúa más adelante en la siguiente Sección \ref{sec:experiments-builders-parameterized}, 
-donde los utilizamos como entradas de tests parametrizados sobre las estructuras de datos. 
+capacidad de generación de objetos distintos de Randoop.
+%, para un mismo presupuesto de tiempo.
+Es esperable que al generar objetos más diversos, los objetos producidos por
+\texttt{RSer-MGO} ejerciten mejor el código bajo test que los generados por
+\texttt{RSer-API} si se los utiliza para testing. 
+La calidad de los objetos generados se evalúa en más detalle en la sección siguiente,
+donde los utilizamos como entradas de tests basados en propiedades. 
 
-\subsubsection{Testing parametrizado}
+\subsubsection{Testing basado en propiedades}
 \label{sec:experiments-builders-parameterized}
 
 En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
