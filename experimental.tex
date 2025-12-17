@@ -239,68 +239,45 @@ objetos para testing, etc.), creemos que \texttt{HC+FGE}, \texttt{GA+FGE}, y
 \subsection{RQ2: Precisión de los algoritmos de cómputo de métodos generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
 
-\cacho{Modifique la tabla, revisar el texto}
 \input{tables/eficaciaBuilders.tex}
 
-Medimos la efectividad como la capacidad de cada algoritmo para identificar
-un \emph{conjunto minimal} de métodos generadores a partir de la API. 
+Medimos la precisión como la capacidad de cada algoritmo para identificar
+un conjunto suficiente y minimal de métodos generadores a partir de la API. 
 La Tabla \ref{tab:efectividad} resume los tamaños promedios (sobre 5
-corridas) del conjunto de métodos identificado por cada algoritmo evaluado. 
-Los resultados se analizaron manualmente con respecto al \emph{ground truth} 
+ejecuciones) del conjunto de métodos identificado por cada algoritmo evaluado. 
+Los resultados se analizaron manualmente 
 (el número de MGOs minimales se indica como \#MGO en la tabla) y 
 en todos los casos un conjunto de métodos generadores de objetos suficiente 
 fue generado por todos los algoritmos. Sin embargo, como puede verse en la
 tabla, algunos algoritmos incluyen algunos métodos irrelevantes en algunos casos.
 
-Se observan cuatro patrones claros. Primero, \texttt{HC+FRC} encuentra el conjunto
-\emph{minimal exacto en 12/12} sujetos. Segundo, \texttt{HC+GE} es exacto en
-\emph{11/12} sujetos y sólo sobredimensiona en \texttt{Lits} (retorna 7 en lugar de
-6).\cacho{Revisar esto, no me acuerdo bien, ver el paper}
-Tercero, \texttt{GA+GE} es exacto en \emph{10/12} sujetos; sobredimensiona en
-\emph{Lits} (7 vs.\ 6) y \texttt{HashMap} (2.60 vs.\ 2). Cuarto, \texttt{GA+FGE} es
-exacto en \emph{8/12} sujetos y tiende a incluir métodos adicionales en
-\texttt{NCL} (3.80 vs.\ 3), \texttt{TreeMap} (5.60 vs.\ 3), \texttt{TreeSet}
-(3.20 vs.\ 3) y \texttt{HashSet} (3 vs.\ 2). \pp{Las conclusiones deberían ser
-    bien simples: HC+FRC y HC+FGE dan 10 puntos en todos los casos, mientras que
-    GA+FGE da razonablemente bien en la mayoría de los casos, y GA+FRC no importa 
-demasiado porque es muy lento.}
-\cacho{
-Se observan tres patrones claros. Primero, \texttt{HC+FRC} y \texttt{HC+FGE} encuentra el conjunto de métodos generadores,
-\emph{minimal}, para las doce clases analizadas.
-Segundo, \texttt{GA+FGE} obtiene resultados muy cercanos al \emph{minimal} en la mayoría de los casos, 
-con algun método de mas en algunas clases (\texttt{NCL}, \texttt{TreeMap}, \texttt{TreeSet}, \texttt{HashSet}).
-Por último, \texttt{GA+FRC} muestra un comportamiento correcto pero con un costo computacional considerablemente mayor, 
-por lo que no resulta competitivo en términos de eficiencia.
-}
+Se observan tres patrones claros. Primero, \texttt{HC+FRC} y \texttt{HC+FGE}
+encuentran un conjunto de métodos generadores suficiente y minimal para las doce clases analizadas.
+Segundo, \texttt{GA+FGE} identifica conjuntos minimales de generadores de objetos
+en todos los casos menos en \texttt{HashMap}, donde en algunas ejecuciones incluye
+un método irrelevante.
+Por último, \texttt{GA+FRC} obtiene resultados muy cercanos a un conjunto minimal 
+en la mayoría de los casos, 
+incluyendo algún método irrelevante en alguna de las ejecuciones para algunas clases (\texttt{NCL}, \texttt{TreeMap}, \texttt{TreeSet}, \texttt{HashSet}),
+pero tiene un costo computacional considerablemente mayor, por lo que no resulta 
+competitivo en términos de eficiencia.
 
-\cacho{Revisar esto, cambie la tabla, arregle lits (tiene pinta de TO) y treemap, me da alguna vez algun metodo de mas, se mete un metodo que se usa para cubrir codigo que no es importante}
-Estas desviaciones tienen dos causas principales. Por un lado, en \texttt{GE} la
-evaluación se realiza por enumeración acotada; bajo scope fijo y valores
-iniciales concretos, ciertas combinaciones pueden no ser alcanzables sin
-incorporar alguna rutina adicional (como ocurre en \emph{Lits}), lo que hace que
-el conjunto devuelto sea suficiente pero no minimal \pp{Es difícil de justificar 
-    esto, deberíamos charlarlo. Pero para mi si hacés generación exhaustiva no
-te pueden faltar cosas}. \cacho{Revisar esto, no me acuerdo bien, ver experimentos URGENTE!}
-%Por otro lado, en
-%\textbf{FGE} la métrica de cobertura puede favorecer métodos que
-%aumentan rápido la cobertura de ramas/líneas aunque no sean estrictamente
-%necesarios para construir todas las instancias, por lo que el algoritmo puede estabilizarse en soluciones
-%ligeramente sobredimensionadas. PABLO: Esto no es cierto.
+La pérdida de precisión del algoritmo genético (\texttt{GA}) puede deberse a la
+estocasticidad propia de la búsqueda (selección, cruce, mutación). Otro factor
+que podría influir es el criterio de corte del algoritmo que detiene la evolución 
+cuando el mejor fitness no mejora durante cinco generaciones consecutivas (ver
+Sección \ref{alg:approachGA}). Este criterio es eficaz para acelerar la
+terminación del algoritmo, pero puede resultar en soluciones subóptimas (como
+se ve en algunos casos). Se deja como trabajo futuro la optimización de los
+parámetros del algoritmo genético en busca de mejorar su precisión \pp{Poner en
+trabajos futuros}. 
 
-En el caso particular del algoritmo genético (\texttt{GA}), además de la
-estocasticidad propia de la búsqueda (selección, cruce, mutación), empleamos un
-criterio de corte del algoritmo que detiene la evolución cuando el mejor
-fitness no mejora durante 5 generaciones consecutivas (ver
-Sección \ref{alg:approachGA}). Este criterio es eficaz para acotar el presupuesto,
-pero puede congelar soluciones suficientes levemente mayores que el
-mínimo cuando la presión selectiva ya no impulsa mejoras adicionales. \pp{Hay
-que arreglar Lits, y TreeMap con GA+FRC que da demasiado horrible. Puede ser por
-Timeout?}. \cacho{Revisar esto, no me acuerdo bien, ver experimentos URGENTE!}
-
-En síntesis, todas las configuraciones producen conjuntos suficientes, y
-\textbf{HC+FGE} además logra el mínimo exacto de forma sistemática. Cuando
-el objetivo primario es minimizar el costo de generación/análisis, recomendamos
-emplear el conjunto devuelto por \textbf{HC+FGE} (minimal y suficiente).
+En síntesis, los algoritmos presentados producen conjuntos suficientes
+de métodos generadores de objetos en los casos considerados. Además, 
+\textbf{HC} genera conjuntos minimales en todos estos casos, con ambas funciones
+objetivo. Además, \textbf{HC+FGE} es el algoritmo más eficiente, lo que lo
+convierte en una buena opción para computar métodos generadores de objetos
+rápidamente.
 
 
 \subsection{RQ3: Impacto de los métodos generadores de objetos en el análisis de
