@@ -56,14 +56,19 @@ package-summary.html}}, incluyendo \verb"TreeMap", \verb"TreeSet",
 
 \input{tables/groundTruth}
 
-Para evaluar la precisión de nuestros algoritmos, se construyó manualmente un
-conjunto de referencia o \emph{ground truth} que contiene los métodos
-generadores de objetos (\emph{MGO}) considerados minimales y suficientes en cada caso de estudio. Esta
-tarea implicó un análisis detallado y manual de cada API, lo que representó un
+Para evaluar la precisión de nuestros algoritmos, se analizaron los resultados 
+manualmente. 
+%conjunto de referencia o \emph{ground truth} que contiene los métodos
+%generadores de objetos (\emph{MGO}) considerados minimales y suficientes en cada caso de estudio. 
+Esta tarea implicó un análisis detallado de cada API, lo que representó un
 trabajo considerable, especialmente en los casos más complejos. La
-Tabla \ref{tab:groundTruth} resume este conjunto de referencia, indicando para
-cada clase el número total de métodos en su API pública (\#API) y los métodos
-identificados manualmente como generadores de objetos. 
+Tabla \ref{tab:groundTruth} provee ejemplos de métodos generadores de objetos
+(\emph{MGO}) minimales y suficientes para cada caso de estudio (recordar que puede
+haber más de un conjunto de \emph{MGO}s suficientes de tamaño minimal). 
+%este conjunto de referencia, 
+En la tabla también indicamos para cada clase el número total de métodos en su
+API pública (\#API). 
+%y los métodos identificados manualmente como generadores de objetos. 
 %Cabe destacar que en algunos
 %casos ciertos métodos pueden ser intercambiables (por ejemplo,
 %\texttt{addFirst} y \texttt{addLast} en \texttt{NCL}).
@@ -94,21 +99,22 @@ de Politano et. al. \cite{Ponzio19} presenta el algoritmo
 preliminar para esta tesis. 
 
 Nuestros algoritmos requieren la configuración de diversos parámetros que influyen en su eficiencia y efectividad.
-Estos valores se determinaron empíricamente mediante prueba y error, priorizando
-la eficiencia y la precisión de las soluciones y se mantuvieron constantes en todos los experimentos.
-
+Estos valores se determinaron empíricamente, priorizando la eficiencia y la
+precisión de las soluciones en experimentos realizados previamente.
 En particular, para el algoritmo genético (\textbf{GA})
 utilizamos una tasa de cruce de 0.40, una tasa de mutación de 0.05, 
 selección por torneo con cuatro participantes, una población de 100 individuos y
 un máximo de 20 generaciones por ejecución. 
 
 Para las evaluaciones con la función objetivo basada en cobertura (\textbf{FRC}), 
-fijamos un tiempo máximo de ejecución de Randoop de 30 segundos por candidato. 
-%Este tiempo fue suficiente para generar suites de tests y lograr buena cobertura de código en nuestros experimentos.  
-\pp{Esto de abajo no se entiende, tenemos que charlarlo}
-Randoop introduce un componente de aleatoriedad en la generación de tests. 
-Para controlar este factor y garantizar la reproducibilidad de los resultados de los experimentos con los mismo conjunto de parámetros, 
-fijamos dos semillas distintas.
+por cada candidato lanzamos dos hilos ejecutando Randoop con distintas semillas. 
+Además, fijamos un tiempo máximo de ejecución de Randoop de 30 segundos (en
+cada hilo).
+\pp{Decir algo de esto en la sección de la técnica FRC: Randoop introduce un componente 
+    de aleatoriedad en la generación de tests. Para controlar este
+    factor y garantizar la reproducibilidad de los resultados de los
+    experimentos con los mismo conjunto de parámetros, fijamos dos semillas
+distintas.}
 % y controlamos la aleatoriedad mediante semillas. Randoop utiliza esta semilla para controlar la generación de tests y
 % permitir la reproducción de resultados. Dado que Randoop introduce un grado
 % considerable de aleatoriedad, optamos por utilizar dos semillas distintas para capturar la variabilidad introducida por el 
@@ -121,34 +127,21 @@ el parámetro central es el \emph{scope}, entendido como la cantidad máxima de
 objetos por clase que puede crear el generador exhaustivo, y rangos de
 valores para los tipos primitivos. 
 En nuestros experimentos fijamos el scope en 5. Es decir, permitimos un máximo
-de cinco objetos por clase, y 5 valores posibles para tipos primitivos (ej. para enteros
-usamos valores entre 0 y 4). \pp{Acá tiene que haber un TO también. Sino en
-algunos casos corre el riesgo de no terminar.}
-\cacho{Además, establecimos un tiempo máximo de ejecución de 30 segundos por caso (\emph{timeout}), 
-para evitar que las instancias con combinaciones más grandes queden en una ejecución infinita, 
-debido a la explosión combinatoria del espacio de búsqueda.}
+de cinco objetos por clase, y 5 valores posibles para tipos primitivos (por ejemplo, 
+para enteros usamos valores entre 0 y 4). Además, establecimos un tiempo máximo de ejecución 
+de 30 segundos para la función objetivo.
 %Además, para evitar diferencias espurias que no reflejan cambios semánticos en la representación, 
 %omitimos campos internos que no afectan la estructura lógica de los objetos generados (por ejemplo, \texttt{modCount}, común en colecciones de Java), 
 %el cual sólo contabiliza modificaciones internas sin alterar la estructura observada del objeto. \pp{Yo no pondría esto último porque no recuerdo que lo
 %hayamos explicado en ningún lado.} \cacho{Hay un apartado pequeño, lo podemos charlar}
 
-Para cada caso de estudio y función objetivo, el algoritmo
-genético y el de \emph{Hill Climbing} fue ejecutado cinco veces con los parámetros mencionados. Los
-resultados reportados en las siguientes secciones corresponden al promedio de
-estas ejecuciones. En el caso particular de la función objetivo basada en
-generación exhaustiva, no fue necesario realizar múltiples repeticiones, dado
-que dicha evaluación es determinística bajo una misma configuración. \pp{No estoy de acuerdo con esto. El algoritmo genético es aleatorio
-independientemente de la fitness que use. Todos hay que ejecutarlos múltiples
-veces. Hablémoslo.}
-\cacho{Otra version, no se si estoy en lo correcto:}
-\cacho{
-En el caso particular de la función objetivo basada en generación exhaustiva, 
-consideramos que la variabilidad es mínima bajo una misma configuración, 
-por lo que realizamos una única ejecución por caso. No obstante, reconocemos que la generación exhaustiva
-podría presentar pequeños efectos de no-determinismo (por ejemplo, diferencias en el orden de exploración o de poda), 
-que podrían influir en el tiempo de ejecución. Sin embargo, estos efectos son marginales y no afectan la precisión de los resultados, 
-dado que la generación exhaustiva siempre produce el mismo conjunto de objetos para una configuración dada. }
+Para tratar con la aleatoriedad en los enfoques, cada algoritmo fue ejecutado
+cinco veces con los parámetros mencionados anteriormente. Los resultados reportados en las siguientes secciones corresponden al promedio de las cinco ejecuciones. 
 
+Cuando se desea evaluar la utilidad práctica de los métodos generadores de objetos en
+RQ3, se usan siempre los métodos identificados automáticamente por el algoritmo
+\textbf{HC–FGE}, que fue el más preciso en nuestros experimentos (ver Sección \ref{sec:experimentalIdentificacionPrecision}).
+ 
 Todos los experimentos fueron ejecutados en una máquina con procesador Intel Core i7-6700
 (4 núcleos, 8 hilos, frecuencia de hasta 4 GHz, 8 MB de caché, sexta generación),
 8,GB de RAM y sistema operativo GNU/Linux.
@@ -167,7 +160,7 @@ Todos los experimentos fueron ejecutados en una máquina con procesador Intel Co
 
 \subsection{RQ1: Eficiencia del cómputo de métodos generadores de objetos}
 \label{sec:eficienciaBuilders}
-\cacho{La tabla ya fue cambiada, revisar el texto. Hashset estaba cambiado lo corri y evidentemente estaba mal.}
+
 \input{tables/eficienciaBuilders}
 
 Medimos la eficiencia como el tiempo promedio (en segundos) necesario para
@@ -177,17 +170,12 @@ finalizar la búsqueda de métodos generadores a partir de la API.
 %objetivo: \emph{FGE} (Función objetivo con generación exhaustiva acotada) y \emph{FRC} (Función objetivo con cobertura). 
 Los resultados se muestran en la Tabla \ref{tab:eficiencia}. Cada fila
 corresponde a un caso de estudio; debajo del nombre se indica el tamaño de la API
-(\#API) y la cantidad de métodos generadores del \emph{ground truth}
-(\#MGO). Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
+(\#API) y el número de métodos generadores del conjunto minimal (\#MGO). 
+Las columnas se agrupan por algoritmo (GA y HC) y, dentro de
 cada uno, por función objetivo (FGE y FRC). Para cada configuración reportamos el promedio de 5 ejecuciones.
 
-Para comparar la eficiencia de \texttt{GA} y \texttt{HC}, utilizamos la misma 
-función objetivo (\texttt{FGE} o \texttt{FRC}) y medimos el tiempo de ejecución 
-promedio sobre los 12 casos de estudio. Esto da los siguientes 
-resultados:
 A continuación, reportamos los tiempos promedio de ejecución (sobre los 12 casos
 de estudio) de los algoritmos evaluados:
-\cacho{Estos valores tambien ya fueron actualizados}
 \begin{itemize}
   \item \textbf{GA+FGE}: 258.9 segundos
   \item \textbf{GA+FRC}: 1895.5 segundos
@@ -199,13 +187,9 @@ Estos valores muestran con claridad que \texttt{HC} es sistemáticamente más r�
 que \texttt{GA}. En particular, con \texttt{FGE} el tiempo de \texttt{HC} es 
 aproximadamente 13 veces menor que el de \texttt{GA}, mientras que usando 
 \texttt{FRC} es casi 3 veces menor. 
-\cacho{Cambie aca}
 A nivel de casos
-individuales, \texttt{HC} supera a \texttt{GA} en todos los casos tanto con \texttt{FGE} y con \emph{FRC}
-\cacho{Revisar esto, no me acuerdo bien, ver el paper} \pp{No hay razón real
-para esto, suena a bug. Además, el que está mal es sólo la versión con FRC. En
-el otro gana HC}.
-
+individuales, \texttt{HC} supera a \texttt{GA} en todos los casos tanto con
+\texttt{FGE} como con \emph{FRC}. 
 Esta diferencia se entiende por la propia naturaleza de los algoritmos.
 El algoritmo genético (\texttt{GA}) mantiene y evoluciona poblaciones de
 candidatos, lo que implica evaluar la función objetivo (que es costosa
@@ -217,20 +201,16 @@ generadores.
 Comparando las funciones objetivo, \texttt{FGE}
 es más rápida que \texttt{FRC}. En \texttt{GA}, FRC requiere en promedio
 unas siete veces más tiempo que \texttt{FGE}; en \texttt{HC}, \texttt{FRC} requiere unas casi 32 veces
-más tiempo que \texttt{FGE}. La función objetivo \texttt{FGE} debido a que para
-computar MGO en nuestos casos de estudio es suficiente con generar objetos de tamaño 
-relativamente pequeño (scope 5). Además, \texttt{FGE} utiliza BEAPI (\cacho{ver
-capítulo \ref{cap:beapi}}), que implementa mecanismos que hacen a la
-generación acotada más eficiente (generación guiada por el feedback de la
-ejecución, state matching). 
-Ambas funciones tienen un \emph{timeout} de 
-30 segundos \pp{esto va antes, cuando se presentan los algoritmos}, pero muchas veces
-la generación exhaustiva acotada termina la generación de objetos antes del llegar al timeout. 
+más tiempo que \texttt{FGE}. La función objetivo \texttt{FGE} es más rápida 
+debido a que para computar MGO en nuestos casos de estudio es suficiente con generar objetos 
+de tamaño relativamente pequeño (scope 5). Además, \texttt{FGE} utiliza BEAPI (ver
+Capítulo \ref{cap:beapi}), que implementa la generación exhaustiva acotada
+basada en la API de manera eficiente. 
 En cambio, la función objetivo FRC debe generar una gran cantidad de tests en
-muchos casos para lograr una buena cobertura (notar que FRC no está guiada por
-cobertura sino que es aleatoria). \pp{Hay que ver el tema seeds, porque debe ser
-eso lo que la hace tan lenta.}
-Esto explica porque FGE es más rápida en comparación con la función objetivo FRC
+muchos casos para lograr una buena cobertura (notar que FRC es aleatoria). 
+Además, FRC requiere correr múltiples ejecuciones de Randoop con diferentes semillas de 
+aleatoriedad (dos en estos experimentos), lo que la hace más costosa.
+Todo esto explica porque FGE es más rápida en comparación con la función objetivo FRC
 en estos experimentos.
 
 Por otra parte, la función objetivo \texttt{FRC} tiene la ventaja de que no requiere 
@@ -248,7 +228,7 @@ realizar más experimentos para evaluar mejor su utilidad en la práctica
 En conclusión, \texttt{HC+FGE} computa generadores de objetos muy rápidamente en
 nuestros experimentos, en 20 segundos en promedio. \texttt{GA+FGE} y
 \texttt{HC+FRC} son razonablemente rápidos para esta tarea, 
-tomando en promedio poco más de 4 minutos y 10 minutos, respectivamente.
+tomando en promedio poco más de 4 minutos, y 10 minutos, respectivamente.
 La combinación de \texttt{GA+FRC} hace que el cómputo se vuelva mucho más lento.
 Como el cómputo de generadores de objetos se realiza una sola vez sobre el
 código de la clase bajo análisis, previo a los análisis de código que se quieran
