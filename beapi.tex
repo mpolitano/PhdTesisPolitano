@@ -405,14 +405,14 @@ omit.fields=DEFAULT_MAXIMUM_CACHE_SIZE
 \end{figure}
 
 
-Nuestra técnica, basada en generación de tests guíada por feedback, necesita un
+Nuestra técnica, basada en generación de tests guiada por feedback, necesita un
 conjunto de valores primitivos (enteros, strings, etc.) provisto por el usuario
 que son utilizados para invocar a los métodos de la API con parámetros de
 tipos primitivos. En las líneas 2 y 3 de la Figura \ref{fig:NCL-fin-BEAPI} se
 definen los valores de tipo enteros y String, respectivamente, que serán utilizados por los métodos 
 cuando necesiten valores de estos tipos. En la Figura se definen enteros en un
 rango que va del 0 al 2, y las cadenas de caracteres ``str1'', ``str2'' y 
-``str3''. Ademas, se pueden proveer valores para todos los tipos incluyendo floats, doubles, etc. 
+``str3''. Además, se pueden proveer valores para todos los tipos incluyendo floats, doubles, etc. 
 Esto serán los dominios de datos para los tipos primitivos que tomen como
 parámetros los métodos que serán utilizados durante la generación.
 Por ejemplo, el método \emph{add(int)} de NCL, que agrega un elemento al final de la lista
@@ -537,7 +537,7 @@ public Object removeIndex(int index) {
   // Codigo omitido
 }
 \end{lstlisting}
-\caption{Programación defensiva en un metodo en \texttt{NodeCachingLinkedList}.}
+\caption{Programación defensiva en un método en \texttt{NodeCachingLinkedList}.}
 \label{fig:algoProgDefensiva}
 \end{figure}
 
@@ -647,7 +647,7 @@ sus objetos componentes se llaman \emph{heaps
 isomorfos}\cite{Iosif02,Boyapati02}. Evitamos la generación de \emph{heaps
 isomorfos} empleando una representación canónica para los heaps. Los heaps con
 raíz se pueden canonizar eficientemente mediante un enfoque llamado
-\emph{linearización} \cite{Iosif02,Xie04}, que convierte un heap con raíz en
+\emph{linealización} \cite{Iosif02,Xie04}, que convierte un heap con raíz en
 una secuencia de valores primitivos que lo representa de forma canónica.
 
 \bigbreak
@@ -810,7 +810,7 @@ computar los métodos generadores de objetos con precisión (ver Sección \ref{s
 Después de identificar eficientemente los métodos generadores usando un scope
 pequeño, podemos ejecutar \textsf{BEAPI} con métodos generadores identificados
 como parámetro utilizando scopes más grandes. Esto permite que \textsf{BEAPI}
-produzca objetos más grandes, y con ellos es posible ejercitar más exhuastivamente 
+produzca objetos más grandes, y con ellos es posible ejercitar más exhaustivamente 
 el software bajo test.
 
 \section{Algoritmo de BEAPI}
@@ -855,7 +855,7 @@ BEAPI(List methods, int scope, Map<Type, List<Seq>> primitives, Regex omitFields
   return currSeqs.getAllSeqsAsList();
 }
 \end{lstlisting}
-\caption{Psuedocódigo de \textsf{BEAPI}}
+\caption{Pseudocódigo de \textsf{BEAPI}}
 \label{fig:beapi-algorithm}
 \end{figure}
 
@@ -917,7 +917,7 @@ que se canonizan con la función \texttt{makeCanonical} (línea 17), que ejecuta
 Si alguno de los objetos producidos por \texttt{newSeq} excede el scope,
 \texttt{makeCanonical} establece \texttt{outOfScope} en verdadero, \textsf{BEAPI} descarta \texttt{newSeq} 
 y continúa con la siguiente secuencia de test (línea 18).
-Esto garantiza que \textsf{BEAPI} nunca crea objetos más grandes que lo permitidio por el alcance.
+Esto garantiza que \textsf{BEAPI} nunca crea objetos más grandes que lo permitido por el alcance.
 Si ninguna de las situaciones anteriores ocurre,  
 \texttt{makeCanonical} devuelve versiones canónicas de \texttt{o$_1$,$\ldots$,o$_n$,o$_r$} en las variables \texttt{c$_1$,$\ldots$,c$_n$,c$_r$}, respectivamente.
 

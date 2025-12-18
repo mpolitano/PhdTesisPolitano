@@ -444,11 +444,11 @@ Por ejemplo, un estado posible puede representarse como un vector de la siguient
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\textwidth]{images/cromosoma.png}
-  \caption{Ejemplo de representacion de estado con un vector booleano}
+  \caption{Ejemplo de representación de estado con un vector booleano}
   \label{fig:cromosoma}
 \end{figure}
 
-En este caso, las posiciones 0, 7 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjuto de métodos:
+En este caso, las posiciones 0, 7 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjunto de métodos:
 \vspace{5pt} 
 
 \begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos que representa el cromosoma de la Figura \ref{fig:cromosoma}, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
@@ -462,7 +462,7 @@ En este caso, las posiciones 0, 7 y 16 del vector están establecidas como verda
 % 2- función de valoración
 % también denominada función de aptitud en algoritmos genéticos
 
-Una función objetivo, también conocida como función de costo o función de valoracion, es una función matemática que mide la calidad de una solución candidata dentro del espacio de búsqueda \cite{Russell:2009}. Esta función asigna un valor numérico a cada estado, indicando qué tan buena o deseable es el candidato con respecto al objetivo del problema.
+Una función objetivo, también conocida como función de costo o función de valoración, es una función matemática que mide la calidad de una solución candidata dentro del espacio de búsqueda \cite{Russell:2009}. Esta función asigna un valor numérico a cada estado, indicando qué tan buena o deseable es el candidato con respecto al objetivo del problema.
 
 El propósito de la función objetivo es guiar el proceso de búsqueda hacia la mejor solución posible. Dependiendo del problema, se busca maximizar o minimizar el valor de la función. En problemas de maximización, se priorizan los estados con valores más altos, mientras que en problemas de minimización, se favorecen aquellos con valores más bajos.
 
@@ -694,11 +694,11 @@ f(M_5) > f(M_6)
 \label{sec:fitnessRandoop}
 
 \cacho{La primer oracion lo agrego PP, lo dejo}
-Como la generación exhuastiva acotada puede ser costosa computacionalmente,
+Como la generación exhaustiva acotada puede ser costosa computacionalmente,
 proponemos aquí una heurística para computar la función objetivo que debería
 dar lugar a una mejor eficiencia en los algoritmos de cómputo de métodos
 generadores. Así, la segunda función objetivo se basa en generar test suites
-de manera automática (aleatoria) utilizando un suconjunto candidato de métodos,  
+de manera automática (aleatoria) utilizando un subconjunto candidato de métodos,  
 y medir la cobertura de código que alcanzan estas test suites. 
 La cobertura se mide en términos de las líneas de código y las ramas del
 programa que son ejercitadas por los tests (\ref{sec:coverage}).
@@ -832,7 +832,7 @@ Nuevamente, la producción de secuencias de test se hace invocando a
 \texttt{GenerarNuevasSecuencias}.
 
 Usamos el algoritmo \ref{alg:fitnessRandoop} para computar $Cob$ de la siguiente manera.
-Primero, se genera una test suite para un conjuto de métodos dado $M$, con un tiempo límite
+Primero, se genera una test suite para un conjunto de métodos dado $M$, con un tiempo límite
 de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
  la cobertura de líneas y de ramas obtenida por la test suite, y se computa
  $Cob$ aplicando la fórmula \ref{eq:cobertura} con estos valores.
@@ -857,7 +857,7 @@ Donde:
     efectividad de los tests al cubrir líneas y ramas de la API.
 \item $R(M)$ (Redundancia): Diferencia entre el número total de métodos de la
     API ($M_t$) y la cantidad de métodos en $M$. Se define igual que para la
-    función objetivo basada en generación exhuastiva acotada de la sección \ref{sec:fitnessGE}.
+    función objetivo basada en generación exhaustiva acotada de la sección \ref{sec:fitnessGE}.
     \item $P(M)$ (Parámetros): Medida ponderada de la complejidad de los
         parámetros de los métodos en $M$. También mantuvimos el mismo cálculo
         que para la función objetivo basada en generación exhaustiva acotada.
@@ -892,7 +892,7 @@ f(M_1) = \langle 293, 17, 66 \rangle \quad \text{y} \quad f(M_2) = \langle 272, 
 En este caso, la cobertura  (\(Cob\)), se computa como la suma del número de líneas y ramas cubiertas.
 Para \( M_1 \), se cubrieron 192 líneas y 101 ramas (\(Cob = 293\)), para \( M_2 \), se cubrieron 175 líneas y 97 ramas (\(Cob = 272\)).
 
-Para la redundancia de métodos, tal cual la seccion anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
+Para la redundancia de métodos, tal cual la sección anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
 El conjunto \( M_1 \) contiene 3 métodos, por lo que \( R(M_1) = 20 - 3 = 17 \) y el conjunto \( M_2 \) contiene 2 métodos, entonces \( R(M_2) = 20 - 2 = 18 \).
 
 En cuanto a los parámetros, ambos conjuntos tienen la misma complejidad de parámetros, ya que ambos conjuntos incluyen únicamente el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo \texttt{Object}, con un peso de 6 según la Tabla \ref{fig:rankParameters}. 
@@ -988,7 +988,7 @@ mecanismo tradicional para construir nuevos candidatos a partir de los existente
 
 
 
-A continuacion explicaremos en detalle los distintos componentes del algoritmo genético que hemos implementado.
+A continuación explicaremos en detalle los distintos componentes del algoritmo genético que hemos implementado.
 
 \subsubsection{Población}
 
@@ -1009,7 +1009,7 @@ y así crear nuevos individuos que a su vez formarán parte de la población de 
 mejore su aptitud en función del criterio de optimización establecido por la función objetivo.
 
 En nuestro caso, la población está limitada a un tamaño de 50 individuos a lo largo del proceso evolutivo.
-Cómo es típico para los hiperparámetros de los algoritmos genéticos determinamos el tamaño de la población empíricamente, probando distintos valores
+Cómo es típico para los hiper parámetros de los algoritmos genéticos determinamos el tamaño de la población empíricamente, probando distintos valores
 eligiendo aquel que mejor rendimiento obtuvo en nuestros experimentos.
 %El método de prueba y error es comúnmente utilizado en computación evolutiva para definir los parámetros de búsqueda de manera adecuada. Es importante mencionar que si bien elegimos estos valores basándonos en los resultados de experimentos en un solo caso de estudio, luego utilizamos los mismos valores para el resto de los casos de estudio.
 
@@ -1020,11 +1020,11 @@ eligiendo aquel que mejor rendimiento obtuvo en nuestros experimentos.
 La selección en los algoritmos genéticos es el proceso de elegir qué individuos de la población actual participarán en la reproducción y darán lugar a la siguiente generación \cite{Goldberg:1989}. En este proceso, se otorgan mayores probabilidades de selección a los individuos más aptos, es decir, aquellos que tienen un mejor valor de la función objetivo \cite{Goldberg:1989}.
 La idea detrás de la selección es favorecer la transmisión de características deseables de los individuos más aptos a las generaciones futuras, para así mejorar gradualmente la calidad de las soluciones.
 
-En nuestro enfoque, hemos utilizado un operador de selección tipo torneo (\emph{tournament}) \cite{Goldberg:1989}. Este enfoque funciona de la siguiente manera: se selecciona aleatoriamente un grupo de $t$ individuos de la población y se los pone a ``competir'' entre sí. El individuo más apto (con mejor valor de la función objetivo) dentro de este grupo es seleccionado para participar en la reproducción. El tamaño del torneo $t$ (la cantidad de individuos que compiten entre sí) es un hiperparámetro del algoritmo. En nuestro caso, utilizamos un tamaño de torneo de 4, seleccionado empíricamente.
+En nuestro enfoque, hemos utilizado un operador de selección tipo torneo (\emph{tournament}) \cite{Goldberg:1989}. Este enfoque funciona de la siguiente manera: se selecciona aleatoriamente un grupo de $t$ individuos de la población y se los pone a ``competir'' entre sí. El individuo más apto (con mejor valor de la función objetivo) dentro de este grupo es seleccionado para participar en la reproducción. El tamaño del torneo $t$ (la cantidad de individuos que compiten entre sí) es un hiper parámetro del algoritmo. En nuestro caso, utilizamos un tamaño de torneo de 4, seleccionado empíricamente.
 
-El operador de selección tipo torneo ofrece una forma eficiente de elegir individuos y típicamente da lugar una buena diversidad de individuos en la población \cite{Goldberg:1989}. Es eficiente porque los torneos pueden paralelizarse, debido a que son independientes entre si. Además, es un operador muy flexible, ya que permite adaptar la velocidad de convergencia del algoritmo variando $t$. Valores más grandes de $t$ producen una mayor probabilidad de selección de los invidividuos más aptos, lo que acelera la convergencia, y viceversa. 
+El operador de selección tipo torneo ofrece una forma eficiente de elegir individuos y típicamente da lugar una buena diversidad de individuos en la población \cite{Goldberg:1989}. Es eficiente porque los torneos pueden paralelizarse, debido a que son independientes entre si. Además, es un operador muy flexible, ya que permite adaptar la velocidad de convergencia del algoritmo variando $t$. Valores más grandes de $t$ producen una mayor probabilidad de selección de los individuos más aptos, lo que acelera la convergencia, y viceversa. 
 
-Nuevamente, elegimos este operador de selección porque dió los mejores resultados en nuestros experimentos (también probamos otros operadores típicos como selección por ruleta, selección por ranking \cite{Goldberg:1989}.
+Nuevamente, elegimos este operador de selección porque dio los mejores resultados en nuestros experimentos (también probamos otros operadores típicos como selección por ruleta, selección por ranking \cite{Goldberg:1989}.
 
 \cacho{Esto es nuevo, antes no estaba:}
 En nuestro enfoque, el operador de torneo se aplica en dos momentos distintos del ciclo evolutivo:
@@ -1070,7 +1070,7 @@ de los padres. Este mecanismo favorece la exploración del espacio de búsqueda 
 \cacho{Nuevo:}
 En nuestro algoritmo, utilizamos una tasa de cruzamiento de \( c_r = 0{,}50 \) (\emph{tasa de crossover}), 
 lo cual implica que, en cada generación, aproximadamente el 50\,\% de los individuos seleccionados para reproducción serán cruzados entre sí.  
-Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección \ref{sec:selection}, comunmente llamados \emph{offspringSize} en los algortimos geneticos), esto equivale al:
+Dado que la evolución se aplica sobre el 60\% de la población total (ver Sección \ref{sec:selection}, comúnmente llamados \emph{offspringSize} en los algoritmos genéticos), esto equivale al:
 
 \begin{equation}
 \text{individuos\_cruzados} = r_c \cdot \text{offspringSize} = 0,50 \cdot \left(0,60 \cdot N\right)
@@ -1105,7 +1105,7 @@ la cantidad esperada de bits mutados por generación, $\mu$, se calcula como:
 
 Donde $N$ es el tamaño de la población, $L$ es la longitud del cromosoma y $P_m$ es la probabilidad de mutación.
 En nuestro caso, para la clase NCL, $N = 50$, $L = 20$ y $P_m = 0,05$, por lo que $\mu = 50 \cdot 20 \cdot 0,05 = 50$.
-Esto indica que, en promedio, se mutan 50 bits de toda la poblacion por generación
+Esto indica que, en promedio, se mutan 50 bits de toda la población por generación
 
 Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces una mutación en la posición 3 implicaría activar o desactivar el método
 correspondiente en el individuo, de acuerdo a la tabla \ref{tab:ncl-api-infer}, seria el método \emph{add(Object)}.
@@ -1199,7 +1199,7 @@ La población inicial se construye en la línea 1, generando cromosomas válidos
 Esta decisión inicial asegura diversidad mínima, permitiendo explorar combinaciones desde los métodos más simples hacia conjuntos más complejos 
 a lo largo de la evolución.
 
-En la línea 2 y 3 se define el tamaño de la poblacion que va a ser la descendencia, la misma es definida como un 60\% del tamaño de la poblacion total $N$, 
+En la línea 2 y 3 se define el tamaño de la población que va a ser la descendencia, la misma es definida como un 60\% del tamaño de la población total $N$, 
 y el resto (40\%) se mantiene como sobrevivientes de la población actual. A partir de allí, el algoritmo entra en el bucle evolutivo que se repite durante un número máximo de generaciones $numEvo$ (línea 4).
 
 
@@ -1233,7 +1233,7 @@ Una característica relevante de \emph{Jenetics} es que permite realizar la eval
 \cacho{HASTA ACA}
 
 
-\subsection{Algortimo de Escalada de Colinas}
+\subsection{Algoritmo de Escalada de Colinas}
 \label{alg:approachHC}
 
 El segundo algoritmo, denominado en inglés \textit{hill climbing},
@@ -1329,7 +1329,7 @@ El proceso comienza con la función principal \texttt{computeBuilders}, que impl
 La inicialización consiste en definir un estado inicial representado por un vector de ceros, 
 que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing$, junto con un valor lógico que indica que se deben considerar únicamente los métodos constructores. 
 Posteriormente, el algoritmo invoca nuevamente a $hillClimbing$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
-la busqueda anterior (línea 1 a 5).
+la búsqueda anterior (línea 1 a 5).
 
 La función $hillClimbing$ constituye el núcleo del algoritmo de Hill Climbing. Su ejecución parte del estado inicial recibido por parámetro y, 
 mediante un ciclo iterativo, genera todos los posibles sucesores del estado actual utilizando la función $generarSuccessor$. 
@@ -1337,7 +1337,7 @@ Entre estos sucesores se selecciona el que presente el mejor valor según la fun
 el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mejor sucesor pasa a ser el nuevo estado y el ciclo continúa. (línea 6 a 17)
 
 La generación de sucesores se realiza en la función $generarSucesores$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
-(indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando metodos constructores de la API o no. 
+(indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando métodos constructores de la API o no. 
 En caso de cumplir con esta condición, se genera un clon del estado actual en el que se activa dicha posición, y este nuevo estado se añade a la lista de sucesores. (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
 
 \begin{figure}[H]
