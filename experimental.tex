@@ -446,6 +446,52 @@ Ademas, podemos afirmar que los MGO son utiles para mejorar las herramientas de 
 
 \cacho{Explico tabla por tabla?}
 
+
+\begin{lstlisting}[caption={Ejemplo de Test Parametrizado de la clase \texttt{LinkedList}},label={lst:parametrizadoLinkedList},language=Java,captionpos=b]
+public void addTest() {			
+    List<Object> linkedlist = objIterator.getObjects();
+    ListIterator it = linkedlist.listIterator();
+    while(it.hasNext()) {
+        LinkedList l = (LinkedList)it.next(); 
+        int i = ThreadLocalRandom.current().nextInt(0, literals + 1);
+        int oldS = l.size();
+        boolean res=l.add(i);
+        assertTrue(l.size() == oldS+1 && res || l.size() == oldS && !res);
+    }
+}
+
+public void clearTest() {
+    List<Object> linkedlist = objIterator.getObjects();
+    ListIterator it = linkedlist.listIterator();
+    while(it.hasNext()) {
+        LinkedList list = (LinkedList)it.next(); 
+        list.clear();
+        assertTrue(list.size() == 0);
+    }
+}
+
+public void removeTest() {
+    List<Object> linkedlist = objIterator.getObjects();
+    ListIterator it = linkedlist.listIterator();
+    while(it.hasNext()) {
+        LinkedList l = (LinkedList)it.next(); 
+        boolean res = false;
+        int size = -1;
+        boolean containsPrevRemove = false;
+        size = l.size();
+        int i = ThreadLocalRandom.current().nextInt(0, literals + 1);
+        int indexToRemove = l.indexOf(i);
+        containsPrevRemove = l.contains(i);
+        res = l.remove(i);
+        assertTrue((res && containsPrevRemove ) || !res && !containsPrevRemove) ;
+        assertTrue(size-1 == l.size() && res || size == l.size() && !res );
+    }
+}
+
+\end{lstlisting}
+
+
+
 \subsubsection{Verificación acotada usando JPF}
 \label{sec:experiments-jpf-driver}
 
@@ -504,19 +550,17 @@ por el estilo?} \cacho{Lo sacamos, no hay nada de esto, la idea era como decir q
 %de escalabilidad para dicha variante
 % , mientras que \textsf{MGO} (Métodos generadores de Objetos) en general logra completar en el mismo \emph{scope}
 
-\cacho{Estaba mal lo habia hecho solo para un caso, Charlarlo con Pablo como lo explico}
-
 En las tablas se muestran los resultados para los scopes en los que
 alguna de las técnicas termina antes de llegar al timeout.
 \cacho{Calcular de nuevo el promedio de sumar todos los casos y todos los tiempos}
 En el análisis global, considerando los \emph{scopes} para los que ambas técnicas terminan
-antes del timeout, estas 61 combinaciones, el \emph{driver} con \textsf{MGO} explora 14070756 estados
-en 1591s, mientras que \textsf{API} visita 198130649 estados en 17,240 segundos.
-En promedio por casos, \textsf{MGO} explora 234513 estados en 26.5 segundos, mientras que \textsf{API} 
-explora 3302177 estados en 297.3 segundos. Esto implica que \textsf{MGO} reduce el espacio de estados en 
-92.9\%\ y el tiempo en 91\%\ aproximadamente respecto de \textsf{API}. 
-Se observa tambien que \textsf{API} alcanza el timeout en 9/61 combinaciones
-(14\%) \pp{son más que 9, hay que recalcular los números?}. 
+antes del timeout, estas 60 combinaciones, el \emph{driver} con \textsf{MGO} explora 14070756 estados
+en 1774 segundos, mientras que \textsf{API} visita 198130649 estados en 17240 segundos.
+En promedio por casos, \textsf{MGO} explora 234513 estados en 29.5 segundos, mientras que \textsf{API} 
+explora 3302177 estados en 287.3 segundos. Esto implica que \textsf{MGO} reduce el espacio de estados en 
+92.9\%\ y el tiempo en 89.7\%\ aproximadamente respecto de \textsf{API}. 
+% Se observa tambien que \textsf{API} alcanza el timeout en 5/60 combinaciones
+% (8\%) \pp{son más que 9, hay que recalcular los números?}. 
 
 %Bajo el mismo \emph{scope}, \textsf{API} explora aproximadamente 1308\%\ mas de estados y tarda 984\%\ mas de tiempo que \textsf{MGO}.
 %En cuanto a la interpretación, 
