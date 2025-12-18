@@ -253,7 +253,7 @@ Como entradas, \textsf{BEAPI} recibe:
 Como salidas, \textsf{BEAPI} produce:
 \begin{itemize}
     \item un conjunto exhaustivo acotado de objetos para los scopes dados;
-    \item una suite de tests \texttt{JUnit} \cite{junit} con las secuencias de test 
+    \item una suite de tests \textsf{JUnit} \cite{junit} con las secuencias de test 
         que genera \textsf{BEAPI} para crear los objetos de salida del punto anterior;
     \item otra suite con tests que revelan errores (si los hubiera) en los métodos utilizados 
         para la generación.
@@ -329,7 +329,7 @@ Cuando estas optimizaciones están deshabilitadas, BEAPI puede resultar muy inef
 y solo terminar en tiempos razonables para scopes pequeños (por ejemplo, scope 3). 
 En cambio, con las optimizaciones habilitadas, el desempeño de BEAPI es comparable al de Korat (ver Capítulo \ref{cap:experimental}).
 
-Si no hay fallas, BEAPI genera una suite de tests en formato \texttt{JUnit}. 
+Si no hay fallas, BEAPI genera una suite de tests en formato \textsf{JUnit}. 
 Cada test en la suite corresponde a una secuencia de métodos cuya ejecución
 construye alguno(s) de los objetos en el conjunto exhaustivo acotado de objetos resultante.
 %Otra ventaja de \textsf{BEAPI} es que, para cada objeto generado, proporciona una secuencia de test que se puede ejecutar para crear el objeto. 
@@ -587,7 +587,7 @@ que esto no producirá nuevos objetos distintos.
 
 En la Figura \ref{fig:stateMatching}, se puede observar de manera más clara este
 problema de generación de estructuras redundantes.
-Cada nodo del árbol representa una secuencia test generada por \texttt{BEAPI}
+Cada nodo del árbol representa una secuencia test generada por \textsf{BEAPI}
 para \texttt{NodeCachingLinkedList}. 
 Las flechas indican la extensión de una secuencia de test agregando una nueva
 operación al final de la secuencia previa.
