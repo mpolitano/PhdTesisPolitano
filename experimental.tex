@@ -191,11 +191,11 @@ A nivel de casos
 individuales, \texttt{HC} supera a \texttt{GA} en todos los casos tanto con
 \texttt{FGE} como con \emph{FRC}. 
 Esta diferencia se entiende por la propia naturaleza de los algoritmos.
-El algoritmo genético (\texttt{GA}) mantiene y evoluciona poblaciones de
+El algoritmo genético (\textsf{GA}) mantiene y evoluciona poblaciones de
 candidatos, lo que implica evaluar la función objetivo (que es costosa
 computacionalmente) para muchos candidatos.
-En cambio, \texttt{HC} sigue una estrategia \emph{greedy}: elige la mejor opción posible entre los sucesores del candidato actual. Esto lo vuelve más eficiente.
-Sin embargo, en ciertos casos \texttt{HC} podría perder precisión en el cómputo de métodos
+En cambio, \textsf{HC} sigue una estrategia \emph{greedy}: elige la mejor opción posible entre los sucesores del candidato actual. Esto lo vuelve más eficiente.
+Sin embargo, en ciertos casos \textsf{HC} podría perder precisión en el cómputo de métodos
 generadores. 
 
 Comparando las funciones objetivo, \texttt{FGE}
@@ -213,15 +213,15 @@ aleatoriedad (dos en estos experimentos), lo que la hace más costosa.
 Todo esto explica porque FGE es más rápida en comparación con la función objetivo FRC
 en estos experimentos.
 
-Por otra parte, la función objetivo \texttt{FRC} tiene la ventaja de que no requiere 
+Por otra parte, la función objetivo \textsf{FRC} tiene la ventaja de que no requiere 
 que el usuario provea la definición del scope para la generación exhaustiva acotada. 
-Además, \texttt{FRC} podría ser más escalable que \texttt{FGE} en casos donde
+Además, \textsf{FRC} podría ser más escalable que \textsf{FGE} en casos donde
 la cantidad de objetos sea demasiado grande para ser generados de manera
-exhuastiva (por ejemplo, en clases con invariantes de representación más débiles
+exhaustiva (por ejemplo, en clases con invariantes de representación más débiles
 que los evaluados aquí).
 De cualquier modo, los resultados preliminares muestran que los algoritmos 
-son mucho más lentos con la función objetivo \texttt{FRC}. Se deja como trabajo 
-futuro estudiar formas más eficientes de implementar la función \texttt{FRC}, y
+son mucho más lentos con la función objetivo \textsf{FRC}. Se deja como trabajo 
+futuro estudiar formas más eficientes de implementar la función \textsf{FRC}, y
 realizar más experimentos para evaluar mejor su utilidad en la práctica 
 \pp{No olvidarse de incluir esto en trabajos futuros}.
 
@@ -233,8 +233,8 @@ La combinación de \texttt{GA+FRC} hace que el cómputo se vuelva mucho más len
 Como el cómputo de generadores de objetos se realiza una sola vez sobre el
 código de la clase bajo análisis, previo a los análisis de código que se quieran
 llevar adelante (por ejemplo, generación de
-objetos para testing, etc.), creemos que \texttt{HC+FGE}, \texttt{GA+FGE}, y
-\texttt{HC+FRC} son algoritmos viables para su uso en la práctica. 
+objetos para testing, etc.), creemos que \textsf{HC+FGE}, \textsf{GA+FGE}, y
+\textsf{HC+FRC} son algoritmos viables para su uso en la práctica. 
 
 \subsection{RQ2: Precisión de los algoritmos de cómputo de métodos generadores de objetos}
 \label{sec:experimentalIdentificacionPrecision}
@@ -279,7 +279,6 @@ objetivo. Además, \textbf{HC+FGE} es el algoritmo más eficiente, lo que lo
 convierte en una buena opción para computar métodos generadores de objetos
 rápidamente.
 
-
 \subsection{RQ3: Impacto de los métodos generadores de objetos en el análisis de
 software}
 
@@ -318,7 +317,7 @@ clases evaluadas para descartar objetos iguales).
 
 Los resultados obtenidos se resumen en la Tabla \ref{tab:results-obj}.
 En promedio, para un mismo presupuesto de generación \texttt{RSer-MGO} 
-produce 1.45 veces más objetos que \texttt{RSer-API}. 
+produce 1.53 veces más objetos que \texttt{RSer-API}. 
 Desagregando por presupuesto, para 60 segundos con métodos generadores 
 se obtienen, aproximadamente, dos veces más objetos, que con toda la API. 
 Con un presupuesto de 120 segundos, se generan aproximadamente 1.5 
@@ -364,12 +363,12 @@ entrada a los métodos de la clase bajo prueba.
 
 Para llevar a cabo este experimento, diseñamos una test suite parametrizada en la que cada método 
 público de la clase bajo análisis es ejercitado con objetos generados por distintas técnicas. Las 
-herramientas utilizadas para generar estos objetos fueron: la versión estándar de \emph{Randoop}, que 
-genera directamente una suite de tests sin reutilizar objetos previos; una variante de \emph{Randoop} 
-denominada \emph{R-Serialize-API}, que serializa los objetos construidos durante la generación de 
+herramientas utilizadas para generar estos objetos fueron: la versión estándar de \textsf{Randoop}, que 
+genera directamente una suite de tests sin reutilizar objetos previos; una variante de \textsf{Randoop} 
+denominada \textsf{R-Serialize-API}, que serializa los objetos construidos durante la generación de 
 tests, permitiendo su reutilización como entrada en tests parametrizados; una versión modificada 
-de \emph{Randoop} que prioriza el uso de métodos generadores de objetos identificados previamente mediante 
-nuestro enfoque (denominada \emph{R-Serialize-MGO}, ver sección \ref{sec:object_builders_randoop}); 
+de \textsf{Randoop} que prioriza el uso de métodos generadores de objetos identificados previamente mediante 
+nuestro enfoque (denominada \textsf{R-Serialize-MGO}, ver sección \ref{sec:object_builders_randoop}); 
 
 % y por último, la herramienta \emph{BEAPI}, que 
 % produce directamente un conjunto reducido pero válido de objetos a partir de su propia lógica de 
@@ -380,28 +379,74 @@ nuestro enfoque (denominada \emph{R-Serialize-MGO}, ver sección \ref{sec:object
 
 
 A fin de evaluar y comparar el impacto de cada enfoque, se utilizó el benchmark basado en clases 
-del paquete \emph{java.util} debido a su rica API que tienen: \emph{HashSet}, \emph{HashMap}, \emph{TreeMap}, \emph{TreeSet} y \emph{LinkedList}.
-Ademas, para poder utilizar todos los \emph{benchamark} se necesita escribir test parametrizados para todos, siendo esta, una tarea laboriosa.
+del paquete \texttt{java.util} debido a su rica API que tienen: \texttt{HashSet}, \texttt{HashMap}, \texttt{TreeMap}, \texttt{TreeSet} y \texttt{LinkedList}.
+Además, para poder utilizar todos los \emph{benchamark} se necesita escribir test parametrizados para todos, siendo esta, una tarea laboriosa.
 Las métricas consideradas fueron: el tiempo 
-de generación (\emph{GTime}), este tiempo es el que se le da cada herramienta para ejecutar.
-Ademas se tuvo en cuenta las metricas de la cantidad de casos de prueba ejecutados (\emph{Test}), el 
-tiempo total de ejecución de la test suite (\emph{T(Seg)}), la cobertura de ramas alcanzada 
-(\emph{Ramas}) y la cantidad de mutantes eliminados (\emph{Mutacion}). Es importante destacar 
-que la test suite parametrizada es común a los enfoques \emph{R-Serialize}, \emph{R-Builders}, permitiendo así una comparación justa sobre los objetos generados. En el caso de 
-\emph{Randoop}, la herramienta genera su propia test suite, por lo que los resultados deben 
+de generación (\textsf{GTime}), este tiempo es el que se le da cada herramienta para ejecutar.
+Además se tuvo en cuenta las métricas de la cantidad de casos de prueba ejecutados (\textsf{Test}), el 
+tiempo total de ejecución de la test suite (\textsf{T(Seg)}), la cobertura de ramas alcanzada 
+(\textsf{Ramas}) y la cantidad de mutantes eliminados (\textsf{Mutacion}). Es importante destacar 
+que la test suite parametrizada es común a los enfoques \textsf{R-Serialize}, \textsf{R-Builders}, permitiendo así una comparación justa sobre los objetos generados. En el caso de 
+\textsf{Randoop}, la herramienta genera su propia test suite, por lo que los resultados deben 
 interpretarse con cautela.
 
 
 \input{tables/randoopvsBuilders}
 
-Las tablas anteriores, demuestran que los resultados obtenidos con \texttt{R-Serialize-MGO} son consistentemente superiores a los alcanzados por \texttt{R-Serialize-API} y \texttt{Randoop} en todos los casos evaluados. 
-\texttt{R-Serialize-MGO} mejora la cobertura de ramas y mutación con sus objetos generados a partir de los métodos generadores identificados previamente.
+Las tablas anteriores, demuestran que los resultados obtenidos con \textsf{R-Serialize-MGO} son consistentemente superiores a los alcanzados por \textsf{R-Serialize-API} y \textsf{Randoop} en todos los casos evaluados. 
+\textsf{R-Serialize-MGO} mejora la cobertura de ramas y mutación con sus objetos generados a partir de los métodos generadores identificados previamente.
 En particular, se obtiene una mejora en las clases \texttt{TreeSet}, \texttt{TreeMap} y \texttt{HashMap} y logrando empatar con \texttt{R-Serialize-API} en \texttt{LinkedList} y \texttt{HashSet}.
 Estos resultados evidencian que los métodos generadores de objetos identificados son efectivos para producir entradas de alta calidad para testing, mejorando la capacidad de detección de fallas.
-Ademas, podemos afirmar que los MGO son utiles para mejorar las herramientas de testing automatico como Randoop.
+Además, podemos afirmar que los MGO son útiles para mejorar las herramientas de testing automático como Randoop.
 
 
 \cacho{Explico tabla por tabla?}
+
+
+\begin{lstlisting}[caption={Ejemplo de Test Parametrizado de la clase \texttt{LinkedList}},label={lst:parametrizadoLinkedList},language=Java,captionpos=b]
+public void addTest() {			
+    List<Object> linkedlist = objIterator.getObjects();
+    ListIterator it = linkedlist.listIterator();
+    while(it.hasNext()) {
+        LinkedList l = (LinkedList)it.next(); 
+        int i = ThreadLocalRandom.current().nextInt(0, literals + 1);
+        int oldS = l.size();
+        boolean res=l.add(i);
+        assertTrue(l.size() == oldS+1 && res || l.size() == oldS && !res);
+    }
+}
+
+public void clearTest() {
+    List<Object> linkedlist = objIterator.getObjects();
+    ListIterator it = linkedlist.listIterator();
+    while(it.hasNext()) {
+        LinkedList list = (LinkedList)it.next(); 
+        list.clear();
+        assertTrue(list.size() == 0);
+    }
+}
+
+public void removeTest() {
+    List<Object> linkedlist = objIterator.getObjects();
+    ListIterator it = linkedlist.listIterator();
+    while(it.hasNext()) {
+        LinkedList l = (LinkedList)it.next(); 
+        boolean res = false;
+        int size = -1;
+        boolean containsPrevRemove = false;
+        size = l.size();
+        int i = ThreadLocalRandom.current().nextInt(0, literals + 1);
+        int indexToRemove = l.indexOf(i);
+        containsPrevRemove = l.contains(i);
+        res = l.remove(i);
+        assertTrue((res && containsPrevRemove ) || !res && !containsPrevRemove) ;
+        assertTrue(size-1 == l.size() && res || size == l.size() && !res );
+    }
+}
+
+\end{lstlisting}
+
+
 
 \subsubsection{Verificación acotada usando JPF}
 \label{sec:experiments-jpf-driver}
@@ -433,10 +478,10 @@ driver en la línea 3 (método \texttt{generateStructure}). Luego, ejecuta el
 método bajo análisis en la línea 4 (\texttt{put}), y por último verifica que se
 satisfaga el \texttt{repOK} luego de la ejecución del método en la línea 5.
 
-Para la evaluación consideramos los dos enfoques presentados en la Sección \ref{sec:jpf-builders} para construir los drivers. El enfoque \texttt{API} consiste en
+Para la evaluación consideramos los dos enfoques presentados en la Sección \ref{sec:jpf-builders} para construir los drivers. El enfoque \textsf{API} consiste en
 utilizar toda la API. Recordar que un ejemplo de driver generado con este enfoque se 
 presenta en la Figura \ref{lst:driverAPI}. Por otro lado, el enfoque
-\texttt{MGO} consiste en usar sólo los métodos generadores de objetos para
+\textsf{MGO} consiste en usar sólo los métodos generadores de objetos para
 construir los drivers, como se muestra en el ejemplo de la Figura \ref{lst:driverBLD}.
 Como en los experimentos anteriores, los métodos generadores de objetos fueron precomputados 
 usando el algoritmo \emph{Hill Climbing} (Sección \ref{alg:approachHC}) 
@@ -466,11 +511,10 @@ En las tablas se muestran los resultados para los scopes en los que
 alguna de las técnicas termina antes de llegar al timeout.
 \cacho{Calcular de nuevo el promedio de sumar todos los casos y todos los tiempos}
 Considerando los \emph{scopes} para los que ambas técnicas terminan
-antes del timeout, tenemos un total de 61 casos. 
-En promedio para estos 61 casos, \textsf{MGO} explora 234513 estados en 26.5 segundos, mientras que \textsf{API} 
-explora 3302177 estados en 297.3 segundos. Esto implica que \textsf{MGO} reduce
+antes del timeout, tenemos un total de 60 casos. 
+En promedio para estos 60 casos, \textsf{MGO} explora 234513 estados en 29.5 segundos, mientras que \textsf{API} explora 3302177 estados en 287.3 segundos. Esto implica que \textsf{MGO} reduce
 el espacio de estados a explorar en 
-92.9\%\ y el tiempo en 91\%\ aproximadamente respecto de \textsf{API}. 
+92.9\%\ y el tiempo en 89.7\%\ aproximadamente respecto de \textsf{API}. 
 Se observa tambien que \textsf{API} alcanza el timeout en 9/61 combinaciones
 (14\%) \pp{son más que 9, hay que recalcular los números?}. 
 
@@ -515,12 +559,12 @@ investigación:
 \label{sec:confExperimentalBeapi}
 
 Como casos de estudio, utilizamos implementaciones de estructuras de datos
-tomadas de tres benchmarks existentes: \textsf{Kiasan} \cite{Deng06}, 
-\textsf{FAJITA} \cite{Abad13}, \textsf{ROOPS} \cacho{VER CITA}. También
+tomadas de tres benchmarks existentes: \texttt{Kiasan} \cite{Deng06}, 
+\texttt{FAJITA} \cite{Abad13}, \texttt{ROOPS} \cacho{VER CITA}. También
 incluimos las clases utilizadas en la evaluación de
-\textsf{Korat} \cite{Boyapati02}, y un conjunto de clases de proyectos reales de
-software que la denominamos \textsf{Real World}, donde se incluyen clases de
-\emph{java.util} (TreeMap, TreeSet, LinkedList, Hasmap), de \emph{Apache Commons
+\texttt{Korat} \cite{Boyapati02}, y un conjunto de clases de proyectos reales de
+software que la denominamos \texttt{Real World}, donde se incluyen clases de
+\texttt{java.util} (TreeMap, TreeSet, LinkedList, Hasmap), de \texttt{Apache Commons
 Collections} (NodeCachingLinkedList) y un Scheduler de SIR.
 
 Estos casos de estudio cubren una amplia variedad de estructuras de datos complejas, tales como listas doblemente enlazadas, árboles binarios de búsqueda, 
@@ -537,12 +581,12 @@ Politano24}.
 \cacho{Lo mejore un poco}
 En BEAPI, la identificación de métodos generadores de objetos se realiza en una 
 etapa previa a la generación exhaustiva, utilizando el algoritmo de 
-\emph{Hill Climbing} con la función objetivo basada en el generador exhaustivo acotado. (ver Sección: \ref{sec:eficienciaBuilders})
+\textsf{Hill Climbing} con la función objetivo basada en el generador exhaustivo acotado. (ver Sección: \ref{sec:eficienciaBuilders})
 \pp{Poner cual de los algoritmos de la tesis usamos. Charlemoslo}, 
 Para esta etapa, se empleó un \emph{scope} de 5 en todos los casos. 
 \cacho{Nuevo esto, saque lo de todos los benchmarks para que no haya confunsion}
  El tiempo máximo requerido por el proceso de identificación fue de 68 segundos en el peor caso 
- (en el benchmarks \textsf{Real World}, el caso de estudio TreeMap, que tiene 32 métodos en su API).
+ (en el benchmarks \texttt{Real World}, el caso de estudio TreeMap, que tiene 32 métodos en su API).
 % con 32 métodos, el más costoso). 
 % El tiempo máximo requerido por el proceso de identificación fue de 
 % 26 segundos en los benchmarks \textsf{Kiasan}, \textsf{FAJITA}, \textsf{ROOPS} y 
@@ -606,17 +650,17 @@ s 8,9 y 10. Hay que revisar todo.}
 
 \cacho{Hecho, FALTA CONTROLAR Y QUE ESTEN LOS MISMO CASOS QUE EN LA RQ siguiente}
 La Tabla presenta una muestra representativa de los resultados para los benchmarks
-\textsf{Korat}, \textsf{FAJITA}, \textsf{ROOPS} y \textsf{Kiasan} (intentamos mantener la misma proporción de casos buenos y malos para cada técnica en los datos que reportamos). \pp{Los casos
+\texttt{Korat}, \texttt{FAJITA}, \texttt{ROOPS} y \texttt{Kiasan} (intentamos mantener la misma proporción de casos buenos y malos para cada técnica en los datos que reportamos). \pp{Los casos
 restantes se pueden encontrar online \cite{}. Queda raro que esta tabla sea la
 única que esté recortada en la tesis. hay que ver si se puede hacer algo al
 respecto.}.
 Para cada clase evaluada, informamos los tiempos de generación 
-(en segundos, columna \emph{Time}), la cantidad de estructuras válidas generadas (\emph{Generated}) y el total de estructuras exploradas (\emph{Explored}) por cada técnica. 
-Incluimos, para cada enfoque, los \emph{scopes} más grandes (columna \emph{S})
+(en segundos, columna \textsf{Time}), la cantidad de estructuras válidas generadas (\textsf{Generated}) y el total de estructuras exploradas (\textsf{Explored}) por cada técnica. 
+Incluimos, para cada enfoque, los \textsf{scopes} más grandes (columna \textsf{S})
 alcanzados por las técnicas antes de llegar al tiempo límite de 60 minutos. De
 esta manera, si surgieran problemas de escalabilidad, podrían identificarse fácilmente. Vale
-aclarar que no se utilizó el benchamark \textsf{Real World} en esta sección, ya que
-no se dispone de \texttt{repOK}s para estas clases, lo que impide una comparación justa con \textsf{Korat}.
+aclarar que no se utilizó el benchamark \texttt{Real World} en esta sección, ya que
+no se dispone de \texttt{repOK}s para estas clases, lo que impide una comparación justa con \texttt{Korat}.
 
 Para obtener resultados de rendimiento adecuados para \textsf{BEAPI}, realizamos
 testing exhaustivo de los métodos de la API de las clases para asegurar que
@@ -641,11 +685,11 @@ configuraciones de balance específicas. \textsf{BEAPI} descarta secuencias gene
 tan pronto como superan el tamaño máximo de la estructura, por lo que no puede generar 
 estas estructuras.
 
-En resumen, la Tabla \ref{table:korat-beapi} muestra que para el benchmark \emph{KORAT} la
-herramienta \emph{Korat} es más veloz en 4 de 6 clases; 
-en \textsf{FAJITA}, \emph{BEAPI} supera a \emph{Korat} en 3 de 4 casos; en
-\emph{ROOPS}, \emph{BEAPI} lo hace en 5 de 7 casos; 
-y en \textsf{Kiasan}, \textsf{Korat} es más rápido en 6 de 7 clases.
+En resumen, la Tabla \ref{table:korat-beapi} muestra que para el benchmark \texttt{KORAT} la
+herramienta \textsf{Korat} es más veloz en 4 de 6 clases; 
+en \texttt{FAJITA}, \textsf{BEAPI} supera a \textsf{Korat} en 3 de 4 casos; en
+\texttt{ROOPS}, \textsf{BEAPI} lo hace en 5 de 7 casos; 
+y en \texttt{Kiasan}, \textsf{Korat} es más rápido en 6 de 7 clases.
 Observamos que \textsf{BEAPI} muestra un mejor rendimiento en estructuras con
 invariantes de representación más fuertes, 
 como \texttt{RBT} y árboles binarios de búsqueda (\texttt{BST}); a menudo estos
@@ -693,7 +737,7 @@ generadores de objetos (\emph{MGO});
 \textsf{CI}, que activa únicamente la coincidencia de estados; \textsf{MGO}, que habilita únicamente 
 la identificación de métodos generadores de objetos; y \textsf{NoOPT}, que desactiva ambas optimizaciones.
 
-La Tabla \ref{tab:results-realWorld} resume los resultados para el conjunto \textsf{Real World} \pp{Y las
+La Tabla \ref{tab:results-realWorld} resume los resultados para el conjunto \texttt{Real World} \pp{Y las
 otras? Meté una tabla por benchmark y referencialas por separado}.
 \cacho{Hago analisis por cada una?}
 % PABLO: Esto está en la configuración experimental
@@ -717,7 +761,7 @@ los mismos objetos, es crucial para la eficiencia de BEAPI.
 
 La segunda optimización, el uso de métodos generadores de objetos
 (\textsf{MGO}), es mucho más relevante en casos donde el número de métodos en la API es grande (más de 10), y de manera notable en las estructuras de datos del mundo real (con 20 o más métodos). En 
-estructuras del benchmark \textsf{Real World} \pp{Hay una mezcla de fuentes
+estructuras del benchmark \texttt{Real World} \pp{Hay una mezcla de fuentes
 importante en todo el texto. Hay que definir qué fuente para cada cosa y usarla
 siempre igual.} como \texttt{TreeMap}, \texttt{LinkedList} o \texttt{HashMap}, donde existen 
 decenas de métodos públicos, limitar la generación de secuencias a combinaciones 
@@ -726,13 +770,13 @@ generación. Como era esperable, en las clases que tienen pocos métodos, el imp
 relativamente pequeño.
 
 El mayor beneficio se observa en la configuración \textsf{CI/MGO}, donde ambas optimizaciones están 
-habilitadas. En esta configuración, \emph{BEAPI} es significativamente más
+habilitadas. En esta configuración, \textsf{BEAPI} es significativamente más
 rápido, y alcanza scopes mucho mayores que \textsf{NoOPT} en todos los casos
 analizados.
 Por ejemplo, en \textsf{ROOPS}, \textsf{CI/MGO} es más de un orden de magnitud
 más rápido que \textsf{CI} en AVL y RBT, y alcanza al menos un scope adicional
 en NCL, LList, y RBT. 
-En \textsf{Real World}, el uso de MGOs permitió que \textsf{CI/MGO} escalara a
+En \texttt{Real World}, el uso de MGOs permitió que \textsf{CI/MGO} escalara a
 scopes significativamente mayores en todos los casos excepto TMap y TSet, donde igualmente \textsf{CI/MGO} muestra
 una reducción importante en los tiempos de ejecución. 
 En general, las optimizaciones propuestas tienen un impacto crucial en el
@@ -750,8 +794,8 @@ de objetos que se pueden generar mediante la API y aquellos que se pueden genera
 invariante de representación.
 
 Para ello, diseñamos el siguiente procedimiento automatizado. En primer lugar, ejecutamos 
-\emph{BEAPI} para generar un conjunto de estructuras, denominado \texttt{SBEAPI}, utilizando únicamente 
-la API de la clase, y ejecutamos \emph{Korat} para generar un segundo conjunto, \texttt{SKORAT}, 
+\textsf{BEAPI} para generar un conjunto de estructuras, denominado \texttt{SBEAPI}, utilizando únicamente 
+la API de la clase, y ejecutamos \textsf{Korat} para generar un segundo conjunto, \texttt{SKORAT}, 
 utilizando únicamente el método \texttt{repOK}. Ambas ejecuciones se realizan
 para un mismo \emph{scope}. En segundo lugar, canonizamos todas las estructuras
 en ambos conjuntos utilizando el proceso de linearización (Sección
@@ -845,7 +889,7 @@ detectar manualmente, y que \textsf{BEAPI} puede ser de gran ayuda para esta tar
 
 En el experimento de MGO (ver \ref{sec:object_builders_randoop}), generamos objetos utilizando los MGO y toda la API junto con la herramienta \texttt{Randoop} y los empleamos posteriormente en un conjunto de tests parametrizados, con el objetivo de evaluar su impacto en la cobertura.
 
-En esta seccion, evaluamos la calidad de los objetos generados por BEAPI en el contexto del testing parametrizado.
+En esta sección, evaluamos la calidad de los objetos generados por BEAPI en el contexto del testing parametrizado.
 Para ello, comparamos BEAPI con los mismo enfoques de generación aleatoria utilizados en la Sección \ref{sec:object_builders_randoop}:
 
 
@@ -864,8 +908,8 @@ tiene limite de scope y no de tiempo para generar.  (scope 5 en todos los casos)
 
 La Tabla \ref{tab:hashSetTools_beapi} muestra una comparativa de diferentes técnicas aplicadas sobre 
 \texttt{HashSet}. \textsf{BEAPI} logra una cobertura de ramas y 
-mutación equivalente a \texttt{R-Serialize-MGO}, y superior a la alcanzada por \texttt{R-Serialize-API} y 
-\texttt{Randoop} en lapsos de tiempo cortos. Esta eficiencia evidencia que BEAPI puede generar un 
+mutación equivalente a \textsf{R-Serialize-MGO}, y superior a la alcanzada por \textsf{R-Serialize-API} y 
+\textsf{Randoop} en lapsos de tiempo cortos. Esta eficiencia evidencia que BEAPI puede generar un 
 conjunto reducido de objetos, pero de alta calidad para testing, en muy poco tiempo (menos de cinco 
 segundos).Esto indica que los objetos generados por \textsf{BEAPI} son 
 mas efectivos como entradas, permitiendo detectar fallas y explorar el espacio de estados 
@@ -878,9 +922,9 @@ de manera eficiente.
 
 La Tabla \ref{tab:treeSetTools_beapi} presenta los resultados obtenidos para \texttt{TreeSet}. En 
 este caso, las diferencias comienzan a notarse con mayor claridad. 
-\texttt{BEAPI} alcanza una cobertura de ramas y mutación mejor en cuanto a mutantes matados con respecto a las otras tecnicas.
-En el caso de la tabla \ref{tab:treeMapTools_beapi}, se observa que se mantiene la tendencia de que los objectos generados por BEAPI son efectivos para testing parametrizado, logrando coberturas competitivas con tiempos de generación muy bajos.
-En este caso, \texttt{BEAPI} alcanza una cobertura de ramas y mutación superior pero se necesitaron 30 segundos, lo cual sigue siendo un tiempo bajo ya que la mejor tecnica (\texttt{R-Serialize-MGO}) necesita 180 segundos para lograr una cobertura similar.
+\textsf{BEAPI} alcanza una cobertura de ramas y mutación mejor en cuanto a mutantes matados con respecto a las otras técnicas.
+En el caso de la tabla \ref{tab:treeMapTools_beapi}, se observa que se mantiene la tendencia de que los objetos generados por BEAPI son efectivos para testing parametrizado, logrando coberturas competitivas con tiempos de generación muy bajos.
+En este caso, \textsf{BEAPI} alcanza una cobertura de ramas y mutación superior pero se necesitaron 30 segundos, lo cual sigue siendo un tiempo bajo ya que la mejor técnica (\texttt{R-Serialize-MGO}) necesita 180 segundos para lograr una cobertura similar.
 
 % \texttt{R-Builders} logra 
 % una cobertura y mutación ligeramente superior a \texttt{BEAPI}. 
@@ -904,26 +948,26 @@ En este caso, \texttt{BEAPI} alcanza una cobertura de ramas y mutación superior
 % estructural.
 
 En cuanto a la Tabla \ref{tab:linkedListTools_beapi} que presenta los resultados obtenidos para la clase 
-\texttt{LinkedList}. En este caso, se observa nuevamente que \texttt{BEAPI}, a pesar de 
+\texttt{LinkedList}. En este caso, se observa nuevamente que \textsf{BEAPI}, a pesar de 
 generar un número reducido de objetos, mantiene niveles constantes de cobertura y mutación. 
-Las técnicas \texttt{R-Serialize-API} y \texttt{R-Serialize-MGO} logran cubrir las mismas ramas y casi los mismos 
-mutantes que \texttt{BEAPI}, esto se debe a que las listas enlazadas son estructuras más simples,
+Las técnicas \textsf{R-Serialize-API} y \textsf{R-Serialize-MGO} logran cubrir las mismas ramas y casi los mismos 
+mutantes que \textsf{BEAPI}, esto se debe a que las listas enlazadas son estructuras más simples,
 donde la mayoría de las configuraciones válidas pueden alcanzarse mediante secuencias cortas
 de inserciones y eliminaciones.
 
 Con respecto a la tabla  \ref{tab:hashMapTools_beapi}, 
 correspondiente a \texttt{HashMap}, se aprecia un caso 
-similar. \texttt{BEAPI} logra altos niveles de cobertura con tiempos de generación de 89 segundos, para alcanzar el maximo de cobertura que se puede obtener.
-En este caso \texttt{R-Serialize-MGO} se acerca a ese valor pero no llega al mismo en 180 segundos.
+similar. \textsf{BEAPI} logra altos niveles de cobertura con tiempos de generación de 89 segundos, para alcanzar el máximo de cobertura que se puede obtener.
+En este caso \textsf{R-Serialize-MGO} se acerca a ese valor pero no llega al mismo en 180 segundos.
 
 
 Los resultados obtenidos permiten concluir que los objetos generados por \textsf{BEAPI} son 
 efectivos y eficientes para ser utilizados en tests parametrizados. Aunque la cantidad total de 
 objetos generados es menor, su calidad y representatividad permiten alcanzar los máximos niveles 
 de cobertura con una mínima ejecución. Además, se observa que guiar a generadores aleatorios como 
-Randoop mediante la identificación previa de métodos generadores de objectos también mejora significativamente 
+Randoop mediante la identificación previa de métodos generadores de objetos también mejora significativamente 
 la cobertura. Esto hace que se reafirme el valor del otro aporte de esta tesis: la identificación automática de métodos generadores.
-Este conocimiento no solo permite mejorar herramientas existentes como Randoop (caso de \texttt{R-Builders}), 
+Este conocimiento no solo permite mejorar herramientas existentes como Randoop (caso de \textsf{R-Builders}), 
 sino que también da lugar a técnicas completamente nuevas como \textsf{BEAPI}, 
 
 En contextos donde el tiempo de ejecución es un factor crítico, o donde se necesita eficiencia sin 
@@ -964,31 +1008,31 @@ adecuadamente los métodos generadores para mejorar la calidad de los tests auto
 % estructural.
 
 En cuanto a la Tabla \ref{tab:linkedListTools_Builders} que presenta los resultados obtenidos para la clase 
-\texttt{LinkedList}. En este caso, se observa nuevamente que \texttt{BEAPI}, a pesar de 
+\texttt{LinkedList}. En este caso, se observa nuevamente que \textsf{BEAPI}, a pesar de 
 generar un número reducido de objetos, mantiene niveles constantes de cobertura y mutación. 
-Las técnicas \texttt{R-Serialize} y \texttt{R-Builders} logran cubrir las mismas ramas y casi los mismos 
-mutantes que \texttt{BEAPI}, esto se debe a que las listas enlazadas son estructuras más simples,
+Las técnicas \textsf{R-Serialize} y \textsf{R-Builders} logran cubrir las mismas ramas y casi los mismos 
+mutantes que \textsf{BEAPI}, esto se debe a que las listas enlazadas son estructuras más simples,
 donde la mayoría de las configuraciones válidas pueden alcanzarse mediante secuencias cortas
 de inserciones y eliminaciones..
 
 Con respecto a la tabla  \ref{tab:hashMapTools}, 
 correspondiente a \texttt{HashMap}, se aprecia un caso 
-similar. \texttt{BEAPI} logra altos niveles de cobertura desde tiempos de generación muy 
+similar. \textsf{BEAPI} logra altos niveles de cobertura desde tiempos de generación muy 
 reducidos, mientras que las otras técnicas necesitan un volumen considerable de objetos y 
-tests para alcanzar resultados comparables. En este caso \texttt{R-Builders} obtiene un puntaje de mutación 6–7\% mayor que \texttt{BEAPI} (127–128 vs 119–120). 
-Una explicación es que varios mutantes exitosos están asociados a rutas de código y estructuras intermedias que \texttt{BEAPI} no utiliza:
-por ejemplo, secuencias largas con inserciones/eliminaciones que pasan por estados transitorios (similar a los casos de \texttt{TreeMap} y texttt{Treeset}). 
-\texttt{R-Builders}, al explorar más operaciones y estados no canónicos, tiende a tocar esos caminos y matar esos mutantes extra, aunque al costo de mucha más ejecución. 
-De hecho, en ramas \texttt{BEAPI} iguala o supera a \texttt{R-Builders} ( 122 vs 119 a partir de 
-GTime=10), reforzando la idea de que la ventaja de \texttt{R-Builders} en mutación proviene de probar más tipos de operaciones y estados que por cubrir mejor el nucleo de la estructura.
+tests para alcanzar resultados comparables. En este caso \textsf{R-Builders} obtiene un puntaje de mutación 6–7\% mayor que \textsf{BEAPI} (127–128 vs 119–120). 
+Una explicación es que varios mutantes exitosos están asociados a rutas de código y estructuras intermedias que \textsf{BEAPI} no utiliza:
+por ejemplo, secuencias largas con inserciones/eliminaciones que pasan por estados transitorios (similar a los casos de \texttt{TreeMap} y \texttt{Treeset}). 
+\textsf{R-Builders}, al explorar más operaciones y estados no canónicos, tiende a tocar esos caminos y matar esos mutantes extra, aunque al costo de mucha más ejecución. 
+De hecho, en ramas \textsf{BEAPI} iguala o supera a \textsf{R-Builders} ( 122 vs 119 a partir de 
+GTime=10), reforzando la idea de que la ventaja de \textsf{R-Builders} en mutación proviene de probar más tipos de operaciones y estados que por cubrir mejor el núcleo de la estructura.
 
 Los resultados obtenidos permiten concluir que los objetos generados por \textsf{BEAPI} son 
 efectivos y eficientes para ser utilizados en tests parametrizados. Aunque la cantidad total de 
 objetos generados es menor, su calidad y representatividad permiten alcanzar los máximos niveles 
 de cobertura con una mínima ejecución. Además, se observa que guiar a generadores aleatorios como 
-Randoop mediante la identificación previa de métodos generadores de objectos también mejora significativamente 
+Randoop mediante la identificación previa de métodos generadores de objetos también mejora significativamente 
 la cobertura. Esto hace que se reafirme el valor del otro aporte de esta tesis: la identificación automática de métodos generadores.
-Este conocimiento no solo permite mejorar herramientas existentes como Randoop (caso de \texttt{R-Builders}), 
+Este conocimiento no solo permite mejorar herramientas existentes como Randoop (caso de \textsf{R-Builders}), 
 sino que también da lugar a técnicas completamente nuevas como \textsf{BEAPI}, 
 
 En contextos donde el tiempo de ejecución es un factor crítico, o donde se necesita eficiencia sin 

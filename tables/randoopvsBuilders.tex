@@ -1,121 +1,142 @@
   \begin{table}[H]
   \scriptsize
   \centering
-  \begin{tabular}{ c  r  |r|r|r|r  }
+  \begin{tabular}{ c  r  r r r r  }
     \toprule
-    \textbf{GTime} & \textbf{Herramienta} &  \textbf{Test} & \textbf{T(Seg)} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
     \midrule
-  30	&	Randoop	 &  2534 & 8   & 75 	& 92   \\
-  & R-Serialize-API	&  309162  &  10  & 85 	& 95   \\
-  & R-Builders-MGO	&  680442  &   34 & 85 	& 95   \\
-  \cline{2-6}
-  60	&	Randoop	 &  4934  & 12   & 79 	& 100    \\
-  & R-Serialize-API	&  586432 & 17   &  85	&   100 \\
-  & R-Builders-MGO	&   1044764 &  24  &  85	&  100  \\
-  \cline{2-6}
-  180	&	Randoop	 &   14614 & 32  &  87	& 109    \\
-  & R-Serialize-API	&  1604470  &  43  & 85  	& 109   \\
-  & R-Builders-MGO	&  1957998  & 112   & 85 	&  109  \\
+  30	&	Randoop	 &  2534 & 8   & 75 	& 89   \\
+  & RSer-API	&  22083/309162  &  10  &  78	& 91   \\
+  & RSer-MGO	&  48603/680442  &  69  & 78  	&  91 \\
+  \cline{1-6}
+  60	&	Randoop	 &  4934  & 12   &  79	& 100    \\
+  & RSer-API	&  41888/586432 & 57   &  82	&   100 \\
+  & RSer-MGO	&   74626/1044764 &  106  & 83	&  100  \\
+  \cline{1-6}
+  120	&	Randoop	 &  9950  & 12   &  85	& TO    \\
+  & RSer-API	&  78813/1103382 & 101   &  85	&   102 \\
+  & RSer-MGO	&   112452/1574328  &  158  & 85	&  109  \\
+  \cline{1-6}
+  180	&	Randoop	 &   14614 & 32  &  85	& TO    \\
+  & RSer-API	&  114605/1604470  &  168  &  85 	& 103   \\
+  & RSer-MGO	&  139857/1957998  & 202   &  85	&  109  \\
   \midrule
   \end{tabular}
   \caption{Comparativa de diferentes tecnicas en HashSet}
-  \label{tab:hashSetTools_beapi}
+  \label{tab:hashSetTools_builders}
   \end{table}
 
 
 \begin{table}[H]
 \scriptsize
   \centering
-  \begin{tabular}{ c  r  |r|r|r|r  }
+  \begin{tabular}{ c  r  r r r r  }
     \toprule
-    \textbf{GTime} & \textbf{Tool} &  \textbf{Test} & \textbf{T(Seg)} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
     \midrule
 
-30	&	Randoop	 &  3546  &  9  &  80	&   100 \\
-& R-Serialize-API	&  543298  &  9  &  	114&   99 \\
-& R-Builders-MGO	& 802298   &  12  & 151 	&  111  \\
-\cline{2-6}
-60	&	Randoop	 & 7076   &  15  &  91	& 104   \\
-& R-Serialize-API	&  1154034  & 14 &  125	&  109  \\
-& R-Builders-MGO	&  1218182  &  17  &154  	&  111 \\
-\cline{2-6}
+
+30	&	Randoop	 &  3546  &  9  &  100	&   80 \\
+& RSer-API	&  48807/683298 &  9  &  	114&   99 \\
+& RSer-MGO	& 57307/802298   &  12  & 151 	&  111  \\
+\cline{1-6}
+60	&	Randoop	 & 7076   &  15  &  104	& 91   \\
+& RSer-API	&  82431/1154034  & 14 &  125	&  109  \\
+& RSer-MGO	&  92431/1294034  &  17  &154  	&  111 \\
+\cline{1-6}
+120	&	Randoop	 & 13682   &  27  &  105	& 93   \\
+& RSer-API	&  154002/2156028  & 24 &  125	&  109  \\
+& RSer-MGO	&  165131/2311834  &  26  &154  	&  111 \\
+\cline{1-6}
 180	&	Randoop	 &  20138  &  41  & 105 	& TO   \\
-& R-Serialize-API	&  2156028  & 36   & 125 	&   109 \\
-& R-Builders-MGO	& 2311834  &  45  & 154 	&  111  \\
+& RSer-API	&  251248/3517472  & 36   & 125 	&   109 \\
+& RSer-MGO	&   254002/3556028 &  37  & 154 	&  111  \\
 \midrule
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en TreeSet}
-\label{tab:treeSetTools_beapi}
+\label{tab:treeSetTools_builders}
 \end{table}
 
 \begin{table}[H]
 \scriptsize
 \centering
-  \begin{tabular}{ c  r  |r|r|r|r  }
+  \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime} & \textbf{Tool} & \textbf{Test}&\textbf{T(Seg)} &\textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
   \midrule
-30	&	Randoop	 &   28970 &   7  & 31 	&  58  \\
-& R-Serialize-API	&   222152 & 3   &  120 	& 100    \\
-& R-Builders-MGO	&  434550  &  4  &  162	& 155   \\
-\cline{2-6}
+30	&	Randoop	 &   3146 &   7  & 31 	&  58  \\
+& RSer-API	&   15868/238020 & 3   &  120 	& 100    \\
+& RSer-MGO	&  19240/434550  &  4  &  162	& 155   \\
+\cline{1-6}
 60	&	Randoop	&  6374  &   10  & 45 	&79    \\
-& R-Serialize-API	&  420070  &  5  &  119	& 100   \\
-& R-Builders-MGO	&  581686  &   6 & 162 	& 156   \\
-\cline{2-6}
+& RSer-API	&  30005/450075  &  5  &  119	& 100   \\
+& RSer-MGO	&  41549/623235  &   6 & 162 	& 156   \\
+\cline{1-6}
+120	&	Randoop	&  12796  &   17  & 46 	&82    \\
+& RSer-API	&  56421/420070  &  5  &  119	& 100   \\
+& RSer-MGO	&  60570/846315  &   6 & 162 	& 156   \\
+\cline{1-6}
 180	&	Randoop	 &  19240  &  27  & 46 	& 82   \\
-& R-Serialize-API	&  789894  & 6   &  	120 &  100  \\
-& R-Builders-MGO	&  1053990  & 8   &  162	& 156\\
+& RSer-API	&  82737/1241055  & 6   &  	120 &  100  \\
+& RSer-MGO	&  75285/1129275  & 8   &  162	& 156\\
 \midrule
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en TreeMap}
-\label{tab:treeMapTools_beapi}
+\label{tab:treeMapTools_builders}
 \end{table}
 
 \begin{table}[H]
 \scriptsize
 \centering
-  \begin{tabular}{ c  r  |r|r|r|r  }
+  \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime} & \textbf{Tool} & \textbf{Objectos}&\textbf{T(Seg)} &\textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
   \midrule
 30	&	Randoop	 &  2612  &   9 & 47 	&  49  \\
-& R-Serialize-API	&  317927  &   14 &  49	&   56 \\
-& R-Serialize-MGO	& 1528300   & 34   & 49  	& 58    \\
-\cline{2-6}
+& RSer-API	&  10963/317927  &   14 &  49	&   56 \\
+& R-Serialize-MGO	& 52700/1528300   & 34   & 49  	& 58    \\
+\cline{1-6}
 60	&	Randoop	 &   5180 & 4   &  47	&  50  \\
-& R-Serialize-API	&  1191784  &  8  &  49	&   56 \\
-& R-Builders-MGO	& 3310930   &   52  &  49	&  58  \\
-\cline{2-6}
+& RSer-API	&  21096/611784  &  8  &  49	&   56 \\
+& RSer-MGO	& 77292/2241468   &   52  &  49	&  58  \\
+\cline{1-6}
+120	&	Randoop	 &   10790 & 4   &  47	&  50  \\
+& RSer-API	&  41096/1191784  &  8  &  49	&   57 \\
+& RSer-MGO	& 114170/3310930   &   81  &  49	&  57  \\
+\cline{1-6}
 180	&	Randoop	 &   15976 &  42  & 47 	&   TO \\
-& R-Serialize-API	&   1639747 &  58  &  49	&  58  \\
-& R-Builders-MGO	&  4145115  &  99  & 49 	&58   \\
+& RSer-API	&   56543/1639747 &  58  &  49	&  58  \\
+& RSer-MGO	&  142935/4145115  &  99  & 49 	&58   \\
 \midrule
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en LinkedList}
-\label{tab:linkedListTools_beapi}
+\label{tab:linkedListTools_builders}
 \end{table}
 
 \begin{table}[H]
 \scriptsize
 \centering
-  \begin{tabular}{ c  r  |r|r|r|r  }
+  \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime} & \textbf{Tool} & \textbf{Test}&\textbf{T(Seg)} &\textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
   \midrule
-30	&	Randoop	 &  86  &    &  48	&  66  \\
-& R-Serialize-API	&  466587  & 28   &  108	& 120   \\
-& R-Builders-MGO	&  533223  & 36   &  122	& 127   \\
-\cline{2-6}
+30	&	Randoop	 &  86  &  2  &  48	&  66  \\
+& RSer-API	&  5373/145071  & 28   &  107	& 120   \\
+& RSer-MGO	&  8465/228555  & 36   &  122	& 127   \\
+\cline{1-6}
 60	&	Randoop	 &  92  & 3   & 48 	&66    \\
-& R-Serialize-API	& 888732   &  67  & 107  	&  120  \\
-& R-Builders-MGO	&  1087614  &  98  &122  	&  127  \\
-\cline{2-6}
+& RSer-API	& 32916/888732   &  67  & 107  	&  120  \\
+& RSer-MGO	&  40282/1087614  &  98  &122  	&  127  \\
+\cline{1-6}
+120	&	Randoop	 &  102  & 3   & 48 	&67   \\
+& RSer-API	& 62995/1700865   &  82  & 108 	&  120  \\
+& RSer-MGO	&  65884/1778868  &  124  &122  	&  127  \\
+\cline{1-6}
 180	&	Randoop	 &   114 & 3   &  48	& 68    \\
-& R-Serialize-API	&  2419578  & 174   & 107 	&  120  \\
-& R-Builders-MGO	&  2498337  &  201  &  122	&  127  \\
+& RSer-API	&  89614/2419578  & 174   & 108 	&  120  \\
+& RSer-MGO	&  92531/2498337  &  201  &  122	&  127  \\
 \midrule
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en HashMap}
-\label{tab:hashMapTools_beapi}
+\label{tab:hashMapTools_builders}
 \end{table}
