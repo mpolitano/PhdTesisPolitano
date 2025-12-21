@@ -350,102 +350,113 @@ donde los utilizamos como entradas de tests basados en propiedades.
 \subsubsection{Testing basado en propiedades}
 \label{sec:experiments-builders-parameterized}
 
-En esta etapa de la evaluación, se llevó a cabo un análisis exhaustivo para determinar la 
-utilidad de los métodos generadores identificados mediante nuestro enfoque, particularmente 
-en el contexto de la generación automatizada de casos de prueba. Estos métodos permiten construir 
-objetos que pueden utilizarse como entradas en test suites parametrizadas.
+\begin{lstlisting}[caption={Tests basados en propiedades para \texttt{remove} de
+\texttt{LinkedList}},label={lst:parametrizadoLinkedList},language=Java,captionpos=b]
+public void removeTest1(List l, int i) {
+    int oldSize = l.size();
+    if (l.contains(i)) {
+        boolean res = l.remove(i);
+        assertTrue(res);
+        assertEquals(l.size(), oldSize-1);
+    }
+}
 
-Los tests parametrizados constituyen una técnica eficiente para mejorar la cobertura en tests 
-automatizados. En lugar de definir casos de prueba específicos para cada configuración, se 
-establece una única prueba que se ejecuta múltiples veces con distintos parámetros. En nuestro 
-contexto, dichos parámetros son objetos generados por distintas técnicas, los cuales sirven como 
-entrada a los métodos de la clase bajo prueba.
+public void removeTest2(List l, int i) {
+    int oldSize = l.size();
+    if (!l.contains(i)) {
+        boolean res = l.remove(i);
+        assertFalse(res);
+        assertEquals(l.size(), oldSize);
+    }
+}
+\end{lstlisting}
+\pp{Quedó cortado el listing, arreglar!}
 
-Para llevar a cabo este experimento, diseñamos una test suite parametrizada en la que cada método 
-público de la clase bajo análisis es ejercitado con objetos generados por distintas técnicas. Las 
-herramientas utilizadas para generar estos objetos fueron: la versión estándar de \textsf{Randoop}, que 
-genera directamente una suite de tests sin reutilizar objetos previos; una variante de \textsf{Randoop} 
-denominada \textsf{R-Serialize-API}, que serializa los objetos construidos durante la generación de 
-tests, permitiendo su reutilización como entrada en tests parametrizados; una versión modificada 
-de \textsf{Randoop} que prioriza el uso de métodos generadores de objetos identificados previamente mediante 
-nuestro enfoque (denominada \textsf{R-Serialize-MGO}, ver sección \ref{sec:object_builders_randoop}); 
+En esta sección, realizamos un experimento preliminar para determinar la 
+utilidad de los métodos generadores de objetos en el contexto del testing basado 
+en propiedades. En lugar de definir casos de tests específicos para testear el
+software (como en el testing unitario), los tests basados en propiedades consisten en 
+identificar propiedades que debe satisfacer el programa, y escribir tests
+que verifiquen estas propiedades para cualquier entrada. Por ejemplo, para el
+método \texttt{remove} de la clase \texttt{LinkedList} sabemos que, si eliminamos
+un elemento que ya pertenece a la lista, \texttt{remove} retorna
+\texttt{true} y la lista resultante tiene un elemento menos (el elemento
+eliminado). Además, si intentamos eliminar un elemento que no está en la lista, 
+\texttt{remove} retorna \texttt{false}, y el tamaño de la lista no cambia. La
+Figura \ref{lst:parametrizadoLinkedList} muestra dos tests que verifican estas
+propiedades.
 
-% y por último, la herramienta \emph{BEAPI}, que 
-% produce directamente un conjunto reducido pero válido de objetos a partir de su propia lógica de 
-% exploración exhaustiva acotada.
-\pp{Cacho: Agregar tablas de Randoop, R-Serialize-API, R-Serialize-MGO.}
+Para este experimento, se utilizaron las clases más complejas de nuestra
+evaluación experimental, esto es, las clases del paquete \texttt{java.util},
+debido a su API rica en cantidad de métodos: \texttt{HashSet}, \texttt{HashMap},
+\texttt{TreeMap}, \texttt{TreeSet} y \texttt{LinkedList}. Para estas clases, 
+escribimos manualmente tests basados en
+propiedades intentando maximizar cobertura y puntaje de mutación para los
+métodos públicos de las clases. Como escribir estos tests manualmente es una
+tarea laboriosa, nos limitamos sólo a estas clases para este experimento
+preliminar. Se deja como trabajo futuro extender la evaluación a un conjunto más
+amplio de casos de estudio. \pp{Más trabajos futuros}.
 
-\pp{Pablo: Describir estas técnicas en configuración experimental.}
+Entre las herramientas evaluadas incluimos la versión estándar de \textsf{Randoop}, que 
+simplemente genera una suite de tests (y se evalúa directamente su cobertura y puntaje de
+mutación; los tests parametrizados no se usan para esta herramienta). Además,
+usamos las versiones modificadas de \textsf{Randoop} para generar objetos 
+descritas en la sección anterior: \texttt{RSer-API} que utiliza toda la API para la 
+generación y serializa los objetos producidos por la ejecución de los tests, y
+\texttt{RSer-MGO} que utiliza sólo los MGOs para generar tests y serializa los
+objetos. Los objetos generados por estas técnicas se usan como entradas para
+instanciar los parámetros de los tests basados en propiedades (como los que se 
+    muestran en la Figura \ref{lst:parametrizadoLinkedList}). 
+Si los tests parametrizados requieren valores de tipos primitivos (como en la
+Figura), para cada objeto de entrada (generado por la técnica considerada) 
+se elige un valor aleatorio dentro de un rango pequeño de valores predefinidos. 
 
-
-A fin de evaluar y comparar el impacto de cada enfoque, se utilizó el benchmark basado en clases 
-del paquete \texttt{java.util} debido a su rica API que tienen: \texttt{HashSet}, \texttt{HashMap}, \texttt{TreeMap}, \texttt{TreeSet} y \texttt{LinkedList}.
-Además, para poder utilizar todos los \emph{benchamark} se necesita escribir test parametrizados para todos, siendo esta, una tarea laboriosa.
 Las métricas consideradas fueron: el tiempo 
-de generación (\textsf{GTime}), este tiempo es el que se le da cada herramienta para ejecutar.
-Además se tuvo en cuenta las métricas de la cantidad de casos de prueba ejecutados (\textsf{Test}), el 
-tiempo total de ejecución de la test suite (\textsf{T(Seg)}), la cobertura de ramas alcanzada 
-(\textsf{Ramas}) y la cantidad de mutantes eliminados (\textsf{Mutacion}). Es importante destacar 
-que la test suite parametrizada es común a los enfoques \textsf{R-Serialize}, \textsf{R-Builders}, permitiendo así una comparación justa sobre los objetos generados. En el caso de 
-\textsf{Randoop}, la herramienta genera su propia test suite, por lo que los resultados deben 
-interpretarse con cautela.
-
+de generación (\textsf{GTime}), este es el tiempo máximo que se le da a cada
+herramienta para ejecutarse, la cantidad de tests producidos y la cantidad de
+objetos generados (\textsf{Test/Obj}), el 
+tiempo de ejecución de la test suite (\textsf{Time}), la cobertura de ramas alcanzada 
+(\textsf{Ramas}), y la cantidad de mutantes que mata la suite (\textsf{Mutación}). 
+Es importante destacar que la test suite basada en propiedades es común a los enfoques 
+\texttt{RSer-API}, \texttt{RSer-MGO}. En el caso de \textsf{Randoop}, la herramienta 
+genera su propia test suite, por lo que los resultados no son directamente
+comparables con las otras dos técnicas, pero sirve para tener una referencia de
+los resultados que pueden obtener las herramientas automáticas de generación de
+tests por sí solas.
 
 \input{tables/randoopvsBuilders}
-
-Las tablas anteriores, demuestran que los resultados obtenidos con \textsf{R-Serialize-MGO} son consistentemente superiores a los alcanzados por \textsf{R-Serialize-API} y \textsf{Randoop} en todos los casos evaluados. 
-\textsf{R-Serialize-MGO} mejora la cobertura de ramas y mutación con sus objetos generados a partir de los métodos generadores identificados previamente.
-En particular, se obtiene una mejora en las clases \texttt{TreeSet}, \texttt{TreeMap} y \texttt{HashMap} y logrando empatar con \texttt{R-Serialize-API} en \texttt{LinkedList} y \texttt{HashSet}.
-Estos resultados evidencian que los métodos generadores de objetos identificados son efectivos para producir entradas de alta calidad para testing, mejorando la capacidad de detección de fallas.
-Además, podemos afirmar que los MGO son útiles para mejorar las herramientas de testing automático como Randoop.
+\pp{En las tablas hay algunos errores. Faltan acentos en varias palabras. Para randoop poner numtests/-- como
+indicando que Obj no aplica. Hay una columna que dice Scope que no va}
 
 
-\cacho{Explico tabla por tabla?}
+En \texttt{LinkedList} \pp{referencia a la tabla}, la estructura más simple de todas las
+consideradas, \texttt{RSer-MGO} y \texttt{RSer-API} maximizan cobertura en
+60 segundos de generación. \texttt{RSer-MGO} obtiene el máximo puntaje de mutación
+en 120 segundos, mientras que \texttt{RSer-API} lo hace en 180 segundos.
 
+En los casos restantes, que implementan en estructuras de datos más complejas, 
+la diferencia es significativamente más grande a favor de \texttt{RSer-MGO}.
+En \texttt{HashSet} \pp{referencia a la tabla}, \texttt{RSer-MGO} y \texttt{RSer-API} maximizan cobertura en
+120 segundos. \texttt{RSer-MGO} obtiene el máximo puntaje de mutación
+en 120 segundos, mientras que \texttt{RSer-API} nunca llega a matar la máxima cantidad de mutantes.
+En \texttt{HashMap} \pp{referencia a la tabla},
+\texttt{TreeMap} \pp{referencia a la tabla} y \texttt{TreeSet} \pp{referencia a
+la tabla}, las mejoras en cobertura y mutantes muertos por parte de \texttt{RSer-MGO} son
+significativas para todos los tiempos de generación. Además, \texttt{RSer-MGO}
+siempre logra los máximos puntajes, mientras que \texttt{RSer-API} no logra los
+máximos puntajes ni siquiera para el máximo tiempo de generación (180 segundos).
 
-\begin{lstlisting}[caption={Ejemplo de Test Parametrizado de la clase \texttt{LinkedList}},label={lst:parametrizadoLinkedList},language=Java,captionpos=b]
-public void addTest() {			
-    List<Object> linkedlist = objIterator.getObjects();
-    ListIterator it = linkedlist.listIterator();
-    while(it.hasNext()) {
-        LinkedList l = (LinkedList)it.next(); 
-        int i = ThreadLocalRandom.current().nextInt(0, literals + 1);
-        int oldS = l.size();
-        boolean res=l.add(i);
-        assertTrue(l.size() == oldS+1 && res || l.size() == oldS && !res);
-    }
-}
+Como se esperaba, las técnicas que usan los tests basados en
+propiedades escritos manualmente superan significativmamente tanto en cobertura
+de ramas como en puntaje de mutación a \textsf{Randoop}, que no requiere de ningún 
+tipo de asistencia manual.
 
-public void clearTest() {
-    List<Object> linkedlist = objIterator.getObjects();
-    ListIterator it = linkedlist.listIterator();
-    while(it.hasNext()) {
-        LinkedList list = (LinkedList)it.next(); 
-        list.clear();
-        assertTrue(list.size() == 0);
-    }
-}
-
-public void removeTest() {
-    List<Object> linkedlist = objIterator.getObjects();
-    ListIterator it = linkedlist.listIterator();
-    while(it.hasNext()) {
-        LinkedList l = (LinkedList)it.next(); 
-        boolean res = false;
-        int size = -1;
-        boolean containsPrevRemove = false;
-        size = l.size();
-        int i = ThreadLocalRandom.current().nextInt(0, literals + 1);
-        int indexToRemove = l.indexOf(i);
-        containsPrevRemove = l.contains(i);
-        res = l.remove(i);
-        assertTrue((res && containsPrevRemove ) || !res && !containsPrevRemove) ;
-        assertTrue(size-1 == l.size() && res || size == l.size() && !res );
-    }
-}
-
-\end{lstlisting}
-
+En conclusión, la identificación de métodos generadores de objetos permite la definición de 
+la técnica \texttt{RSer-MGO}, que muestra ser más efectiva en este experimento
+preliminar para producir entradas de calidad para tests basados en propiedades. 
+En particular, debido a que típicamente \texttt{RSer-MGO} logra matar más mutantes, 
+los objetos generados por esta técnica tienen el potencial de mejorar la capacidad de 
+detección de fallas respecto de los objetos producidos por las otras técnicas evaluadas.
 
 
 \subsubsection{Verificación acotada usando JPF}
