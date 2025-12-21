@@ -815,8 +815,7 @@ En estos casos, las estructuras que están en \texttt{SKORAT} pero no en
 analizarlas manualmente para determinar el origen del problema. Como en este
 experimento \textsf{BEAPI} se ejecutó con métodos generadores de objetos que son
 correctos, el error debe estar presente en el \texttt{repOK}.
-Clasificamos estos errores como \texttt{sub} \pp{Yo lo reemplazaría por sub,
-así queda en castellano}, \cacho{Hecho}
+Clasificamos estos errores como \texttt{sub} 
 ya que el invariante permite más estructuras de las que debería.
 
 Por el contrario, cuando \texttt{SKORAT} $\subset$ \texttt{SBEAPI}, puede
@@ -827,8 +826,7 @@ nuevamente deben ser analizadas manualmente por el usuario. Nuevamente, como la
 los métodos utilizados por \textsf{BEAPI} son correctos, el error en este caso
 debe estar en el \texttt{repOK}. Reportamos los
 errores de sobreespecificación en los \texttt{repOK}s (confirmados manualmente)
-que fueron evidenciados por estas estructuras como \texttt{sobre} \pp{Yo lo
-    reemplazaría por sobre, así queda en castellano}.\cacho{Hecho}
+que fueron evidenciados por estas estructuras como \texttt{sobre}.
 
 En algunos casos, se encontraron diferencias en ambas direcciones: estructuras
 en \texttt{SKORAT} que no están presentes en \texttt{SBEAPI}, y estructuras \texttt{SBEAPI} que no 
@@ -843,11 +841,11 @@ enfoques pueden provocar discrepancias entre los conjuntos \texttt{SBEAPI} y
 \texttt{SKORAT}. Esto sólo ocurrió en las estructuras \texttt{RBT} y
 \texttt{FibHeap}, donde \textsf{BEAPI} generó un conjunto más chico de 
 estructuras que \textsf{Korat} para el mismo scope, debido a restricciones de balance 
-(como se explicó en la Sección \ref{sec:beapi-eficiencia}). Sin embargo, estos "falsos positivos" 
+(como se explicó en la Sección \ref{sec:beapi-eficiencia}). Sin embargo, estos ``falsos positivos''
 debido a diferencias de scope pueden revelarse fácilmente, dado que todas las estructuras generadas 
 por \textsf{Korat} siempre estaban incluidas en las generadas por \textsf{BEAPI} 
 cuando se utilizaba un scope mayor para este último. Usando este criterio, descartamos manualmente 
-los "falsos positivos" en \texttt{RBT} y \texttt{FibHeap}.
+los ``falsos positivos'' en \texttt{RBT} y \texttt{FibHeap}.
 
 Los resultados del experimento se resumen en la Tabla \ref{table:bugs}. Se
 encontraron errores en 9 de los 26 \texttt{repOK} analizados usando el enfoque
@@ -859,8 +857,7 @@ sobreespecificación, como en \texttt{FibHeap}, donde el método \texttt{repOK}
 rechaza heaps válidos cuyo nodo mínimo es \texttt{null}. Finalmente, se
 encontraron errores en las definiciones de altura en clases como \texttt{AVL},
 donde las hojas están inicializadas con valores inconsistentes con la
-implementación. \pp{Chequear la tabla, hice algunos cambios pequeños en el texto
-y puedo haber empeorado el formato} \cacho{Hecho}
+implementación.
 
 Este experimento muestra la dificultad de escribir invariantes de representación correctos y eficientes 
 para la generación exhaustiva acotada.  
