@@ -351,7 +351,7 @@ donde los utilizamos como entradas de tests basados en propiedades.
 \label{sec:experiments-builders-parameterized}
 
 \begin{lstlisting}[caption={Tests basados en propiedades para \texttt{remove} de
-\texttt{LinkedList}},label={lst:parametrizadoLinkedList},language=Java,captionpos=b]
+\texttt{LinkedList}},label={lst:parametrizadoLinkedList},language=Java,captionpos=b,float]
 public void removeTest1(List l, int i) {
     int oldSize = l.size();
     if (l.contains(i)) {
@@ -370,7 +370,6 @@ public void removeTest2(List l, int i) {
     }
 }
 \end{lstlisting}
-\pp{Quedó cortado el listing, arreglar!}
 
 En esta sección, realizamos un experimento preliminar para determinar la 
 utilidad de los métodos generadores de objetos en el contexto del testing basado 

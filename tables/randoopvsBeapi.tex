@@ -3,29 +3,32 @@
 \centering
   \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{Herramienta} & \textbf{GTime} &  \textbf{Obj/Test} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutaci\'on} \\ 
   \midrule
-  30	&	Randoop	 &  2534 & 8   & 75 	& 89   \\
-  & RSer-API	&  22083/309162  &  10  &  78	& 91   \\
-  & RSer-MGO	&  48603/680442  &  69  & 78  	&  91 \\
-	&	BEAPI-s3,	 &  x/x  & x & x 	&   x \\
-	&	BEAPI-s4,	 &  x/x  & x & x 	&   x \\
-	&	BEAPI-s5,	 &  158/2212  & 3 & 85 	&   109 \\
+  Randoop 	&	30	 &  ---/2534 & 8   & 75 	& 89   \\
+  RSer-API	& 30	 &  22083/309162  &  10  &  78	& 91   \\
+  RSer-MGO	& 30	 &  48603/680442  &  69  & 78  	&  91 \\
+  % BEAPI-s2,	 & 1 &  8/112  & 3 & 69 	&   x \\
+	% BEAPI-s3,	 & 1 &  15/210  & 4 & 70 	&   x \\
+	% BEAPI-s4,	 & 1 &  31/434  & 5 & 73 	&   109 \\
+  % BEAPI-s6,	 & 1 &  78/1092  & 7 & 79 	&   109 \\
+  % BEAPI-s5,	 & 1 &  158/2212  & 8 & 79 	&   109 \\
+  % BEAPI-s12, & 4  & 8000/112000  & 8 &  79	&   109 \\
+  BEAPI-s14, & 27  & 50000/700000  & 37 &  79	&   109 \\
   \cline{1-6}
-  60	&	Randoop	 &  4934  & 12   &  79	& 100    \\
-  & RSer-API	&  41888/586432 & 57   &  82	&   100 \\
-  & RSer-MGO	&   74626/1044764 &  106  & 83	&  100  \\
-  &	BEAPI-s6,	 &  x/x  & x & x 	&   x \\
+  Randoop 	&	60	 &	---/4934  & 12   &  79	& 100    \\
+  RSer-API	& 60	 &  41888/586432 & 57   &  82	&   100 \\
+  RSer-MGO	& 60	 &  74626/1044764 &  106  & 83	&  100  \\
   \cline{1-6}
-  120	&	Randoop	 &  9950  & 12   &  85	& TO    \\
-  & RSer-API	&  78813/1103382 & 101   &  85	&   102 \\
-  & RSer-MGO	&   112452/1574328  &  158  & 85	&  109  \\
-  &	BEAPI-s7,	 &  x/x  & x & x 	&   x \\
+  Randoop	 &	 120  &  ---/9950  & 12   &  85	& TO    \\
+  RSer-API	&  120	& 78813/1103382 & 101   &  85	&   102 \\
+  RSer-MGO	&  120	& 112452/1574328  &  158  & 85	&  109  \\
+  BEAPI-s15 &   75  & 125000/1750000  & 94 & 79 	&   109 \\
   \cline{1-6}
-  180	&	Randoop	 &   14614 & 32  &  85	& TO    \\
-  & RSer-API	&  114605/1604470  &  168  &  85 	& 103   \\
-  & RSer-MGO	&  139857/1957998  & 202   &  85	&  109  \\
-  &	BEAPI-s7,	 &  x/x  & x & x 	&   x \\
+  Randoop	 &  180	 &  ---/14614 & 32  &  85	& TO    \\
+  RSer-API	& 180	 & 114605/1604470  &  168  &  85 	& 103   \\
+  RSer-MGO	& 180	 &  139857/1957998  & 202   &  85	&  109  \\
+  BEAPI-s16 &   X  & X/X  & X & X 	&   X \\
 \midrule
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en HashSet}
@@ -38,29 +41,32 @@
 \centering
   \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{Herramienta} & \textbf{GTime} &  \textbf{Obj/Test} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutaci\'on} \\ 
   \midrule
-
-30	&	Randoop	 &  3546  &  9  &  100	&   80 \\
-& RSer-API	&  48807/683298 &  9  &  	114&   99 \\
-& RSer-MGO	& 57307/802298   &  12  & 151 	&  111  \\
-& BEAPI-s3	& x/x & x  & x 	&  x  \\ 
-& BEAPI-s4	& 30/420 & 3  & 148 	&  116  \\ 
-& BEAPI-s5	& 73/1022 & 4  & 153 	&  116  \\ 
-& BEAPI-s6	& 197/2758 & 4  & 153 	&  116  \\ 
-\cline{1-6}
-60	&	Randoop	 & 7076   &  15  &  104	& 91   \\
-& RSer-API	&  82431/1154034  & 14 &  125	&  109  \\
-& RSer-MGO	&  92431/1294034  &  17  &154  	&  111 \\
-\cline{1-6}
-120	&	Randoop	 & 13682   &  27  &  105	& 93   \\
-& RSer-API	&  154002/2156028  & 24 &  125	&  109  \\
-& RSer-MGO	&  165131/2311834  &  26  &154  	&  111 \\
-\cline{1-6}
-180	&	Randoop	 &  20138  &  41  & 105 	& TO   \\
-& RSer-API	&  251248/3517472  & 36   & 125 	&   109 \\
-& RSer-MGO	&   254002/3556028 &  37  & 154 	&  111  \\
-\cline{1-6}
+  Randoop 	&	30	 &  ---/3546  &  9  &  100	&   80 \\
+  RSer-API	& 30	 &  48807/683298 &  9  &  	114&   99 \\
+  RSer-MGO	& 30	 &  57307/802298   &  12  & 151 	&  111  \\
+  %  BEAPI-s2	&  1  &6/84 & 1 & 123 	&  104  \\ 
+  %  BEAPI-s3	&  1  &12/168 & 3  & 135 	&  104  \\ 
+  %  BEAPI-s5	&  1  &30/420 & 4  & 148 	&  116  \\ 
+  %  BEAPI-s6	&  1  &73/1022 & 4  & 153 	&  116  \\ 
+  %  BEAPI-s7	&  1  &198/2772 & 7 & 154 	&  116  \\ 
+  BEAPI-s10 &  12 & 14077/197078 & 18 & 154 	&  116  \\ 
+  \cline{1-6}
+  Randoop 	&	60	 &	 ---/7076   &  15  &  104	& 91   \\
+  RSer-API	& 60	 &   82431/1154034  & 14 &  125	&  109  \\
+  RSer-MGO	& 60	 &   92431/1294034  &  17  &154  	&  111 \\
+  BEAPI-s11	& 37	 & 39942/559188 & 45 & 154 	&  116  \\ 
+  \cline{1-6}
+  Randoop	 &	 120  & ---/13682   &  27  &  105	& 93   \\
+  RSer-API	&  120	& 154002/2156028  & 24 &  125	&  109  \\
+  RSer-MGO	&  120	& 165131/2311834  &  26  &154  	&  111 \\
+  BEAPI-s12	& 76	 & 112237/1571318 & 76 & 154 	&  116  \\ 
+  \cline{1-6}
+  Randoop	 &  180	 &  ---/20138  &  41  & 105 	& TO   \\
+  RSer-API	& 180	 &  251248/3517472  & 36   & 125 	&   109 \\
+  RSer-MGO	& 180	 &  254002/3556028 &  37  & 154 	&  111  \\
+  % BEAPI-s13	& 229	 & 314852/4407928 & 229 & 154 	&  TO  \\ 
 
 \midrule
 \end{tabular}
@@ -73,29 +79,28 @@
 \centering
   \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{Herramienta} & \textbf{GTime} &  \textbf{Obj/Test} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutaci\'on} \\ 
   \midrule
-30	&	Randoop	 &   3146 &   7  & 31 	&  58  \\
-& RSer-API	&   15868/238020 & 3   &  120 	& 100    \\
-& RSer-MGO	&  19240/434550  &  4  &  162	& 155   \\
-& BEAPI-s2	& 28/420 & 3  & 149 	&  139  \\ 
-& BEAPI-s3	& 177/2655 & 3  & 155 	&  144  \\ 
-& BEAPI-s4	& 3826/57390 & 4  & 188 	&  165  \\ 
-\cline{1-6}
-60	&	Randoop	&  6374  &   10  & 45 	&79    \\
-& RSer-API	&  30005/450075  &  5  &  119	& 100   \\
-& RSer-MGO	&  41549/623235  &   6 & 162 	& 156   \\
-& BEAPI-s5	& 77653/1164795 & 31  & 194 	&  165  \\ 
-\cline{1-6}
-120	&	Randoop	&  12796  &   17  & 46 	&82    \\
-& RSer-API	&  56421/420070  &  5  &  119	& 100   \\
-& RSer-MGO	&  60570/846315  &   6 & 162 	& 156   \\
-\cline{1-6}
-180	&	Randoop	 &  19240  &  27  & 46 	& 82   \\
-& RSer-API	&  82737/1241055  & 6   &  	120 &  100  \\
-& RSer-MGO	&  75285/1129275  & 8   &  162	& 156\\
+   Randoop 	&	30	 &  ---/3146 &   7  & 31 	&  58  \\
+  RSer-API	& 30	 &  15868/238020 & 3   &  120 	& 100    \\
+  RSer-MGO	& 30	 &  19240/434550  &  4  &  162	& 155   \\
+  % BEAPI-s2	& 1 & 28/420 & 3  & 149 	&  139  \\ 
+  % BEAPI-s3	& 1 &177/2655 & 3  & 155 	&  144  \\ 
+  BEAPI-s4	& 2 &3826/57390 & 4  & 188 	&  165  \\ 
+  \cline{1-6}
+  Randoop 	&	60	 &	 ---/6374  &   10  & 45 	&79    \\
+  RSer-API	& 60	 &  30005/450075  &  5  &  119	& 100   \\
+  RSer-MGO	& 60	 &  41549/623235  &   6 & 162 	& 156   \\
+  BEAPI-s5	& 52 &77653/1164795 & 31  & 194 	&  165  \\ 
+  \cline{1-6}
+  Randoop	 &	 120  & ---/12796  &   17  & 46 	&82    \\
+  RSer-API	&  120	& 56421/420070  &  5  &  119	& 100   \\
+  RSer-MGO	&  120	& 60570/846315  &   6 & 162 	& 156   \\
+  \cline{1-6}
+  Randoop	 &  180	 & ---/19240  &  27  & 46 	& 82   \\
+  RSer-API	& 180	 & 82737/1241055  & 6   &  	120 &  100  \\
+  RSer-MGO	& 180	 & 75285/1129275  & 8   &  162	& 156\\
 \midrule
-
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en TreeMap}
 \label{tab:treeMapTools_beapi}
@@ -106,29 +111,29 @@
 \centering
   \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{Herramienta} & \textbf{GTime} &  \textbf{Obj/Test} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutaci\'on} \\ 
   \midrule
-30	&	Randoop	 &  2612  &   9 & 47 	&  49  \\
-& RSer-API	&  10963/317927  &   14 &  49	&   56 \\
-& R-Serialize-MGO	& 52700/1528300   & 34   & 49  	& 58    \\
-& BEAPI-s2	& 4/108 & 3  & 31 	&  20  \\ 
-& BEAPI-s3	& 21/567 & 3  & 47 	&  56  \\ 
-& BEAPI-s4	& 156/4212 & 3  & 49 	&  58  \\ 
-& BEAPI-s5	& 1555/41985 & 3  & 49 	&  58  \\ 
-& BEAPI-s6	& 19608/529416 & 10  &  49 	&  58 \\ 
-\cline{1-6}
-60	&	Randoop	 &   5180 & 4   &  47	&  50  \\
-& RSer-API	&  21096/611784  &  8  &  49	&   56 \\
-& RSer-MGO	& 77292/2241468   &   52  &  49	&  58  \\
-& BEAPI-s7	& 299593/8089011 & 132  &  49 	&  58 \\ 
-\cline{1-6}
-120	&	Randoop	 &   10790 & 4   &  47	&  50  \\
-& RSer-API	&  41096/1191784  &  8  &  49	&   57 \\
-& RSer-MGO	& 114170/3310930   &   81  &  49	&  57  \\
-\cline{1-6}
-180	&	Randoop	 &   15976 &  42  & 47 	&   TO \\
-& RSer-API	&   56543/1639747 &  58  &  49	&  58  \\
-& RSer-MGO	&  142935/4145115  &  99  & 49 	&58   \\
+  Randoop 	&	30	 &  ---/2612  &   9 & 47 	&  49  \\
+  RSer-API	& 30	 &  10963/317927  &   14 &  49	&   56 \\
+  RSer-MGO	& 30	 &  52700/1528300   & 34   & 49  	& 58    \\
+  % BEAPI-s2	&1& &4/108 & 3  & 31 	&  20  \\ 
+  % BEAPI-s3	&1& &21/567 & 3  & 47 	&  56  \\ 
+  % BEAPI-s4	&1& &156/4212 & 3  & 49 	&  58  \\ 
+  % BEAPI-s5	&1& &1555/41985 & 3  & 49 	&  58  \\ 
+  BEAPI-s6	& 2& 19608/529416 & 10  &  49 	&  58 \\ 
+  \cline{1-6}
+  Randoop 	&	60	 &	 ---/5180 & 4   &  47	&  50  \\
+  RSer-API	& 60	 &   21096/611784  &  8  &  49	&   56 \\
+  RSer-MGO	& 60	 &   77292/2241468   &   52  &  49	&  58  \\
+  BEAPI-s7	& 33& 299593/8089011 & 132  &  49 	&  58 \\ 
+  \cline{1-6}
+  Randoop	 &	 120  & ---/10790 & 4   &  47	&  50  \\
+  RSer-API	&  120	& 41096/1191784  &  8  &  49	&   56 \\
+  RSer-MGO	&  120	& 114170/3310930   &   81  &  49	&  58  \\
+  \cline{1-6}
+  Randoop	 &  180	 &  ---/15976 &  42  & 47 	&   TO \\
+  RSer-API	& 180	 &  56543/1639747 &  58  &  49	&  58  \\
+  RSer-MGO	& 180	 &  142935/4145115  &  99  & 49 	&58   \\
 \midrule
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en LinkedList}
@@ -140,28 +145,26 @@
 \centering
   \begin{tabular}{ c  r  r r r r  }
   \toprule
-  \textbf{GTime/Scope} & \textbf{Herramienta} &  \textbf{Test/Obj} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutacion} \\ 
+  \textbf{Herramienta} & \textbf{GTime} &  \textbf{Obj/Test} & \textbf{Time} & \textbf{Ramas}  & \textbf{Mutaci\'on} \\ 
   \midrule
-30	&	Randoop	 &  86  &  2  &  48	&  66  \\
-& RSer-API	&  5373/145071  & 28   &  107	& 120   \\
-& RSer-MGO	&  8465/228555  & 36   &  122	& 127   \\
-& BEAPI-s3	&  & 4  & 105 	&  122  \\ 
-& BEAPI-s4	& 10278/277506  & 9  & 125 	&  131  \\ 
+Randoop 	&	30	&  ---/86  &  2  &  48	&  66  \\
+RSer-API	& 30	&  5373/145071  & 28   &  107	& 120   \\
+RSer-MGO	& 30	&  8465/228555  & 36   &  122	& 127   \\
+% BEAPI-s3	& 1& & 4  & 105 	&  122  \\ 
+BEAPI-s4	& 5&  10278/277506  & 9  & 125 	&  131  \\ 
 \cline{1-6}
-60	&	Randoop	 &  92  & 3   & 48 	&66    \\
-& RSer-API	& 32916/888732   &  67  & 107  	&  120  \\
-& RSer-MGO	&  40282/1087614  &  98  &122  	&  127  \\
+Randoop 	&	60	&  ---/92  & 3   & 48 	&66    \\
+RSer-API	& 60	& 32916/888732   &  67  & 107  	&  120  \\
+RSer-MGO	& 60	&  40282/1087614  &  98  &122  	&  127  \\
 \cline{1-6}
-120	&	Randoop	 &  102  & 3   & 48 	&67   \\
-& RSer-API	& 62995/1700865   &  82  & 108 	&  120  \\
-& RSer-MGO	&  65884/1778868  &  124  &122  	&  127  \\
-& BEAPI-s5	& 137199/3704373  & 19  & 125 	&  131  \\ 
+Randoop	 & 120 &  ---/102  & 3   & 48 	&67   \\
+RSer-API	&  120 & 62995/1700865   &  82  & 108 	&  120  \\
+RSer-MGO	&  120 &  65884/1778868  &  124  &122  	&  127  \\
+BEAPI-s5	& 100 & 137199/3704373  & 99  & 125 	&  131  \\ 
 \cline{1-6}
-180	&	Randoop	 &   114 & 3   &  48	& 68    \\
-& RSer-API	&  89614/2419578  & 174   & 108 	&  120  \\
-& RSer-MGO	&  92531/2498337  &  201  &  122	&  127  \\
-& BEAPI-s6	& 161464/4359528  & 122  & 125 	&  131  \\ 
-
+Randoop	 &  180 &   ---/114 & 3   &  48	& 68    \\
+RSer-API	& 180	&  89614/2419578  & 174   & 108 	&  120  \\
+RSer-MGO	& 180	&  92531/2498337  &  201  &  122	&  127  \\
 \midrule
 \end{tabular}
 \caption{Comparativa de diferentes tecnicas en HashMap}
