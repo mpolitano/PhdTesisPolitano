@@ -553,16 +553,16 @@ También realizamos una evaluación preliminar que muestra que BEAPI puede ser �
 consistencia entre los objetos que puede generar la API y las restricciones que
 imponen las especificaciones formales de invariantes de representación de estructuras (\texttt{repOK}). 
 Por último, evaluamos preliminarmente que tan buenos son los objetos producidos por BEAPI en el
-contexto del \emph{testing} parametrizado.
+contexto del \emph{testing} basado en propiedades.
 
-Así, en la evaluación de BEAPI buscaremos responder a las siguientes preguntas de
+Así, en la evaluación de BEAPI buscaremos responder las siguientes preguntas de
 investigación:
 
 \begin{itemize}
 \item \emph{RQ4}: ¿Qué tan eficiente es BEAPI para la generación exhaustiva acotada de objetos?
 \item\emph{RQ5}: ¿Cuál es el impacto de las optimizaciones propuestas en el rendimiento de BEAPI?
 \item\emph{RQ6}: ¿Puede BEAPI ayudar a encontrar discrepancias entre especificaciones de invariantes de clase (repOK) y la capacidad de generación de objetos de la API?
-\item\emph{RQ7}: ¿Qué tan efectivos son los objetos producidos por BEAPI para el testing parametrizado?  
+\item\emph{RQ7}: ¿Qué tan efectivos son los objetos producidos por BEAPI para el testing basado en propiedades?  
 \end{itemize}
 
 \subsection{Configuración experimental}
@@ -588,13 +588,16 @@ Para la evaluación se utilizó el prototipo de la herramienta BEAPI, que se
 describe en la literatura en los trabajos de Politano et. al. \cite{Politano23,
 Politano24}.
 
-\cacho{Lo mejore un poco}
 En BEAPI, la identificación de métodos generadores de objetos se realiza en una 
 etapa previa a la generación exhaustiva, utilizando el algoritmo de 
-\textsf{Hill Climbing} con la función objetivo basada en el generador exhaustivo acotado. (ver Sección: \ref{sec:eficienciaBuilders})
-\pp{Poner cual de los algoritmos de la tesis usamos. Charlemoslo}, 
-Para esta etapa, se empleó un \emph{scope} de 5 en todos los casos. 
-\cacho{Nuevo esto, saque lo de todos los benchmarks para que no haya confunsion}
+\textsf{Hill Climbing} (Sección \ref{alg:approachHC}), usando la función
+objetivo basada en la cantidad de objetos producida por un generador exhaustivo
+acotado (Sección \ref{sec:fitnessGE}). Para la función objetivo se usa el mismo BEAPI 
+como generador.
+Para la identificación de métodos generadores de objetos, se empleó un
+\emph{scope} fijo de 5 en todos los casos.
+%; con este scope se obtuvieron 
+%generadores de objetos suficientes en todos los casos. 
  El tiempo máximo requerido por el proceso de identificación fue de 68 segundos en el peor caso 
  (en el benchmarks \texttt{Real World}, el caso de estudio TreeMap, que tiene 32 métodos en su API).
 % con 32 métodos, el más costoso). 
@@ -605,10 +608,6 @@ Para esta etapa, se empleó un \emph{scope} de 5 en todos los casos.
 % con 32 métodos, el más costoso). 
 En todos los casos verificamos manualmente que los métodos identificados 
 constituyeran un conjunto suficiente de métodos generadores de objetos.
-\pp{Hay que ver qué hacer con esto: Reportamos los tiempos de identificación de
-builders en el sitio web del artículo [26]. Tenemos una sección experimental
-entera con resultados de builders, hay que linkearlos con eso me parece en
-lugar de citar el paper.} \cacho{Se deberia sacar, lo agregue como referencia}
 
 Nótese que la generación exhaustiva acotada suele realizarse de manera
 incremental, para scopes cada vez más grandes, y que los generadores de objetos identificados 
@@ -620,23 +619,23 @@ los tiempos de identificación de builders en los tiempos de ejecución de BEAPI
 de los experimentos de las secciones a continuación. Además, para los scopes más
 grandes y las estructuras más complejas —que son los más importantes para
 evaluar la eficiencia de la generación exhaustiva acotada— el tiempo de identificación 
-de métodos generadores de objetos suele ser relativamente pequeño en relación con los 
+de métodos generadores de objetos es pequeño en relación con los 
 tiempos de generación.
 
 En la comparación de eficiencia con técnicas existentes (RQ4) se utilizó Korat,
 que es la herramienta existente de generación exhaustiva acotada más eficiente
-\cite{Siddiqui09} 
-\cacho{Hecho} \pp{No es la cita a Korat. Es la cita al paper que evalua Korat
-contra otras técnicas de BEG}. Tener en cuenta, como
+\cite{Siddiqui09}. Tener en cuenta que, como
 Korat requiere de repOKs, se emplearon los \texttt{repOK}s provistos por los autores 
 de cada caso de estudio. 
 En algunos casos se identificaron errores o especificaciones incompletas en los \texttt{repOK}s; 
 estos se señalan de forma explícita en los resultados y se analizan en más
 detalle en la Sección \ref{sec:existing-specs-analysis} (RQ6).
 
-Para RQ7 se comparan los objetos generados por BEAPI, una técnica de generación
-aleatoria (Randoop), y una variante de Randoop que sólo usa métodos generadores de objetos
-(R-Builders). 
+Para RQ7 se comparan los objetos generados por \textsf{BEAPI} con una técnica de generación
+aleatoria (\textsf{Randoop}), y las dos variantes de Randoop que serializan los objetos
+generados por la ejecución de los tests descritas en la Sección
+\ref{sec:object_builders_randoop}. Una de ellas sólo usa métodos generadores de
+objetos (\textsf{RSer-MGO}), y otra que usa la API completa (\textsf{RSer-API}). 
 
 Los experimentos se llevaron a cabo en una computadora con procesador Intel Core i7-8700
 (6 núcleos, 12 threads, frecuencia de hasta 4.6 GHz, 12 MB de caché, octava generación),
@@ -649,28 +648,25 @@ y el artefacto experimental con el código fuente se encuentra disponible en: \u
 \subsection{RQ4: Eficiencia de BEAPI}
 \label{sec:beapi-eficiencia}
 
-
 En esta sección comparamos BEAPI y Korat en términos de tiempo 
 de ejecución, número de estructuras generadas y exploradas, y escalabilidad con
 respecto a los \emph{scopes}.
 Los resultados experimentales se muestran en la Tabla \ref{table:korat-beapi} y \ref{table:korat-beapi1}.
-\pp{No entra la tabla en una página. Hay que dividirla en 2. Además tiene muchos
-    errores, se corrieron varias líneas como FibHeap ROOPS s4, o SLList Fajita
-s 8,9 y 10. Hay que revisar todo.}
 
 \cacho{Hecho, FALTA CONTROLAR Y QUE ESTEN LOS MISMO CASOS QUE EN LA RQ siguiente}
-La Tabla presenta una muestra representativa de los resultados para los benchmarks
-\texttt{Korat}, \texttt{FAJITA}, \texttt{ROOPS} y \texttt{Kiasan} (intentamos mantener la misma proporción de casos buenos y malos para cada técnica en los datos que reportamos). \pp{Los casos
-restantes se pueden encontrar online \cite{}. Queda raro que esta tabla sea la
-única que esté recortada en la tesis. hay que ver si se puede hacer algo al
-respecto.}.
+%La Tabla presenta una muestra representativa de los resultados para los benchmarks
+%\texttt{Korat}, \texttt{FAJITA}, \texttt{ROOPS} y \texttt{Kiasan} (intentamos mantener la misma proporción de casos buenos y malos para cada técnica en los datos que reportamos). \pp{Los casos
+%restantes se pueden encontrar online \cite{}. Queda raro que esta tabla sea la
+%única que esté recortada en la tesis. hay que ver si se puede hacer algo al
+%respecto.}.
 Para cada clase evaluada, informamos los tiempos de generación 
 (en segundos, columna \textsf{Time}), la cantidad de estructuras válidas generadas (\textsf{Generated}) y el total de estructuras exploradas (\textsf{Explored}) por cada técnica. 
 Incluimos, para cada enfoque, los \textsf{scopes} más grandes (columna \textsf{S})
 alcanzados por las técnicas antes de llegar al tiempo límite de 60 minutos. De
 esta manera, si surgieran problemas de escalabilidad, podrían identificarse fácilmente. Vale
 aclarar que no se utilizó el benchamark \texttt{Real World} en esta sección, ya que
-no se dispone de \texttt{repOK}s para estas clases, lo que impide una comparación justa con \texttt{Korat}.
+no se dispone de \texttt{repOK}s provistos por los autores de las clases, 
+lo que impide una comparación justa con \texttt{Korat}.
 
 Para obtener resultados de rendimiento adecuados para \textsf{BEAPI}, realizamos
 testing exhaustivo de los métodos de la API de las clases para asegurar que
@@ -697,14 +693,16 @@ estas estructuras.
 
 En resumen, la Tabla \ref{table:korat-beapi} muestra que para el benchmark \texttt{KORAT} la
 herramienta \textsf{Korat} es más veloz en 4 de 6 clases; 
-en \texttt{FAJITA}, \textsf{BEAPI} supera a \textsf{Korat} en 3 de 4 casos; en
-\texttt{ROOPS}, \textsf{BEAPI} lo hace en 5 de 7 casos; 
-y en \texttt{Kiasan}, \textsf{Korat} es más rápido en 6 de 7 clases.
+en \texttt{FAJITA}, \textsf{BEAPI} es más rápido que \textsf{Korat} en 5 de 7
+casos \pp{Cacho: volvé a chequear los números de todo este párrafo cuando corrijas las tablas}.
+La Tabla \ref{table:korat-beapi1} indica que en
+\texttt{ROOPS}, \textsf{BEAPI} es más rápido en 6 de 7 casos; 
+en \texttt{Kiasan}, \textsf{Korat} es más rápido en 7 de 8 clases.
+
 Observamos que \textsf{BEAPI} muestra un mejor rendimiento en estructuras con
 invariantes de representación más fuertes, 
 como \texttt{RBT} y árboles binarios de búsqueda (\texttt{BST}); a menudo estos
 casos presentan una cantidad de relativamente más chica de estructuras válidas.
-
 En los casos con invariantes más débiles, en los que la cantidad de estructuras
 válidas crece más rápidamente con respecto al scope, como las listas doblemente
 enlazadas (\texttt{DLList}), \textsf{Korat} suele ser más eficiente. Un mayor 
@@ -721,11 +719,14 @@ generadas). En la mayoría de los casos, los \texttt{repOK} del benchmark de
 específicamente para su uso con \textsf{Korat} (estos \texttt{repOK}s producen
     que la estrategia de poda de estructuras inválidas de \textsf{Korat} se
 ejecute con más frecuencia, reduciendo significativamente la cantidad de
-estructuras exploradas). 
+estructuras exploradas, lo que mejora su rendimiento). 
 
-En conclusión, \emph{BEAPI} es una herramienta eficiente para la generación exhaustiva acotada. 
-En general, presenta una eficiencia y una escalabilidad comparable a la de
-\textsf{Korat}, sin requerir de un \texttt{repOK} formal para la generación. 
+En conclusión, \textsf{BEAPI} presenta una eficiencia y una escalabilidad comparable a la de
+\textsf{Korat} (gana en algunos casos y pierde en otros), sin requerir de un
+\texttt{repOK} para la generación. Y por lo tanto, \textsf{BEAPI} no depende de que el
+\texttt{repOK} esté optimizado para la generación exhaustiva acotada, que como se puede
+ver en \texttt{ROOPS}, ciertos \texttt{repOK} pueden resultar muy
+contraproducentes para la performance de \textsf{Korat}. 
 
 \input{tables/tableEficienciaBEAPI.tex}
 \input{tables/tableEficienciaBEAPI1.tex}
@@ -734,25 +735,18 @@ En general, presenta una eficiencia y una escalabilidad comparable a la de
 \label{sec:optimizations}
 
 \input{tables/optimizaciones}
-\pp{Hay errores de formato en las tablas. Algunas líneas están incompletas. Y
-faltan guiones de TOs.}
 
 En esta pregunta de investigación evaluamos el impacto que tienen las optimizaciones propuestas 
 de \emph{BEAPI} en su rendimiento. 
 Concretamente, analizamos cuatro configuraciones de la herramienta:
-\textsf{CI/MGO}, \pp{cambiar SM/BLD por CI/MGO así queda igual en toda la
-tesis. Chequear en toda la tesis.} \cacho{Hecho} que habilita tanto 
+\textsf{CI/MGO}, que habilita tanto 
 la coincidencia de estados (\emph{CI}) como la identificación de métodos
 generadores de objetos (\emph{MGO}); 
 \textsf{CI}, que activa únicamente la coincidencia de estados; \textsf{MGO}, que habilita únicamente 
 la identificación de métodos generadores de objetos; y \textsf{NoOPT}, que desactiva ambas optimizaciones.
 
-La Tabla \ref{tab:results-realWorld} resume los resultados para el conjunto \texttt{Real World} \pp{Y las
-otras? Meté una tabla por benchmark y referencialas por separado}.
-\cacho{Hago analisis por cada una?}
-% PABLO: Esto está en la configuración experimental
-%(seis implementaciones ampliamente usadas: \texttt{LinkedList} con 67 métodos, \texttt{TreeSet} con 34 métodos, \texttt{TreeMap} con 61 métodos, \texttt{HashMap} con 45 métodos, \texttt{NCL} con 34 métodos y \texttt{Schedule} con 12 métodos). 
-%Resultados análogos se reportan para los demás benchmarks en las tablas correspondientes de esta sección; en conjunto, todos ellos muestran el mismo patrón y fundamentan las conclusiones presentadas.
+Las Tablas \ref{}, .., \ref{tab:results-realWorld} \pp{Referenciar todas las
+tablas} resumen los resultados de este experimento.
 
 Los resultados muestran de forma contundente que la configuración sin optimizaciones (\textsf{NoOPT}) 
 tiene un rendimiento deficiente en general, inclusive en los estudios de caso más simples y
