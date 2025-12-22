@@ -2,6 +2,52 @@
 \chapter{Trabajo Futuro}
 \label{cap:future}
 
+Mejoras en la deteccion de observadores en MGO
+Soporte multi-clase y dependencias entre modulos para MGO
+Mejoras en  GA, como paralelizacion. 
+Chequear especificaciones para descartar con precondiciones secuencias que no se puedan construir y poder ganar algo de tiempo para BEAPI
+Mejoras en cuanto a los tipos de parámetros a instanciar, cuando es objetos o collections por ejemplo.
+Pruebas y mejoras en benchamarks mas actuales
+\cacho{Esto de arriba lo agregue yo}
+
+\cacho{De aca aajo traje lo que encontre en la tesis que puso Pablo}
+
+Por otra parte, la función objetivo \textsf{FRC} tiene la ventaja de que no requiere 
+que el usuario provea la definición del scope para la generación exhaustiva acotada. 
+Además, \textsf{FRC} podría ser más escalable que \textsf{FGE} en casos donde
+la cantidad de objetos sea demasiado grande para ser generados de manera
+exhaustiva (por ejemplo, en clases con invariantes de representación más débiles
+que los evaluados aquí).
+De cualquier modo, los resultados preliminares muestran que los algoritmos 
+son mucho más lentos con la función objetivo \textsf{FRC}. Se deja como trabajo 
+futuro estudiar formas más eficientes de implementar la función \textsf{FRC}, y
+realizar más experimentos para evaluar mejor su utilidad en la práctica 
+\pp{No olvidarse de incluir esto en trabajos futuros}.
+
+La pérdida de precisión del algoritmo genético (\texttt{GA}) puede deberse a la
+estocasticidad propia de la búsqueda (selección, cruce, mutación). Otro factor
+que podría influir es el criterio de corte del algoritmo que detiene la evolución 
+cuando el mejor fitness no mejora durante cinco generaciones consecutivas (ver
+Sección \ref{alg:approachGA}). Este criterio es eficaz para acelerar la
+terminación del algoritmo, pero puede resultar en soluciones subóptimas (como
+se ve en algunos casos). Se deja como trabajo futuro la optimización de los
+parámetros del algoritmo genético en busca de mejorar su precisión \pp{Poner en
+trabajos futuros}. 
+
+Para este experimento, se utilizaron las clases más complejas de nuestra
+evaluación experimental, esto es, las clases del paquete \texttt{java.util},
+debido a su API rica en cantidad de métodos: \texttt{HashSet}, \texttt{HashMap},
+\texttt{TreeMap}, \texttt{TreeSet} y \texttt{LinkedList}. Para estas clases, 
+escribimos manualmente tests basados en
+propiedades intentando maximizar cobertura y puntaje de mutación para los
+métodos públicos de las clases. Como escribir estos tests manualmente es una
+tarea laboriosa, nos limitamos sólo a estas clases para este experimento
+preliminar. Se deja como trabajo futuro extender la evaluación a un conjunto más
+amplio de casos de estudio. \pp{Más trabajos futuros}.
+
+\cacho{Hasta aca traje lo que puso Pablo}
+
+
 Creemos que una dirección de investigación prometedora, que planeamos explorar más a fondo en trabajos futuros, 
 es adaptar nuestro enfoque para la generación exhaustiva acotada de tests, buscando mejorar su eficiencia, aplicabilidad y capacidad de integración con otras técnicas de prueba automatizadas.
 

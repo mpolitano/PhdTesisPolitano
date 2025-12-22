@@ -428,20 +428,19 @@ tests por sí solas.
 indicando que Obj no aplica. Hay una columna que dice Scope que no va}
 
 
-En \texttt{LinkedList} \pp{referencia a la tabla}, la estructura más simple de todas las
+En \texttt{LinkedList} (\ref{tab:linkedListTools_builders}), la estructura más simple de todas las
 consideradas, \texttt{RSer-MGO} y \texttt{RSer-API} logran la mayor cobertura en
 60 segundos de generación. \texttt{RSer-MGO} obtiene el puntaje de mutación
 más alto en 120 segundos, mientras que \texttt{RSer-API} lo hace en 180 segundos.
 
 En los casos restantes, que implementan en estructuras de datos más complejas, 
 la diferencia es significativamente más grande a favor de \texttt{RSer-MGO}.
-En \texttt{HashSet} \pp{referencia a la tabla}, \texttt{RSer-MGO} y
+En \texttt{HashSet} (\ref{tab:hashSetTools_builders}), \texttt{RSer-MGO} y
 \texttt{RSer-API} obtienen la mayor cobertura en 120 segundos. 
 \texttt{RSer-MGO} obtiene el puntaje de mutación más alto en 120 segundos, 
 mientras que \texttt{RSer-API} nunca llega a lograr el puntaje más alto.
-En \texttt{HashMap} \pp{referencia a la tabla},
-\texttt{TreeMap} \pp{referencia a la tabla} y \texttt{TreeSet} \pp{referencia a
-la tabla}, las mejoras en cobertura y mutantes muertos por parte de \texttt{RSer-MGO} son
+En \texttt{HashMap} (\ref{tab:hashMapTools_builders}),
+\texttt{TreeMap} (\ref{tab:treeMapTools_builders}) y \texttt{TreeSet} (\ref{tab:treeSetTools_builders}), las mejoras en cobertura y mutantes muertos por parte de \texttt{RSer-MGO} son
 significativas para todos los tiempos de generación. Además, \texttt{RSer-MGO}
 siempre llegan a los puntajes más altos que obtienen las técnicas consideradas, 
 mientras que \texttt{RSer-API} no logra los puntajes más altos ni siquiera para 
@@ -695,8 +694,8 @@ estas estructuras.
 
 En resumen, la Tabla \ref{table:korat-beapi} muestra que para el benchmark \texttt{KORAT} la
 herramienta \textsf{Korat} es más veloz en 4 de 6 clases; 
-en \texttt{FAJITA}, \textsf{BEAPI} es más rápido que \textsf{Korat} en 5 de 7
-casos \pp{Cacho: volvé a chequear los números de todo este párrafo cuando corrijas las tablas}.
+en \texttt{FAJITA}, \textsf{BEAPI} es más rápido que \textsf{Korat} en 4 de 7
+casos \pp{Cacho: volvé a chequear los números de todo este párrafo cuando corrijas las tablas} \cacho{Hecho!}.
 La Tabla \ref{table:korat-beapi1} indica que en
 \texttt{ROOPS}, \textsf{BEAPI} es más rápido en 6 de 7 casos; 
 en \texttt{Kiasan}, \textsf{Korat} es más rápido en 7 de 8 clases.
@@ -747,8 +746,7 @@ generadores de objetos (\emph{MGO});
 \textsf{CI}, que activa únicamente la coincidencia de estados; \textsf{MGO}, que habilita únicamente 
 la identificación de métodos generadores de objetos; y \textsf{NoOPT}, que desactiva ambas optimizaciones.
 
-Las Tablas \ref{}, .., \ref{tab:results-realWorld} \pp{Referenciar todas las
-tablas} resumen los resultados de este experimento.
+Las Tablas \ref{tab:results-fajita}, \ref{tab:results-roops}, \ref{tab:results-korat}, \ref{tab:results-kiasan}, \ref{tab:results-realWorld} resumen los resultados de este experimento.
 
 Los resultados muestran de forma contundente que la configuración sin optimizaciones (\textsf{NoOPT}) 
 tiene un rendimiento deficiente en general, inclusive en los estudios de caso más simples y
@@ -767,9 +765,7 @@ los mismos objetos, es crucial para la eficiencia de BEAPI.
 
 La segunda optimización, el uso de métodos generadores de objetos
 (\textsf{MGO}), es mucho más relevante en casos donde el número de métodos en la API es grande (más de 10), y de manera notable en las estructuras de datos del mundo real (con 20 o más métodos). En 
-estructuras del benchmark \texttt{Real World} \pp{Hay una mezcla de fuentes
-importante en todo el texto. Hay que definir qué fuente para cada cosa y usarla
-siempre igual.} como \texttt{TreeMap}, \texttt{LinkedList} o \texttt{HashMap}, donde existen 
+estructuras del benchmark \texttt{Real World} como \texttt{TreeMap}, \texttt{LinkedList} o \texttt{HashMap}, donde existen 
 decenas de métodos públicos, limitar la generación de secuencias a combinaciones 
 de MGOs tiene un impacto significativo en la eficiencia del proceso de
 generación. Como era esperable, en las clases que tienen pocos métodos, el impacto de utilizar MGOs es 
@@ -913,7 +909,7 @@ la técnica BEAPI ejecutada para un scope de XX. \pp{son raros los números
     redondos en BEAPI. Por ejemplo, veo en HashSet scope 14 que da 50000 y
 700000 redondos. Me dan desconfianza esos números. Si vamos a redondear, habría
 que reportar algo como 50k objetos, 700k tests y hacer eso para todas las
-técnicas. Lo podemos que charlar.}
+técnicas. Lo podemos que charlar.} \cacho{Hecho}
 
 \input{tables/randoopvsBeapi}
 
