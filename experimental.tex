@@ -429,21 +429,23 @@ indicando que Obj no aplica. Hay una columna que dice Scope que no va}
 
 
 En \texttt{LinkedList} \pp{referencia a la tabla}, la estructura más simple de todas las
-consideradas, \texttt{RSer-MGO} y \texttt{RSer-API} maximizan cobertura en
-60 segundos de generación. \texttt{RSer-MGO} obtiene el máximo puntaje de mutación
-en 120 segundos, mientras que \texttt{RSer-API} lo hace en 180 segundos.
+consideradas, \texttt{RSer-MGO} y \texttt{RSer-API} logran la mayor cobertura en
+60 segundos de generación. \texttt{RSer-MGO} obtiene el puntaje de mutación
+más alto en 120 segundos, mientras que \texttt{RSer-API} lo hace en 180 segundos.
 
 En los casos restantes, que implementan en estructuras de datos más complejas, 
 la diferencia es significativamente más grande a favor de \texttt{RSer-MGO}.
-En \texttt{HashSet} \pp{referencia a la tabla}, \texttt{RSer-MGO} y \texttt{RSer-API} maximizan cobertura en
-120 segundos. \texttt{RSer-MGO} obtiene el máximo puntaje de mutación
-en 120 segundos, mientras que \texttt{RSer-API} nunca llega a matar la máxima cantidad de mutantes.
+En \texttt{HashSet} \pp{referencia a la tabla}, \texttt{RSer-MGO} y
+\texttt{RSer-API} obtienen la mayor cobertura en 120 segundos. 
+\texttt{RSer-MGO} obtiene el puntaje de mutación más alto en 120 segundos, 
+mientras que \texttt{RSer-API} nunca llega a lograr el puntaje más alto.
 En \texttt{HashMap} \pp{referencia a la tabla},
 \texttt{TreeMap} \pp{referencia a la tabla} y \texttt{TreeSet} \pp{referencia a
 la tabla}, las mejoras en cobertura y mutantes muertos por parte de \texttt{RSer-MGO} son
 significativas para todos los tiempos de generación. Además, \texttt{RSer-MGO}
-siempre logra los máximos puntajes, mientras que \texttt{RSer-API} no logra los
-máximos puntajes ni siquiera para el máximo tiempo de generación (180 segundos).
+siempre llegan a los puntajes más altos que obtienen las técnicas consideradas, 
+mientras que \texttt{RSer-API} no logra los puntajes más altos ni siquiera para 
+el máximo tiempo de generación (180 segundos).
 
 Como se esperaba, las técnicas que usan los tests basados en
 propiedades escritos manualmente superan significativmamente tanto en cobertura
@@ -915,6 +917,7 @@ técnicas. Lo podemos que charlar.}
 
 \input{tables/randoopvsBeapi}
 
+
 \pp{Pablo: Revisar desde acá}
 A continuación se describen los resultados de este experimento. 
 La Tabla \ref{tab:hashSetTools_beapi} muestra una comparativa de diferentes
@@ -946,10 +949,12 @@ similar. \textsf{BEAPI} logra altos niveles de cobertura con tiempos de generaci
 En este caso \textsf{R-Serialize-MGO} se acerca a ese valor pero no llega al mismo en 180 segundos.
 \pp{Pablo: Revisar hasta acá}
 
+
 Los resultados obtenidos permiten concluir que los objetos generados por \textsf{BEAPI} son 
 efectivos para el testing basado en propiedades. Si bien usar scopes grandes
-puede ser prohibitivo (debido a la exhaustividad de la técnica), en general, usar scopes
-pequeños es suficiente para lograr maximizar cobertura y mutación. 
+puede ser prohibitivo (debido a la exhaustividad de la técnica), usar scopes
+relativamente pequeños es suficiente para que \textsf{BEAPI} logre los puntajes 
+de cobertura y mutación más altos de todas las técnicas consideradas en este experimento. 
 
 
 
