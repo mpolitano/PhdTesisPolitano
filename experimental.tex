@@ -870,14 +870,12 @@ detectar manualmente, y que \textsf{BEAPI} puede ser de gran ayuda para esta tar
 \label{sec:parametrizedTesting}
 
 
-\cacho{Nuevo todo esto}
-
 %En el experimento de MGO (ver \ref{sec:object_builders_randoop}), generamos objetos utilizando los MGO y toda la API junto con la herramienta \texttt{Randoop} y los empleamos posteriormente en un conjunto de tests parametrizados, con el objetivo de evaluar su impacto en la cobertura.
 %
 
-En esta sección, evaluamos la calidad de los objetos generados por BEAPI en el
+En esta sección, evaluamos la calidad de los objetos generados por \textsf{BEAPI} en el
 contexto del testing basado en propiedades.
-Para ello, comparamos BEAPI con los enfoques de generación aleatoria utilizados
+Para ello, comparamos \textsf{BEAPI} con los enfoques de generación aleatoria utilizados
 en la Sección \ref{sec:experiments-builders-parameterized}. Es decir,
 consideramos la versión estándar de \textsf{Randoop},y las versiones modificadas de 
 \textsf{Randoop} para serializar objetos: \textsf{RSer-API} que utiliza toda la
@@ -902,53 +900,52 @@ Los enfoques \texttt{RSer-API}, \texttt{RSer-MGO} y \textsf{BEAPI} son usados pa
 la test suite basada en propiedades definida manualmente. \textsf{Randoop} 
 genera su propia test suite, por lo que los resultados no son directamente
 comparables con las otras técnicas. 
-Como la generación con BEAPI se lleva a cabo por scope (y no por tiempo como en
-los otros enfoques), incluimos en los resultados el scope para el que BEAPI
-termina dentro de cada presupuesto de generación predefinido. Así, BEAPI-sXX denota
-la técnica BEAPI ejecutada para un scope de XX. \pp{son raros los números
-    redondos en BEAPI. Por ejemplo, veo en HashSet scope 14 que da 50000 y
-700000 redondos. Me dan desconfianza esos números. Si vamos a redondear, habría
-que reportar algo como 50k objetos, 700k tests y hacer eso para todas las
-técnicas. Lo podemos que charlar.} \cacho{Hecho}
-
+Como la generación con \textsf{BEAPI} se lleva a cabo por scope (y no por tiempo como en
+los otros enfoques), incluimos en los resultados el scope para el que \textsf{BEAPI}
+termina dentro de cada presupuesto de generación predefinido. Así,
+\textsf{BEAPI-sxx} denota la técnica \textsf{BEAPI} ejecutada para un scope de
+\textsf{xx}.
 \input{tables/randoopvsBeapi}
 
+A continuación se describen los resultados de este experimento.
+Como se discutió en la Sección \ref{sec:experiments-builders-parameterized}, \textsf{RSer-MGO} presenta un rendimiento
+significativamente mejor que \textsf{Randoop} y \textsf{RSer-API}. Por lo tanto,
+en lo que sigue sólo compararemos \textsf{RSer-MGO} con \textsf{BEAPI}.
 
-\pp{Pablo: Revisar desde acá}
-A continuación se describen los resultados de este experimento. 
-La Tabla \ref{tab:hashSetTools_beapi} muestra una comparativa de diferentes
-técnicas aplicadas para \texttt{HashSet}. \textsf{BEAPI} logra una cobertura de ramas y 
-mutación equivalente a \textsf{RSer-MGO}, y superior a la alcanzada por \textsf{RSer-API} y 
-\textsf{Randoop} en lapsos de tiempo cortos. Esta eficiencia evidencia que BEAPI puede generar un 
-conjunto reducido de objetos, pero de alta calidad para testing, en muy poco tiempo (menos de cinco 
-segundos).Esto indica que los objetos generados por \textsf{BEAPI} son 
-mas efectivos como entradas, permitiendo detectar fallas y explorar el espacio de estados 
-de manera eficiente.
+La Tabla \ref{tab:hashSetTools_beapi} muestra los resultados para \texttt{HashSet}. 
+En este caso, \textsf{RSer-MGO} obtiene la
+cobertura de ramas y el puntaje de mutación más grandes a partir de 120
+segundos. \textsf{BEAPI} requiere un poco más de tiempo para lograr los mismos
+resultados (167 segundos).
+
+La Tabla \ref{tab:linkedListTools_beapi} presenta los resultados obtenidos para la clase 
+\texttt{LinkedList}, que es la estructura más simple de este experimento. 
+Se observa que \textsf{BEAPI} y \textsf{RSer-MGO} llegan a
+los mayores valores de cobertura y mutación con el presupuesto más chico (30 segundos).
 
 La Tabla \ref{tab:treeSetTools_beapi} presenta los resultados obtenidos para \texttt{TreeSet}. En 
-este caso, las diferencias comienzan a notarse con mayor claridad. 
-\textsf{BEAPI} alcanza una cobertura de ramas y mutación mejor en cuanto a mutantes matados con respecto a las otras técnicas.
-En el caso de la tabla \ref{tab:treeMapTools_beapi}, se observa que se mantiene la tendencia de que los objetos generados por BEAPI son efectivos para testing parametrizado, logrando coberturas competitivas con tiempos de generación muy bajos.
-En este caso, \textsf{BEAPI} alcanza una cobertura de ramas y mutación superior pero se necesitaron 30 segundos, lo cual sigue siendo un tiempo bajo ya que la mejor técnica (\texttt{R-Serialize-MGO}) necesita 180 segundos para lograr una cobertura similar.
+este caso, las diferencias comienzan a notarse con mayor claridad.
+\textsf{BEAPI} alcanza los mayores valores de cobertura (154) y mutación (116)
+con el presupuesto más chico (30 segundos). \textsf{RSer-MGO} logra el máximo de
+cobertura (154) para un presupuesto de 60 segundos, pero en 180 segundos sólo
+logra matar 111 mutantes (menos que los 116 de \textsf{BEAPI}).
 
-En cuanto a la Tabla \ref{tab:linkedListTools_beapi} que presenta los resultados obtenidos para la clase 
-\texttt{LinkedList}. En este caso, se observa nuevamente que \textsf{BEAPI}, a pesar de 
-generar un número reducido de objetos, mantiene niveles constantes de cobertura y mutación. 
-Las técnicas \textsf{R-Serialize-API} y \textsf{R-Serialize-MGO} logran cubrir las mismas ramas y casi los mismos 
-mutantes que \textsf{BEAPI}, esto se debe a que las listas enlazadas son estructuras más simples,
-donde la mayoría de las configuraciones válidas pueden alcanzarse mediante secuencias cortas
-de inserciones y eliminaciones.
-
-Con respecto a la tabla  \ref{tab:hashMapTools_beapi}, 
+Con respecto a la Tabla \ref{tab:hashMapTools_beapi}, 
 correspondiente a \texttt{HashMap}, se aprecia un caso 
-similar. \textsf{BEAPI} logra altos niveles de cobertura con tiempos de generación de 89 segundos, para alcanzar el máximo de cobertura que se puede obtener.
-En este caso \textsf{R-Serialize-MGO} se acerca a ese valor pero no llega al mismo en 180 segundos.
-\pp{Pablo: Revisar hasta acá}
+similar. \textsf{BEAPI} logra los mayores valores de cobertura (125) y mutación
+(131) con el presupuesto más chico (30 segundos). En contraste, con el máximo
+presupuesto, \textsf{RSer-MGO} llega a cubrir una menor cantidad de ramas
+(122) y a matar menos mutantes (127).
 
+Por último, para la clase \texttt{TreeMap}, cuyos resultados se muestran en la 
+Tabla \ref{tab:treeMapTools_beapi}, puede observarse que \textsf{BEAPI} alcanza 
+los mayores valores de cobertura (194) y mutación (165) antes de los 60
+segundos. \textsf{RSer-MGO}, en 180 segundos de generación, obtiene una menor cobertura
+(162) y mata menos mutantes (156).
 
 Los resultados obtenidos permiten concluir que los objetos generados por \textsf{BEAPI} son 
-efectivos para el testing basado en propiedades. Si bien usar scopes grandes
-puede ser prohibitivo (debido a la exhaustividad de la técnica), usar scopes
+efectivos para el testing basado en propiedades. Si bien la generación para scopes grandes
+pueden ser prohibitiva (debido a la exhaustividad de la técnica), usar scopes
 relativamente pequeños es suficiente para que \textsf{BEAPI} logre los puntajes 
 de cobertura y mutación más altos de todas las técnicas consideradas en este experimento. 
 
