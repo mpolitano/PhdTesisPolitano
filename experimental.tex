@@ -371,6 +371,7 @@ public void removeTest2(List l, int i) {
 }
 \end{lstlisting}
 
+
 En esta sección, realizamos un experimento preliminar para determinar la 
 utilidad de los métodos generadores de objetos en el contexto del testing basado 
 en propiedades. En lugar de definir casos de tests específicos para testear el
@@ -474,6 +475,7 @@ Por ejemplo, para el método \texttt{put} de \texttt{TreeMap} escribimos el
 programa de la Figura \ref{lst:propiedadJPF} para realizar la verificación con
 JPF.
 
+
 \begin{lstlisting}[caption={Verificando el método put de TreeMap con JPF},label={lst:propiedadJPF},language=Java,captionpos=b]
     public static void main(String[] args) {
        int scope = 3;
@@ -482,7 +484,6 @@ JPF.
        assert t.repOK();
     }
 \end{lstlisting}
-\pp{Queda mal ese listing, hay que acomodarlo}
 
 El programa primero construye todos los árboles de tamaño acotado usando un
 driver en la línea 3 (método \texttt{generateStructure}). Luego, ejecuta el
@@ -520,14 +521,13 @@ Es decir, no se compromete la exhaustividad del análisis acotado al usar MGOs.
 
 En las tablas se muestran los resultados para los scopes en los que
 alguna de las técnicas termina antes de llegar al timeout.
-\cacho{Calcular de nuevo el promedio de sumar todos los casos y todos los tiempos}
 Considerando los \emph{scopes} para los que ambas técnicas terminan
 antes del timeout, tenemos un total de 60 casos. 
 En promedio para estos 60 casos, \textsf{MGO} explora 234513 estados en 29.5 segundos, mientras que \textsf{API} explora 3302177 estados en 287.3 segundos. Esto implica que \textsf{MGO} reduce
 el espacio de estados a explorar en 
 92.9\%\ y el tiempo en 89.7\%\ aproximadamente respecto de \textsf{API}. 
-Se observa tambien que \textsf{API} alcanza el timeout en 9/61 combinaciones
-(14\%) \pp{son más que 9, hay que recalcular los números?}. 
+Se observa tambien que \textsf{API} alcanza el timeout en 4/60 combinaciones
+(6\%).
 
 %Bajo el mismo \emph{scope}, \textsf{API} explora aproximadamente 1308\%\ mas de estados y tarda 984\%\ mas de tiempo que \textsf{MGO}.
 %En cuanto a la interpretación, 
@@ -571,7 +571,7 @@ investigación:
 
 Como casos de estudio, utilizamos implementaciones de estructuras de datos
 tomadas de tres benchmarks existentes: \texttt{Kiasan} \cite{Deng06}, 
-\texttt{FAJITA} \cite{Abad13}, \texttt{ROOPS} \cacho{VER CITA}. También
+\texttt{FAJITA} \cite{Abad13}, \texttt{ROOPS} \cite{Roops}. También
 incluimos las clases utilizadas en la evaluación de
 \texttt{Korat} \cite{Boyapati02}, y un conjunto de clases de proyectos reales de
 software que la denominamos \texttt{Real World}, donde se incluyen clases de
@@ -654,7 +654,6 @@ de ejecución, número de estructuras generadas y exploradas, y escalabilidad co
 respecto a los \emph{scopes}.
 Los resultados experimentales se muestran en la Tabla \ref{table:korat-beapi} y \ref{table:korat-beapi1}.
 
-\cacho{Hecho, FALTA CONTROLAR Y QUE ESTEN LOS MISMO CASOS QUE EN LA RQ siguiente}
 %La Tabla presenta una muestra representativa de los resultados para los benchmarks
 %\texttt{Korat}, \texttt{FAJITA}, \texttt{ROOPS} y \texttt{Kiasan} (intentamos mantener la misma proporción de casos buenos y malos para cada técnica en los datos que reportamos). \pp{Los casos
 %restantes se pueden encontrar online \cite{}. Queda raro que esta tabla sea la
@@ -738,11 +737,11 @@ contraproducentes para la performance de \textsf{Korat}.
 \input{tables/optimizaciones}
 
 En esta pregunta de investigación evaluamos el impacto que tienen las optimizaciones propuestas 
-de \emph{BEAPI} en su rendimiento. 
+de \textsf{BEAPI} en su rendimiento. 
 Concretamente, analizamos cuatro configuraciones de la herramienta:
 \textsf{CI/MGO}, que habilita tanto 
-la coincidencia de estados (\emph{CI}) como la identificación de métodos
-generadores de objetos (\emph{MGO}); 
+la coincidencia de estados (\textsf{CI}) como la identificación de métodos
+generadores de objetos (\textsf{MGO}); 
 \textsf{CI}, que activa únicamente la coincidencia de estados; \textsf{MGO}, que habilita únicamente 
 la identificación de métodos generadores de objetos; y \textsf{NoOPT}, que desactiva ambas optimizaciones.
 
@@ -751,7 +750,7 @@ Las Tablas \ref{tab:results-fajita}, \ref{tab:results-roops}, \ref{tab:results-k
 Los resultados muestran de forma contundente que la configuración sin optimizaciones (\textsf{NoOPT}) 
 tiene un rendimiento deficiente en general, inclusive en los estudios de caso más simples y
 para los scopes más pequeños. 
-Los \emph{scopes} pequeños (3) resultan inadecuados para generar conjuntos de
+Los \textsf{scopes} pequeños (3) resultan inadecuados para generar conjuntos de
 objetos útiles para revelar errores. 
 \textsf{NoOPT} evidencia los problemas de escalabilidad que enfrentan 
 las técnicas de generación exhaustiva en presencia de APIs ricas y estructuras complejas.
