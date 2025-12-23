@@ -413,14 +413,9 @@ correlación entre la detección de mutantes y la detección de fallas reales, l
 que respalda el uso de la mutación como sustituto práctico para evaluar la
 eficacia de un conjunto de tests.
 
-En esta sección describimos tres criterios fundamentales adoptados en esta tesis: 
+En las secciones siguientes describimos brevemente dos criterios utilizados en esta tesis: 
 (i) cobertura de código, considerando tanto líneas como ramas \cite{Ammann16,myzili2012coverage}, 
-(ii) análisis de mutación \cite{jia2011analysis,Ammann16,just2014mutants}, 
-y \cacho{Esto no me cierra:} (iii) la identificación de métodos observadores, propuesta en esta tesis como un criterio adicional
-específico para APIs de estructuras de datos. 
-Las dos primeras técnicas son ampliamente utilizadas en la literatura y proporcionan 
-métricas objetivas para medir la calidad de los tests, mientras que la tercera constituye
-una contribución original de este trabajo.
+(ii) análisis de mutación \cite{jia2011analysis,Ammann16,just2014mutants}. 
 
 \subsection{Cobertura de Código}
 
@@ -512,12 +507,8 @@ t.addFirst(value);
 t.removeFirst();
 assert oldSize == t.size() : "different size";
 \end{lstlisting}
-\cacho{cambie a listing de java que es como esta el driver}
-\pp{Están feas las fuentes del algoritmo. En general el código va en texttt. 
-Acá hay una mezcla rara de cursivas con tt. Por qué es distinta la fuente de
-este programa que del driver?}
 
-El Algoritmo \ref{lst:propiedad} muestra un ejemplo de propiedad a
+La Figura \ref{lst:propiedad} muestra un ejemplo de propiedad a
 verificar (de manera acotada) usando JPF. La propiedad indica que, para cualquier lista 
 de entrada \texttt{t}, insertar al inicio un entero \texttt{value}
 (\texttt{addFirst(value)}, con \texttt{value} en \texttt{[0,b]}) que no pertenece a la lista,
@@ -546,48 +537,34 @@ las listas para instanciar el parámetro \texttt{t}.
 Los tipos primitivos son fáciles de generar en JPF (por ejemplo, los enteros se
 obtienen con \texttt{Verify.getInt}), pero las estructuras dinámicas complejas
 requiren de un mecanismo diferente. Para hacer verificación exhaustiva acotada
-de la propiedad anterior, el usuario debe proveer un programa, \emph{driver}, que construya todas las 
-listas de tamaño máximo \(b\), con elementos en \([0,b-1]\) \pp{Si son b nodos,
-entonces son enteros entre 0 y b-1. No hay ninguna b en el código. Hay que
-revisar el texto de esta sección actualizando las variables por las del
-código.}. \cacho{Aca quería explicar, hacer una intro por eso no esta bien. Creo que lo puedo sacar porq es algo redundante con el parrafo de abajo} Así, las entradas generadas por el
+de la propiedad anterior, el usuario debe proveer un programa, comúnmente
+llamado \emph{driver}, que construya todas las listas de tamaño máximo \(scope\), 
+con elementos en \([0,scope]\). Las entradas generadas por el
 \emph{driver} son usadas por JPF para la verificación de la propiedad.
 
-Un driver básico para la propiedad del Algoritmo \ref{lst:propiedad} se
-muestra en la Figura \ref{lst:driverAPI} \pp{El driver tiene que coincidir con
-la propiedad de listas, no me sirve el driver de árboles para este ejemplo}. \cacho{Cambie el driver a listas}
-El \emph{driver} selecciona primero la máxima cantidad de veces que se
+Un driver básico para la propiedad de la Figura \ref{lst:propiedad} se
+muestra en la Figura \ref{lst:driverAPI}. 
+El driver selecciona primero la máxima cantidad de veces que se
 ejecutarán métodos de la API (\(maxLength \in [0,scope]\)). Como cada método considerado a lo sumo
 agrega un elemento a la lista, ejecutar a lo sumo \(scope\) métodos produce listas de
-tamaño hasta \(scope-1\). Luego, el driver procede a la ejecución de \texttt{maxLength} 
+tamaño hasta \(scope\). Luego, el driver procede a la ejecución de \texttt{maxLength} 
 métodos de la API (línea 4). A cada operación se le asigna un
-\pp{No existe m en el algoritmo. por otro lado no cierra que sea en 0..m-1,
-porque la definición de getInt arriba dice que es en 0..m. Hay que ver cual es
-el correcto y actualizar en toda la sección, y en la sección de builders}
-\cacho{Es hasta m, https://wuyongzheng.github.io/jpfdoc/gov/nasa/jpf/vm/Verify.html. Lo saco lo de m, lo habia puesto como para explicar pero no se entiende}
-identificador único, y se elige no determinísticamente (\texttt{n\_methods}) para
+identificador único, y se elige no determinísticamente un identificador para
 seleccionar la operación a ejecutar (línea 5); por ejemplo, si
-se elige el valor 2, se ejecuta \texttt{Verify.getInt(0, scope)} para obtener el valor entero en el rango [0, scope] para usar como argumento del método 
-\texttt{list.addLast(value)} (línea 15 y 16). 
-\pp{Hay que ponerle nombres a
-las variables del los getInt, sino es difícil explicar para qué sirven. 
-Además, en la línea 5 es getInt, no random}. \cacho{cambie lo de random por getint y explique mejor}
-\pp{Continuar conel ejemplo..}
+se elige el valor 2, se ejecuta 
+\texttt{list.addLast(value)} (líneas 15 y 16). 
 
-\cacho{
-En la siguiente iteración del bucle (línea 4), JPF volverá a elegir no
+En la siguiente iteración del ciclo (línea 4), JPF volverá a elegir no
 determinísticamente un nuevo método entre los disponibles (por ejemplo,
-\texttt{removeFirst()} o \texttt{offer(value)}), construyendo así distintas
-secuencias de llamadas a la API.
-Cada combinación posible de decisiones en \texttt{Verify.getInt} (tanto el
-método elegido como los valores generados) corresponde a una exploración distinta
-del espacio de búsqueda. \emph{JPF} las explora de forma exhaustiva hasta alcanzar todas
-las configuraciones de listas posibles dentro del límite de tamaño
-(\emph{scope}).
-Finalmente, el método (\texttt{generateStructure}) retorna una lista \texttt{LinkedList} que representa uno de
-esos estados posibles, sobre la cual se evaluará la propiedad del Algoritmo
-\ref{lst:propiedad}.
-}
+el identificador 7, correspondiente a \texttt{removeFirst()}), y así continuará
+ejecutando métodos de la API para construir la estructura actual.
+Cada combinación posible de decisiones (tanto el
+método elegido como los valores generados para los parámetros) corresponde a una
+estructura distinta dentro del espacio de búsqueda. \emph{JPF} las explora de forma 
+exhaustiva para explorar todas las estructuras de tamaño hasta \texttt{scope}.
+%Finalmente, el método (\texttt{generateStructure}) retorna una lista \texttt{LinkedList} que representa uno de
+%esos estados posibles, sobre la cual se evaluará la propiedad del Algoritmo
+%\ref{lst:propiedad}.
 \\
 \begin{lstlisting}[language=Java,caption={Driver usando todos los métodos
 de la API de \texttt{LinkedList}},label={lst:driverAPI},captionpos=b]
@@ -595,7 +572,7 @@ private static LinkedList generateStructure(int scope) {
     int maxLength = Verify.getInt(0, scope);
     LinkedList list = new LinkedList();
     for (int i = 0; i <= maxLength; i++) {
-        switch (Verify.getInt(n_methods)) {
+        switch (Verify.getInt(n_methods - 1)) {
             case 0:
                 int value = Verify.getInt(0, scope);
                 list.add(value);
@@ -655,9 +632,9 @@ private static LinkedList generateStructure(int scope) {
 }
 \end{lstlisting}
 
-\pp{Por qué no poner más métodos para que ocupe más espacio la figura? 
-Este ejemplo lo usé para la sección de drivers en builders}
-\cacho{Cambie a lista y agregue mas metodos}
+\pp{Por qué tiene puntos suspensivos el driver de la figura? Omite métodos? El
+Caption dice que no. Además queda cortado el listing, hay que arreglarlo para
+que quede en una página.}
 
 Este driver simple utiliza todos los métodos de la API para la generación de
 estructuras. Notar que el número de caminos a explorar por el driver crece exponencialmente con la cantidad de métodos disponibles. Sin embargo, muchas de estos métodos no son necesarios si
@@ -670,11 +647,6 @@ La selección de rutinas suele hacerse manualmente, lo que exige revisar minucio
 
 En esta tesis proponemos técnicas automáticas que, dada la API de un módulo,
 identifican un subconjunto minimal de métodos generadores de objetos (ver
-Capitulo \ref{cap:builders}). Como se muestra en la Sección \ref{sec:experiments-jpf-driver} (experimentos
-de drivers), estas técnicas pueden ayudar al usuario a la 
-definición de drivers más eficientes. 
+Capitulo \ref{cap:builders}). Como se muestra en la Sección \ref{sec:experiments-jpf-driver}, 
+estas técnicas pueden ayudar a la definición de drivers más eficientes. 
 
-%Esta técnica actúa como paso previo a la construcción del controlador
-%para BMC. Al exponer sólo los métodos generadores necesarios, reduce el factor de ramificación del controlador, disminuye el
-%espacio de búsqueda y mejora la eficiencia de la exploración, sin perder la capacidad de generar todas las instancias acotadas dentro
-%del \emph{scope}.
