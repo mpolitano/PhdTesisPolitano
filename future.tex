@@ -1,78 +1,53 @@
 %!TEX root = main.tex
-\chapter{Trabajo Futuro}
+\chapter{Trabajos Futuros}
 \label{cap:future}
 
-Mejoras en la deteccion de observadores en MGO
-Soporte multi-clase y dependencias entre modulos para MGO
-Mejoras en  GA, como paralelizacion. 
-Chequear especificaciones para descartar con precondiciones secuencias que no se puedan construir y poder ganar algo de tiempo para BEAPI
-Mejoras en cuanto a los tipos de parámetros a instanciar, cuando es objetos o collections por ejemplo.
-Pruebas y mejoras en benchamarks mas actuales
-\cacho{Esto de arriba lo agregue yo}
+Para concluir, describiremos brevemente a continuación algunas líneas de trabajos futuros. 
 
-\cacho{De aca aajo traje lo que encontre en la tesis que puso Pablo}
+Por un lado, los enfoques de identificación de métodos generadores de objetos
+presentados aquí se basan en análisis dinámicos. Sin embargo, otros enfoques como el de
+\cite{HuangMDE2012} para la identificación de métodos observadores (puros) son
+estáticos. Como trabajo futuro se propone estudiar la definición de enfoques  
+basados en análisis estático para la identificación de generadores de objetos, 
+o la definición de enfoques que combinen componentes estáticos y dinámicos.  
+Estos trabajos pueden dar lugar a la definición de enfoques más precisos para la
+identificación de métodos observadores, por ejemplo, mediante la combinación de análisis
+estático y dinámico.
 
-Por otra parte, la función objetivo \textsf{FRC} tiene la ventaja de que no requiere 
-que el usuario provea la definición del scope para la generación exhaustiva acotada. 
-Además, \textsf{FRC} podría ser más escalable que \textsf{FGE} en casos donde
-la cantidad de objetos sea demasiado grande para ser generados de manera
-exhaustiva (por ejemplo, en clases con invariantes de representación más débiles
-que los evaluados aquí).
-De cualquier modo, los resultados preliminares muestran que los algoritmos 
-son mucho más lentos con la función objetivo \textsf{FRC}. Se deja como trabajo 
-futuro estudiar formas más eficientes de implementar la función \textsf{FRC}, y
-realizar más experimentos para evaluar mejor su utilidad en la práctica 
-\pp{No olvidarse de incluir esto en trabajos futuros}.
+Algunos aspectos de nuestros enfoques de identificación de métodos generadores
+de objetos podrían mejorarse. Por ejemplo, realizar una sintonía fina de
+los parámetros del algoritmo genético, y quizás de sus componentes, 
+podría resultar en mejores tiempos de ejecución y en mayor precisión en los
+resultados. Además, los algoritmos presentados podrían beneficiarse de una 
+clasificación más general y más poderosa de los tipos de los
+argumentos que toman los métodos (la clasificación definida aquí es preliminar, y 
+fue suficiente para mostrar las ideas principales de los enfoques propuestos).
+%Esto sería importante para extender la evaluación experimental de los enfoques 
+%a un conjunto más amplio de casos de estudio.
+Por ejemplo, podrían incorporarse otras dimensiones, como la complejidad del código,
+para favorecer la selección de métodos más simples y/o eficientes.  
 
-La pérdida de precisión del algoritmo genético (\texttt{GA}) puede deberse a la
-estocasticidad propia de la búsqueda (selección, cruce, mutación). Otro factor
-que podría influir es el criterio de corte del algoritmo que detiene la evolución 
-cuando el mejor fitness no mejora durante cinco generaciones consecutivas (ver
-Sección \ref{alg:approachGA}). Este criterio es eficaz para acelerar la
-terminación del algoritmo, pero puede resultar en soluciones subóptimas (como
-se ve en algunos casos). Se deja como trabajo futuro la optimización de los
-parámetros del algoritmo genético en busca de mejorar su precisión \pp{Poner en
-trabajos futuros}. 
+También se deja como trabajo futuro buscar mejores formas de implementar la 
+función objetivo basada en cobertura (\textsf{FRC}). Por ejemplo, en lugar de
+usar un enfoque aleatorio de generación de tests como \textsf{Randoop}, se podría 
+adaptar un enfoque basado en algoritmos genéticos (como \textsf{EvoSuite}
+\cite{Fraser:2011}) para determinar si los candidatos a métodos generadores de objetos 
+logran una buena cobertura de código (o no). 
 
-Para este experimento, se utilizaron las clases más complejas de nuestra
-evaluación experimental, esto es, las clases del paquete \texttt{java.util},
-debido a su API rica en cantidad de métodos: \texttt{HashSet}, \texttt{HashMap},
-\texttt{TreeMap}, \texttt{TreeSet} y \texttt{LinkedList}. Para estas clases, 
-escribimos manualmente tests basados en
-propiedades intentando maximizar cobertura y puntaje de mutación para los
-métodos públicos de las clases. Como escribir estos tests manualmente es una
-tarea laboriosa, nos limitamos sólo a estas clases para este experimento
-preliminar. Se deja como trabajo futuro extender la evaluación a un conjunto más
-amplio de casos de estudio. \pp{Más trabajos futuros}.
+Otras técnicas podrían beneficiarse del uso de métodos generadores de objetos.
+Por ejemplo, en el contexto de generación de entradas basado en ejecución
+simbólica, en la herramienta Pex \cite{Tillmann:2008} el usuario debe proveer ``object factories'',
+definidas manualmente, para construir los objetos que se usarán para crear los
+tests. Por otro lado, \textsf{Sushi} \cite{Braione17,DBLP:conf/icse/BraioneDMP18} busca construir 
+objetos especificos para cubrir condiciones de camino, también en el contexto de
+ejecución simbólica, usando la API. Definir enfoques eficientes de generación de
+objetos basados en los generadores de objetos podría dar lugar a mejoras en
+estas técnicas (y en muchas otras).
 
-\cacho{Hasta aca traje lo que puso Pablo}
+Por último, las evaluaciones experimentales realizadas son preliminares, y utilizan un 
+conjunto relativamente pequeño de casos de estudio. Se planea extender las
+evaluaciones para incorporar casos de estudio más diversos y más complejos, y
+más herramientas (por ejemplo, \textsf{EvoSuite} \cite{Fraser:2011}), y actualizar 
+las conclusiones en base a los resultados.
 
 
-Creemos que una dirección de investigación prometedora, que planeamos explorar más a fondo en trabajos futuros, 
-es adaptar nuestro enfoque para la generación exhaustiva acotada de tests, buscando mejorar su eficiencia, aplicabilidad y capacidad de integración con otras técnicas de prueba automatizadas.
-
-Una primera línea relevante consiste en ampliar las capacidades del análisis estático en el proceso de identificación de métodos observadores. 
-Actualmente, el análisis se basa en información superficial sobre el tipo de retorno y los argumentos de los métodos. 
-Sin embargo, una extensión que incorpore información sobre el flujo de datos, el uso de variables internas y los efectos colaterales permitiría una caracterización más precisa, 
-especialmente en casos donde existen inicializaciones indirectas o dependencias implícitas.
-
-También, algunos aspectos del algoritmo evolutivo desarrollado pueden mejorarse de manera sustancial. 
-Planeamos explorar nuevas heurísticas que tengan en cuenta métricas estáticas del código para guiar mejor la selección y combinación de métodos en el proceso evolutivo. 
-Actualmente, nuestra implementación se basa principalmente en una configuración básica de la librería Jenetics para Java \cite{jenetics}. 
-Como parte del trabajo futuro, prevemos diseñar un algoritmo genético específico, adaptado a las particularidades del problema de identificación de constructores a partir de una API. 
-Esto incluiría una representación más adecuada de los individuos, así como operadores de cruce y mutación que preserven estructuras válidas en el espacio de soluciones. 
-Además, la sintonización de parámetros evolutivos, como las tasas de cruce y mutación, constituye otra línea de trabajo que puede contribuir significativamente a mejorar la eficiencia del proceso.
-
-Asimismo, resulta fundamental mejorar el manejo de dependencias entre clases en el proceso de generación, 
-ya que en muchos módulos las estructuras de interés dependen fuertemente de la colaboración entre múltiples clases. 
-El tratamiento explícito de estas dependencias permitiría una generación más completa y representativa de los posibles estados del sistema. 
-Además, se deben considerar las dependencias de variables o constantes seteadas en el código, tanto en el análisis de cobertura como en el proceso de generación de entradas con BEAPI. 
-Estas dependencias influyen directamente en los caminos ejecutables del software y, por lo tanto, en la capacidad de los tests generados para alcanzar comportamientos relevantes.
-
-Finalmente, planeamos evaluar el desempeño de BEAPI frente a herramientas de generación de tests no exhaustivas, como Randoop, 
-utilizando benchmarks modernos propuestos en la literatura. Esta evaluación permitirá comparar las capacidades de nuestra técnica con las de enfoques alternativos más ampliamente difundidos, 
-poniendo en perspectiva las ventajas y limitaciones de la generación exhaustiva acotada frente a otras estrategias de prueba automatizada.
-
-En conjunto, estas líneas de trabajo futuro apuntan a consolidar y extender las capacidades de BEAPI, 
-tanto desde el punto de vista de su eficiencia como de su aplicabilidad en contextos reales. 
-La evolución de estas técnicas contribuirá a la construcción de herramientas más potentes y versátiles para el aseguramiento de la calidad del software.
