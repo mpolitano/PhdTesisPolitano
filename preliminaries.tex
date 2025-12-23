@@ -232,6 +232,7 @@ de generación aleatoria con retroalimentación basada en la ejecución, que
 consiste en ejecutar las secuencias de test y observar los resultados para 
 determinar si se debe continuar extendiendo o no las secuencias de test. 
 El algoritmo principal de Randoop se describe en la Figura \ref{fig:randoop-algorithm}.
+\pp{Eliminar este espacio arriba del algoritmo de Randoop.}
 
 \begin{figure}[H]
     \centering
@@ -268,7 +269,7 @@ El algoritmo principal de Randoop se describe en la Figura \ref{fig:randoop-algo
         }
         \Return{$tests$}\;
     \end{algorithm}
-    \caption{Algoritmo de Randoop}
+    \caption{Pseudocódigo del Algoritmo de Randoop}
     \label{fig:randoop-algorithm}
 \end{figure}
 
@@ -341,122 +342,61 @@ exitosos se guardan en el conjunto de tests de regresión creados por el
 algoritmo (\texttt{tests} en la línea 24). Cuando el ciclo principal termina,
 \textsf{Randoop} retorna los tests de regresión generados.
 
-Las evaluaciones experimentales han encontrado que la generación aleatoria de tests dirigida 
-por retroalimentación funciona significativamente mejor que la generación
-aleatoria tradicional \cite{Pacheco07,Pacheco08}.
-La principal ventaja de \textsf{Randoop} es su capacidad para generar
-automáticamente una gran cantidad de casos de prueba muy rápidamente, y así 
-detectar fallas que pueden pasar desapercibidas durante el testing
-manual \cite{Pacheco07,Pacheco08}.
+%Las evaluaciones experimentales han encontrado que la generación aleatoria de tests dirigida 
+%por retroalimentación funciona significativamente mejor que la generación
+%aleatoria tradicional \cite{Pacheco07,Pacheco08}.
+%La principal ventaja de \textsf{Randoop} es su capacidad para generar
+%automáticamente una gran cantidad de casos de prueba muy rápidamente, y así 
+%detectar fallas que pueden pasar desapercibidas durante el testing
+%manual \cite{Pacheco07,Pacheco08}.
 
-\pp{El ejemplo está bien, pero está desconectado de la explicación de arriba y
-    del algoritmo de la Figura 1. Por ejemplo, acá abajo habla de un pool que no 
-    existe en el algoritmo. Hay que relacionar cada paso de la ejecución de
-    abajo con las líneas del algoritmo de la Figura 1.}
-
-    
 Para ilustrar el funcionamiento de Randoop, consideremos la clase
 \texttt{java.util.LinkedList}. 
-\cacho{Esto es nuevo:}
-El generador comienza con un conjunto inicial de valores primitivos (por ejemplo, 0, 1, 2, –1, –2) (\cacho{Lo agrego en el algoritmo esto?}) 
-y los métodos públicos disponibles. En una primera ejecución, Randoop
-selecciona aleatoriamente el constructor \texttt{LinkedList()} (Linea 4, del algoritmo \ref{fig:randoop-algorithm}). Como no tiene parametros 
-para instanciar, se saltea la parte de las líneas 5 a 12. Luego ejecuta la secuencia (línea 14):
+El generador comienza con un conjunto inicial de ``semillas'', es decir, valores
+primitivos (por ejemplo, -1, 0, 1 y 100). 
+Supongamos que en la primera iteración, \textsf{Randoop}
+selecciona aleatoriamente el constructor \texttt{LinkedList()} (linea 4, del algoritmo \ref{fig:randoop-algorithm}). Como no tiene parametros 
+para instanciar, el siguiente paso es ejecutar la secuencia de test (línea 14):
 \\
 \begin{lstlisting}[language=Java,basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
 LinkedList<Integer> l = new LinkedList<>();
 \end{lstlisting}
 
-Como la ejecución no produce fallos, la secuencia y el objeto resultante
-se incorporan al \emph{pool} para futuras extensiones (\texttt{prev} en el algoritmo).
+Como la ejecución es exitosa, el test resultante
+se agrega a \texttt{prev} para que esté disponible para futuras extensiones
+(líneas 21-23).
 
-En una iteración posterior, Randoop elige al azar un método, por ejemplo,
-\texttt{add(Object)} (línea 4). Para obtener una lista sobre la cual invocar el
-método, reutiliza la secuencia previa que construye \texttt{l} (\cacho{Esto no esta muy claro en el algortimo}). Para el
-parámetro, como es de tipo primitivo, toma un entero disponible en el conjunto inicial de valores primitivos (por ejemplo, 1).
-La secuencia extendida queda (línea 13):
+En la iteración siguiente, \textsf{Randoop} elige al azar un método, por ejemplo,
+\texttt{add(List, Integer)} (línea 4; notar que el primer parámetro es el objeto
+sobre el que se aplica el método). Para obtener una lista sobre la cual invocar el
+método, \textsf{Randoop} reutiliza la única secuencia de test disponible en \texttt{prev} (línea
+10) que genera una lista (la secuencia de test generada en la iteración anterior). 
+Para el parámetro de tipo primitivo, \textsf{Randoop} toma un entero disponible
+en el conjunto inicial de semillas (en la línea 7; por ejemplo, 1).
+La secuencia completa \texttt{test} (línea 13) es la siguiente:
 
 \begin{lstlisting}[language=Java,basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
 LinkedList<Integer> l = new LinkedList<>();
 l.add(1);
 \end{lstlisting}
 
+La ejecución es exitosa (línea 14) y la nueva secuencia de test se agrega a
+\texttt{prev}.
 
-La ejecución es exitosa (línea 14) y la nueva secuencia pasa a estar disponible para
-nuevas extensiones (Línea 22).
+Asumamos que, en una iteración posterior, \textsf{Randoop} genera la siguiente
+secuencia de test:
 
-En otra iteración, Randoop genera una secuencia que incluye
-\texttt{l.get(2)} sobre una lista de tamaño 1. La invocación arroja una
-excepción por índice fuera de rango (línea 14). Debido a su estrategia de
-\emph{feedback-directed random testing}, Randoop descarta esa secuencia
-fallida y deja de ampliarla (línea 16). Solo las secuencias que ejecutan sin fallos
-se siguen extendiendo, guiando así la exploración de las secuencias de la
-API \cite{Pacheco07,Pacheco08}.
+\begin{lstlisting}[language=Java,basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true]
+LinkedList<Integer> l = new LinkedList<>();
+l.add(1);
+l.get(2);
+\end{lstlisting}
 
-
-\cacho{Hasta aca}
-
-
-
+La ejecución de esta secuencia (línea 14) da como resultado una excepción porque
+se intenta acceder a un índice fuera del rango de la lista. En este caso,
+\textsf{Randoop} no almacena el test para ser extendido en el futuro (línea 19).
 
 
-
-
-
-
-
-%Una de las técnicas que presentamos en esta tesis, \textsf{BEAPI}, se basa en \textsf{Randoop}, pero en lugar de la generación aleatoria, tiene como objetivo generar \emph{todas} las secuencias de pruebas factibles (acotadas), dentro de un alcance dado. La retroalimentación de la ejecución permite a \textsf{BEAPI} descartar pruebas ilegales durante el proceso de generación. Además, al estar basado en una generación de pruebas dirigida por retroalimentación, \textsf{BEAPI} genera una secuencia de prueba para cada estructura en el conjunto exhaustivo acotado que construye y solo guarda los conjuntos de secuencias de llamadas a métodos que generan objetos válidos.
-%
-
-%Uno de los enfoques que presentamos en esta tesis, BEAPI, toma como base la idea de Randoop pero introduce una diferencia clave: en lugar de generar pruebas de manera aleatoria, 
-%BEAPI busca generar todas las secuencias de prueba factibles dentro de un alcance acotado. Es decir, en lugar de depender de la aleatoriedad, 
-%BEAPI explora sistemáticamente el espacio de búsqueda, asegurando una mayor cobertura.
-%Además, BEAPI aprovecha la retroalimentación de la ejecución para descartar pruebas ilegales de manera eficiente, 
-%reduciendo el número de combinaciones a evaluar. También genera una única secuencia de prueba para cada estructura válida, 
-%evitando la repetición innecesaria de casos similares.
-
-
-
-% \section{Algoritmos Perezosos? (Greedy)}
-% \label{sec:greedyPrev}
-% El algoritmo Greedy es una estrategia de resolución de problemas que sigue un enfoque voraz, tomando decisiones locales óptimas en cada etapa con la esperanza de llegar a una solución global óptima. A diferencia de otros enfoques, el algoritmo Greedy no realiza una búsqueda exhaustiva en el espacio de soluciones, sino que se centra en elegir la mejor opción disponible en cada momento.
-
-% El enfoque Greedy se basa en la idea de que, al tomar decisiones óptimas en cada etapa, se puede obtener una solución aproximadamente óptima para el problema en general. Sin embargo, debido a su naturaleza voraz, el algoritmo Greedy puede no garantizar una solución óptima en todos los casos. En algunos casos, el algoritmo puede llegar a un óptimo local, pero no a un óptimo global. Por lo tanto, es importante tener en cuenta las limitaciones y restricciones del problema al aplicar el algoritmo Greedy.
-
-% \begin{algorithm}[H]
-%   \SetAlgoLined
-%   \SetKwInOut{Input}{Input}
-%   \SetKwInOut{Output}{Output}
-%   \SetKwFunction{Greedy}{Greedy}
-
-%   \caption{Greedy Algorithm}
-
-%   \Input{Set $S$}
-%   \Output{Solution $R$}
-
-%   \BlankLine
-%   $R \gets \emptyset$ 
-%   $U \gets S$ \tcp*{Set of available elements}
-
-%   \BlankLine
-%   \While{$U \neq \emptyset$}{
-%     $x \gets$ element selected according to Greedy criteria
-    
-%     $R \gets R \cup \{x\}$ \tcp*{Add $x$ to the solution}
-%     $U \gets U \setminus \{x\}$ \tcp*{Remove $x$ from available elements}
-%   }
-
-%   \BlankLine
-%   \Return $R$ 
-
-% \end{algorithm}
-
-% El algoritmo comienza con un conjunto de elementos disponibles y un conjunto solución vacío. En cada iteración, se selecciona el elemento óptimo según la función de heurística para los estados que se haya implementado y se agrega a la solución. Luego, se elimina ese elemento de los disponibles y se repite el proceso hasta que no queden elementos disponibles.
-
-% Es importante tener en cuenta que el algoritmo Greedy no garantiza encontrar la solución óptima en todos los casos, ya que puede quedarse atrapado en mínimos locales. Sin embargo, en muchos casos, el enfoque Greedy proporciona soluciones rápidas y razonables.
-
-% En esta tesis se personalizó el algoritmo para detectar subconjuntos óptimos de métodos \emph{builders}. 
-% Para mas informacion sobre este tipo de algoritmos, invitamos al lector referirse a \cite{Cormen2009}, \cite{kleinberg2006}
 
 
 
