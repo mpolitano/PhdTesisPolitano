@@ -1253,11 +1253,11 @@ del entorno de ejecución.
 \subsection{Algoritmo de Escalada de Colinas}
 \label{alg:approachHC}
 
-El segundo algoritmo, denominado en inglés \textit{hill climbing},
-\cite{Russell:2009, Cormen2009, kleinberg2006}, es un algoritmo de búsqueda local basado en la escalada de colinas.
+El segundo algoritmo, que denominamos \textit{hill climbing}, es un algoritmo de búsqueda local 
+basado en la escalada de colinas \cite{Russell:2009, Cormen2009, kleinberg2006}.
 Es un algoritmo greedy que selecciona en cada paso el estado vecino con mayor
 valor en la función objetivo. 
-Así, el algoritmo de escalada de colinas parte de un estado inicial y lo mejora sucesivamente hasta alcanzar un estado que no puede ser mejorado (estado pico). 
+Así, el algoritmo de escalada de colinas parte de un estado inicial y lo mejora sucesivamente hasta alcanzar un estado que no puede ser mejorado. 
 Para guiar este proceso se emplea una función heurística que evalúa la calidad de cada estado.
 Por sus características, el algoritmo de escalada de colinas suele encontrar soluciones
 con rapidez. Sin embargo, puede quedarse atrapado en óptimos locales donde
@@ -1268,9 +1268,6 @@ Su principal diferencia con los algoritmos genéticos radica en el mecanismo de 
 los algoritmos genéticos operan mediante recombinación y mutación de una población de soluciones. 
 En nuestra implementación, tanto los candidatos como la función objetivo son idénticos para ambos algoritmos.
 
-
-\pp{El algoritmo debería ir en un float también porque sino quedan mal los espacios.}
-\cacho{Hecho}
 
 \SetKwFunction{Compute}{Compute} 
 \SetKwFunction{fBuilders}{computeBuilders}
@@ -1313,7 +1310,6 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
         $initial \gets []$\;
         \For{$i \gets 0$ \KwTo \#M}{
             \If{$s[i] == 0$}{
-                \pp{qué es builders? No se entiende la condición}\; \cacho{Esto ya lo charlamos en una meet, lo hicimos asi para detectar constructores primero y usar solo eso}
                 \If{($const$ \textbf{and} $isConstructor(i)$) || (!$const$ \textbf{and} !$isConstructor(i)$)}{
                     $successor \gets clone(s)$\;
                     $successor[i] \gets 1$\;
@@ -1328,7 +1324,7 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
 
     \Fn{\mejorSuccesor{$successors$}}{
         $curr \gets -INF$\;
-        \For{$i \gets 0$ \KwTo \#successors}{
+        \For{$i \gets 0$ \KwTo \#successors-1}{
             \If{$s[i] > bestVal$}{
                 $bestVal \gets f(s[i])$\;
                 $best \gets s[i]$\;
@@ -1339,119 +1335,59 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
 
 \end{algorithm}
 
-El algoritmo \ref{alg:enfoqueHC} muestra el pseudocódigo de nuestro enfoque basado en un algoritmo de escalada de colinas para la identificación de métodos generadores de objetos.
+El algoritmo \ref{alg:enfoqueHC} muestra el pseudocódigo del enfoque propuesto.
 La representación que hemos utilizado del problema es la explicada en la Sección \ref{sec:estados}, donde los estados se modelan como vectores de bits.
-Además, la búsqueda se guía mediante una de las funciones objetivo definidas en la Sección \ref{sec:fitness}.
+La búsqueda se guía mediante una de las funciones objetivo definidas
+anteriormente: la función basada en generación exhaustiva acotada (Sección
+\ref{sec:fitnessGE}), o la función basada en cobertura de código (Sección \ref{sec:fitnessRandoop}).
+
 El proceso comienza con la función principal \texttt{computeBuilders}, que implementa la búsqueda.
-
 La inicialización consiste en definir un estado inicial representado por un vector de ceros, 
-que indica que ningún método está seleccionado. Este estado se pasa como parámetro a la función $hillClimbing$, junto con un valor lógico que indica que se deben considerar únicamente los métodos constructores. 
-Posteriormente, el algoritmo invoca nuevamente a $hillClimbing$ para continuar la búsqueda incluyendo los otros métodos de la API con el mejor constructor que obtuvo
-la búsqueda anterior (línea 1 a 5).
+que indica que ningún método está seleccionado. Este estado se pasa como
+parámetro a la función $hillClimbing$, junto con un valor lógico $const=true$ que indica que
+se debe utilizar $hillClimbing$ para seleccionar sólo métodos constructores
+(línea 3). 
+Una vez seleccionados los constructores ($cons$), el algoritmo invoca nuevamente
+a $hillClimbing$ (línea 4) para realizar la búsqueda de los métodos modificadores que
+constituyen un conjunto de generadores de objetos (a partir de los mejores constructores seleccionados anteriormente en
+    $cons$.
 
-La función $hillClimbing$ constituye el núcleo del algoritmo de Hill Climbing. Su ejecución parte del estado inicial recibido por parámetro y, 
-mediante un ciclo iterativo, genera todos los posibles sucesores del estado actual utilizando la función $generarSuccessor$. 
-Entre estos sucesores se selecciona el que presente el mejor valor según la función de fitness $f$. Si dicho sucesor no mejora el valor del estado actual,
-el algoritmo concluye devolviendo el estado alcanzado. En caso contrario, el mejor sucesor pasa a ser el nuevo estado y el ciclo continúa. (línea 6 a 17)
+La función $hillClimbing$ constituye el núcleo del algoritmo de Hill Climbing, 
+y se corresponde con un algoritmo típico de escalada de colina.
+Su ejecución parte del estado inicial recibido por parámetro. 
+El algoritmo comienza un procedimiento iterativo que busca mejorar el estado
+actual (líneas 7-16). Para esto genera todos los posibles sucesores del estado
+actual (línea 8) utilizando la función $generarSucesores$ (definida en las líneas 17-28). 
+Notar que $generarSucesores$ sólo produce sucesores con métodos constructores si
+$const=true$, y crea sucesores con métodos modificadores (no constructores) si
+$const=false$.  
+Entre los sucesores producidos se selecciona el que presente el mejor valor
+de la función objetivo $f$ (línea 9). Si dicho sucesor no mejora el valor del estado actual,
+el algoritmo termina devolviendo el estado alcanzado (líneas 10-12). 
+En caso contrario, el mejor sucesor pasa a ser el nuevo estado actual (líneas
+13-15), y el ciclo continúa.
 
 La generación de sucesores se realiza en la función $generarSucesores$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
-(indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando métodos constructores de la API o no. 
-En caso de cumplir con esta condición, se genera un clon del estado actual en el que se activa dicha posición, y este nuevo estado se añade a la lista de sucesores. (línea 18 a 29). Ver figura \ref{fig:succ-hillClimbing}
+(indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando métodos constructores o no. 
+En caso de cumplir con esta condición, se genera un clon del estado actual en el
+que se activa dicha posición, y este nuevo estado se añade a la lista de
+sucesores. (línea 18 a 29). Un ejemplo de los sucesores que se pueden generar
+para un estado se muestra en la Figura \ref{fig:succ-hillClimbing} (asumiendo que 
+sólo el primero es un constructor y se están generando sucesores para métodos
+que no son constructores).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/succesores.png}
-    \caption{Sucesores de un estado.}
+    \caption{Sucesores de un estado usando $generarSucesores$.}
     \label{fig:succ-hillClimbing}
   \end{figure}
   
-Finalmente, la función $mejorSuccesor$ se encarga de seleccionar el mejor sucesor de la lista proporcionada.
+La función $mejorSuccesor$ se encarga de seleccionar el mejor
+sucesor de la lista proporcionada (líneas 29-37).
 Para ello, recorre la lista evaluando el valor de la función objetivo $f$ en
-cada sucesor y selecciona aquel que tenga el mayor valor (líneas 30 a 38).
+cada sucesor y selecciona aquel que tiene el mayor valor.
 
-
-%Este enfoque de Hill Climbing presenta la ventaja de tener menos parámetros de configuración que los algoritmos genéticos, 
-%lo que simplifica su implementación. Sin embargo, este tipo de búsqueda local implica el riesgo de quedar atrapado en óptimos locales, 
-%dado que el algoritmo solo avanza hacia soluciones que mejoran directamente el estado actual. 
-%
-%En cualquier caso, el enfoque propuesto resulta eficiente en contextos donde se requiere una búsqueda controlada y directa, 
-%sin la necesidad de manejar múltiples parámetros adicionales.
-%
-
-
-% En cada iteración, \emph{Hill Climbing} generar los sucesores del estado corriente (Línea 5). Esto se puede observar en el algoritmo \ref{alg:sucessores}. 
-% Esto, simplemente, genera estados sucesores prendiendo únicamente un bit (poniendo 1) por cada bit apagado (bit en 0). 
-% Esto significa que crear un sucesor para nuestro problema es agregar un método al estado corriente. El método \emph{generarSucesores} nos devuelve el conjunto de estados del estado \emph{curr}. \pp{Esto también está desordenado. Habría que poner un ejemplo con figuras para que se entienda bien qué hace.}
-
-% El método que genera los sucesores nos devuelve un conjunto de posibles soluciones que se crean a partir de sumarle un método a la solución óptima corriente ($curr$). Es decir, los sucesores  $S$ generados con \emph{GenerarSucesores(curr)} de un candidato $curr$ son los conjuntos {$curr\cup{mi}$}, para cada $mi$ $\in$ API (Línea 3) \pp{Se podría poner el pseudocódigo de generar sucesores, y quizás poner un ejemplo para que se entienda}.
-% Sea $best$ el sucesor con valor objetivo más alto (línea 6), si este tiene un valor que es menor o igual al corriente, significa que no hay un sucesor mejor y el algoritmo retorna el estado corriente (Línea 7 y 8). Se puede observar que este estado es un máximo local y el algoritmo lo encontró.
-% En caso de que el valor del estado corriente sea menor al mejor sucesor encontrado en la iteración, se reemplaza el corriente y vuelve a ejecutar una nueva iteración con este estado hasta encontrar un máximo local. \pp{Esto también está explicado arriba, y ahora de nuevo. Hay que ordenarlo.}
-% Observe que $best$ tiene exactamente un método más que el mejor candidato de la iteración anterior, $curr$ (Línea 4) \pp{hay que implementar con código el existe un mejor candidato. Mirar el libro de AI.}.
-
-%Se puede observar que este algoritmo puede quedar atrapado en un máximo local y no generar alguna combinación específica que podría ser aún mejor. Aquí se puede ver que es un algoritmo perezoso, ya que obtiene una solución rápida, pero puede no ser eficaz en encontrar la mejor solución global. 
-
-%\subsubsection{Clases de equivalencia}
-%\label{alg:approachCE}
- %Las clases de equivalencia son una técnica utilizada para agrupar conjuntos de datos de entrada en categorías o clases que tienen un comportamiento similar o producen resultados equivalentes. Esta técnica es ampliamente utilizada en el diseño y la realización de pruebas de software.
- %En términos generales, una clase de equivalencia representa  un conjunto de que se espera que produzcan resultados idénticos. La idea es que si un conjunto de la clase de equivalencia produce un resultado, entonces todas las demás entradas de esa clase deberían producir el mismo resultado.
- %Al trabajar con clases de equivalencia, se selecciona una entrada representativa, llamada caso de prueba, de cada clase para ser evaluada. En lugar de probar todas las posibles entradas, se eligen casos de prueba que representen cada clase de equivalencia para minimizar la cantidad total de pruebas necesarias.
-
- %Bajo esta introducción, hemos desarrollado un tercer algoritmo donde agrupamos en clases de equivalencia aquellos subconjuntos de métodos que tengan el mismo valor de la función objetivo con alguna de las funciones explicadas en \ref{sec:fitness}.
-
-%\subsection{Pseudo-Código}
-
-%\begin{figure}[H]
-%\begin{lstlisting}[style=javaStyle, caption={Algoritmo basado en Clases de Equivalencia}, label={algo:clases_equivalencia}]
-%public Estado clasesDeEquivalencia() {
-%    Estado curr = generarEstadoIncial(problem,funObjectivo);
-%    Map<Key, Estado> equivalenceClasses = crearClasesDeEquivalencia(curr);
-
-%    boolean newClassCreated;
-%    do {
-%        newClassCreated = false;
-%        Set<Estados> newCandidates = candidatosPorClase(equivalenceClasses);
-
-%        for (Estado candidate : newCandidates) {
-%            Queue<Estado> successors = generarSucesores(candidate);
-%            for (Estado successor : successors) {
-%                Double key = successor.value;
-%                equivalenceClasses.get(key).add(successor);
-%                newClassCreated = true;
-%            }
-%        }
-%    } while (newClassCreated);
-
-%    Set<Estado> best = obtenerMejor(equivalenceClasses);
-%    return best;
-%}
-%\end{lstlisting}
-%\end{figure}
-
-
-%En este algoritmo, se comienza obteniendo los conjuntos \emph{singletons} (Línea 1), que son los métodos constructores individuales de la misma manera que el algoritmo de \ref{alg:hill_climbing}. Esto es nuestro estado inicial del algoritmo. A partir de estos singletons, se crea una clase de equivalencia con la \emph{key} que es la función de valoración de cada estado inicial y se agrupan los estados que tienen el mismo valor de valoración. Esto servirá como punto de partida de nuestro algoritmo. (Línea 3).  En el algoritmo las clases de equivalencias están guardadas en $equivalenceClasses$.
-
-%Luego comienza la etapa iterativa (Línea 6 a 18) mientras se haya creado una nueva clase de equivalencia. En cada iteración, se generan nuevos candidatos por cada clase de equivalencia. Es decir, se selecciona un candidato de cada clase de equivalencia (el que tenga menor cantidad de métodos y menor cantidad de parámetros) $candidatosPorClase(equivalenceClasses)$ y se lo guarda en una cola ($newCandidates$) (Línea 8). A continuación, se generan los sucesores (línea 10 y 11) para cada candidato elegido, $GenerarSucesores(candidate)$, utilizando el mismo enfoque que en el algoritmo \ref{alg:sucessores}. Estos se guardan en $successors$. Es decir, si tenemos $N$ clases de equivalencias vamos a tener $N$ candidatos a los cuales le vamos a calcular sus sucesores.  Luego, por cada uno de estos sucesores se le calcula su función de valoración y de acuerdo a esta se lo guarda en la clase de equivalencia representada por el valor de valoración (Línea 14).
-%El algoritmo itera hasta que no hayamos creado una nueva clase de equivalencia. Si no hemos creado una clase de equivalencia nueva, quiere decir que no hay cambios y hemos explorado todas las alternativas posibles. 
-
-%Luego, para obtener el mejor conjunto de métodos generadores de objetos que estamos buscando, accedemos a la clase de equivalencia que tenga la \emph{key} más grande (mejor función de valoración) y obteniendo el representante de ese conjunto que tenga menor método y parámetros. Esto lo realiza el método $obtenerMejor(equivalenceClasses)$
-
-
-
-% En la búsqueda de soluciones óptimas mediante algoritmos genéticos u otros algoritmos de búsqueda, la función de valoración \cite{goldberg1989genetic} desempeña un papel fundamental. Su diseño adecuado es crucial, ya que determina la dirección y el éxito del proceso de búsqueda.
-% La función de valoración evalúa la calidad de cada solución candidata y la compara con otras soluciones en la población. Proporciona una medida objetiva de la idoneidad de cada individuo en relación con los objetivos y restricciones del problema. La calidad se expresa generalmente mediante un valor numérico, donde valores más altos indican soluciones más deseables. Por ejemplo, si estamos resolviendo un problema de optimización en el que buscamos maximizar una función objetivo, la función de valoración puede asignar un valor más alto a las soluciones que se acercan más a la solución óptima. Por otro lado, si estamos resolviendo un problema de minimización, la función de valoración puede asignar un valor más alto a las soluciones que se alejan más de la solución óptima.
-% Definir una buena función de valoración implica considerar cuidadosamente los requisitos y características del problema en cuestión. Puede implicar ponderar diferentes objetivos, como maximizar o minimizar ciertas variables, satisfacer restricciones específicas o lograr un equilibrio entre múltiples criterios. 
-
-% Una función de valoración efectiva debe ser capaz de discriminar entre soluciones prometedoras y soluciones subóptimas. Debe proporcionar una evaluación objetiva y precisa, permitiendo la selección de soluciones de alta calidad y la eliminación de soluciones menos deseables.
-% Además, la función de valoración debe ser adecuada para el dominio y el tipo de problema abordado. Puede requerir conocimiento especializado y experiencia en el campo para definir correctamente las métricas y ponderaciones apropiadas. 
-
-% Es importante tener en cuenta que la función de valoración puede evolucionar y adaptarse a lo largo del proceso de búsqueda. A medida que el algoritmo de busqueda avanza y produce nuevas generaciones de soluciones, la función de valoración puede ser ajustada y refinada para enfocarse en las características más relevantes y deseadas.
-
-
-% Por lo tanto, en los algoritmos de búsqueda la función de valoración desempeña un papel crucial para evaluar y comparar soluciones candidatas en función de criterios específicos del problema. Proporciona una medida cuantitativa de la calidad de las soluciones y guía el proceso de selección y toma de decisiones en cada etapa del algoritmo. El diseño adecuado de la función de valoración es esencial para obtener resultados óptimos y eficientes en la resolución de problemas.
-% A continuación, explicaremos cada función de valoración implementada en nuestros algoritmos.
-
-
-% En el caso de algoritmos greedy, la función de valoración juega un papel similar pero con un enfoque más local. En lugar de trabajar con una población de soluciones, los algoritmos greedy toman decisiones en cada paso basándose en una evaluación local de las opciones disponibles. La función de valoración en un algoritmo greedy se utiliza para seleccionar la mejor opción en cada iteración o paso del algoritmo, maximizando o minimizando la función de valoración según el objetivo del problema \cite{cormen2009introduction}.
 
 
 \section{Construcción de \emph{drivers} para model checking usando métodos generadores de objetos}
