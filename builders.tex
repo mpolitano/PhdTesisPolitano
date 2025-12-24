@@ -93,7 +93,7 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
 \end{itemize}
 
 \noindent
-A partir de esta API, los objetos de \emph{NodeCachingLinkedList} pueden
+A partir de esta API, los objetos de \texttt{NodeCachingLinkedList} pueden
 construirse utilizando secuencias de operaciones que combinan los métodos
 constructores y los modificadores. Por ejemplo, una lista inicializada con
 \texttt{NCL()} puede llenarse mediante llamados consecutivos a
@@ -288,12 +288,12 @@ objetos.
 Por lo tanto, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de métodos generadores de objetos, y pueden descartarse de forma segura.
 
 Para automatizar la identificación de estos métodos, utilizamos la herramienta de análisis estático \emph{Infer} \footnote{\url{https://fbinfer.com/}}, desarrollada por Facebook. 
-\emph{Infer} ofrece funcionalidades avanzadas para analizar código fuente y, en
+\textsf{Infer} ofrece funcionalidades avanzadas para analizar código fuente y, en
 particular, permite identificar automáticamente los métodos observadores (también
 denominados \emph{métodos puros} en la bibliografía \cite{Salcianu:2005,Huang:2012}).
 La clasificación se realiza mediante un análisis estático que infiere efectos secundarios sobre el estado de los objetos, sin necesidad de ejecutar el código.
 
-Si bien \emph{Infer} puede generar falsos negativos —no clasificar como
+Si bien \textsf{Infer} puede generar falsos negativos —no clasificar como
 observador a un método que en realidad sí lo es—, su comportamiento es
 conservador y típicamente evita falsos positivos. 
 Es decir, rara vez clasificará como observador a un método que en realidad
@@ -370,8 +370,8 @@ lo que reduce de forma significativa el espacio de búsqueda de nuestros algorit
 %pero en realidad los iteradores también permiten operaciones que pueden modificarla 
 %de modo que no aseguran que el estado de la lista se mantenga inmutable.
 
-Los métodos reportados como observadores por \emph{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
-En síntesis, \emph{Infer} actúa como una etapa de preprocesamiento que combina eficiencia y utilidad práctica: permite reducir el número de métodos a analizar, sin necesidad de intervención manual, manteniendo un nivel de precisión suficiente para nuestros casos de estudio.
+Los métodos reportados como observadores por \textsf{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
+En síntesis, \textsf{Infer} actúa como una etapa de preprocesamiento que combina eficiencia y utilidad práctica: permite reducir el número de métodos a analizar, sin necesidad de intervención manual, manteniendo un nivel de precisión suficiente para nuestros casos de estudio.
 
 
 % 1- estados o configuraciones del problema
@@ -730,7 +730,7 @@ Este enfoque es especialmente útil en casos donde el objetivo es favorecer
 métodos que sean útiles para generar tests que ejerciten la mayor cantidad
 posible de ramas del código.
 En el contexto de este trabajo, hemos realizado modificaciones en la
-herramienta \emph{Randoop} (descrita en la sección \ref{sec:feedback-directed-test-gen})
+herramienta \textsf{Randoop} (descrita en la sección \ref{sec:feedback-directed-test-gen})
 de manera que las test suites generadas sean de utilidad para averiguar si un conjunto de 
 métodos dados es un conjunto de métodos generadores.
 
@@ -1074,7 +1074,7 @@ Este valor fue determinado experimentalmente para equilibrar la diversidad de la
 de soluciones prometedoras.
 
 Para nuestro caso concreto, como ya explicamos, cada posición del cromosoma representa un método específico de la API, entonces una mutación en la posición 3 implicaría activar o desactivar el método
-correspondiente en el individuo, de acuerdo a la tabla \ref{tab:ncl-api-infer}, seria el método \emph{add(Object)}.
+correspondiente en el individuo, de acuerdo a la tabla \ref{tab:ncl-api-infer}, seria el método \texttt{add(Object)}.
 Este tipo de variaciones permite explorar diferentes combinaciones de subconjuntos de métodos que de otra manera no se generarían.  
 
 \begin{figure}
@@ -1217,14 +1217,14 @@ El valor del tamaño del torneo para la selección también se eligió experimen
 ($tournamentSize=4$).
 
 Para implementar el algoritmo genético, utilizamos una biblioteca popular
-escrita en Java, llamada \emph{Jenetics}\footnote{\url{https://jenetics.io/}}
+escrita en Java, llamada \textsf{Jenetics}\footnote{\url{https://jenetics.io/}}
 (versión 5.2.0). Esta biblioteca está diseñada específicamente para algoritmos evolutivos 
 y nos proporcionó las herramientas necesarias para desarrollar nuestro enfoque genético.
-\emph{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama
+\textsf{Jenetics} es una biblioteca robusta y versátil que ofrece una amplia gama
 de funcionalidades para la implementación de algoritmos genéticos. Además,
-\emph{Jenetics} es muy fácil de usar, con una documentación completa y una
+\textsf{Jenetics} es muy fácil de usar, con una documentación completa y una
 comunidad activa de usuarios que proporciona soporte y ayuda. Una característica
-relevante de \emph{Jenetics} es que permite realizar la evaluación de la
+relevante de \textsf{Jenetics} es que permite realizar la evaluación de la
 aptitud de los individuos (así como otras operaciones de los algoritmos genéticos) 
 de la población en paralelo, 
 %utilizando el \emph{ForkJoinPool.commonPool()}, 

@@ -466,7 +466,7 @@ Por ejemplo, para el método \texttt{put} de \texttt{TreeMap} escribimos el
 programa de la Figura \ref{lst:propiedadJPF} para realizar la verificación con
 JPF.
 
-
+\noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Verificando el método put de TreeMap con JPF},label={lst:propiedadJPF},language=Java,captionpos=b]
     public static void main(String[] args) {
        int scope = 3;
@@ -475,6 +475,7 @@ JPF.
        assert t.repOK();
     }
 \end{lstlisting}
+\end{minipage}
 
 El programa primero construye todos los árboles de tamaño acotado usando un
 driver en la línea 3 (método \texttt{generateStructure}). Luego, ejecuta el
