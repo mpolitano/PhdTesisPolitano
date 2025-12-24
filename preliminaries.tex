@@ -232,8 +232,6 @@ de generación aleatoria con retroalimentación basada en la ejecución, que
 consiste en ejecutar las secuencias de test y observar los resultados para 
 determinar si se debe continuar extendiendo o no las secuencias de test. 
 El algoritmo principal de Randoop se describe en la Figura \ref{fig:randoop-algorithm}.
-\pp{Eliminar este espacio arriba del algoritmo de Randoop.}
-\cacho{Hecho}
 
 \begin{algorithm}[htbp]
     \SetAlgoLined
@@ -625,7 +623,7 @@ private static LinkedList generateStructure(int scope) {
             case 14:
                 list.clear();
                 break;
-            ...     /* (*@m\'etodos omitidos@*) */
+            /* (*@m\'etodos omitidos@*) */
             case 66:
                 list.empty();
                 break;
@@ -635,10 +633,6 @@ private static LinkedList generateStructure(int scope) {
 }
 \end{lstlisting}
 \end{minipage}
-\pp{Por qué tiene puntos suspensivos el driver de la figura? Omite métodos? El
-Caption dice que no. Además queda cortado el listing, hay que arreglarlo para
-que quede en una página.}
-\cacho{Hecho, agregue uno mas al final, como es el ultimo pero saque el todos del caption. SOn 60, coincide con la parte de exp}
 
 Este driver simple utiliza todos los métodos de la API para la generación de
 estructuras. Notar que el número de caminos a explorar por el driver crece exponencialmente con la cantidad de métodos disponibles. Sin embargo, muchas de estos métodos no son necesarios si
