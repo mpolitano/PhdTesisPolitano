@@ -458,14 +458,15 @@ Por ejemplo, un estado posible puede representarse como un vector de la siguient
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\textwidth]{images/cromosoma.png}
-  \caption{Ejemplo de representación de estado con un vector booleano}
+  \caption{Ejemplo de estado de nuestros algoritmos.}
   \label{fig:cromosoma}
 \end{figure}
 
 En este caso, las posiciones 0, 7 y 16 del vector están establecidas como verdaderas (según el orden asignado a los métodos de la API), mientras que las demás posiciones están establecidas como falsas. Esta configuración representa el subconjunto de métodos:
 \vspace{5pt} 
 
-\begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos que representa el cromosoma de la Figura \ref{fig:cromosoma}, captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
+\begin{lstlisting}[numbers=none, caption=Métodos generadores de objetos
+representados por el cromosoma de la Figura \ref{fig:cromosoma}., captionpos=b, frame=tb , xleftmargin=0pt, basicstyle=\scriptsize]
   (0)  NodeCachingLinkedList()
   (7)  addFirst(Object)
   (16) removeFirst()
@@ -1450,7 +1451,7 @@ cada sucesor y selecciona aquel que tenga el mayor valor (líneas 30 a 38).
 % En el caso de algoritmos greedy, la función de valoración juega un papel similar pero con un enfoque más local. En lugar de trabajar con una población de soluciones, los algoritmos greedy toman decisiones en cada paso basándose en una evaluación local de las opciones disponibles. La función de valoración en un algoritmo greedy se utiliza para seleccionar la mejor opción en cada iteración o paso del algoritmo, maximizando o minimizando la función de valoración según el objetivo del problema \cite{cormen2009introduction}.
 
 
-\section{Construcción de \emph{drivers} para model checking acotado usando métodos generadores de objetos}
+\section{Construcción de \emph{drivers} para model checking usando métodos generadores de objetos}
 \label{sec:jpf-builders}
 
 En la Sección \ref{sec:jpf}, mostramos que para la verificación acotada de
@@ -1462,8 +1463,8 @@ de la API},label={lst:driverAPI},captionpos=b]
 private static TreeMap<Integer, Integer> generateStructure(int scope) {
     int maxLength = Verify.getInt(0, scope);
     TreeMap<Integer, Integer> t = new TreeMap<>();
-    for (int i = 0; i <= maxLength; i++) {
-        switch (Verify.getInt(n_methods)) {
+    for (int i = 0; i < maxLength; i++) {
+        switch (Verify.getInt(n_methods - 1)) {
             case 0:
                 t.put(Verify.getInt(0,scope), Verify.getInt(0,scope));
                 break;
@@ -1530,15 +1531,13 @@ private static TreeMap<Integer, Integer> generateStructure(int scope) {
     return t;
 }
 \end{lstlisting}
-
-\cacho{Hecho}
-\pp{Poner más métodos para que ocupe más espacio la figura, y de paso se note
-más la diferencia para builders vs. no builders.}
+\pp{Por qué los puntos suspensivos? Habría que poner un comentario que diga
+    métodos omitidos o algo así. Se corta la figura. Mismo problema que en la
+sección de preliminares de JPF.}
 
 Por ejemplo, la Figura \ref{lst:driverAPI} muestra un driver para generar todos
 los posibles \texttt{TreeMap}s con hasta \texttt{scope} nodos, con elementos
-en \texttt{[0, scope]} \pp{Hay que ver cómo funciona el getInt y actualizar
-esto para que den las cotas}\cacho{Resuelto, es hasta scope}. Notar que, si no se conocen los métodos
+en \texttt{[0, scope]}. Notar que, si no se conocen los métodos
 generadores de objetos del módulo, el usuario tiene que escribir el driver
 utilizando todos los métodos de la API (como en la Figura \ref{lst:driverAPI}). 
 En caso contrario, es posible que
@@ -1555,12 +1554,11 @@ automáticamente por nuestros enfoques para construir drivers. El objetivo es ac
 verificación de propiedades y mejorar su escalabilidad respecto de los scopes en casos 
 que ocurren típicamente en la práctica (como el caso de \texttt{TreeMap} presentado aquí). 
 Los generadores de objetos para \texttt{TreeMap} cuentan con sólo 3 métodos.
-\pp{Falta un método para que coincida con la sección experimental creo.}
 Así, utilizando sólo métodos generadores de objetos computados automáticamente
 por nuestros enfoques, se construye el driver de la Figura \ref{lst:driverBLD}. 
 Este driver genera exactamente los mismos objetos de \texttt{TreeMap} que el de
-la Figura \ref{lst:driverAPI} (porque los métodos generadores son suficientes y
-minimales), y por lo tanto JPF explora la propiedad bajo análisis de manera
+la Figura \ref{lst:driverAPI} (porque los métodos generadores son suficientes), 
+y por lo tanto JPF explora la propiedad bajo análisis de manera
 exhaustiva acotada con ambos drivers. Sin embargo, como
 se muestra en la sección experimental (\ref{sec:experiments-jpf-driver}), 
 eliminar métodos innecesarios del driver produce ganancias significativas en tiempo y 
@@ -1570,8 +1568,8 @@ escalabilidad respecto del scope, para la verificación de propiedades.
     private static TreeMap generateStructure(int scope) {
        int maxLength = Verify.getInt(0, scope);
        TreeMap t = new TreeMap();
-       for (int i = 1; i <= maxLength; i++) {
-          switch (Verify.random(n_methods)) {
+       for (int i = 0; i < maxLength; i++) {
+          switch (Verify.random(n_methods - 1)) {
              case 0:
                 t.put(Verify.getInt(0,scope),Verify.getInt(0,scope));
                 break;
