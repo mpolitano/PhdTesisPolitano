@@ -115,12 +115,12 @@ La Figura \ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
     principal, por ejemplo, ejecutando la siguiente secuencia de test:
 \vspace{5pt} 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_a,xleftmargin=0pt]
-    (0)  NodeCachingLinkedList();
-    (7)  addFirst(3);
-    (7)  addFirst(-1);
+    (0)  NodeCachingLinkedList<Integer> l = new NodeCachingLinkedList<>();
+    (7)  l.addFirst(3);
+    (7)  l.addFirst(-1);
     \end{lstlisting}
 \pp{Secuencia de test incompleta, falta la lista sobre la que se aplica}
-    
+\cacho{Listo todo esto}
 
 \item Figura (b):
     Esta instancia se logra agregando dos nodos a la lista principal y luego
@@ -130,10 +130,10 @@ La Figura \ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_b, xleftmargin=0pt]
-    (0)  NodeCachingLinkedList();
-    (7)  addFirst(3);
-    (7)  addFirst(-1);
-    (25) removeFirst();
+    (0)  NodeCachingLinkedList<Integer> l = new NodeCachingLinkedList<>();
+    (7)  l.addFirst(3);
+    (7)  l.addFirst(-1);
+    (25) l.removeFirst();
     \end{lstlisting}
 \pp{Secuencia de test incompleta, falta la lista sobre la que se aplica}
     
@@ -144,17 +144,15 @@ La Figura \ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_c, xleftmargin=0pt]
-    (0)  NodeCachingLinkedList();
-    (7)  addFirst(3); 
-    (7)  addFirst(-11); 
-    (25) removeFirst();
-    (25) removeFirst();
+    (0)  NodeCachingLinkedList<Integer> l = new NodeCachingLinkedList<>();
+    (7)  l.addFirst(3);
+    (7)  l.addFirst(-11);
+    (25) l.removeFirst();
+    (25) l.removeFirst();
     \end{lstlisting}
 \pp{Secuencia de test incompleta, falta la lista sobre la que se aplica}
     
 \end{itemize}
-
-
 
 \section{Métodos Generadores de Objetos y sus Propiedades}
 
@@ -770,10 +768,9 @@ producir estas secuencias de test. Esta función realiza su tarea utilizando
 la estrategia de generación aleatoria descrita en la Sección
 \ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. \pp{Otra
 vez mucho espacio antes del un algoritmo, casi una página en blanco. Quitar este
-espacio!}
+espacio!} \cacho{resuelto}
 
-\clearpage
-\begin{algorithm}[H]
+\begin{algorithm}[htbp]
     \small
     \SetAlgoLined
     \KwIn{Métodos de la API $API$, subconjunto de métodos $M \subseteq API$,
@@ -853,8 +850,6 @@ Primero, se genera una test suite para un conjunto de métodos dado $M$, con un 
 de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
  la cobertura de líneas y de ramas obtenida por la test suite, y se computa
  $Cob$ aplicando la fórmula \ref{eq:cobertura} con estos valores.
-\cacho{Deberia poner con equation a todas las formulas!}\pp{No sé que significa
-esto!}
 
 En la práctica, dada la aleatoriedad de \textsf{Randoop}, con algunas semillas
 la herramienta logra mayor cobertura que con otras. Por lo tanto, para lidiar
@@ -914,9 +909,9 @@ entrada, se generan suites de tests que luego son ejecutadas para analizar su
 cobertura.
 En este caso, asumiendo un solo hilo para simplificar ($k=1$), la cobertura \(Cob\), se computa como la suma del número de
 líneas y ramas cubiertas \pp{según la fórmula anterior es 0.4 * lineas y 0.6 por
-ramas. Corregir los números en este párrafo.}.
-Con \( M_1 \) se cubrieron 192 líneas y 101 ramas (\(Cob(M_1) = 293\)), mientras
-que con \( M_2 \) se cubrieron 175 líneas y 97 ramas (\(Cob(M_2) = 272\)).
+ramas. Corregir los números en este párrafo.}. \cacho{Aca me parece que hay que cambiar la formula, porq dice que se calculan respecto el total de lineas y ramas, y no es asi. Ya cambie los valores}
+Con \( M_1 \) se cubrieron 192 líneas y 101 ramas (\(Cob(M_1) = 137,4\)), mientras
+que con \( M_2 \) se cubrieron 175 líneas y 97 ramas (\(Cob(M_2) = 128,2\)).
 
 %Para la redundancia de métodos, tal cual la sección anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
 %El conjunto \( M_1 \) contiene 3 métodos, por lo que \( R(M_1) = 20 - 3 = 17 \) y el conjunto \( M_2 \) contiene 2 métodos, entonces \( R(M_2) = 20 - 2 = 18 \).
@@ -1278,6 +1273,7 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
 
 
 \pp{El algoritmo debería ir en un float también porque sino quedan mal los espacios.}
+\cacho{Hecho}
 
 \SetKwFunction{Compute}{Compute} 
 \SetKwFunction{fBuilders}{computeBuilders}
@@ -1289,7 +1285,7 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
 
 \SetKwProg{Fn}{Function}{:}{}
 
-\begin{algorithm}[H]
+\begin{algorithm}[htbp]
     \caption{Algoritmo hill-climbing para la identificación de métodos
     generadores de objetos}
     \label{alg:enfoqueHC}
@@ -1320,7 +1316,7 @@ En nuestra implementación, tanto los candidatos como la función objetivo son i
         $initial \gets []$\;
         \For{$i \gets 0$ \KwTo \#M}{
             \If{$s[i] == 0$}{
-                \pp{qué es builders? No se entiende la condición}\;
+                \pp{qué es builders? No se entiende la condición}\; \cacho{Esto ya lo charlamos en una meet, lo hicimos asi para detectar constructores primero y usar solo eso}
                 \If{($const$ \textbf{and} $isConstructor(i)$) || (!$const$ \textbf{and} !$isConstructor(i)$)}{
                     $successor \gets clone(s)$\;
                     $successor[i] \gets 1$\;
@@ -1467,8 +1463,9 @@ cada sucesor y selecciona aquel que tenga el mayor valor (líneas 30 a 38).
 En la Sección \ref{sec:jpf}, mostramos que para la verificación acotada de
 propiedades para estructuras dinámicas complejas el usuario debe proveer un
 \emph{driver} para genere las estructuras (de manera exhaustiva acotada). 
-\\
-\begin{lstlisting}[language=Java,caption={Driver usando todos los métodos
+
+\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[language=Java,basicstyle=\scriptsize\ttfamily, caption={Driver usando todos los métodos
 de la API},label={lst:driverAPI},captionpos=b]
 private static TreeMap<Integer, Integer> generateStructure(int scope) {
     int maxLength = Verify.getInt(0, scope);
@@ -1530,20 +1527,22 @@ private static TreeMap<Integer, Integer> generateStructure(int scope) {
                 t.values();
                 break;
             case 18:
-                t.entrySet();
-                break;
-            case 19:
                 t.keySet();
                 break;
-            ...
+            ...     /* (*@m\'etodos omitidos@*) */
+            case 66:
+                t.entrySet();
+                break;
         }
     }
     return t;
 }
 \end{lstlisting}
+\end{minipage}
 \pp{Por qué los puntos suspensivos? Habría que poner un comentario que diga
     métodos omitidos o algo así. Se corta la figura. Mismo problema que en la
 sección de preliminares de JPF.}
+\cacho{Agregue el ultimo y el comentario}
 
 Por ejemplo, la Figura \ref{lst:driverAPI} muestra un driver para generar todos
 los posibles \texttt{TreeMap}s con hasta \texttt{scope} nodos, con elementos

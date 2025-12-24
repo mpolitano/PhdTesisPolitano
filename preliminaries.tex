@@ -542,7 +542,7 @@ con elementos en \([0,scope]\). Las entradas generadas por el
 \emph{driver} son usadas por JPF para la verificación de la propiedad.
 
 Un driver básico para la propiedad de la Figura \ref{lst:propiedad} se
-muestra en la Figura \ref{lst:driverAPI}. 
+muestra en la Figura \ref{lst:driverAPI_all}. 
 El driver selecciona primero la máxima cantidad de veces que se
 ejecutarán métodos de la API (\(maxLength \in [0,scope]\)). Como cada método considerado a lo sumo
 agrega un elemento a la lista, ejecutar a lo sumo \(scope\) métodos produce listas de
@@ -567,7 +567,7 @@ exhaustiva para explorar todas las estructuras de tamaño hasta \texttt{scope}.
 
 \noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[language=Java,caption={Driver usando todos los métodos
-de la API de \texttt{LinkedList}},label={lst:driverAPI},captionpos=b]
+de la API de \texttt{LinkedList}},label={lst:driverAPI_all},captionpos=b]
 private static LinkedList generateStructure(int scope) {
     int maxLength = Verify.getInt(0, scope);
     LinkedList list = new LinkedList();
@@ -625,8 +625,8 @@ private static LinkedList generateStructure(int scope) {
             case 14:
                 list.clear();
                 break;
-            ...
-            case 60:
+            ...     /* (*@m\'etodos omitidos@*) */
+            case 66:
                 list.empty();
                 break;
         }
