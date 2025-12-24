@@ -889,58 +889,57 @@ Donde:
         que para la función objetivo basada en generación exhaustiva acotada.
 \end{itemize}
 
-Volvamos al ejemplo que usamos durante este capítulo. Consideremos los siguientes conjuntos de métodos:
+Volvamos al ejemplo que usamos anteriormente en este capítulo. Consideremos los siguientes conjuntos de métodos:
 
-\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_1 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos candidato \( M_1 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
-  
 \end{lstlisting} 
 
 
-\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_2 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos candidato \( M_2 \)]
   NodeCachingLinkedList()
   addFirst(Object)
-
-   
 \end{lstlisting}
 
 
-\cacho{Nuevo esto:}
-Al ejecutar el algoritmo \ref{alg:fitnessRandoop} con cada conjunto como entrada, se generan suites de tests que luego son evaluadas utilizando herramientas de análisis de cobertura. 
-El resultado, expresado como la tripla \( \langle Cob, R, P \rangle \), se detalla a continuación:
+%El resultado, expresado como la tripla \( \langle Cob, R, P \rangle \), se detalla a continuación:
+%
+%\[
+%f(M_1) = \langle 293, 17, 66 \rangle \quad \text{y} \quad f(M_2) = \langle 272, 18, 66 \rangle
+%\]
+Al ejecutar el algoritmo \ref{alg:fitnessRandoop} con cada conjunto como
+entrada, se generan suites de tests que luego son ejecutadas para analizar su
+cobertura.
+En este caso, asumiendo un solo hilo para simplificar ($k=1$), la cobertura \(Cob\), se computa como la suma del número de
+líneas y ramas cubiertas \pp{según la fórmula anterior es 0.4 * lineas y 0.6 por
+ramas. Corregir los números en este párrafo.}.
+Con \( M_1 \) se cubrieron 192 líneas y 101 ramas (\(Cob(M_1) = 293\)), mientras
+que con \( M_2 \) se cubrieron 175 líneas y 97 ramas (\(Cob(M_2) = 272\)).
 
-\[
-f(M_1) = \langle 293, 17, 66 \rangle \quad \text{y} \quad f(M_2) = \langle 272, 18, 66 \rangle
-\]
-
-En este caso, la cobertura  (\(Cob\)), se computa como la suma del número de líneas y ramas cubiertas.
-Para \( M_1 \), se cubrieron 192 líneas y 101 ramas (\(Cob = 293\)), para \( M_2 \), se cubrieron 175 líneas y 97 ramas (\(Cob = 272\)).
-
-Para la redundancia de métodos, tal cual la sección anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
-El conjunto \( M_1 \) contiene 3 métodos, por lo que \( R(M_1) = 20 - 3 = 17 \) y el conjunto \( M_2 \) contiene 2 métodos, entonces \( R(M_2) = 20 - 2 = 18 \).
-
-En cuanto a los parámetros, ambos conjuntos tienen la misma complejidad de parámetros, ya que ambos conjuntos incluyen únicamente el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo \texttt{Object}, con un peso de 6 según la Tabla \ref{fig:rankParameters}. 
-Los demás métodos no tienen parámetros. Por lo tanto, el peso total de parámetros en ambos conjuntos es \( W(M_1) = W(M_2) = 6 \), y como el peso total de la API es \( W(API) = 72 \), se obtiene \( P = 72 - 6 = 66 \) en ambos casos.
-
-En este caso, el conjunto \( M_1 \) logra una mejor cobertura, lo cual alcanza este valor para elegirlo como mejor candidato. 
-Esto se debe a que la inclusión de métodos como \texttt{removeFirst()} en \( M_1 \) permite generar tests más variados, que ejercitan comportamientos adicionales de la API. 
-En contraste, \( M_2 \) no permite generar escenarios que modifiquen el estado interno de la lista, lo que impide alcanzar ciertas ramas del código.
-
-Por lo tanto, de acuerdo con la función objetivo basada en cobertura, se prefiere el conjunto \( M_1 \):
+%Para la redundancia de métodos, tal cual la sección anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
+%El conjunto \( M_1 \) contiene 3 métodos, por lo que \( R(M_1) = 20 - 3 = 17 \) y el conjunto \( M_2 \) contiene 2 métodos, entonces \( R(M_2) = 20 - 2 = 18 \).
+%
+%En cuanto a los parámetros, ambos conjuntos tienen la misma complejidad de parámetros, ya que ambos conjuntos incluyen únicamente el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo \texttt{Object}, con un peso de 6 según la Tabla \ref{fig:rankParameters}. 
+%Los demás métodos no tienen parámetros. Por lo tanto, el peso total de parámetros en ambos conjuntos es \( W(M_1) = W(M_2) = 6 \), y como el peso total de la API es \( W(API) = 72 \), se obtiene \( P = 72 - 6 = 66 \) en ambos casos.
+%
+Como el conjunto \( M_1 \) logra una mejor cobertura, y por lo tanto:
 
 \[
 f(M_1) > f(M_2)
 \]
 
+Esto se debe a que la inclusión del método \texttt{removeFirst()} en \( M_1 \)
+permite generar objetos más variados (con cachés no vacías), que sirven para ejercitar 
+comportamientos de la API que no pueden ejercitarse con los objetos generados
+con \( M_2 \). En particular, \( M_2 \) no permite generar objetos con listas caché no vacías,
+lo que impide cubrir ciertas ramas del código.
 
 En nuestra evaluación experimental, ambas funciones objetivo son utilizadas como
 parte de los algoritmos de búsqueda implementados, para analizar sus ventajas y
 desventajas en la práctica. 
 
-
-\cacho{hasta aca}
 
 \section{Algoritmos para la Identificación de Métodos Generadores de Objetos}
 \label{sec:algorithms}
