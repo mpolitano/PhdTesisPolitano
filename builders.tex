@@ -507,7 +507,7 @@ Como la cantidad de secuencias a explorar crece exponencialmente respecto de las
 
 Nuestra técnica se basa en una variante de la \emph{hipótesis de la cota pequeña}, ampliamente reconocida en el testing de software \cite{Andoni:2003,jackson2006, Abad13}. La hipótesis de la cota pequeña indica que la mayoría de las fallas pueden revelarse ejercitando el software bajo test con entradas de tamaño relativamente pequeño. Nuestra hipótesis es que si dos conjuntos de métodos $M_1$ y $M_2$ generan los mismos objetos acotados (para una cota relativamente pequeña), entonces es altamente probable $M_1$ y $M_2$ sirvan para generar los mismos objetos en un contexto no acotado. Esto fue validado empíricamente en todos nuestros casos de estudio.
 
-\begin{lstlisting}[label=fig:rankParameters,caption=Ranking con los tipos de parametros, captionpos=b,frame=tb, float=t]
+\begin{lstlisting}[label=fig:rankParameters,caption=Pesos de los distintos tipos de parametros, captionpos=b,frame=tb, float=t]
 Boolean=1
 Integer,Char=2
 Float,Double,String=4
@@ -521,7 +521,6 @@ f(M) = \langle O(M), R(M), P(M) \rangle
 \]
 Donde:
 
-\cacho{Lo de parametros lo agrego PP, lo dejo}
 \begin{itemize}
     \item $O(M)$ (Objetos): Es el número de objetos generados por el conjunto de métodos $M$ usando generación exhaustiva acotada, para un scope fijo. Este componente es el más importante, ya que los siguientes componentes sólo se usan para decidir en caso de empate respecto de $O(M)$. Recordemos que los generadores de objetos a identificar deben ser siempre suficientes, por lo que la función objetivo siempre prioriza los métodos que generen un mayor número de objetos.
     \item $R(M)$ (Redundancia): Representa la diferencia entre el número total de métodos de la API ($M_t$) y la cantidad de métodos en $M$. Esto se utiliza para desempatar entre conjuntos de métodos que generan la misma cantidad de objetos, dando preferencia a aquellos conjuntos que contengan menos métodos. En otras palabras, este componente de la función busca identificar generadores de objetos minimales.
@@ -579,130 +578,130 @@ Si son iguales, se compara la redundancia \( R(M_1) \) con \( R(M_2) \), y si am
 se compara la complejidad de los parámetros \( P(M_1) \) con \( P(M_2) \).
 
 Para ilustrar este concepto, consideremos los siguientes ejemplos.
-
-
 En el primer caso, analizamos dos conjuntos de métodos:
 
 \vspace{5pt}
 
-\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_1 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos candidato \( M_1 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
 \end{lstlisting}
 
-\begin{lstlisting}[numbers=none, caption=Conjunto de métodos \( M_2 \)]
+\begin{lstlisting}[numbers=none, caption=Conjunto de métodos candidato \( M_2 \)]
   NodeCachingLinkedList()
   addFirst(Object)
 \end{lstlisting}
 
 
-\cacho{Es nuevo esto}
+%Ambos conjuntos tienen en común el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo Object, 
+%con peso 6 según la Tabla \ref{fig:rankParameters}. 
+%Los demás métodos no tienen parámetros, por lo tanto:
+%
+%\[
+%W(M_1) = W(M_2) = 6
+%\]
+%
+%Como el peso total de la API es 72, se obtiene:
+%
+%\[
+%P(M_1) = P(M_2) = 72 - 6 = 66
+%\]
+%
+%La API contiene un total de 20 métodos (ver Tabla \ref{tab:ncl-api-infer}). Como \( M_1 \) utiliza 3 de ellos y \( M_2 \) solo 2, se obtiene:
+%
+%\[
+%R(M_1) = 20 - 3 = 17 \quad \text{y} \quad R(M_2) = 20 - 2 = 18
+%\]
 
-
-Ambos conjuntos tienen en común el método \texttt{addFirst(Object)}, cuyo único parámetro es de tipo Object, 
-con peso 6 según la Tabla \ref{fig:rankParameters}. 
-Los demás métodos no tienen parámetros, por lo tanto:
-
-\[
-W(M_1) = W(M_2) = 6
-\]
-
-Como el peso total de la API es 72, se obtiene:
-
-\[
-P(M_1) = P(M_2) = 72 - 6 = 66
-\]
-
-La API contiene un total de 20 métodos (ver Tabla \ref{tab:ncl-api-infer}). Como \( M_1 \) utiliza 3 de ellos y \( M_2 \) solo 2, se obtiene:
-
-\[
-R(M_1) = 20 - 3 = 17 \quad \text{y} \quad R(M_2) = 20 - 2 = 18
-\]
-
-En nuestros experimentos (con un \emph{scope} igual a 3), \( M_1 \) genera 18 objetos, mientras que \( M_2 \) genera 12. Las funciones objetivo son entonces:
-
-\[
-f(M_1) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 66 \rangle
-\]
-
+Suponiendo un \emph{scope} de 3 para la generación exhaustiva acotada, con \(
+M_1 \) podemos generar 18 objetos, mientras que con \( M_2 \) generamos 12. 
+%Las funciones objetivo son entonces:
+%
+%\[
+%f(M_1) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_2) = \langle 12, 18, 66 \rangle
+%\]
 Dado que \( M_1 \) genera más objetos, se concluye que:
 
 \[
 f(M_1) > f(M_2)
 \]
 
-Esto implica que \( M_1 \) es un conjunto generador más adecuado, ya que permite construir un mayor número de instancias. 
-En particular, \( M_2 \) no puede generar aquellas instancias que requieren eliminar elementos de la lista, lo cual sí permite \( M_1 \) mediante el método \texttt{removeFirst()}.
+Esto implica que \( M_1 \) es un candidato más adecuado para métodos generadores
+de objetos, ya que permite construir un mayor número de instancias. 
+En particular, \( M_2 \) no puede generar aquellas instancias que requieren
+eliminar elementos de la lista y mover nodos a la caché, lo que sí se logra con 
+\( M_1 \), usando el método \texttt{removeFirst()}.
 
-
-En el segundo caso, ambos conjuntos generan la misma cantidad de objetos (18, para scope 3), pero el conjunto \( M_4 \) incluye un método adicional:
+Veamos otro ejemplo, en donde ambos conjuntos generan la misma cantidad de objetos (18, para scope 3), 
+pero  \( M_3 \) es minimal y \( M_4 \) no lo es:
 
 \vspace{5pt}
 
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders3, caption=Conjunto de métodos \( M_3 \)]
+\begin{lstlisting}[numbers=none,label=fig:NCLbuilders3, caption=Conjunto de
+métodos candidato \( M_3 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   removeFirst()
 \end{lstlisting}
 
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders4, caption=Conjunto de métodos \( M_4 \)]
+\begin{lstlisting}[numbers=none,label=fig:NCLbuilders4, caption=Conjunto de
+métodos candidato \( M_4 \)]
   NodeCachingLinkedList()
   addFirst(Object)
   add(Object)
   removeFirst()
 \end{lstlisting}
 
-Las triplas resultantes son:
+%Las triplas resultantes son:
+%
+%\[
+%f(M_3) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_4) = \langle 18, 16, 66 \rangle
+%\]
 
+%Ambos conjuntos logran generar la misma cantidad de objetos. 
+Sin embargo, \( M_4 \) utiliza un método más, por lo que tiene una redundancia
+mayor (notar que 20 es el número de métodos en la API):
 \[
-f(M_3) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_4) = \langle 18, 16, 66 \rangle
+R(M_3) = 20 - 3 = 17 \text{, } R(M_4) = 20 - 4 = 16
 \]
-
-Ambos conjuntos logran generar la misma cantidad de objetos y presentan la misma complejidad en sus parámetros. Sin embargo, \( M_4 \) utiliza un método más, por lo que tiene una redundancia mayor (\( R(M_4) = 16 \) frente a \( R(M_3) = 17 \)). 
-Dado que nuestra función objetivo favorece subconjuntos más reducidos en caso de empate, se concluye que:
+Dado que nuestra función objetivo favorece subconjuntos más reducidos caso de
+empate en la cantidad de objetos generados, se concluye que:
 
 \[
 f(M_3) > f(M_4)
 \]
 
 
-En el tercer caso, los conjuntos tienen la misma cantidad de objetos generados (18, para scope 3) y el mismo número de métodos, pero difieren en la complejidad de los parámetros utilizados:
-
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders5, caption=Conjunto de métodos \( M_5 \)]
-  NodeCachingLinkedList()
-  addFirst(Object)
-  removeFirst()
-\end{lstlisting}
-
-\begin{lstlisting}[numbers=none,label=fig:NCLbuilders6, caption=Conjunto de métodos \( M_6 \)]
-  NodeCachingLinkedList()
-  add(int, Object)
-  removeFirst()
-\end{lstlisting}
-
-Las triplas correspondientes son:
-
-\[
-f(M_5) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_6) = \langle 18, 17, 64 \rangle
-\]
-
-Ambos conjuntos tienen igual número de métodos y generan la misma cantidad de objetos. 
-Sin embargo, \( M_6 \) contiene un método con parámetros más complejos (el método \texttt{add(int, Object)}) lo cual se refleja en un mayor peso de parámetros. 
-Como la función \( f \) prefiere subconjuntos con menor complejidad de parámetros en caso de empate, se concluye que:
-
-\[
-f(M_5) > f(M_6)
-\]
-
-\cacho{hasta aca}
-
-
-%Para este propósito, desarrollamos la herramienta BEAPI, que se discute con más detalle en el Capítulo \ref{cap:beapi}. En resumen, primero exploramos exhaustivamente todas las posibles combinaciones de secuencias de los métodos de $M$. Luego, utilizamos un conjunto fijo de valores primitivos (enteros del 0 a $k-1$) con los cuales probar nuestros métodos cuando requieren valores primitivos.
-
-%En segundo lugar, descartamos las secuencias de métodos que crean objetos con más de $k$ objetos (de cualquier tipo) para evitar construir objetos más grandes de lo necesario. Para lograr esto, canonizamos los objetos generados por la ejecución de cada secuencia y descartamos la secuencia si algún objeto tiene un índice igual o mayor que $k$.
-
-%En tercer lugar, ampliamos esta generación con coincidencia de estado. Esto se debe a que, en la generación de pruebas, a menudo hay muchas secuencias de pruebas que producen el mismo objeto. Por ejemplo, insertar en una colección y luego eliminar el mismo elemento resulta en muchos casos en exactamente la misma estructura antes de la inserción. Nuestro enfoque asume que las ejecuciones de rutinas son deterministas con respecto a sus entradas. Bajo esta suposición, se deduce que, para generar un conjunto exhaustivo acotado de estructuras, solo necesitamos guardar una secuencia de prueba para crear cada estructura diferente en el conjunto, y que todas las siguientes secuencias de prueba que generen la misma estructura se pueden descartar.
+%En el tercer caso, los conjuntos tienen la misma cantidad de objetos generados (18, para scope 3) y el mismo número de métodos, pero difieren en la complejidad de los parámetros utilizados:
+%
+%\begin{lstlisting}[numbers=none,label=fig:NCLbuilders5, caption=Conjunto de métodos \( M_5 \)]
+%  NodeCachingLinkedList()
+%  addFirst(Object)
+%  removeFirst()
+%\end{lstlisting}
+%
+%\begin{lstlisting}[numbers=none,label=fig:NCLbuilders6, caption=Conjunto de métodos \( M_6 \)]
+%  NodeCachingLinkedList()
+%  add(int, Object)
+%  removeFirst()
+%\end{lstlisting}
+%
+%Las triplas correspondientes son:
+%
+%\[
+%f(M_5) = \langle 18, 17, 66 \rangle \quad \text{y} \quad f(M_6) = \langle 18, 17, 64 \rangle
+%\]
+%
+%Ambos conjuntos tienen igual número de métodos y generan la misma cantidad de objetos. 
+%Sin embargo, \( M_6 \) contiene un método con parámetros más complejos (el método \texttt{add(int, Object)}) lo cual se refleja en un mayor peso de parámetros. 
+%Como la función \( f \) prefiere subconjuntos con menor complejidad de parámetros en caso de empate, se concluye que:
+%
+%\[
+%f(M_5) > f(M_6)
+%\]
+%
+%\cacho{hasta aca}
 
 
 \subsection{Cobertura de código}
