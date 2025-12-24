@@ -907,11 +907,12 @@ Volvamos al ejemplo que usamos anteriormente en este capítulo. Consideremos los
 Al ejecutar el algoritmo \ref{alg:fitnessRandoop} con cada conjunto como
 entrada, se generan suites de tests que luego son ejecutadas para analizar su
 cobertura.
-En este caso, asumiendo un solo hilo para simplificar ($k=1$), la cobertura \(Cob\), se computa como la suma del número de
-líneas y ramas cubiertas \pp{según la fórmula anterior es 0.4 * lineas y 0.6 por
-ramas. Corregir los números en este párrafo.}. \cacho{Aca me parece que hay que cambiar la formula, porq dice que se calculan respecto el total de lineas y ramas, y no es asi. Ya cambie los valores}
-Con \( M_1 \) se cubrieron 192 líneas y 101 ramas (\(Cob(M_1) = 137,4\)), mientras
-que con \( M_2 \) se cubrieron 175 líneas y 97 ramas (\(Cob(M_2) = 128,2\)).
+En este caso, asumiendo un solo hilo para simplificar ($k=1$), la cobertura \(Cob\), se computa a partir de la proporción de líneas 
+cubiertas respecto del total de líneas (232) y de la proporción de ramas cubiertas respecto del total de ramas (132),
+asignando un peso de 0.4 a las líneas y de 0.6 a las ramas. \pp{según la fórmula anterior es 0.4 * lineas y 0.6 por
+ramas. Corregir los números en este párrafo.}. \cacho{Modifique este parrafo }
+Con \( M_1 \) se cubrieron 192 líneas y 101 ramas (\(Cob(M_1) = 0.77\)), mientras
+que con \( M_2 \) se cubrieron 175 líneas y 97 ramas (\(Cob(M_2) = 0.74\)).
 
 %Para la redundancia de métodos, tal cual la sección anterior, se define como \( R(M) = M_t - |M| \), donde \( M_t \) es el número total de métodos en la API (en este caso, 20. Ver \ref{tab:ncl-api-infer}). 
 %El conjunto \( M_1 \) contiene 3 métodos, por lo que \( R(M_1) = 20 - 3 = 17 \) y el conjunto \( M_2 \) contiene 2 métodos, entonces \( R(M_2) = 20 - 2 = 18 \).
