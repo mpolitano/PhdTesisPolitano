@@ -767,7 +767,10 @@ Esta ejecución utiliza un 40\% del tiempo total
 asignado, \texttt{S} (ver $S_1$ en la línea 2). 
 La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
 producir estas secuencias de test. Esta función realiza su tarea utilizando 
-la estrategia de generación aleatoria descrita en la Sección \ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. 
+la estrategia de generación aleatoria descrita en la Sección
+\ref{sec:feedback-directed-test-gen}, basada en el enfoque de Randoop. \pp{Otra
+vez mucho espacio antes del un algoritmo, casi una página en blanco. Quitar este
+espacio!}
 
 \clearpage
 \begin{algorithm}[H]
@@ -850,11 +853,16 @@ Primero, se genera una test suite para un conjunto de métodos dado $M$, con un 
 de generación $S$ fijo (determinado experimentalmente). Luego, se mide  
  la cobertura de líneas y de ramas obtenida por la test suite, y se computa
  $Cob$ aplicando la fórmula \ref{eq:cobertura} con estos valores.
-\cacho{Deberia poner con equation a todas las formulas!}
+\cacho{Deberia poner con equation a todas las formulas!}\pp{No sé que significa
+esto!}
 
 En la práctica, dada la aleatoriedad de \textsf{Randoop}, con algunas semillas
-la herramienta logra mayor cobertura que con otras. Por lo tanto, 
-
+la herramienta logra mayor cobertura que con otras. Por lo tanto, para lidiar
+con la aleatoriedad y computar $Cob$ con mayor precisión, lanzamos $k$ hilos
+(\emph{threads} ejecutando el algoritmo \ref{alg:fitnessRandoop} en paralelo 
+con $k$ semillas aleatorias distintas. Luego, el resultado retornado para la 
+función objetivo es el promedio de los 
+resultados de $Cob$ obtenidos en los distintos hilos. 
 
 La función objetivo que utilizamos para evaluar la calidad de un candidato, 
 representado por un conjunto de métodos $M$, se define como una tripla al igual 
@@ -867,9 +875,9 @@ f'(M) = \langle Cob(M), R(M), C(M) \rangle
 Donde:
 
 \begin{itemize}
-    \item $Cob(M)$ (Cobertura): Es el número de ramas y lineas cubiertas
-        (\ref{sec:coverage}) por la
-        suite generada por el algoritmo \ref{alg:fitnessRandoop}, utilizando $M$ como
+    \item $Cob(M)$ (Cobertura): Es el promedio del número de ramas y lineas cubiertas
+        (\ref{sec:coverage}) por las
+        suites generadas por los $k$ hilos del algoritmo \ref{alg:fitnessRandoop}, utilizando $M$ como
         entrada. 
     Este componente tiene la mayor importancia, ya que refleja directamente la
     efectividad de los tests al cubrir líneas y ramas de la API.
