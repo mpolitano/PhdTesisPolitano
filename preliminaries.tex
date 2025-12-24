@@ -233,45 +233,44 @@ consiste en ejecutar las secuencias de test y observar los resultados para
 determinar si se debe continuar extendiendo o no las secuencias de test. 
 El algoritmo principal de Randoop se describe en la Figura \ref{fig:randoop-algorithm}.
 \pp{Eliminar este espacio arriba del algoritmo de Randoop.}
+\cacho{Hecho}
 
-\begin{figure}[H]
-    \centering
-    \begin{algorithm}[H]
-        \SetAlgoLined
-        \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
-        \KwOut{Tests de regresión}
-        
-        $prev \leftarrow \emptyset$\;
-        $tests \leftarrow \emptyset$\;
-        
-        \While{tiempo transcurrido $< S$ \textbf{y} $|tests| < W$}{
-            Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
-            \For{$p_i:T_i$ de $M$}{
-                \If{$T_i$ es primitivo}{
-                    $S_i \leftarrow$ valor primitivo para $T_i$ tomado
-                    aleatoriamente de las semillas\;
-                }\Else{
-                    $S_i \leftarrow$ secuencia aleatoria $\in prev$ que crea objeto de tipo $T_i$\;
-                }
+\begin{algorithm}[htbp]
+    \SetAlgoLined
+    \KwIn{Conjunto de métodos $M_1,\ldots,M_n$, tiempo límite $S$, número deseado de tests $W$}
+    \KwOut{Tests de regresión}
+    
+    $prev \leftarrow \emptyset$\;
+    $tests \leftarrow \emptyset$\;
+    
+    \While{tiempo transcurrido $< S$ \textbf{y} $|tests| < W$}{
+        Seleccionar aleatoriamente $M(p_1:T_1, \ldots, p_m:T_m) \in \{M_1,\ldots,M_n\}$\;
+        \For{$p_i:T_i$ de $M$}{
+            \If{$T_i$ es primitivo}{
+                $S_i \leftarrow$ valor primitivo para $T_i$ tomado
+                aleatoriamente de las semillas\;
+            }\Else{
+                $S_i \leftarrow$ secuencia aleatoria $\in prev$ que crea objeto de tipo $T_i$\;
             }
-            $test \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
-            $res \leftarrow ejecutar($test$)$\;
-            \If{res = falla} {
-                \Return{$\{ test \}$}\;
-            }   
-            \If{res = inválido} {
-                // No se guarda test para futuras extensiones
-            }       
-            \If{res = exito} {
-                $prev \leftarrow prev \cup \{test\}$\;
-            }        
-            $tests \leftarrow tests \cup \{test\}$\;
         }
-        \Return{$tests$}\;
-    \end{algorithm}
+        $test \leftarrow S_1; \ldots; S_m; M(v_1,\ldots,v_m)$\;
+        $res \leftarrow ejecutar($test$)$\;
+        \If{res = falla} {
+            \Return{$\{ test \}$}\;
+        }   
+        \If{res = inválido} {
+            // No se guarda test para futuras extensiones
+        }       
+        \If{res = exito} {
+            $prev \leftarrow prev \cup \{test\}$\;
+        }        
+        $tests \leftarrow tests \cup \{test\}$\;
+    }
+    \Return{$tests$}\;
     \caption{Pseudocódigo del Algoritmo de Randoop}
     \label{fig:randoop-algorithm}
-\end{figure}
+\end{algorithm}
+
 
 
 \textsf{Randoop} toma como entradas un conjunto de rutinas (por ejemplo, la API
@@ -565,7 +564,8 @@ exhaustiva para explorar todas las estructuras de tamaño hasta \texttt{scope}.
 %Finalmente, el método (\texttt{generateStructure}) retorna una lista \texttt{LinkedList} que representa uno de
 %esos estados posibles, sobre la cual se evaluará la propiedad del Algoritmo
 %\ref{lst:propiedad}.
-\\
+
+\noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[language=Java,caption={Driver usando todos los métodos
 de la API de \texttt{LinkedList}},label={lst:driverAPI},captionpos=b]
 private static LinkedList generateStructure(int scope) {
@@ -626,15 +626,19 @@ private static LinkedList generateStructure(int scope) {
                 list.clear();
                 break;
             ...
+            case 60:
+                list.empty();
+                break;
         }
     }
     return list;
 }
 \end{lstlisting}
-
+\end{minipage}
 \pp{Por qué tiene puntos suspensivos el driver de la figura? Omite métodos? El
 Caption dice que no. Además queda cortado el listing, hay que arreglarlo para
 que quede en una página.}
+\cacho{Hecho, agregue uno mas al final, como es el ultimo pero saque el todos del caption. SOn 60, coincide con la parte de exp}
 
 Este driver simple utiliza todos los métodos de la API para la generación de
 estructuras. Notar que el número de caminos a explorar por el driver crece exponencialmente con la cantidad de métodos disponibles. Sin embargo, muchas de estos métodos no son necesarios si
