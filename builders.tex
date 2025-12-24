@@ -707,17 +707,17 @@ f(M_3) > f(M_4)
 \subsection{Cobertura de código}
 \label{sec:fitnessRandoop}
 
-\cacho{La primer oracion lo agrego PP, lo dejo}
 Como la generación exhaustiva acotada puede ser costosa computacionalmente,
-proponemos aquí una heurística para computar la función objetivo que debería
-dar lugar a una mejor eficiencia en los algoritmos de cómputo de métodos
+proponemos aquí una heurística para computar la función objetivo que podría 
+dar lugar a una mayor eficiencia en los algoritmos de cómputo de métodos
 generadores. Así, la segunda función objetivo se basa en generar test suites
 de manera automática (aleatoria) utilizando un subconjunto candidato de métodos,  
 y medir la cobertura de código que alcanzan estas test suites. 
 La cobertura se mide en términos de las líneas de código y las ramas del
-programa que son ejercitadas por los tests (\ref{sec:coverage}).
-Esta métrica estima en qué medida los tests generados a partir del subconjunto de métodos cubren las distintas partes del programa, 
-lo que permite valorar un aspecto clave de la calidad de las suites de test obtenidas.
+programa que son ejercitadas por los tests (ver Sección \ref{sec:coverage}).
+Esta métrica estima en qué medida los tests generados a partir del subconjunto de métodos 
+cubren las distintas partes del programa, 
+que suele ser un aspecto clave de la calidad de las suites de test obtenidas.
 % PABLO: Esto está en background
 %Los criterios de evaluación incluyen:
 %\begin{itemize}
@@ -726,7 +726,6 @@ lo que permite valorar un aspecto clave de la calidad de las suites de test obte
 %\end{itemize}
 Por ejemplo, si se genera una test suite que cubre 100 líneas de código y 20 ramas de la API, 
 la función objetivo combina estas métricas en un puntaje compuesto.
-
 Para ello, se calcula la proporción de líneas y ramas cubiertas respecto del total disponible, 
 y se ponderan según su importancia relativa. Así, la cobertura alcanzada por una
 test suite puede definirse como:
@@ -740,30 +739,31 @@ donde $\alpha$ es $0.4$ y $\beta$ es $0.6$ para darle un peso mas importante a l
 Este enfoque es especialmente útil en casos donde el objetivo es favorecer
 métodos que sean útiles para generar tests que ejerciten la mayor cantidad
 posible de ramas del código.
-En el contexto de nuestra tesis, hemos realizado modificaciones en la
+En el contexto de este trabajo, hemos realizado modificaciones en la
 herramienta \emph{Randoop} (descrita en la sección \ref{sec:feedback-directed-test-gen})
 de manera que las test suites generadas sean de utilidad para averiguar si un conjunto de 
-métodos dados es un buen conjunto de métodos generadores.
+métodos dados es un conjunto de métodos generadores.
 
 La heurística para averiguar si un
-subconjunto de métodos $M$ es un buen conjunto de generadores se basa en
+subconjunto de métodos $M$ es un conjunto de generadores se basa en
 realizar una primera ejecución de Randoop utilizando sólo los métodos en $M$ para
-generar un conjunto de secuencias de test que generen objetos $tests_{obj}$. En
+generar un conjunto de secuencias de test para ``producir objetos'' $tests_{obj}$. En
 otras palabras, se asume que los métodos en $M$ son generadores de objetos (y
 en la segunda etapa se busca evaluar si efectivamente lo son).
-Luego, estas secuencias se extienden en una ejecución de Randoop subsiguiente,
+Luego, estas secuencias ``creadoras de objetos'' se extienden en una ejecución de 
+Randoop subsiguiente,
 pero esta vez usando los métodos restantes de la API. El objetivo de esta
-segunda ejecución es maximizar la cobertura de código obtenida por la suite. 
+segunda ejecución es maximizar la cobertura de código. 
 De esta manera, si los métodos en $M$ son un buen conjunto de generadores de objetos
 la cobertura obtenida por la suite final será alta; en caso contrario será baja. 
-Por ejemplo, si la primera ejecución no puede construir muchos objetos, extender 
+Por ejemplo, si la primera ejecución no puede construir buenos objetos, extender 
 $tests_{obj}$ no dará lugar a buena cobertura.
 
 El algoritmo de Randoop modificado para la detección de métodos generadores se muestra 
 en la Figura \ref{alg:fitnessRandoop}.
 Primero, se realiza una ejecución de Randoop sólo con los métodos de $M$ para
-generar secuencias de test, $tests_{obj}$ (línea 6), que usan estos métodos para construir objetos \pp{Tiene state
-matching activado esto?}. Esta ejecución utiliza un 40\% del tiempo total
+generar secuencias de test, $tests_{obj}$ (línea 6), que usan estos métodos para construir objetos. 
+Esta ejecución utiliza un 40\% del tiempo total
 asignado, \texttt{S} (ver $S_1$ en la línea 2). 
 La función \texttt{GenerarNuevasSecuencias} (líneas 9-35) es la encargada de
 producir estas secuencias de test. Esta función realiza su tarea utilizando 
@@ -851,6 +851,10 @@ de generación $S$ fijo (determinado experimentalmente). Luego, se mide
  la cobertura de líneas y de ramas obtenida por la test suite, y se computa
  $Cob$ aplicando la fórmula \ref{eq:cobertura} con estos valores.
 \cacho{Deberia poner con equation a todas las formulas!}
+
+En la práctica, dada la aleatoriedad de \textsf{Randoop}, con algunas semillas
+la herramienta logra mayor cobertura que con otras. Por lo tanto, 
+
 
 La función objetivo que utilizamos para evaluar la calidad de un candidato, 
 representado por un conjunto de métodos $M$, se define como una tripla al igual 

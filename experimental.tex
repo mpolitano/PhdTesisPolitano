@@ -110,11 +110,7 @@ Para las evaluaciones con la función objetivo basada en cobertura (\textbf{FRC}
 por cada candidato lanzamos dos hilos ejecutando Randoop con distintas semillas. 
 Además, fijamos un tiempo máximo de ejecución de Randoop de 30 segundos (en
 cada hilo).
-\pp{Decir algo de esto en la sección de la técnica FRC: Randoop introduce un componente 
-    de aleatoriedad en la generación de tests. Para controlar este
-    factor y garantizar la reproducibilidad de los resultados de los
-    experimentos con los mismo conjunto de parámetros, fijamos dos semillas
-distintas.}
+
 % y controlamos la aleatoriedad mediante semillas. Randoop utiliza esta semilla para controlar la generación de tests y
 % permitir la reproducción de resultados. Dado que Randoop introduce un grado
 % considerable de aleatoriedad, optamos por utilizar dos semillas distintas para capturar la variabilidad introducida por el 
@@ -223,7 +219,6 @@ De cualquier modo, los resultados preliminares muestran que los algoritmos
 son mucho más lentos con la función objetivo \textsf{FRC}. Se deja como trabajo 
 futuro estudiar formas más eficientes de implementar la función \textsf{FRC}, y
 realizar más experimentos para evaluar mejor su utilidad en la práctica 
-\pp{No olvidarse de incluir esto en trabajos futuros}.
 
 En conclusión, \texttt{HC+FGE} computa generadores de objetos muy rápidamente en
 nuestros experimentos, en 20 segundos en promedio. \texttt{GA+FGE} y
@@ -269,8 +264,7 @@ cuando el mejor fitness no mejora durante cinco generaciones consecutivas (ver
 Sección \ref{alg:approachGA}). Este criterio es eficaz para acelerar la
 terminación del algoritmo, pero puede resultar en soluciones subóptimas (como
 se ve en algunos casos). Se deja como trabajo futuro la optimización de los
-parámetros del algoritmo genético en busca de mejorar su precisión \pp{Poner en
-trabajos futuros}. 
+parámetros del algoritmo genético en busca de mejorar su precisión. 
 
 En síntesis, los algoritmos presentados producen conjuntos suficientes
 de métodos generadores de objetos en los casos considerados. Además, 
@@ -395,7 +389,7 @@ propiedades intentando maximizar cobertura y puntaje de mutación para los
 métodos públicos de las clases. Como escribir estos tests manualmente es una
 tarea laboriosa, nos limitamos sólo a estas clases para este experimento
 preliminar. Se deja como trabajo futuro extender la evaluación a un conjunto más
-amplio de casos de estudio. \pp{Más trabajos futuros}.
+amplio de casos de estudio.
 
 Entre las herramientas evaluadas incluimos la versión estándar de \textsf{Randoop}, que 
 simplemente genera una suite de tests (y se evalúa directamente su cobertura y puntaje de
