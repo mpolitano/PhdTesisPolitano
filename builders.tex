@@ -1339,7 +1339,7 @@ se debe utilizar $hillClimbing$ para seleccionar sólo métodos constructores
 Una vez seleccionados los constructores ($cons$), el algoritmo invoca nuevamente
 a $hillClimbing$ (línea 4) para realizar la búsqueda de los métodos modificadores que
 constituyen un conjunto de generadores de objetos (a partir de los mejores constructores seleccionados anteriormente en
-    $cons$.
+$cons$).
 
 La función $hillClimbing$ constituye el núcleo del algoritmo de Hill Climbing, 
 y se corresponde con un algoritmo típico de escalada de colina.
@@ -1356,7 +1356,8 @@ el algoritmo termina devolviendo el estado alcanzado (líneas 10-12).
 En caso contrario, el mejor sucesor pasa a ser el nuevo estado actual (líneas
 13-15), y el ciclo continúa.
 
-La generación de sucesores se realiza en la función $generarSucesores$. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
+La función $generarSucesores$ es la
+encargada de crear los sucesores. Esta función evalúa cada posición del vector de estado. Si una posición tiene el valor 0 
 (indicando que el método correspondiente no está seleccionado) se evalúa si puede activarse en función de si se está buscando métodos constructores o no. 
 En caso de cumplir con esta condición, se genera un clon del estado actual en el
 que se activa dicha posición, y este nuevo estado se añade a la lista de
