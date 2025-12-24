@@ -1515,21 +1515,6 @@ private static TreeMap<Integer, Integer> generateStructure(int scope) {
             case 13:
                 t.pollLastEntry();
                 break;
-            case 14:
-                t.headMap(Verify.getInt(0,scope));
-                break;
-            case 15:
-                t.tailMap(Verify.getInt(0,scope));
-                break;
-            case 16:
-                t.descendingMap();
-                break;
-            case 17:
-                t.values();
-                break;
-            case 18:
-                t.keySet();
-                break;
             ...     /* (*@m\'etodos omitidos@*) */
             case 66:
                 t.entrySet();
@@ -1573,7 +1558,8 @@ exhaustiva acotada con ambos drivers. Sin embargo, como
 se muestra en la sección experimental (\ref{sec:experiments-jpf-driver}), 
 eliminar métodos innecesarios del driver produce ganancias significativas en tiempo y 
 escalabilidad respecto del scope, para la verificación de propiedades.
-\\
+
+\noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[language=Java,caption={Driver con los métodos generadores de objetos},label={lst:driverBLD},captionpos=b]
     private static TreeMap generateStructure(int scope) {
        int maxLength = Verify.getInt(0, scope);
@@ -1591,6 +1577,7 @@ escalabilidad respecto del scope, para la verificación de propiedades.
        return t;
     }
 \end{lstlisting}
+\end{minipage}
 
 Cabe mencionar que, para los casos de estudio considerados, los drivers tienen una estructura
 similar: un ciclo principal en el que se repite la elección no determinística de un
