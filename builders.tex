@@ -1387,6 +1387,12 @@ En la Sección \ref{sec:jpf}, mostramos que para la verificación acotada de
 propiedades para estructuras dinámicas complejas el usuario debe proveer un
 \emph{driver} para genere las estructuras (de manera exhaustiva acotada). 
 
+Por ejemplo, la Figura \ref{lst:driverAPI} muestra un driver para generar todos
+los posibles \texttt{TreeMap}s con hasta \texttt{scope} nodos, con elementos
+en \texttt{[0, scope]}. Notar que, si no se conocen los métodos
+generadores de objetos del módulo, el usuario tiene que escribir el driver
+utilizando todos los métodos de la API (como en la Figura \ref{lst:driverAPI}). 
+
 \noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[language=Java,basicstyle=\scriptsize\ttfamily, caption={Driver usando todos los métodos
 de la API},label={lst:driverAPI},captionpos=b]
@@ -1437,7 +1443,7 @@ private static TreeMap<Integer, Integer> generateStructure(int scope) {
             case 13:
                 t.pollLastEntry();
                 break;
-            /* (*@m\'etodos omitidos@*) */
+                ...     /* metodos omitidos */
             case 66:
                 t.entrySet();
                 break;
@@ -1447,14 +1453,7 @@ private static TreeMap<Integer, Integer> generateStructure(int scope) {
 }
 \end{lstlisting}
 \end{minipage}
-\pp{El comentario en verde, y fijate que deja una hoja arriba casi completa
-libre.}
 
-Por ejemplo, la Figura \ref{lst:driverAPI} muestra un driver para generar todos
-los posibles \texttt{TreeMap}s con hasta \texttt{scope} nodos, con elementos
-en \texttt{[0, scope]}. Notar que, si no se conocen los métodos
-generadores de objetos del módulo, el usuario tiene que escribir el driver
-utilizando todos los métodos de la API (como en la Figura \ref{lst:driverAPI}). 
 En caso contrario, es posible que
 algunos métodos importantes se omitan, y de esta manera el driver no construya
 ciertos objetos que pueden ser importantes para revelar errores en el software
