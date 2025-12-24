@@ -59,7 +59,6 @@ Para comprender mejor la definición de métodos generadores de objetos, motivar
 
 La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{tab:ncl-api}) que permiten construir, modificar y consultar la colección. Esta API combina funcionalidades típicas de listas enlazadas con optimizaciones adicionales relacionadas con el reuso de nodos en la caché. Los métodos pueden clasificarse en tres categorías principales según su función: 
 
-\cacho{Esto es nuevo}
 \begin{itemize}
     \item \textbf{Métodos constructores:}
     Los métodos constructores (líneas 0-2 en la Tabla \ref{tab:ncl-api}) permiten crear nuevos objetos del tipo. Estos son:
@@ -82,15 +81,16 @@ La API de NodeCachingLinkedList incluye un conjunto de métodos (ver tabla \ref{
         \item \texttt{set(int, Object)}: Modifica el elemento en una posición específica de la lista.
     \end{itemize}
     \item \textbf{Métodos observadores:}  
-    Estos métodos permiten inspeccionar el estado de la lista sin modificarla:
+        Estos métodos permiten inspeccionar el estado de la lista sin
+        modificarla. Por ejemplo:
     \begin{itemize}
-        \item \texttt{contains(Object)}: Verifica si un elemento está presente.
+        \item \texttt{contains(Object)}: Verifica si un elemento está presente o
+            no.
         \item \texttt{get(int)}, \texttt{getFirst()} y \texttt{getLast()}: Recuperan elementos según su posición.
         \item \texttt{size()}: Retorna el número de elementos en la lista.
         \item \texttt{toArray()}: Crea un nuevo arreglo con todos los elementos de la lista.
     \end{itemize}
 \end{itemize}
-\cacho{Hasta aca}
 
 \noindent
 A partir de esta API, los objetos de \emph{NodeCachingLinkedList} pueden
@@ -119,10 +119,14 @@ La Figura \ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
     (7)  addFirst(3);
     (7)  addFirst(-1);
     \end{lstlisting}
+\pp{Secuencia de test incompleta, falta la lista sobre la que se aplica}
+    
 
 \item Figura (b):
-    \cacho{Esta instancia se logra agregando dos nodos a la lista principal y luego eliminar uno de ellos. En este caso el primero en agregar a la lista principal
-    y se mueve el nodo a la lista cache}
+    Esta instancia se logra agregando dos nodos a la lista principal y luego
+    eliminando uno de ellos. En este caso el primer nodo agregado a la lista principal
+    se mueve a la lista caché. El objeto se construye ejecutando la secuencia de
+    test:
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_b, xleftmargin=0pt]
@@ -131,10 +135,12 @@ La Figura \ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
     (7)  addFirst(-1);
     (25) removeFirst();
     \end{lstlisting}
+\pp{Secuencia de test incompleta, falta la lista sobre la que se aplica}
+    
 
 \item Figura (c): 
     Esta instancia se genera añadiendo dos nodos al inicio y luego eliminándolos
-    para pasarlos a la lista cache
+    para pasarlos a la lista caché, esto es, con el siguiente test: 
     \vspace{5pt} 
 
     \begin{lstlisting}[numbers=none,label=fig:NCLbuilders_c, xleftmargin=0pt]
@@ -144,6 +150,8 @@ La Figura \ref{fig:ncl-instances-intro} muestra tres instancias de NodeCachingLi
     (25) removeFirst();
     (25) removeFirst();
     \end{lstlisting}
+\pp{Secuencia de test incompleta, falta la lista sobre la que se aplica}
+    
 \end{itemize}
 
 
@@ -172,7 +180,6 @@ Notar que pueden existir distintos subconjuntos suficientes de generadores de ob
   (25) removeFirst()
 \end{lstlisting}
 
-
 En particular, la Figura \ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}, es decir, métodos que pueden quitarse sin perder la propiedad de suficiencia del conjunto resultante. Por ejemplo, podemos eliminar \texttt{remove(Object)} y los métodos restantes siguen siendo generadores de objetos suficientes (similarmente, podríamos eliminar \texttt{removeFirst()}). 
 \vspace{5pt} 
 
@@ -183,11 +190,13 @@ En particular, la Figura \ref{fig:NCLnoMin1} contiene métodos \emph{superfluos}
   (25) removeFirst()
 \end{lstlisting}
 
+
 Estamos interesados en conjuntos de métodos generadores de objetos \emph{minimales}, es decir, en conjuntos generadores de objetos suficientes con la menor cantidad posible de métodos. En otras palabras, los generadores de objetos son minimales si la exclusión de cualquiera de los métodos hace imposible la creación de ciertas instancias del módulo.
 Así, las Figuras \ref{fig:NCLbuilders} y \ref{fig:NCLbuilders2} muestran ejemplos de generadores de objetos suficientes y minimales.
 
-Notar que muchos métodos en la tabla \ref{tab:ncl-api} están marcados como observadores (columna Obs?), lo que significa que no modifican los objetos sobre los que operan, ni son útiles para crear nuevos objetos. 
-Debido a que estos métodos observadores siempre son superfluos y nunca deben incluirse en un conjunto de generadores de objetos minimal. Por esta razón, nuestros enfoques de identificación de métodos generadores intentan reconocerlos de antemano y descartarlos.
+Notar que varios métodos en la Tabla \ref{tab:ncl-api} están clasificados como
+observadores (columna Observador?), lo que significa que no modifican los objetos sobre los que operan, ni son útiles para crear nuevos objetos. 
+Los métodos observadores siempre son superfluos y nunca deben incluirse en un conjunto de generadores de objetos minimal. Por esta razón, nuestros enfoques de identificación de métodos generadores intentan reconocerlos de antemano y descartarlos.
 
 También, observamos que cuanto más fáciles de instanciar sean los parámetros de una rutina, usualmente la rutina será más eficiente de utilizar en el contexto de un análisis de programas (por ejemplo, para generar entradas para testing). Por ejemplo, entre las alternativas de rutinas para insertar datos en
 la lista principal de NCL (ver Tabla \ref{tab:ncl-api}), \texttt{add(int,Object)} recibe más parámetros que los otros tres métodos posibles. En cambio, \texttt{add(Object)}, \texttt{addFirst(Object)}, \texttt{addLast(Object)} toman un único parámetro. Si bien cualquiera de estas rutinas sirve para generar los mismos objetos de NCL, hay más formas de invocar a \texttt{add(int,Object)}. Esto usualmente redunda en una pérdida de eficiencia en la construcción de objetos por parte de un análisis automático de programas. Similarmente, elegiremos métodos con parámetros más simples (por ejemplo, parámetros de tipo primitivo), que otros con parámetros más complejos (por ejemplo, parámetros de tipo referencia) siempre y cuando los métodos permitan construir los mismos objetos.
@@ -200,9 +209,6 @@ como parte de un conjunto suficiente y minimal de generadores de objetos.
 Para concluir esta sección, es importante destacar que identificar manualmente un conjunto suficiente y minimal de métodos generadores de objetos es una tarea difícil y trabajosa, que requiere inspeccionar minuciosamente el código fuente del módulo y las formas en las que los métodos interactúan entre sí para generar objetos. Esto se dificulta aún más cuando los módulos cuentan con APIs ricas, como en nuestro ejemplo motivador (ver Tabla \ref{tab:ncl-api}). 
 Para facilitar la tarea del desarrollador, en las secciones siguientes proponemos enfoques automáticos para identificar conjuntos de métodos generadores de objetos.
 
-\pp{Quizás esto sirva para explicar la explosión de combinaciones de métodos en los análisis de programas? Hay que pensarlo..} 
-\pp{Pablo: Builders usage in program analyses? Now or later? We'll see...}
-
 \section{Definiciones preliminares}
 \label{sec:preliminares}
 
@@ -213,51 +219,52 @@ Nos enfrentamos a un problema de optimización, donde apuntamos a encontrar el m
 Esta definición es la de los algoritmos de búsqueda local \cite{Russell:2009}.
 Para abordar este problema desarrollamos dos algoritmos de búsqueda, cada uno con su enfoque único. Estos algoritmos nos permiten explorar el espacio de búsqueda de manera eficiente y efectiva.
 
-El primer algoritmo que presentamos es un enfoque basado en algoritmos genéticos, que utiliza principios inspirados en la evolución biológica \cite{Goldberg:1989}
+El primer algoritmo que presentamos es un enfoque basado en algoritmos
+genéticos, que utiliza principios inspirados en la evolución biológica
+\cite{Goldberg:1989}.
 %, este algoritmo se enfoca en generar conjuntos de métodos generadores que puedan dar lugar a configuraciones más grandes y diversas de objetos. 
 La naturaleza basada en la evolución de este enfoque permite encontrar soluciones prometedoras y adaptarse a diferentes situaciones.
 
-El segundo algoritmo que proponemos es un enfoque \emph{greedy}, específicamente una variante de un algoritmo de ascenso de colinas \cite{Russell:2009,Cormen2009}. Este enfoque se centra en mejorar iterativamente un conjunto inicial de métodos generadores mediante la adición de métodos.
-%, buscando siempre mejorar la calidad del conjunto en términos de eficiencia en cuanto a los objectos generados y la cobertura que se logra utilizando estos objectos sobre la API bajo test.
+El segundo algoritmo que proponemos es un enfoque \emph{greedy}, específicamente
+una variante de un algoritmo de ascenso de colinas (\emph{hill climbing}) \cite{Russell:2009,Cormen2009}. Este enfoque se centra en mejorar iterativamente un conjunto inicial de métodos generadores mediante la adición de métodos.
 
-%Por último, presentamos un algoritmo basado en la idea de particionar los subconjuntos de métodos de la API en "clases de equivalencias" según los objetos que construyen. Esta estrategia nos permite agrupar métodos con propiedades similares y seleccionar conjuntos de métodos más cohesivos y efectivos.
+Cada uno de estos algoritmos ofrece ventajas y desventajas en términos de
+rendimiento y precisión. Más adelante comparamos y evaluamos estos algoritmos en
+diferentes casos de estudio para determinar sus características en la tarea de 
+identificar conjuntos suficientes y minimal de generadores de objetos.
 
-Cada uno de estos algoritmos ofrece ventajas y desventajas en términos de rendimiento y precisión. Nuestra investigación se centró en comparar y evaluar estos algoritmos en diferentes casos de estudio para determinar cuál de ellos se adapta mejor a la tarea de identificar conjuntos suficientes y minimal de generadores de objetos.
-
-% Para abordar estos desafíos planteados, a continuación se proponen dos enfoques para seleccionar automáticamente un conjunto suficiente y minimal de métodos generadores de objetos a partir de una API. El primero es un enfoque \emph{greedy}, basado en \emph{hill climbing}. El segundo enfoque utiliza algoritmos genéticos. En la próxima sección, explicaremos en detalle cada uno de estos enfoques y su implementación.
-
-Por simplicidad, a partir de esta sección llamaremos generadores de objetos a aquellos que cumplan con las propiedades de suficiencia y minimalidad, ya que estamos interesados en identificar generadores de objetos con estas características.
+%Por simplicidad, a partir de esta sección llamaremos generadores de objetos a aquellos que cumplan con las propiedades de suficiencia y minimalidad, ya que estamos interesados en identificar generadores de objetos con estas características.
 
 % Observadores que es compartido por todos los algoritmos
 
 \subsection{Identificación de métodos observadores}
 
  Los métodos observadores cumplen un papel fundamental en la API, ya que permiten inspeccionar el estado de un objeto. Estos métodos se caracterizan por no modificar el estado interno del objeto en cuestión. En otras palabras, su ejecución no altera ninguno de los atributos del objeto.
-  También pueden usarse para verificar el estado de un objeto antes de realizar una operación que podría modificarlo.
- Por ejemplo, antes de eliminar un elemento de una lista, el método \texttt{isEmpty} de la lista puede ser utilizado para verificar si la lista contiene elementos. Si está vacía, se evita intentar una operación inválida.
-
-Se puede observar en el código de la Figura \ref{fig:emptyObs} que las funciones \emph{isEmpty} y \emph{size} de la clase NodeCachingLinkedList (NCL) son métodos observadores.  Estos métodos no modifican ningún atributo de la clase NCL.
- 
-\begin{lstlisting}[language=Java, label=fig:emptyObs, caption=Algunos métodos observadores de la clase NCL. Se observa que no modifican el estado de NCL., captionpos=b, frame=tb]
-public class NodeCachingLinkedList {
-    Node head;
-    int size;
-    /**
-      Devuelve verdadero si la lista esta vacia. 
-    */ 
-    public boolean isEmpty() { 
-        return head == null; 
-    }
-    
-    /**
-      Devuelve el tamano de la lista. 
-    */ 
-    public int size() { 
-        return size; 
-    }
-    
-}
-\end{lstlisting}
+%  También pueden usarse para verificar el estado de un objeto antes de realizar una operación que podría modificarlo.
+% Por ejemplo, antes de eliminar un elemento de una lista, el método \texttt{isEmpty} de la lista puede ser utilizado para verificar si la lista contiene elementos. Si está vacía, se evita intentar una operación inválida.
+%
+%Se puede observar en el código de la Figura \ref{fig:emptyObs} que las funciones \emph{isEmpty} y \emph{size} de la clase NodeCachingLinkedList (NCL) son métodos observadores.  Estos métodos no modifican ningún atributo de la clase NCL.
+% 
+%\begin{lstlisting}[language=Java, label=fig:emptyObs, caption=Algunos métodos observadores de la clase NCL. Se observa que no modifican el estado de NCL., captionpos=b, frame=tb]
+%public class NodeCachingLinkedList {
+%    Node head;
+%    int size;
+%    /**
+%      Devuelve verdadero si la lista esta vacia. 
+%    */ 
+%    public boolean isEmpty() { 
+%        return head == null; 
+%    }
+%    
+%    /**
+%      Devuelve el tamano de la lista. 
+%    */ 
+%    public int size() { 
+%        return size; 
+%    }
+%    
+%}
+%\end{lstlisting}
 
 
 % En el ejemplo motivador presentado en la sección anterior y en la Tabla \ref{tab:ncl-api} se puede ver que existen muchos métodos clasificados como observadores. 
@@ -281,94 +288,100 @@ public class NodeCachingLinkedList {
 % obtenemos es el que se encuentra en la columna \emph{Observador?} de la tabla
 % \ref{tab:ncl-api}.
 
-\cacho{Es nuevo}
 En el ejemplo motivador presentado en la Sección \ref{sec:motivacionBuilders} y en la Tabla \ref{tab:ncl-api}, se puede observar que existen numerosos métodos clasificados como observadores. 
-Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental identificar este tipo de métodos, ya que no contribuyen a la construcción de nuevos objetos: no modifican el estado del sistema ni crean nuevas instancias útiles para el objetivo. 
+Antes de ejecutar cualquiera de nuestros algoritmos, resulta fundamental
+identificar este tipo de métodos, ya que no contribuyen a la construcción de
+objetos.
 Por lo tanto, no tienen ninguna utilidad en el contexto de los algoritmos de búsqueda de métodos generadores de objetos, y pueden descartarse de forma segura.
 
-Para automatizar la identificación de estos métodos, hemos utilizado la herramienta de análisis estático \emph{Infer} \footnote{\url{https://fbinfer.com/}}, desarrollada por Facebook. 
-\emph{Infer} ofrece funcionalidades avanzadas para analizar código fuente y clasificar métodos como observadores \cite{Huang:2012} (también denominados \emph{métodos puros} en la bibliografía \cite{Salcianu:2005}).
+Para automatizar la identificación de estos métodos, utilizamos la herramienta de análisis estático \emph{Infer} \footnote{\url{https://fbinfer.com/}}, desarrollada por Facebook. 
+\emph{Infer} ofrece funcionalidades avanzadas para analizar código fuente y, en
+particular, permite identificar automáticamente los métodos observadores (también
+denominados \emph{métodos puros} en la bibliografía \cite{Salcianu:2005,Huang:2012}).
 La clasificación se realiza mediante un análisis estático que infiere efectos secundarios sobre el estado de los objetos, sin necesidad de ejecutar el código.
 
-Si bien \emph{Infer} puede generar falsos negativos —por ejemplo, no clasificar como observador a un método que en realidad sí lo es, como \texttt{iterator()}—, su comportamiento es conservador y evita falsos positivos. 
-Es decir, rara vez clasificará como observador a un método que en realidad tiene efectos colaterales. 
+Si bien \emph{Infer} puede generar falsos negativos —no clasificar como
+observador a un método que en realidad sí lo es—, su comportamiento es
+conservador y típicamente evita falsos positivos. 
+Es decir, rara vez clasificará como observador a un método que en realidad
+produce modificaciones en los objetos sobre los que opera. 
 Esta característica lo convierte en una herramienta extremadamente útil como filtro preliminar, su bajo costo computacional permite eliminar rápidamente una gran cantidad de métodos irrelevantes, 
 lo que reduce de forma significativa el espacio de búsqueda de nuestros algoritmos sin comprometer la corrección del análisis.
 
-La Tabla \ref{tab:ncl-api} presenta la clasificación manual de los métodos de la clase 
-\texttt{NodeCachingLinkedList}, distinguiendo cuáles se comportan como observadores y cuáles no, 
-a partir del análisis de su implementación. 
-Posteriormente, en la Tabla \ref{tab:ncl-infer-comparacion} se muestra la comparación con el análisis 
-automatizado realizado por \emph{Infer}. 
-En esta segunda tabla, la columna adicional \emph{Infer} indica el resultado provisto por la herramienta, 
-lo que permite identificar tanto los aciertos como las discrepancias respecto de la clasificación manual.
-
-\begin{table}[H]
-\centering
-\scriptsize
-\begin{tabular}{clcc}
-\toprule
-No. & Nombre del Método & Observador? & Infer \\
-\midrule
-0  & NCL()                        & no  & no \\
-1  & NCL(int)                     & no  & no \\
-2  & NCL(Collection)              & no  & no \\
-3  & add(Object)                  & no  & no \\
-4  & add(int,Object)              & no  & no \\
-5  & addAll(Collection)           & no  & no \\
-6  & addAll(int,Collection)       & no  & no \\
-7  & addFirst(Object)             & no  & no \\
-8  & addLast(Object)              & no  & no \\
-9  & clear()                      & no  & no \\
-10 & contains(Object)             & sí  & sí \\
-11 & containsAll(Collection)      & sí  & sí \\
-12 & equals(Object)               & sí  & sí \\
-13 & get(int)                     & sí  & sí \\
-14 & getFirst()                   & sí  & sí \\
-15 & getLast()                    & sí  & sí \\
-16 & indexOf(Object)              & sí  & sí \\
-17 & isEmpty()                    & sí  & sí \\
-18 & iterator()                   & no  & sí \\
-19 & lastIndexOf(Object)          & sí  & si \\
-20 & listIterator()               & no  & sí \\
-21 & listIterator(int)            & no  & sí \\
-22 & remove(int)                  & no  & no \\
-23 & remove(Object)               & no  & no \\
-24 & removeAll(Collection)        & no  & no \\
-25 & removeFirst()                & no  & no \\
-26 & removeLast()                 & no  & no \\
-27 & retainAll(Collection)        & no  & no \\
-28 & set(int,Object)              & no  & no \\
-29 & size()                       & sí  & sí \\
-30 & subList(int,int)             & sí  & sí \\
-31 & toArray()                    & sí  & sí \\
-32 & toArray(Object[])            & sí  & sí \\
-33 & toString()                   & sí  & sí \\
-\bottomrule
-\end{tabular}
-\caption{Comparación entre observadores de \texttt{NodeCachingLinkedList} identificados manualmente y por \emph{Infer}.}
-\label{tab:ncl-infer-comparacion}
-\end{table}
-
-En términos generales, \emph{Infer} logra detectar correctamente la mayoría de los métodos observadores. 
-No obstante, se observan algunos casos particulares. 
-Por ejemplo, clasifica como observadores a los métodos que devuelven iteradores 
-(\texttt{iterator()}, \texttt{listIterator()}, \texttt{listIterator(int)}). 
-Si bien este criterio no es del todo incorrecto, ya que dichos métodos permiten inspeccionar 
-la estructura de datos sin necesariamente modificarla, la clasificación resulta ambigua. 
-En la práctica, los iteradores suelen considerarse como una interfaz de recorrido y no como observadores directos, 
-ya que pueden exponer operaciones que alteran el estado interno de la colección 
-(por ejemplo, la operación \texttt{remove()} del iterador). 
-Esto explica por qué \emph{Infer} los clasifica como observadores,
-a simple vista sólo devuelven un acceso para recorrer la colección, 
-pero en realidad los iteradores también permiten operaciones que pueden modificarla 
-de modo que no aseguran que el estado de la lista se mantenga inmutable.
+%La Tabla \ref{tab:ncl-api} presenta la clasificación manual de los métodos de la clase 
+%\texttt{NodeCachingLinkedList}, distinguiendo cuáles se comportan como observadores y cuáles no, 
+%a partir del análisis de su implementación. 
+%Posteriormente, en la Tabla \ref{tab:ncl-infer-comparacion} se muestra la comparación con el análisis 
+%automatizado realizado por \emph{Infer}. 
+%En esta segunda tabla, la columna adicional \emph{Infer} indica el resultado provisto por la herramienta, 
+%lo que permite identificar tanto los aciertos como las discrepancias respecto de la clasificación manual.
+%
+%\begin{table}[H]
+%\centering
+%\scriptsize
+%\begin{tabular}{clcc}
+%\toprule
+%No. & Nombre del Método & Observador? & Infer \\
+%\midrule
+%0  & NCL()                        & no  & no \\
+%1  & NCL(int)                     & no  & no \\
+%2  & NCL(Collection)              & no  & no \\
+%3  & add(Object)                  & no  & no \\
+%4  & add(int,Object)              & no  & no \\
+%5  & addAll(Collection)           & no  & no \\
+%6  & addAll(int,Collection)       & no  & no \\
+%7  & addFirst(Object)             & no  & no \\
+%8  & addLast(Object)              & no  & no \\
+%9  & clear()                      & no  & no \\
+%10 & contains(Object)             & sí  & sí \\
+%11 & containsAll(Collection)      & sí  & sí \\
+%12 & equals(Object)               & sí  & sí \\
+%13 & get(int)                     & sí  & sí \\
+%14 & getFirst()                   & sí  & sí \\
+%15 & getLast()                    & sí  & sí \\
+%16 & indexOf(Object)              & sí  & sí \\
+%17 & isEmpty()                    & sí  & sí \\
+%18 & iterator()                   & no  & sí \\
+%19 & lastIndexOf(Object)          & sí  & si \\
+%20 & listIterator()               & no  & sí \\
+%21 & listIterator(int)            & no  & sí \\
+%22 & remove(int)                  & no  & no \\
+%23 & remove(Object)               & no  & no \\
+%24 & removeAll(Collection)        & no  & no \\
+%25 & removeFirst()                & no  & no \\
+%26 & removeLast()                 & no  & no \\
+%27 & retainAll(Collection)        & no  & no \\
+%28 & set(int,Object)              & no  & no \\
+%29 & size()                       & sí  & sí \\
+%30 & subList(int,int)             & sí  & sí \\
+%31 & toArray()                    & sí  & sí \\
+%32 & toArray(Object[])            & sí  & sí \\
+%33 & toString()                   & sí  & sí \\
+%\bottomrule
+%\end{tabular}
+%\caption{Comparación entre observadores de \texttt{NodeCachingLinkedList} identificados manualmente y por \emph{Infer}.}
+%\label{tab:ncl-infer-comparacion}
+%\end{table}
+%
+%En términos generales, \emph{Infer} logra detectar correctamente la mayoría de los métodos observadores. 
+%No obstante, se observan algunos casos particulares. 
+%Por ejemplo, clasifica como observadores a los métodos que devuelven iteradores 
+%(\texttt{iterator()}, \texttt{listIterator()}, \texttt{listIterator(int)}). 
+%Si bien este criterio no es del todo incorrecto, ya que dichos métodos permiten inspeccionar 
+%la estructura de datos sin necesariamente modificarla, la clasificación resulta ambigua. 
+%En la práctica, los iteradores suelen considerarse como una interfaz de recorrido y no como observadores directos, 
+%ya que pueden exponer operaciones que alteran el estado interno de la colección 
+%(por ejemplo, la operación \texttt{remove()} del iterador). 
+%Esto explica por qué \emph{Infer} los clasifica como observadores,
+%a simple vista sólo devuelven un acceso para recorrer la colección, 
+%pero en realidad los iteradores también permiten operaciones que pueden modificarla 
+%de modo que no aseguran que el estado de la lista se mantenga inmutable.
 
 Los métodos reportados como observadores por \emph{Infer} son descartados antes de comenzar la búsqueda de métodos generadores de objetos, y no se consideran en ninguna fase posterior del proceso.
 En síntesis, \emph{Infer} actúa como una etapa de preprocesamiento que combina eficiencia y utilidad práctica: permite reducir el número de métodos a analizar, sin necesidad de intervención manual, manteniendo un nivel de precisión suficiente para nuestros casos de estudio.
-\cacho{Capaz falte alguna referencia donde nos diga que pasa esto}
+%\cacho{Capaz falte alguna referencia donde nos diga que pasa esto}
 % De esta manera, \emph{Infer} es utilizado como paso previo a la ejecución de nuestros algoritmos. Los métodos reportados como observadores por \emph{Infer} se descartan antes de comenzar la búsqueda de métodos generadores de objetos.
-\cacho{hasta aca}
+%\cacho{hasta aca}
 
 
 % 1- estados o configuraciones del problema
@@ -421,7 +434,8 @@ No. & Nombre del Método \\
 \hline
 \end{tabular}
 }
-\caption{API de NodeCachingLinkedList de Apache después de la identificación de métodos observadores.}
+\caption{API de NodeCachingLinkedList de Apache luego de descartar los métodos
+observadores con Infer.}
 \label{tab:ncl-api-infer}
 \end{table}
 
